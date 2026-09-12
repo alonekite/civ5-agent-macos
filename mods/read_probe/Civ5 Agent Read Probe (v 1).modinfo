@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="7e554a47-61c0-4a17-89a6-3e0acf3bd989" version="1">
+  <Properties>
+    <Name>Civ5 Agent Read Probe</Name>
+    <Teaser>Exports minimal live game state for an external read-only watcher.</Teaser>
+    <Description>Exports turn, active player, and gold through Modding.OpenUserData.</Description>
+    <Authors>civ5-agent-macos</Authors>
+    <Stability>Alpha</Stability>
+    <AffectsSavedGames>1</AffectsSavedGames>
+    <MinCompatibleSaveVersion>0</MinCompatibleSaveVersion>
+    <SupportsSinglePlayer>1</SupportsSinglePlayer>
+    <SupportsMultiplayer>0</SupportsMultiplayer>
+    <SupportsMac>1</SupportsMac>
+    <ReloadLandmarkSystem>0</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>0</ReloadStrategicViewSystem>
+    <ReloadUnitSystem>0</ReloadUnitSystem>
+  </Properties>
+  <Dependencies />
+  <References />
+  <Blocks />
+  <Files>
+    <File md5="E8AF49B69684A3B19601882DD6060C0F" import="0">ReadProbe.lua</File>
+    <File md5="438F2871BDA49C64AE41903FA79F2506" import="0">ReadProbe.xml</File>
+  </Files>
+  <Actions />
+  <EntryPoints>
+    <EntryPoint type="InGameUIAddin" file="ReadProbe.xml">
+      <Name>Civ5 Agent Read Probe</Name>
+      <Description>Exports minimal live game state.</Description>
+    </EntryPoint>
+  </EntryPoints>
+</Mod>

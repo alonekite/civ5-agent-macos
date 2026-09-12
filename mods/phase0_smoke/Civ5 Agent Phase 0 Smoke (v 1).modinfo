@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="0de02ea8-297d-4d14-9cb5-3151ff03e3bf" version="1">
+  <Properties>
+    <Name>Civ5 Agent Phase 0 Smoke</Name>
+    <Teaser>Verifies that a custom Lua UI add-in loads on macOS.</Teaser>
+    <Description>Writes a static Phase 0 marker through Modding.OpenUserData.</Description>
+    <Authors>civ5-agent-macos</Authors>
+    <Stability>Alpha</Stability>
+    <AffectsSavedGames>1</AffectsSavedGames>
+    <MinCompatibleSaveVersion>0</MinCompatibleSaveVersion>
+    <SupportsSinglePlayer>1</SupportsSinglePlayer>
+    <SupportsMultiplayer>0</SupportsMultiplayer>
+    <SupportsMac>1</SupportsMac>
+    <ReloadLandmarkSystem>0</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>0</ReloadStrategicViewSystem>
+    <ReloadUnitSystem>0</ReloadUnitSystem>
+  </Properties>
+  <Dependencies />
+  <References />
+  <Blocks />
+  <Files>
+    <File md5="661F57B67CA8B26FAC4E4B5D3410E569" import="0">Phase0Smoke.lua</File>
+    <File md5="A3ABD0076E9CB9393F6E2EB5F5980C45" import="0">Phase0Smoke.xml</File>
+  </Files>
+  <Actions />
+  <EntryPoints>
+    <EntryPoint type="InGameUIAddin" file="Phase0Smoke.xml">
+      <Name>Civ5 Agent Phase 0 Smoke</Name>
+      <Description>Loads the Phase 0 Lua smoke test.</Description>
+    </EntryPoint>
+  </EntryPoints>
+</Mod>

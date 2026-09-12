@@ -1,0 +1,164 @@
+# Civ5 Agent on macOS (Apple Silicon)
+
+Goal: build a minimal, testable bridge between **Civilization V running on Apple Silicon macOS** and an external Python agent, then add an LLM controller.
+
+## Core question
+Can a Lua mod running inside Civ V on an M4 Mac:
+1. read game state,
+2. export that state to an external Python process,
+3. receive commands from Python,
+4. execute safe game actions,
+5. report success/failure back?
+
+The first implementation should **not use MCP** and **not depend on an LLM**. Prove the game I/O loop first.
+
+Status: the low-level MVP was verified end-to-end on the target Mac on
+2026-09-12. The watcher observed a live rich snapshot and the command CLI
+advanced turn 0 → 1 with verified before/after state.
+
+This is an unofficial, independently developed project. It is not affiliated
+with or endorsed by Firaxis Games, 2K, Aspyr, or Apple, and it does not include
+Civilization V binaries or assets.
+
+## Target architecture
+```text
+Civilization V
+   │ Lua mod
+   ▼
+Bridge storage / IPC
+   ├── state: Civ V → Python
+   └── commands: Python → Civ V
+   ▼
+Python controller
+   ▼
+LLM agent (later)
+```
+
+Verified transport on the target App Store build: bundled FireTuner over
+localhost TCP 4318, enabled through the user-owned game configuration. The
+signed application bundle remains unchanged.
+
+Fallbacks:
+- `Modding.OpenUserData()` / database-backed persistence on a distribution that exposes Mods
+- other Civ V-supported persistence/event mechanisms
+
+Avoid initially:
+- Windows-only GameCore DLL approaches
+- mouse/keyboard automation
+- screen OCR
+- MCP before the low-level bridge is stable
+
+## MVP success criteria
+Read: turn, active player, gold, capital/cities, research, units.
+Write: end turn, choose research, choose city production.
+Every command must return an id, status, before-state, after-state, and error if any.
+
+## Verified live read
+
+Enable FireTuner once (the script creates a timestamp-preserving backup and
+verifies the changed line), restart Civ V, and enter a game:
+
+```bash
+bash scripts/configure_firetuner.sh enable
+```
+
+Security note: this specific game build was observed listening on `*:4318`,
+not only loopback. Do not leave FireTuner enabled on an untrusted network,
+especially if the macOS application firewall is disabled. Restore the setting
+and quit Civ V when the test session ends.
+
+Then run:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.watch --once
+PYTHONPATH=src python3 -m civ5_agent.watch
+```
+
+The first command prints one JSON snapshot. The second keeps one FireTuner
+connection open and prints only when the observed state changes. On this old
+build, a persistent connection is preferable because the game can retain a
+closed client socket until its UI processes another event.
+
+While the long-running watcher is active it also owns a per-user, mode-0600
+Unix socket. This lets a second terminal submit the sole allowlisted write
+without opening a competing FireTuner connection:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.command end_turn
+```
+
+The command first reads the before-state, asks Civ V whether ending the turn is
+currently allowed, submits `CONTROL_ENDTURN` only when allowed, then polls until
+it can prove the turn number advanced. A blocker or verification timeout is an
+error and includes the before/after state in its JSON result.
+
+The deterministic controller can inspect the same watcher snapshot without
+using an LLM:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.controller
+```
+
+It conservatively reports one of: wait, choose research, choose production,
+issue unit orders, or end turn. Add `--execute` only when it should submit an
+end-turn decision through the same verified command path.
+
+Two additional allowlisted commands were verified in a bounded live-game
+session on the target Mac:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.command choose_research TECH_POTTERY
+PYTHONPATH=src python3 -m civ5_agent.command set_city_production 8192 unit UNIT_SCOUT
+```
+
+Research identifiers must match `TECH_[A-Z0-9_]+`. Production accepts only a
+non-negative city ID, one of `unit|building|project`, and the corresponding
+`UNIT_*`, `BUILDING_*`, or `PROJECT_*` identifier. Both commands check Civ V's
+own capability predicate and verify the resulting snapshot. The live test
+observed `null -> TECH_POTTERY` and empty production -> `TXT_KEY_UNIT_SCOUT`.
+
+A unit-specific skip command is implemented and unit-tested, pending one
+bounded live verification:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.command skip_unit 16385
+```
+
+It accepts only a non-negative unit ID, proves the unit belongs to the active
+player, clears and re-establishes the UI selection on that exact unit, checks
+the stock action predicate, and succeeds only after the same unit is observed
+at the same coordinates with zero movement.
+
+Every watcher-mediated command is appended to
+`~/Library/Logs/civ5-agent/commands.jsonl`. The directory and JSONL file are
+created with private permissions, and the file contains command UUIDs plus full
+before/after game snapshots. Use `--audit-log PATH` to choose another location.
+An audit write failure is reported separately and never causes an already-run
+game action to be retried.
+
+To restore the original configuration later:
+
+```bash
+bash scripts/configure_firetuner.sh restore
+```
+
+## Security
+
+On the tested Campaign Edition build, enabling FireTuner made Civ V listen on
+`TCP *:4318`, not loopback only. That endpoint accepts Lua commands and has no
+authentication observed by this project. Use it only for bounded development
+sessions. See [SECURITY.md](SECURITY.md) before enabling it.
+
+## Prior art and references
+
+This repository is an independent macOS implementation, not a fork. The design
+was informed by these projects and by the Lua/XML sources bundled with the
+user's installed copy of Civilization V:
+
+- [corytodd/civ5-mcp](https://github.com/corytodd/civ5-mcp) — an MIT-licensed
+  Civ V Lua/database bridge and MCP server documented as Windows-only.
+- [vox-deorum/vox-deorum](https://github.com/vox-deorum/vox-deorum) — a larger
+  LLM-enhanced Civ V/Vox Populi system whose game layer uses a modified Windows
+  GameCore DLL.
+
+No source files from either project are vendored here.

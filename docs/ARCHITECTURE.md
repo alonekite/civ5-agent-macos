@@ -1,0 +1,70 @@
+# Architecture
+
+```text
+[ Civilization V ]
+        │
+[ Lua Bridge ]
+        │
+[ IPC / Storage Adapter ]
+        │
+[ Python Controller ]
+        │
+[ Agent / LLM ]
+```
+
+The verified Phase 1 transport is the game's bundled FireTuner server on
+localhost TCP 4318. Python performs the Firaxis `APP:`/`LSQ:` handshake, selects
+the `InGame` Lua state reported by Civ V, and sends an allowlisted read-only Lua
+expression using `CMD:<state-id>:<code>`. Game output and command completion are
+returned over the same socket.
+
+`Modding.OpenUserData()` remains a fallback for a distribution that exposes the
+Mods browser. This App Store Campaign Edition discovers custom mods but keeps
+them disabled because its vendor UI forcibly hides that browser.
+
+## Connection ownership
+
+This Civ V build reliably services one FireTuner client at a time and may delay
+cleaning up a disconnected socket. The long-running watcher therefore owns the
+game connection. It exposes a per-user Unix socket with mode `0600` so the
+command CLI can share that exact connection. Requests are serialized with the
+watcher's reads.
+
+## Write safety
+
+The first live-verified write is `end_turn`. The implementation:
+
+1. captures the complete before-state;
+2. checks `IsTurnActive`, `Game.IsProcessingMessages`, and `UI.CanEndTurn`
+   inside Civ V;
+3. invokes the same `Game.DoControl(GameInfoTypes.CONTROL_ENDTURN)` used by the
+   stock `ActionInfoPanel.lua` only if all checks permit it;
+4. re-reads state until the turn number increases or verification times out;
+5. returns the command UUID, status, message, before-state, and after-state.
+
+## Deterministic policy
+
+`civ5_agent.controller` is deliberately separate from any LLM. It validates the
+snapshot, checks turn ownership and mandatory choices in a conservative order,
+and produces a structured decision. Execution is opt-in with `--execute` and
+still goes through the same Lua preconditions and turn-advance verification.
+
+Initial allowlist:
+- end_turn
+- choose_research
+- set_city_production
+- skip_unit (offline-verified; live verification pending)
+
+The latter two use the same stock calls as the bundled Brave New World UI:
+`Network.SendResearch(...)` from `TechPopup.lua` and
+`Game.CityPushOrder(...)` from `ProductionPopup.lua`. They validate identifier
+shape and Civ V capability predicates before writing, then re-read the selected
+technology or city production. Both paths are unit-tested and live-verified on
+the target Mac.
+
+Each command result is also appended to a mode-0600 JSONL audit log with its
+UTC timestamp, operation, UUID, and before/after snapshots. The watcher owns
+logging for brokered commands; the CLI logs direct commands. Audit failure is
+reported without changing a verified command into a retryable failure.
+
+Do not expose arbitrary Lua execution to the LLM.
