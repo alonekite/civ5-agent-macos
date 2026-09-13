@@ -1,27 +1,19 @@
 # Architecture
 
 ```text
-[ Civilization V ]
-        │
-[ Lua Bridge ]
-        │
-[ IPC / Storage Adapter ]
-        │
-   [ Live State ] ────────────────┐
-        │                         │
- [ Turn Journal ]                 │
-        │                         │
- [ Working Memory ]               │
-        │                         │
- [ Strategic Memory ]             │
-        ├───────────────┐         │
-        │               │         │
-[ Ruleset Knowledge ]   │         │
-        └───────┬───────┘         │
-                │                 │
-     [ Deterministic Controller ] │
-                │                 │
-                └── verified action
+[ Civilization V ] ↔ [ Lua Bridge ] ↔ [ IPC / Storage Adapter ]
+                                             │
+                                       [ Live State ]
+                                          │     │
+                       ┌──────────────────┘     └──────────────┐
+                       ▼                                     ▼
+                [ Turn Journal ]              [ Deterministic Controller ]
+                       ▲                                     ▲
+                       │                                     │
+            verified action results              [ Ruleset Knowledge ]
+                                                             │
+                                                             ▼
+                                             whitelisted action via bridge
 ```
 
 The verified Phase 1 transport is the game's bundled FireTuner server on
@@ -128,19 +120,19 @@ only after schema, integrity, fixture, and test validation.
 Do not expose arbitrary Lua execution to any controller or external decision
 system.
 
-## Per-game history and memory
+## Per-game factual history
 
-Ruleset knowledge and per-game memory are different kinds of data. Knowledge
+Ruleset knowledge and per-game history are different kinds of data. Knowledge
 describes stable facts for a versioned ruleset. Per-game history describes one
 particular match and must always carry a game identifier, turn number, snapshot
 schema version, and ruleset identity.
 
-The planned persistence design has four distinct layers:
+The current core separates live state from one durable history layer:
 
 ### Live state
 
 The most recent validated snapshot read from Civ V is the source of truth for
-the current position. A memory entry or controller plan must never override a
+the current position. Cached data or a controller plan must never override a
 contradicting live observation.
 
 ### Turn journal
@@ -156,39 +148,35 @@ increasing sequence, capture timestamp, game and turn identifiers, schema and
 ruleset versions, canonical payload, and integrity hash. Corrections append a
 new record that supersedes an earlier record rather than rewriting history.
 
-### Working memory
-
-Working memory is a bounded, rebuildable view of recent relevant events. It may
-track near-term production or research intentions, recent opponent movement,
-unresolved mandatory choices, and the outcomes of recent actions. Entries
-expire by turn horizon or explicit resolution.
-
-Observed facts, deterministic inferences, intentions, and verified outcomes
-must use different record kinds. An inference cites its supporting journal
-records and carries a confidence or certainty category so that it cannot be
-mistaken for a game observation.
-
-### Strategic memory
-
-Strategic memory contains the current long-horizon plan for one game: victory
-objective, approximate technology and policy routes, expansion or military
-posture, major constraints, and durable commitments. Plans are versioned.
-Changing a plan appends a revision with its evidence and reason, preserving the
-previous objective for later review.
-
-Working and strategic memory are controller inputs, not authorities for game
-facts. Both must be reconstructable from the journal plus explicit strategic
-revisions. Their implementation must be deterministic and remain fully usable
-without an LLM.
-
 The intended dependency direction is:
 
 ```text
 bridge observations + verified action results -> turn journal
-turn journal + ruleset knowledge              -> working memory
-working memory + strategic memory + knowledge -> controller
-controller                                    -> whitelisted bridge action
+live state + ruleset knowledge                 -> deterministic controller
+deterministic controller                       -> whitelisted bridge action
 ```
 
-No memory layer may bypass bridge validation, expand the action allowlist, or
-turn an unverified inference into a write precondition.
+The journal does not infer intentions, summarize opponents, select context, or
+choose actions. It preserves the facts needed to reproduce those operations
+later.
+
+## Future LLM interaction layer
+
+Working memory and strategic memory are deliberately deferred to a future
+LLM-facing layer outside this repository:
+
+- working memory will select recent relevant changes, observed opponent
+  information, and near-term production, research, and unit intentions;
+- strategic memory will maintain victory objectives, approximate technology and
+  policy routes, expansion, diplomacy, military direction, and revision history.
+
+Some working-memory content will be derived from factual journal records, but
+its selection, summarization, inference, expiry, and prompt representation are
+closely coupled to LLM interaction. Strategic-memory revisions are similarly
+coupled to planning conversations. Their data contracts should therefore be
+designed together with that future layer rather than embedded in the current
+read/write core.
+
+That future layer may read public core APIs and submit candidate intentions, but
+it must not bypass bridge validation, expand the action allowlist, or turn an
+unverified inference into a write precondition.

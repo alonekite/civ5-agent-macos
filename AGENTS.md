@@ -7,9 +7,9 @@ Prove a reliable bidirectional bridge:
 `Civ V Lua mod ↔ external Python`
 
 Build the project as a reusable Civilization V read/write core. The core consists
-of a game bridge, verified actions, ruleset knowledge, and a deterministic
-controller. LLM integration and MCP integration are out of scope for this
-project.
+of a game bridge, verified actions, ruleset knowledge, a factual turn journal,
+and a deterministic controller. LLM integration and MCP integration are out of
+scope for this project.
 
 ## Hard constraints
 - Do not assume Windows DLL compatibility.
@@ -22,18 +22,26 @@ project.
 - Do not collect, model, or ship leader/AI flavor or personality parameters.
 - Do not require an LLM to read knowledge, choose a legal action, execute an
   action, or verify its result.
+- Do not implement working memory or strategic memory in this repository. Design
+  them together with the future LLM interaction layer because their selection,
+  summarization, and revision semantics are closely coupled to that layer.
 
 ## Module boundaries
 - `bridge`: transport, live state models, state reads, whitelisted actions, and
   write-after-read verification.
 - `knowledge`: versioned ruleset facts that do not belong to a particular saved
   game.
+- `journal`: append-only, integrity-checked per-game facts, including full turn
+  snapshots and verified action lifecycles. It is an audit/replay source and is
+  not consumed wholesale by the controller.
 - `controller`: deterministic policy that consumes live state plus ruleset
   knowledge and emits only whitelisted actions.
 - `cli`: thin commands over the modules above.
 
-Dependencies flow inward: `controller -> bridge + knowledge`; knowledge must not
-depend on a live game, and bridge must not depend on controller policy.
+Dependencies flow inward: `controller -> bridge + knowledge`. Application
+orchestration may append bridge observations and verified action results to the
+journal. Knowledge must not depend on a live game, journal must not choose
+actions, and bridge must not depend on controller policy.
 
 ## Ruleset knowledge scope
 The knowledge module may cover technologies; policies and ideologies; units and
@@ -86,10 +94,12 @@ and controller must continue to work when the local model is unavailable.
 3. prove write
 4. add verification
 5. add the versioned ruleset knowledge module
-6. deterministic controller
-7. stabilize the public read/write API
+6. add the factual turn journal
+7. deterministic controller
+8. stabilize the public read/write API
 
-Do not develop LLM decision-making or MCP integration in this repository.
+Do not develop LLM decision-making, working memory, strategic memory, or MCP
+integration in this repository.
 
 ## Definition of done for MVP
 `python -m civ5_agent.watch` shows live game-state changes, and

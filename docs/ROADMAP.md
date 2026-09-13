@@ -66,19 +66,18 @@ No application-bundle modification is required.
 - [x] Expose a validated, deterministic entity/reference query API
 - [ ] Integrate ruleset queries into controller decisions
 
-## Per-game history and memory
+## Per-game factual journal
 
 - [ ] Define an append-only turn-journal schema and storage interface
 - [ ] Record full validated turn snapshots and verified command lifecycles
 - [ ] Add canonical serialization, integrity hashes, and recovery tests
-- [ ] Derive bounded working memory from journal records
-- [ ] Store versioned strategic objectives, routes, and revision reasons
-- [ ] Integrate minimal deterministic memory queries into controller policy
 
 The complete journal is an audit and reproduction source, not a wholesale
-controller input. Working and strategic memory must distinguish observations,
-inferences, intentions, and verified outcomes and must remain usable without an
-LLM. See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
+controller input.
 
-LLM decision-making and MCP integration are intentionally outside this
-repository's scope.
+Working memory and strategic memory will be designed together with a future LLM
+interaction layer outside this repository. They are not tasks on this roadmap.
+See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
+
+LLM decision-making, working memory, strategic memory, and MCP integration are
+intentionally outside this repository's scope.

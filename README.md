@@ -241,7 +241,7 @@ No source files from either project are vendored here.
 ## Continuing development
 
 The durable implementation status and next safe tasks are recorded in
-[docs/PROJECT_STATE.md](docs/PROJECT_STATE.md). Per-game journal, working-memory,
-and strategic-memory boundaries are specified in
+[docs/PROJECT_STATE.md](docs/PROJECT_STATE.md). The factual per-game journal and
+the boundary around future LLM-facing memory are specified in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md); raw Codex conversations are not
 part of the repository.

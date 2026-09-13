@@ -40,39 +40,42 @@ Future live tests require the user to start the game and explicitly authorize
 the documented temporary firewall and FireTuner procedure. Automated work must
 not enable FireTuner, launch Civ V, or change the macOS firewall.
 
-## Planned data architecture
+## Planned per-game data in this repository
 
-Per-game data will be separated into:
+The current core will separate:
 
 1. `live state`: the latest validated observation and current source of truth;
 2. `turn journal`: an append-only full record of every turn, command, result,
    and verification outcome, retained for audit but not consumed wholesale by
-   the controller;
-3. `working memory`: a bounded and rebuildable view of recent events, opponent
-   information, near-term intentions, and unresolved choices;
-4. `strategic memory`: versioned victory objectives and approximate technology,
-   policy, expansion, and military routes, including reasons for revisions.
+   the controller.
 
-Ruleset knowledge remains independent of a saved game. Observations,
-inferences, intentions, and verified outcomes must be distinguishable. Memory
-cannot bypass the bridge action allowlist or write verification, and no layer
-may require an LLM.
+Ruleset knowledge remains independent of a saved game. The journal stores facts
+and verified action lifecycles; it does not summarize, infer, plan, or choose
+actions.
+
+`working_memory` and `strategic_memory` are postponed to a future LLM
+interaction layer outside this repository. Their schemas will be designed with
+context selection, prompting, inference, expiry, and plan-revision behavior.
+Any future integration must still use the core action allowlist and write
+verification.
 
 See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Define the turn-journal schema, storage interface, canonical serialization,
-   retention expectations, and integrity tests.
-2. Connect watcher observations and command results to the journal without
+1. Continue the ruleset importer with civilizations, leaders, traits, unique
+   replacements, religions, beliefs, great people, specialists, terrain,
+   features, improvements, routes, yields, and remaining relation tables.
+2. Add ruleset scaling and per-game modifier resolution without mutating base
+   knowledge.
+3. Define the factual turn-journal schema, storage interface, canonical
+   serialization, retention expectations, and integrity tests.
+4. Connect watcher observations and command results to the journal without
    changing the live bridge protocol.
-3. Add deterministic working-memory projections that can be rebuilt from test
-   journals.
-4. Add versioned strategic-plan records and explicit revision reasons.
-5. Integrate only the minimal memory queries required by controller policies.
-6. Continue the ruleset importer with civilizations, traits, religions,
-   terrain, improvements, yields, and remaining relation tables.
+5. Integrate ruleset queries into deterministic controller policies.
+6. Stabilize the public read/write, knowledge-query, and journal APIs.
 7. Perform the two pending bounded live verifications only when the user is
    present.
 
-LLM decision-making and MCP integration remain out of scope.
+LLM decision-making, working memory, strategic memory, and MCP integration
+remain out of scope.
