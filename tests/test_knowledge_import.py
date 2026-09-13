@@ -11,6 +11,8 @@ from civ5_agent.knowledge.import_sqlite import (
     ERA_FIELDS,
     PROMOTION_FIELDS,
     PROMOTION_PREREQUISITE_COLUMNS,
+    POLICY_BRANCH_FIELDS,
+    POLICY_FIELDS,
     TECHNOLOGY_FIELDS,
     UNIT_FIELDS,
     UNIT_CLASS_FIELDS,
@@ -56,6 +58,40 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
         )
         connection.execute(
             "CREATE TABLE Unit_FreePromotions (UnitType TEXT, PromotionType TEXT)"
+        )
+        policy_definitions = [
+            "Type TEXT NOT NULL PRIMARY KEY",
+            "PolicyBranchType TEXT",
+            "TechPrereq TEXT",
+        ]
+        for column, (_, value_type) in POLICY_FIELDS.items():
+            sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
+            policy_definitions.append(f'"{column}" {sql_type}')
+        connection.execute(f"CREATE TABLE Policies ({', '.join(policy_definitions)})")
+        branch_definitions = [
+            "Type TEXT NOT NULL PRIMARY KEY",
+            "EraPrereq TEXT",
+            "FreePolicy TEXT",
+            "FreeFinishingPolicy TEXT",
+        ]
+        for column, (_, value_type) in POLICY_BRANCH_FIELDS.items():
+            sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
+            branch_definitions.append(f'"{column}" {sql_type}')
+        connection.execute(
+            f"CREATE TABLE PolicyBranchTypes ({', '.join(branch_definitions)})"
+        )
+        connection.execute(
+            "CREATE TABLE Policy_PrereqPolicies (PolicyType TEXT, PrereqPolicy TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE Policy_PrereqORPolicies (PolicyType TEXT, PrereqPolicy TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE Policy_Disables (PolicyType TEXT, PolicyDisable TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE PolicyBranch_Disables "
+            "(PolicyBranchType TEXT, PolicyBranchDisable TEXT)"
         )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
@@ -168,6 +204,49 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             "INSERT INTO Unit_FreePromotions VALUES (?, ?)",
             ("UNIT_WARRIOR", "PROMOTION_SHOCK_1"),
         )
+        policy_columns = ["Type", "PolicyBranchType", "TechPrereq", *POLICY_FIELDS]
+        quoted_policy_columns = ", ".join(f'"{column}"' for column in policy_columns)
+        for type_id, culture_cost in (
+            ("POLICY_TRADITION", 0),
+            ("POLICY_TRADITION_FINISHER", 10),
+        ):
+            policy_values = []
+            for column, (_, value_type) in POLICY_FIELDS.items():
+                if column == "CultureCost":
+                    value = culture_cost
+                elif value_type in {"integer", "boolean"}:
+                    value = 0
+                else:
+                    value = None
+                policy_values.append(value)
+            connection.execute(
+                f"INSERT INTO Policies ({quoted_policy_columns}) VALUES "
+                f"({', '.join('?' for _ in policy_columns)})",
+                [type_id, "POLICY_BRANCH_TRADITION", None, *policy_values],
+            )
+        branch_columns = [
+            "Type",
+            "EraPrereq",
+            "FreePolicy",
+            "FreeFinishingPolicy",
+            *POLICY_BRANCH_FIELDS,
+        ]
+        connection.execute(
+            f"INSERT INTO PolicyBranchTypes "
+            f"({', '.join(f'\"{column}\"' for column in branch_columns)}) VALUES "
+            f"({', '.join('?' for _ in branch_columns)})",
+            [
+                "POLICY_BRANCH_TRADITION",
+                "ERA_ANCIENT",
+                "POLICY_TRADITION",
+                "POLICY_TRADITION_FINISHER",
+                *([0] * len(POLICY_BRANCH_FIELDS)),
+            ],
+        )
+        connection.execute(
+            "INSERT INTO Policy_PrereqPolicies VALUES (?, ?)",
+            ("POLICY_TRADITION_FINISHER", "POLICY_TRADITION"),
+        )
         connection.commit()
 
 
@@ -181,8 +260,8 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279", ("Expansion2",), ()),
             )
-        self.assertEqual(len(bundle.entities), 8)
-        self.assertEqual(len(bundle.references), 9)
+        self.assertEqual(len(bundle.entities), 11)
+        self.assertEqual(len(bundle.references), 15)
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
         self.assertNotIn("ai_weight", pottery.attributes)
@@ -229,6 +308,29 @@ class RulesetImportTest(unittest.TestCase):
                 for item in bundle.references
             ),
             1,
+        )
+        tradition = next(item for item in bundle.entities if item.type_id == "POLICY_TRADITION")
+        self.assertEqual(tradition.attributes["culture_cost"], 0)
+        policy_relations = {
+            (item.kind, item.source_type_id, item.target_type_id)
+            for item in bundle.references
+            if item.source_kind in {"policy", "policy_branch"}
+        }
+        self.assertIn(
+            (
+                "belongs_to_policy_branch",
+                "POLICY_TRADITION",
+                "POLICY_BRANCH_TRADITION",
+            ),
+            policy_relations,
+        )
+        self.assertIn(
+            ("requires_all", "POLICY_TRADITION_FINISHER", "POLICY_TRADITION"),
+            policy_relations,
+        )
+        self.assertIn(
+            ("unlocked_by_era", "POLICY_BRANCH_TRADITION", "ERA_ANCIENT"),
+            policy_relations,
         )
 
     def test_records_source_hash_without_absolute_path(self):

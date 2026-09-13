@@ -134,7 +134,6 @@ def _validate_kind(value: str, label: str) -> None:
 def _validate_type_id(value: str, label: str) -> None:
     if not isinstance(value, str) or not TYPE_ID_PATTERN.fullmatch(value):
         raise KnowledgeValidationError(f"{label} must be a stable uppercase ID")
-    _reject_ai_name(value, label)
 
 
 def _reject_ai_name(value: str, label: str) -> None:

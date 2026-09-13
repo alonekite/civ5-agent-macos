@@ -45,7 +45,8 @@ The initial importer reads the merged `Civ5DebugDatabase.db` with SQLite
 `query_only`, URI `mode=ro`, and immutable access. It requires the `Eras`,
 `Technologies`, `Technology_PrereqTechs`, `Technology_ORPrereqTechs`, `Units`,
 `UnitClasses`, `Unit_ClassUpgrades`, `UnitPromotions`, and
-`Unit_FreePromotions` tables.
+`Unit_FreePromotions` tables, plus `Policies`, `PolicyBranchTypes`, and the
+policy prerequisite/disable tables.
 It selects fixed technology and era gameplay-column allowlists rather than
 copying entire rows. Every technology has a validated `belongs_to` edge to an
 era entity. It also imports allowlisted gameplay values for unit types while
@@ -56,6 +57,11 @@ database upgrade rows are collapsed deterministically.
 Promotion entities include an explicit gameplay-effect allowlist, AND/OR
 promotion prerequisites, technology prerequisites, and unit free-promotion
 relationships. Presentation and hotkey fields remain excluded.
+Policy and policy-branch entities include core numeric and boolean effects,
+branch membership, AND/OR prerequisites, disables, era gates, and opening and
+finishing policies. AI branch delay/mutual-exclusion fields and policy flavors
+are excluded. Effect tables that reference buildings, improvements, yields,
+specialists, or unit-combat classes remain deferred until those targets exist.
 
 For reproducibility and safety it:
 

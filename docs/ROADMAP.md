@@ -53,7 +53,9 @@ No application-bundle modification is required.
 - [x] Import allowlisted unit types and gameplay values
 - [x] Import unit classes, default units, and class-based upgrade routes
 - [x] Import promotion effects, prerequisites, and unit free promotions
-- [ ] Import buildings, policies, civilizations, traits,
+- [x] Import policy branches, core policy effects, and prerequisites
+- [ ] Import policy effect relation tables after their target entities exist
+- [ ] Import buildings, civilizations, traits,
   religions, terrain, resources, improvements, and remaining rule tables
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

@@ -84,6 +84,16 @@ class KnowledgeValidationTest(unittest.TestCase):
         with self.assertRaisesRegex(KnowledgeValidationError, "forbidden AI data"):
             validate_bundle(valid_bundle(entities=(entity,), references=()))
 
+    def test_allows_game_ids_that_use_personality_as_gameplay_term(self):
+        entity = Entity(
+            "policy",
+            "POLICY_CULT_PERSONALITY",
+            {"culture_cost": 10},
+            (SOURCE_PATH,),
+        )
+        bundle = valid_bundle(entities=(entity,), references=())
+        self.assertIs(validate_bundle(bundle), bundle)
+
     def test_rejects_boolean_schema_version(self):
         with self.assertRaisesRegex(KnowledgeValidationError, "schema_version"):
             validate_bundle(valid_bundle(schema_version=True))

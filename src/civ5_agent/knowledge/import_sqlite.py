@@ -329,6 +329,133 @@ PROMOTION_FIELDS = {
     },
 }
 
+POLICY_INTEGER_COLUMNS = (
+    "NumExtraBranches",
+    "CultureCost",
+    "GridX",
+    "GridY",
+    "Level",
+    "PolicyCostModifier",
+    "CulturePerCity",
+    "CulturePerWonder",
+    "CultureWonderMultiplier",
+    "CulturePerTechResearched",
+    "CultureImprovementChange",
+    "CultureFromKills",
+    "CultureFromBarbarianKills",
+    "GoldFromKills",
+    "EmbarkedExtraMoves",
+    "AttackBonusTurns",
+    "GoldenAgeTurns",
+    "GoldenAgeMeterMod",
+    "GoldenAgeDurationMod",
+    "NumFreeTechs",
+    "NumFreePolicies",
+    "NumFreeGreatPeople",
+    "StrategicResourceMod",
+    "WonderProductionModifier",
+    "BuildingProductionModifier",
+    "GreatPeopleRateModifier",
+    "GreatGeneralRateModifier",
+    "GreatAdmiralRateModifier",
+    "GreatWriterRateModifier",
+    "GreatArtistRateModifier",
+    "GreatMusicianRateModifier",
+    "GreatMerchantRateModifier",
+    "GreatScientistRateModifier",
+    "ExtraHappiness",
+    "ExtraHappinessPerCity",
+    "UnhappinessMod",
+    "CityCountUnhappinessMod",
+    "OccupiedPopulationUnhappinessMod",
+    "CapitalUnhappinessMod",
+    "FreeExperience",
+    "WorkerSpeedModifier",
+    "MilitaryProductionModifier",
+    "HappinessPerGarrisonedUnit",
+    "CulturePerGarrisonedUnit",
+    "HappinessPerTradeRoute",
+    "ExtraHappinessPerLuxury",
+    "PlotGoldCostMod",
+    "PlotCultureCostModifier",
+    "UnitPurchaseCostModifier",
+    "BuildingPurchaseCostModifier",
+    "FaithCostModifier",
+    "GoldPerUnit",
+    "GoldPerMilitaryUnit",
+    "RouteGoldMaintenanceMod",
+    "BuildingGoldMaintenanceMod",
+    "UnitGoldMaintenanceMod",
+    "UnitSupplyMod",
+    "UnitUpgradeCostMod",
+    "CityStrengthMod",
+    "CityGrowthMod",
+    "CapitalGrowthMod",
+    "SettlerProductionModifier",
+    "CapitalSettlerProductionModifier",
+    "NewCityExtraPopulation",
+    "FreeFoodBox",
+    "UnitSightRangeChange",
+    "WoundedUnitDamageMod",
+    "BarbarianCombatBonus",
+    "MinorQuestFriendshipMod",
+    "MinorGoldFriendshipMod",
+    "MinorFriendshipMinimum",
+    "MinorFriendshipDecayMod",
+    "OtherPlayersMinorFriendshipDecayMod",
+    "CityStateUnitFrequencyModifier",
+    "CommonFoeTourismModifier",
+    "LessHappyTourismModifier",
+    "SharedIdeologyTourismModifier",
+    "LandTradeRouteGoldChange",
+    "SeaTradeRouteGoldChange",
+    "SharedIdeologyTradeGoldChange",
+    "RiggingElectionModifier",
+    "MilitaryUnitGiftExtraInfluence",
+    "ProtectedMinorPerTurnInfluence",
+    "AfraidMinorPerTurnInfluence",
+    "MinorBullyScoreModifier",
+    "CityStateTradeChange",
+    "ThemingBonusMultiplier",
+    "InternalTradeRouteYieldModifier",
+    "SharedReligionTourismModifier",
+    "TradeRouteTourismModifier",
+    "OpenBordersTourismModifier",
+)
+
+POLICY_BOOLEAN_COLUMNS = (
+    "MilitaryFoodProduction",
+    "HalfSpecialistUnhappiness",
+    "HalfSpecialistFood",
+    "AlwaysSeeBarbCamps",
+    "RevealAllCapitals",
+    "MinorGreatPeopleAllies",
+    "MinorScienceAllies",
+    "MinorResourceBonus",
+    "GarrisonFreeMaintenance",
+    "GoldenAgeCultureBonusDisabled",
+    "SecondReligionPantheon",
+    "AddReformationBelief",
+    "EnablesSSPartHurry",
+    "EnablesSSPartPurchase",
+    "AbleToAnnexCityStates",
+    "OneShot",
+    "IncludesOneShotFreeUnits",
+)
+
+POLICY_FIELDS = {
+    **{column: (_snake_case(column), "integer") for column in POLICY_INTEGER_COLUMNS},
+    **{column: (_snake_case(column), "boolean") for column in POLICY_BOOLEAN_COLUMNS},
+    "FreeBuildingOnConquest": ("free_building_on_conquest", "identifier"),
+}
+
+POLICY_BRANCH_FIELDS = {
+    "FirstAdopterFreePolicies": ("first_adopter_free_policies", "integer"),
+    "SecondAdopterFreePolicies": ("second_adopter_free_policies", "integer"),
+    "PurchaseByLevel": ("purchase_by_level", "boolean"),
+    "LockedWithoutReligion": ("locked_without_religion", "boolean"),
+}
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -386,6 +513,32 @@ def import_ruleset(
                 "Unit_FreePromotions",
                 {"UnitType", "PromotionType"},
             )
+            _require_columns(
+                connection,
+                "Policies",
+                {"Type", "PolicyBranchType", "TechPrereq", *POLICY_FIELDS},
+            )
+            _require_columns(
+                connection,
+                "PolicyBranchTypes",
+                {
+                    "Type",
+                    "EraPrereq",
+                    "FreePolicy",
+                    "FreeFinishingPolicy",
+                    *POLICY_BRANCH_FIELDS,
+                },
+            )
+            for table, columns in (
+                ("Policy_PrereqPolicies", {"PolicyType", "PrereqPolicy"}),
+                ("Policy_PrereqORPolicies", {"PolicyType", "PrereqPolicy"}),
+                ("Policy_Disables", {"PolicyType", "PolicyDisable"}),
+                (
+                    "PolicyBranch_Disables",
+                    {"PolicyBranchType", "PolicyBranchDisable"},
+                ),
+            ):
+                _require_columns(connection, table, columns)
             _require_columns(
                 connection,
                 "Technology_PrereqTechs",
@@ -460,6 +613,34 @@ def import_ruleset(
                 _scalar_entity("promotion", row, PROMOTION_FIELDS, source_label)
                 for row in promotion_rows
             )
+            policy_columns = ["Type", "PolicyBranchType", "TechPrereq", *POLICY_FIELDS]
+            policy_select = ", ".join(f'"{column}"' for column in policy_columns)
+            policy_rows = connection.execute(
+                f'SELECT {policy_select} FROM "Policies" ORDER BY "Type"'
+            ).fetchall()
+            if not policy_rows:
+                raise KnowledgeImportError("Policies table is empty")
+            policy_entities = tuple(
+                _scalar_entity("policy", row, POLICY_FIELDS, source_label)
+                for row in policy_rows
+            )
+            branch_columns = [
+                "Type",
+                "EraPrereq",
+                "FreePolicy",
+                "FreeFinishingPolicy",
+                *POLICY_BRANCH_FIELDS,
+            ]
+            branch_select = ", ".join(f'"{column}"' for column in branch_columns)
+            branch_rows = connection.execute(
+                f'SELECT {branch_select} FROM "PolicyBranchTypes" ORDER BY "Type"'
+            ).fetchall()
+            if not branch_rows:
+                raise KnowledgeImportError("PolicyBranchTypes table is empty")
+            branch_entities = tuple(
+                _scalar_entity("policy_branch", row, POLICY_BRANCH_FIELDS, source_label)
+                for row in branch_rows
+            )
             era_references = [
                 Reference(
                     "belongs_to",
@@ -490,6 +671,9 @@ def import_ruleset(
                 + _unit_class_references(
                     connection, unit_rows, unit_class_rows, source_label
                 )
+                + _policy_references(
+                    connection, policy_rows, branch_rows, source_label
+                )
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -508,6 +692,8 @@ def import_ruleset(
                 + unit_entities
                 + unit_class_entities
                 + promotion_entities
+                + policy_entities
+                + branch_entities
             ),
             references=references,
         )
@@ -673,6 +859,133 @@ def _unit_class_references(
         for row in upgrade_rows
     )
     return references
+
+
+def _policy_references(
+    connection: sqlite3.Connection,
+    policy_rows: list[sqlite3.Row],
+    branch_rows: list[sqlite3.Row],
+    source_label: str,
+) -> list[Reference]:
+    references: list[Reference] = []
+    for row in policy_rows:
+        if row["PolicyBranchType"] not in (None, "NONE"):
+            references.append(
+                Reference(
+                    "belongs_to_policy_branch",
+                    "policy",
+                    row["Type"],
+                    "policy_branch",
+                    row["PolicyBranchType"],
+                    (source_label,),
+                )
+            )
+        if row["TechPrereq"] not in (None, "NONE"):
+            references.append(
+                Reference(
+                    "unlocked_by_technology",
+                    "policy",
+                    row["Type"],
+                    "technology",
+                    row["TechPrereq"],
+                    (source_label,),
+                )
+            )
+    for row in branch_rows:
+        for column, kind, target_kind in (
+            ("EraPrereq", "unlocked_by_era", "era"),
+            ("FreePolicy", "opening_policy", "policy"),
+            ("FreeFinishingPolicy", "finishing_policy", "policy"),
+        ):
+            target = row[column]
+            if target in (None, "NONE"):
+                continue
+            references.append(
+                Reference(
+                    kind,
+                    "policy_branch",
+                    row["Type"],
+                    target_kind,
+                    target,
+                    (source_label,),
+                )
+            )
+    references.extend(
+        _two_column_references(
+            connection,
+            "Policy_PrereqPolicies",
+            "PolicyType",
+            "PrereqPolicy",
+            "requires_all",
+            "policy",
+            "policy",
+            source_label,
+        )
+    )
+    references.extend(
+        _two_column_references(
+            connection,
+            "Policy_PrereqORPolicies",
+            "PolicyType",
+            "PrereqPolicy",
+            "requires_any",
+            "policy",
+            "policy",
+            source_label,
+        )
+    )
+    references.extend(
+        _two_column_references(
+            connection,
+            "Policy_Disables",
+            "PolicyType",
+            "PolicyDisable",
+            "disables",
+            "policy",
+            "policy",
+            source_label,
+        )
+    )
+    references.extend(
+        _two_column_references(
+            connection,
+            "PolicyBranch_Disables",
+            "PolicyBranchType",
+            "PolicyBranchDisable",
+            "disables",
+            "policy_branch",
+            "policy_branch",
+            source_label,
+        )
+    )
+    return references
+
+
+def _two_column_references(
+    connection: sqlite3.Connection,
+    table: str,
+    source_column: str,
+    target_column: str,
+    kind: str,
+    source_kind: str,
+    target_kind: str,
+    source_label: str,
+) -> list[Reference]:
+    rows = connection.execute(
+        f'SELECT DISTINCT "{source_column}", "{target_column}" FROM "{table}" '
+        f'ORDER BY "{source_column}", "{target_column}"'
+    ).fetchall()
+    return [
+        Reference(
+            kind,
+            source_kind,
+            row[source_column],
+            target_kind,
+            row[target_column],
+            (source_label,),
+        )
+        for row in rows
+    ]
 
 
 def _require_columns(
