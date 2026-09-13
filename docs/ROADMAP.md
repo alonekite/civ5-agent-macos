@@ -55,7 +55,9 @@ No application-bundle modification is required.
 - [x] Import promotion effects, prerequisites, and unit free promotions
 - [x] Import policy branches, core policy effects, and prerequisites
 - [ ] Import policy effect relation tables after their target entities exist
-- [ ] Import buildings, civilizations, traits,
+- [x] Import building classes, core building facts, and known prerequisites
+- [ ] Import building effect relation tables after their target entities exist
+- [ ] Import civilizations, traits,
   religions, terrain, resources, improvements, and remaining rule tables
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

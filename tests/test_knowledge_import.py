@@ -8,6 +8,9 @@ from pathlib import Path
 from civ5_agent.knowledge import Ruleset
 from civ5_agent.knowledge.import_sqlite import (
     BRAVE_NEW_WORLD_PACKAGE_ID,
+    BUILDING_CLASS_FIELDS,
+    BUILDING_FIELDS,
+    BUILDING_REFERENCE_COLUMNS,
     KnowledgeImportError,
     ERA_FIELDS,
     PROMOTION_FIELDS,
@@ -100,6 +103,29 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
         connection.execute(
             "CREATE TABLE PolicyBranch_Disables "
             "(PolicyBranchType TEXT, PolicyBranchDisable TEXT)"
+        )
+        building_definitions = [
+            "Type TEXT NOT NULL PRIMARY KEY",
+            "BuildingClass TEXT",
+        ]
+        building_definitions.extend(
+            f'"{column}" TEXT' for column, _, _ in BUILDING_REFERENCE_COLUMNS
+        )
+        for column, (_, value_type) in BUILDING_FIELDS.items():
+            sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
+            building_definitions.append(f'"{column}" {sql_type}')
+        connection.execute(
+            f"CREATE TABLE Buildings ({', '.join(building_definitions)})"
+        )
+        building_class_definitions = [
+            "Type TEXT NOT NULL PRIMARY KEY",
+            "DefaultBuilding TEXT",
+        ]
+        for column, (_, value_type) in BUILDING_CLASS_FIELDS.items():
+            sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
+            building_class_definitions.append(f'"{column}" {sql_type}')
+        connection.execute(
+            f"CREATE TABLE BuildingClasses ({', '.join(building_class_definitions)})"
         )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
@@ -255,6 +281,58 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             "INSERT INTO Policy_PrereqPolicies VALUES (?, ?)",
             ("POLICY_TRADITION_FINISHER", "POLICY_TRADITION"),
         )
+        building_columns = [
+            "Type",
+            "BuildingClass",
+            *(column for column, _, _ in BUILDING_REFERENCE_COLUMNS),
+            *BUILDING_FIELDS,
+        ]
+        building_values = []
+        for column, (_, value_type) in BUILDING_FIELDS.items():
+            if column == "Cost":
+                value = 185
+            elif value_type in {"integer", "boolean"}:
+                value = 0
+            else:
+                value = None
+            building_values.append(value)
+        reference_values = {
+            "PrereqTech": "TECH_AGRICULTURE",
+        }
+        connection.execute(
+            f"INSERT INTO Buildings "
+            f"({', '.join(f'\"{column}\"' for column in building_columns)}) VALUES "
+            f"({', '.join('?' for _ in building_columns)})",
+            [
+                "BUILDING_PYRAMID",
+                "BUILDINGCLASS_PYRAMID",
+                *(reference_values.get(column) for column, _, _ in BUILDING_REFERENCE_COLUMNS),
+                *building_values,
+            ],
+        )
+        building_class_columns = [
+            "Type",
+            "DefaultBuilding",
+            *BUILDING_CLASS_FIELDS,
+        ]
+        building_class_values = {
+            "MaxGlobalInstances": 1,
+            "MaxTeamInstances": -1,
+            "MaxPlayerInstances": -1,
+            "ExtraPlayerInstances": 0,
+            "NoLimit": 0,
+            "Monument": 0,
+        }
+        connection.execute(
+            f"INSERT INTO BuildingClasses "
+            f"({', '.join(f'\"{column}\"' for column in building_class_columns)}) "
+            f"VALUES ({', '.join('?' for _ in building_class_columns)})",
+            [
+                "BUILDINGCLASS_PYRAMID",
+                "BUILDING_PYRAMID",
+                *(building_class_values[column] for column in BUILDING_CLASS_FIELDS),
+            ],
+        )
         connection.commit()
 
 
@@ -268,8 +346,8 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 11)
-        self.assertEqual(len(bundle.references), 15)
+        self.assertEqual(len(bundle.entities), 13)
+        self.assertEqual(len(bundle.references), 18)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
@@ -332,6 +410,33 @@ class RulesetImportTest(unittest.TestCase):
                 "POLICY_BRANCH_TRADITION",
             ),
             policy_relations,
+        )
+        pyramid = next(item for item in bundle.entities if item.type_id == "BUILDING_PYRAMID")
+        self.assertEqual(pyramid.attributes["cost"], 185)
+        pyramid_class = next(
+            item for item in bundle.entities if item.type_id == "BUILDINGCLASS_PYRAMID"
+        )
+        self.assertEqual(pyramid_class.attributes["maximum_global_instances"], 1)
+        building_relations = {
+            (item.kind, item.source_type_id, item.target_type_id)
+            for item in bundle.references
+            if item.source_kind in {"building", "building_class"}
+        }
+        self.assertIn(
+            (
+                "belongs_to_building_class",
+                "BUILDING_PYRAMID",
+                "BUILDINGCLASS_PYRAMID",
+            ),
+            building_relations,
+        )
+        self.assertIn(
+            ("unlocked_by_technology", "BUILDING_PYRAMID", "TECH_AGRICULTURE"),
+            building_relations,
+        )
+        self.assertIn(
+            ("default_building", "BUILDINGCLASS_PYRAMID", "BUILDING_PYRAMID"),
+            building_relations,
         )
         self.assertIn(
             ("requires_all", "POLICY_TRADITION_FINISHER", "POLICY_TRADITION"),

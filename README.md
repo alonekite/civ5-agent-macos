@@ -148,8 +148,10 @@ unit types, 214 promotions, and their technology, era, prerequisite, and free
 promotion relations from the merged SQLite cache on the tested Campaign Edition
 installation. It also preserves 83 unit classes and their default and upgrade
 relationships, plus 111 policies and 12 policy branches with their core effects
-and prerequisite graph. The database itself and other game assets are not
-copied into this repository. Generate a local artifact with:
+and prerequisite graph. Building classes preserve instance limits so 140
+buildings—including national and world wonders—can be classified without
+localized text. The database itself and other game assets are not copied into
+this repository. Generate a local artifact with:
 
 ```bash
 PYTHONPATH=src python3 -m civ5_agent.knowledge.import_sqlite \

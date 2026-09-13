@@ -460,6 +460,130 @@ POLICY_BRANCH_FIELDS = {
     "LockedWithoutReligion": ("locked_without_religion", "boolean"),
 }
 
+BUILDING_INTEGER_COLUMNS = (
+    "GoldMaintenance",
+    "MutuallyExclusiveGroup",
+    "Cost",
+    "FaithCost",
+    "LeagueCost",
+    "NumCityCostMod",
+    "HurryCostModifier",
+    "MinAreaSize",
+    "ConquestProb",
+    "CitiesPrereq",
+    "LevelPrereq",
+    "CultureRateModifier",
+    "GlobalCultureRateModifier",
+    "GreatPeopleRateModifier",
+    "GlobalGreatPeopleRateModifier",
+    "GreatGeneralRateModifier",
+    "GreatPersonExpendGold",
+    "GoldenAgeModifier",
+    "UnitUpgradeCostMod",
+    "Experience",
+    "GlobalExperience",
+    "FoodKept",
+    "AirModifier",
+    "NukeModifier",
+    "HealRateChange",
+    "Happiness",
+    "UnmoddedHappiness",
+    "UnhappinessModifier",
+    "HappinessPerCity",
+    "HappinessPerXPolicies",
+    "CityCountUnhappinessMod",
+    "WorkerSpeedModifier",
+    "MilitaryProductionModifier",
+    "SpaceProductionModifier",
+    "GlobalSpaceProductionModifier",
+    "BuildingProductionModifier",
+    "WonderProductionModifier",
+    "Gold",
+    "Defense",
+    "ExtraCityHitPoints",
+    "SpecialistCount",
+    "GreatWorkCount",
+    "GreatPeopleRateChange",
+    "ExtraLeagueVotes",
+)
+
+BUILDING_BOOLEAN_COLUMNS = (
+    "TeamShare",
+    "Water",
+    "River",
+    "FreshWater",
+    "Mountain",
+    "NearbyMountainRequired",
+    "Hill",
+    "Flat",
+    "FoundsReligion",
+    "IsReligious",
+    "BorderObstacle",
+    "PlayerBorderObstacle",
+    "Capital",
+    "GoldenAge",
+    "MapCentering",
+    "NeverCapture",
+    "NukeImmune",
+    "AllowsWaterRoutes",
+    "ExtraLuxuries",
+    "DiplomaticVoting",
+    "AffectSpiesNow",
+    "NullifyInfluenceModifier",
+    "UnlockedByBelief",
+    "UnlockedByLeague",
+    "HolyCity",
+    "Airlift",
+    "NoOccupiedUnhappiness",
+    "AllowsRangeStrike",
+    "Espionage",
+    "AllowsFoodTradeRoutes",
+    "AllowsProductionTradeRoutes",
+    "CityWall",
+)
+
+BUILDING_IDENTIFIER_COLUMNS = (
+    "NearbyTerrainRequired",
+    "ProhibitedCityTerrain",
+    "VictoryPrereq",
+    "FreeBuilding",
+    "FreeBuildingThisCity",
+    "SpecialistType",
+    "GreatWorkSlotType",
+    "FreeGreatWork",
+)
+
+BUILDING_FIELDS = {
+    **{column: (_snake_case(column), "integer") for column in BUILDING_INTEGER_COLUMNS},
+    **{column: (_snake_case(column), "boolean") for column in BUILDING_BOOLEAN_COLUMNS},
+    **{
+        column: (_snake_case(column), "identifier")
+        for column in BUILDING_IDENTIFIER_COLUMNS
+    },
+}
+
+BUILDING_CLASS_FIELDS = {
+    "MaxGlobalInstances": ("maximum_global_instances", "integer"),
+    "MaxTeamInstances": ("maximum_team_instances", "integer"),
+    "MaxPlayerInstances": ("maximum_player_instances", "integer"),
+    "ExtraPlayerInstances": ("extra_player_instances", "integer"),
+    "NoLimit": ("no_limit", "boolean"),
+    "Monument": ("monument", "boolean"),
+}
+
+BUILDING_REFERENCE_COLUMNS = (
+    ("FreeStartEra", "free_start_era", "era"),
+    ("MaxStartEra", "maximum_start_era", "era"),
+    ("ObsoleteTech", "obsoleted_by_technology", "technology"),
+    ("EnhancedYieldTech", "enhanced_by_technology", "technology"),
+    ("FreePromotion", "grants_promotion", "promotion"),
+    ("TrainedFreePromotion", "grants_trained_unit_promotion", "promotion"),
+    ("FreePromotionRemoved", "removes_promotion", "promotion"),
+    ("ReplacementBuildingClass", "replaces_building_class", "building_class"),
+    ("PrereqTech", "unlocked_by_technology", "technology"),
+    ("PolicyBranchType", "requires_policy_branch", "policy_branch"),
+)
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -562,6 +686,21 @@ def import_ruleset(
                 _require_columns(connection, table, columns)
             _require_columns(
                 connection,
+                "Buildings",
+                {
+                    "Type",
+                    "BuildingClass",
+                    *(column for column, _, _ in BUILDING_REFERENCE_COLUMNS),
+                    *BUILDING_FIELDS,
+                },
+            )
+            _require_columns(
+                connection,
+                "BuildingClasses",
+                {"Type", "DefaultBuilding", *BUILDING_CLASS_FIELDS},
+            )
+            _require_columns(
+                connection,
                 "Technology_PrereqTechs",
                 {"TechType", "PrereqTech"},
             )
@@ -662,6 +801,43 @@ def import_ruleset(
                 _scalar_entity("policy_branch", row, POLICY_BRANCH_FIELDS, source_label)
                 for row in branch_rows
             )
+            building_columns = [
+                "Type",
+                "BuildingClass",
+                *(column for column, _, _ in BUILDING_REFERENCE_COLUMNS),
+                *BUILDING_FIELDS,
+            ]
+            building_select = ", ".join(
+                f'"{column}"' for column in building_columns
+            )
+            building_rows = connection.execute(
+                f'SELECT {building_select} FROM "Buildings" ORDER BY "Type"'
+            ).fetchall()
+            if not building_rows:
+                raise KnowledgeImportError("Buildings table is empty")
+            building_entities = tuple(
+                _scalar_entity("building", row, BUILDING_FIELDS, source_label)
+                for row in building_rows
+            )
+            building_class_columns = [
+                "Type",
+                "DefaultBuilding",
+                *BUILDING_CLASS_FIELDS,
+            ]
+            building_class_select = ", ".join(
+                f'"{column}"' for column in building_class_columns
+            )
+            building_class_rows = connection.execute(
+                f'SELECT {building_class_select} FROM "BuildingClasses" ORDER BY "Type"'
+            ).fetchall()
+            if not building_class_rows:
+                raise KnowledgeImportError("BuildingClasses table is empty")
+            building_class_entities = tuple(
+                _scalar_entity(
+                    "building_class", row, BUILDING_CLASS_FIELDS, source_label
+                )
+                for row in building_class_rows
+            )
             era_references = [
                 Reference(
                     "belongs_to",
@@ -695,6 +871,9 @@ def import_ruleset(
                 + _policy_references(
                     connection, policy_rows, branch_rows, source_label
                 )
+                + _building_references(
+                    building_rows, building_class_rows, source_label
+                )
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -715,6 +894,8 @@ def import_ruleset(
                 + promotion_entities
                 + policy_entities
                 + branch_entities
+                + building_entities
+                + building_class_entities
             ),
             references=references,
         )
@@ -1007,6 +1188,53 @@ def _two_column_references(
         )
         for row in rows
     ]
+
+
+def _building_references(
+    building_rows: list[sqlite3.Row],
+    building_class_rows: list[sqlite3.Row],
+    source_label: str,
+) -> list[Reference]:
+    references: list[Reference] = []
+    for row in building_rows:
+        if row["BuildingClass"] not in (None, "NONE"):
+            references.append(
+                Reference(
+                    "belongs_to_building_class",
+                    "building",
+                    row["Type"],
+                    "building_class",
+                    row["BuildingClass"],
+                    (source_label,),
+                )
+            )
+        for column, kind, target_kind in BUILDING_REFERENCE_COLUMNS:
+            target = row[column]
+            if target in (None, "NONE"):
+                continue
+            references.append(
+                Reference(
+                    kind,
+                    "building",
+                    row["Type"],
+                    target_kind,
+                    target,
+                    (source_label,),
+                )
+            )
+    references.extend(
+        Reference(
+            "default_building",
+            "building_class",
+            row["Type"],
+            "building",
+            row["DefaultBuilding"],
+            (source_label,),
+        )
+        for row in building_class_rows
+        if row["DefaultBuilding"] not in (None, "NONE")
+    )
+    return references
 
 
 def _require_columns(
