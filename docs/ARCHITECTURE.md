@@ -83,4 +83,10 @@ before/after snapshots. The watcher owns logging for brokered commands; the CLI
 logs direct commands. Audit failure is reported without changing a verified
 command into a retryable failure.
 
+For one watcher lifetime, completed command UUIDs are cached together with
+their operation, arguments, and response. An identical retry returns that
+response with `replayed: true`; reuse with different arguments is rejected.
+The lookup, execution, audit, and cache insertion share the connection lock so
+concurrent duplicate requests cannot both reach Civ V.
+
 Do not expose arbitrary Lua execution to the LLM.

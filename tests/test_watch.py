@@ -106,6 +106,32 @@ class WatchControlHandlerTest(unittest.TestCase):
         self.assertIn("UUIDv4", response["error"])
         execute.assert_not_called()
 
+    def test_replays_completed_command_without_executing_twice(self):
+        result = CommandResult(id=SKIP_ID, status="success")
+        with patch(
+            "civ5_agent.watch.execute_skip_unit",
+            return_value=result,
+        ) as execute:
+            first = self.handler({"op": "skip_unit", "id": SKIP_ID, "unit_id": 8})
+            replay = self.handler({"op": "skip_unit", "id": SKIP_ID, "unit_id": 8})
+        self.assertTrue(first["ok"])
+        self.assertTrue(replay["replayed"])
+        self.assertEqual(execute.call_count, 1)
+
+    def test_rejects_command_id_reuse_with_different_arguments(self):
+        result = CommandResult(id=SKIP_ID, status="success")
+        with patch(
+            "civ5_agent.watch.execute_skip_unit",
+            return_value=result,
+        ) as execute:
+            self.handler({"op": "skip_unit", "id": SKIP_ID, "unit_id": 8})
+            collision = self.handler(
+                {"op": "skip_unit", "id": SKIP_ID, "unit_id": 9}
+            )
+        self.assertFalse(collision["ok"])
+        self.assertIn("different arguments", collision["error"])
+        self.assertEqual(execute.call_count, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -33,6 +33,11 @@ def make_control_handler(
     audit_log: CommandAuditLog | None = None,
     safety_check: Callable[[], None] | None = None,
 ):
+    completed_commands: dict[
+        str,
+        tuple[str, dict[str, object], dict[str, object]],
+    ] = {}
+
     def handle_request(request: dict[str, object]) -> dict[str, object]:
         operation = request.get("op")
         if operation == "ping":
@@ -96,6 +101,20 @@ def make_control_handler(
                     "error": "verify_timeout must be greater than 0 and at most 120",
                 }
             with connection_lock:
+                completed = completed_commands.get(command.id)
+                if completed is not None:
+                    previous_operation, previous_arguments, previous_response = completed
+                    if (
+                        previous_operation != command.action
+                        or previous_arguments != command.args
+                    ):
+                        return {
+                            "ok": False,
+                            "error": (
+                                "command id was already used with different arguments"
+                            ),
+                        }
+                    return {**previous_response, "replayed": True}
                 if operation == "end_turn":
                     result = execute_end_turn(
                         client,
@@ -124,15 +143,24 @@ def make_control_handler(
                         command,
                         verify_timeout=verify_timeout,
                     )
-            result_data = asdict(result)
-            response: dict[str, object] = {"ok": True, "result": result_data}
-            if audit_log is not None:
-                try:
-                    audit_log.append(str(operation), result_data, command.args)
-                except OSError as error:
-                    response["audit_error"] = str(error)
-                    print(f"Command audit warning: {error}", file=sys.stderr, flush=True)
-            return response
+                result_data = asdict(result)
+                response: dict[str, object] = {"ok": True, "result": result_data}
+                if audit_log is not None:
+                    try:
+                        audit_log.append(str(operation), result_data, command.args)
+                    except OSError as error:
+                        response["audit_error"] = str(error)
+                        print(
+                            f"Command audit warning: {error}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
+                completed_commands[command.id] = (
+                    command.action,
+                    dict(command.args),
+                    dict(response),
+                )
+                return response
         return {"ok": False, "error": f"unsupported operation: {operation!r}"}
 
     return handle_request

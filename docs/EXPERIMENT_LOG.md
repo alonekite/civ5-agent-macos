@@ -699,3 +699,29 @@ enough information to reproduce the requested action even when it fails.
 
 confirmed offline. Command results are now more traceable without broadening
 the write allowlist.
+
+### 2026-09-13 — Watcher-session replay protection
+
+**Hypothesis**
+
+A client retry using the same command UUID must not execute a game action a
+second time.
+
+**Procedure**
+
+1. Cached completed watcher-mediated commands by UUID for the watcher lifetime.
+2. Returned the cached response with `replayed: true` for an identical retry.
+3. Rejected reuse of a UUID with a different operation or argument object.
+4. Serialized lookup, execution, audit, and cache insertion under the existing
+   FireTuner connection lock.
+
+**Observed result**
+
+- 79 tests pass with no warnings.
+- Identical retries invoke the executor once; UUID collisions with different
+  arguments are rejected before a second write.
+
+**Conclusion**
+
+confirmed offline. Watcher-mediated retries are idempotent within one watcher
+session; persistence across watcher restarts remains future work.
