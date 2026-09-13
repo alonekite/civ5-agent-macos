@@ -78,8 +78,9 @@ technology or city production. Both paths are unit-tested and live-verified on
 the target Mac.
 
 Each command result is also appended to a mode-0600 JSONL audit log with its
-UTC timestamp, operation, UUID, and before/after snapshots. The watcher owns
-logging for brokered commands; the CLI logs direct commands. Audit failure is
-reported without changing a verified command into a retryable failure.
+UTC timestamp, operation, canonical UUIDv4, validated arguments, and
+before/after snapshots. The watcher owns logging for brokered commands; the CLI
+logs direct commands. Audit failure is reported without changing a verified
+command into a retryable failure.
 
 Do not expose arbitrary Lua execution to the LLM.

@@ -9,6 +9,7 @@ import time
 from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
+from uuid import UUID
 
 from .audit import CommandAuditLog, default_audit_path
 from .command import (
@@ -52,6 +53,20 @@ def make_control_handler(
                 except UnsafeSessionError as error:
                     return {"ok": False, "error": f"unsafe FireTuner session: {error}"}
             command_id = request.get("id")
+            if command_id is None:
+                normalized_command_id = Command(str(operation)).id
+            else:
+                try:
+                    parsed_command_id = UUID(str(command_id))
+                except (ValueError, AttributeError):
+                    return {"ok": False, "error": "command id must be a UUIDv4"}
+                if (
+                    not isinstance(command_id, str)
+                    or parsed_command_id.version != 4
+                    or str(parsed_command_id) != command_id
+                ):
+                    return {"ok": False, "error": "command id must be a UUIDv4"}
+                normalized_command_id = command_id
             command = Command(
                 action=str(operation),
                 args=(
@@ -67,7 +82,7 @@ def make_control_handler(
                     if operation == "set_city_production"
                     else {}
                 ),
-                id=str(command_id) if command_id else Command(str(operation)).id,
+                id=normalized_command_id,
             )
             raw_verify_timeout = request.get("verify_timeout", 30.0)
             if isinstance(raw_verify_timeout, bool) or not isinstance(
@@ -113,7 +128,7 @@ def make_control_handler(
             response: dict[str, object] = {"ok": True, "result": result_data}
             if audit_log is not None:
                 try:
-                    audit_log.append(str(operation), result_data)
+                    audit_log.append(str(operation), result_data, command.args)
                 except OSError as error:
                     response["audit_error"] = str(error)
                     print(f"Command audit warning: {error}", file=sys.stderr, flush=True)

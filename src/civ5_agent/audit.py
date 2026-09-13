@@ -23,10 +23,16 @@ class CommandAuditLog:
             fd = self._open()
             os.close(fd)
 
-    def append(self, operation: str, result: dict[str, Any]) -> None:
+    def append(
+        self,
+        operation: str,
+        result: dict[str, Any],
+        arguments: dict[str, Any] | None = None,
+    ) -> None:
         record = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "operation": operation,
+            "arguments": arguments or {},
             "result": result,
         }
         encoded = json.dumps(record, separators=(",", ":"), sort_keys=True).encode() + b"\n"

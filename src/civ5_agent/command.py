@@ -379,7 +379,11 @@ def main() -> int:
         result = CommandResult(id=command.id, status="error", message=str(error))
 
     try:
-        CommandAuditLog(args.audit_log).append(args.action, asdict(result))
+        CommandAuditLog(args.audit_log).append(
+            args.action,
+            asdict(result),
+            command.args,
+        )
     except OSError as error:
         print(f"Command audit warning: {error}", file=sys.stderr)
 

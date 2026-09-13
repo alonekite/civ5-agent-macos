@@ -672,3 +672,30 @@ state by limiting it to the active team's own science projects.
 
 confirmed offline only. The victory roadmap item remains open until these
 values are observed in a bounded live game.
+
+### 2026-09-13 — Command identity and audit arguments
+
+**Hypothesis**
+
+Every local write request can carry a bounded, unambiguous identifier and leave
+enough information to reproduce the requested action even when it fails.
+
+**Procedure**
+
+1. Required caller-supplied local command IDs to be canonical UUIDv4 strings;
+   requests without an ID still receive a generated UUIDv4.
+2. Rejected invalid IDs before any game write function is called.
+3. Added the validated command arguments to each private JSONL audit record.
+4. Preserved the existing operation, result, before/after snapshots, timestamp,
+   permissions, and no-retry-on-audit-failure behavior.
+
+**Observed result**
+
+- 77 tests pass with no warnings.
+- Tests prove malformed IDs never reach an executor and the audit API records
+  the exact validated argument object supplied by the command path.
+
+**Conclusion**
+
+confirmed offline. Command results are now more traceable without broadening
+the write allowlist.

@@ -12,11 +12,17 @@ class CommandAuditLogTest(unittest.TestCase):
             path = Path(directory) / "nested" / "commands.jsonl"
             audit = CommandAuditLog(path)
             audit.append("end_turn", {"id": "abc", "status": "success"})
-            audit.append("skip_unit", {"id": "def", "status": "error"})
+            audit.append(
+                "skip_unit",
+                {"id": "def", "status": "error"},
+                {"unit_id": 8},
+            )
 
             records = [json.loads(line) for line in path.read_text().splitlines()]
             self.assertEqual([record["operation"] for record in records], ["end_turn", "skip_unit"])
             self.assertEqual(records[0]["result"]["id"], "abc")
+            self.assertEqual(records[0]["arguments"], {})
+            self.assertEqual(records[1]["arguments"], {"unit_id": 8})
             self.assertIn("timestamp", records[0])
             self.assertEqual(path.stat().st_mode & 0o777, 0o600)
 

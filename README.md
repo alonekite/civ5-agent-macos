@@ -159,10 +159,11 @@ at the same coordinates with zero movement.
 
 Every watcher-mediated command is appended to
 `~/Library/Logs/civ5-agent/commands.jsonl`. The directory and JSONL file are
-created with private permissions, and the file contains command UUIDs plus full
-before/after game snapshots. Use `--audit-log PATH` to choose another location.
-An audit write failure is reported separately and never causes an already-run
-game action to be retried.
+created with private permissions, and the file contains canonical UUIDv4
+command IDs, validated arguments, and full before/after game snapshots. The
+local bridge rejects caller-supplied IDs that are not UUIDv4. Use `--audit-log
+PATH` to choose another location. An audit write failure is reported separately
+and never causes an already-run game action to be retried.
 
 To restore the original configuration later:
 
