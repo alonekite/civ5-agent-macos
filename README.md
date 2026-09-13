@@ -15,6 +15,18 @@ Can a Lua mod running inside Civ V on an M4 Mac:
 This repository does not implement MCP or LLM decision-making. Its job is to
 provide safe, deterministic game I/O, ruleset knowledge, and verification.
 
+## Documentation
+
+- [Project outline (中文)](docs/PROJECT_OUTLINE.zh-CN.md) — the fastest way to
+  understand the goal, architecture, boundaries, completed work, and delivery
+  order.
+- [Documentation index](docs/INDEX.md) — canonical map and update rules.
+- [Current project state](docs/PROJECT_STATE.md) — active milestone, evidence,
+  blockers, and next deliverables.
+- [Milestones](docs/planning/MILESTONES.md) and
+  [verification matrix](docs/testing/TEST_MATRIX.md) — acceptance criteria and
+  evidence level.
+
 Status: the low-level MVP was verified end-to-end on the target Mac on
 2026-09-12. The watcher observed a live rich snapshot and the command CLI
 advanced turn 0 → 1 with verified before/after state.

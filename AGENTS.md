@@ -101,6 +101,25 @@ and controller must continue to work when the local model is unavailable.
 Do not develop LLM decision-making, working memory, strategic memory, or MCP
 integration in this repository.
 
+## Documentation governance
+
+- Use `docs/INDEX.md` as the canonical documentation map.
+- Keep `docs/PROJECT_STATE.md` as a short current-state dashboard, not a
+  chronological log.
+- Record milestone outcomes in `docs/planning/MILESTONES.md` and task-level work
+  in GitHub Issues.
+- Add an ADR for consequential changes to module boundaries, transport, safety,
+  provenance, persistence, or public compatibility. Accepted ADRs are not
+  rewritten; supersede them with a new ADR.
+- Update the owning module document and contract whenever a responsibility,
+  schema, invariant, or public behavior changes.
+- Record target-machine evidence only in `docs/EXPERIMENT_LOG.md` and update the
+  verification matrix. Do not label offline evidence as live verification.
+- Add meaningful completed batches to `docs/development/DEVELOPMENT_LOG.md` with
+  commit references; do not paste raw conversations or tool output.
+- Never commit generated game datasets, real match snapshots, private logs,
+  local recovery files, credentials, or user-identifying absolute paths.
+
 ## Definition of done for MVP
 `python -m civ5_agent.watch` shows live game-state changes, and
 `python -m civ5_agent.command end_turn` advances one turn and returns verified success.

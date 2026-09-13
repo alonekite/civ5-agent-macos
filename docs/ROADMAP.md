@@ -1,5 +1,9 @@
 # Roadmap
 
+This is the capability-level backlog. Milestone status, dependencies, and
+acceptance criteria are canonical in `docs/planning/MILESTONES.md`; implementation
+tasks belong in GitHub Issues.
+
 ## Phase 0 — Machine reconnaissance
 - [x] Locate Civ V installation
 - [x] Locate user/mod directories
@@ -45,7 +49,7 @@ No application-bundle modification is required.
 - [ ] coordinate-based unit movement
 - [x] deterministic policy (live-verified refusal and successful execution paths)
 
-## Versioned ruleset knowledge
+## M3 — Versioned ruleset knowledge
 - [x] Define canonical entities, references, ruleset metadata, and provenance
 - [x] Reject AI flavor/personality data and non-gameplay copyrighted assets
 - [x] Import merged technology facts and prerequisite relations from SQLite
@@ -66,7 +70,7 @@ No application-bundle modification is required.
 - [x] Expose a validated, deterministic entity/reference query API
 - [ ] Integrate ruleset queries into controller decisions
 
-## Per-game factual journal
+## M5 — Per-game factual journal
 
 - [ ] Define an append-only turn-journal schema and storage interface
 - [ ] Record full validated turn snapshots and verified command lifecycles

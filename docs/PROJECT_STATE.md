@@ -6,6 +6,21 @@ This file is the durable handoff for continuing development without relying on
 a particular Codex conversation. It records project facts and accepted design
 decisions, not raw chat transcripts.
 
+## Dashboard
+
+- Current milestone: M3 — ruleset knowledge coverage.
+- Active next deliverable: civilizations, leaders, traits, and unique unit and
+  building replacements.
+- Functional test baseline: 103 tests; last local run passed and the previous
+  Python 3.11/3.13 CI baseline passed. The new documentation-link test awaits
+  this governance batch's CI run.
+- Blocking issue: none for offline M3 work.
+- User presence required next: only the pending schema 3 and `skip_unit` bounded
+  live verifications.
+- Planning source: `docs/planning/MILESTONES.md`.
+- Verification source: `docs/testing/TEST_MATRIX.md` and
+  `docs/EXPERIMENT_LOG.md`.
+
 ## Completed and verified
 
 - The Campaign Edition environment on Apple Silicon macOS was inspected and
@@ -28,8 +43,8 @@ decisions, not raw chat transcripts.
 - The knowledge importer records provenance, validates the active ruleset
   family, rejects broken references, and excludes AI flavor/personality data
   and copyrighted descriptive assets.
-- The test suite contains 102 tests. The last local run passed, and GitHub
-  Actions passed on Python 3.11 and 3.13 at commit `756ab68`.
+- The test suite contains 103 tests. The last local run passed; the preceding
+  102-test baseline passed GitHub Actions on Python 3.11 and 3.13.
 
 ## Implemented but awaiting bounded live verification
 
@@ -79,3 +94,13 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 LLM decision-making, working memory, strategic memory, and MCP integration
 remain out of scope.
+
+## Recent accepted decisions
+
+- ADR-0004: generate knowledge from local sources with ruleset provenance.
+- ADR-0005: exclude AI flavor and personality data.
+- ADR-0006: keep the factual journal in the core and defer working/strategic
+  memory to a future LLM-facing project.
+
+See `docs/architecture/decisions/README.md`. Development history belongs in
+`docs/development/DEVELOPMENT_LOG.md`, not in this dashboard.
