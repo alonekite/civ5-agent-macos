@@ -448,3 +448,40 @@ tested, but unit skip remains unverified against the live game.
 In a later bounded, firewall-protected session, run `skip_unit` on a ready unit
 and verify its movement becomes zero without a coordinate change. Only then
 consider adding it to automatic controller execution.
+
+### 2026-09-13 — Read-only safety preflight
+
+**Hypothesis**
+
+The FireTuner session safety gates can be checked reproducibly without changing
+the game configuration or macOS firewall.
+
+**Procedure**
+
+1. Added `civ5_agent.preflight` modes for general status, guarded startup,
+   live transport, and verified shutdown.
+2. Parsed the exact `EnableTuner` setting, macOS application-firewall state and
+   Civ V rule, TCP 4318 listener state, and agent Unix-socket presence.
+3. Made `ready`, `live`, and `shutdown` fail closed when their required state
+   cannot be proved.
+4. Ran the complete warning-enabled test suite and then executed the `status`
+   and `shutdown` modes against the restored host.
+
+**Observed result**
+
+- 59 tests pass with no warnings.
+- The real host reported FireTuner disabled, no TCP 4318 listener, no agent
+  socket, the application firewall restored to disabled, and no Civ V rule.
+- Both the neutral `status` report and strict `shutdown` verification returned
+  `ok: true`.
+
+**Conclusion**
+
+confirmed. Future bounded live tests now have a read-only, machine-verifiable
+gate before connecting and a strict cleanup check after the session.
+
+**Next step**
+
+Use `preflight ready` and `preflight live` in the next firewall-protected game
+session, then live-verify `skip_unit` before permitting controller execution of
+unit actions.

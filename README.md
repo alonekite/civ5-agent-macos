@@ -55,8 +55,17 @@ Every command must return an id, status, before-state, after-state, and error if
 
 ## Verified live read
 
-Enable FireTuner once (the script creates a timestamp-preserving backup and
-verifies the changed line), restart Civ V, and enter a game:
+Before starting a live session, enable the macOS application firewall, add an
+explicit block-incoming rule for Civ V, and enable FireTuner. Then run the
+read-only preflight check:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.preflight ready
+```
+
+The check fails closed unless FireTuner, the firewall, and the explicit Civ V
+rule are all present. The configuration helper creates a timestamp-preserving
+backup and verifies the changed line:
 
 ```bash
 bash scripts/configure_firetuner.sh enable
@@ -70,9 +79,13 @@ and quit Civ V when the test session ends.
 Then run:
 
 ```bash
+PYTHONPATH=src python3 -m civ5_agent.preflight live
 PYTHONPATH=src python3 -m civ5_agent.watch --once
 PYTHONPATH=src python3 -m civ5_agent.watch
 ```
+
+The `live` check additionally requires a TCP 4318 listener. Neither preflight
+mode changes the game, its configuration, or firewall settings.
 
 The first command prints one JSON snapshot. The second keeps one FireTuner
 connection open and prints only when the observed state changes. On this old
@@ -140,7 +153,11 @@ To restore the original configuration later:
 
 ```bash
 bash scripts/configure_firetuner.sh restore
+PYTHONPATH=src python3 -m civ5_agent.preflight shutdown
 ```
+
+The shutdown check succeeds only when FireTuner is disabled, TCP 4318 is not
+listening, and the agent Unix socket is absent.
 
 ## Security
 

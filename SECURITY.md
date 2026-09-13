@@ -12,6 +12,14 @@ macOS application firewall, explicitly block incoming connections to
 Civilization V, and verify the rule before starting the game. A firewall rule
 is mitigation: the game still owns a wildcard listener.
 
+Run the read-only safety check after configuring the session and again after
+the game starts:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.preflight ready
+PYTHONPATH=src python3 -m civ5_agent.preflight live
+```
+
 After every session:
 
 1. quit Civilization V;
@@ -19,6 +27,14 @@ After every session:
 3. run `bash scripts/configure_firetuner.sh restore`;
 4. verify no process listens on TCP 4318;
 5. verify the per-user agent Unix socket is gone.
+
+Steps 3–5 can be verified together with:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.preflight shutdown
+```
+
+The command reports JSON and makes no system changes.
 
 Never expose FireTuner through port forwarding, a public Wi-Fi network, a VPN
 that permits peer access, or an untrusted LAN. Do not pass arbitrary Lua from an
