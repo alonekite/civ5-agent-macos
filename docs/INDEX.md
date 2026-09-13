@@ -40,6 +40,8 @@ behavior. Contract documents define intended compatibility and rejection rules.
 
 - [Test strategy](testing/TEST_STRATEGY.md)
 - [Verification matrix](testing/TEST_MATRIX.md)
+- [Live verification status (Chinese)](testing/LIVE_VERIFICATION_STATUS.zh-CN.md):
+  concise record of what has and has not been tested in the real game.
 - [Bounded live-test checklist](LIVE_TEST_CHECKLIST.md)
 - [Experiment log](EXPERIMENT_LOG.md)
 - [Operations index](operations/README.md)
@@ -69,7 +71,7 @@ game source must be labeled separately.
 | Module responsibility or dependency changes | module document, `ARCHITECTURE.md` |
 | Consequential design decision | new ADR; do not rewrite an accepted decision |
 | Schema or public behavior changes | corresponding contract and compatibility tests |
-| Target-machine experiment | `EXPERIMENT_LOG.md`, `testing/TEST_MATRIX.md` |
+| Target-machine experiment | `EXPERIMENT_LOG.md`, `testing/LIVE_VERIFICATION_STATUS.zh-CN.md`, `testing/TEST_MATRIX.md` |
 | Security boundary changes | `SECURITY.md`, risk register, relevant ADR/module |
 | Meaningful completed development batch | `development/DEVELOPMENT_LOG.md` |
 

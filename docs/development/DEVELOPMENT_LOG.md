@@ -60,6 +60,14 @@ Commits: `76473f8` through `756ab68`.
 Related commits before this governance batch: `144291b`, `14daa1d`.
 Governance commit: `a053797`.
 
+## 2026-09-14 — Live-verification ledger
+
+- Added a Chinese manual-test status ledger that separates real-game evidence,
+  partial evidence, pending tests, and rejected approaches.
+- Linked each summarized conclusion to the detailed experiment log and required
+  future live sessions to update the ledger and verification matrix only after
+  sanitized evidence is recorded.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.

@@ -43,6 +43,8 @@ must state the actual level instead of using “verified” without qualificatio
 - Follow `docs/LIVE_TEST_CHECKLIST.md` with the user present.
 - Capture the exact build/environment, action UUID, before/after evidence, and
   restored shutdown conditions.
+- Update `LIVE_VERIFICATION_STATUS.zh-CN.md` only after the detailed experiment
+  evidence has been recorded.
 - Commit only sanitized conclusions, never raw player-specific snapshots or
   local paths that identify the user.
 

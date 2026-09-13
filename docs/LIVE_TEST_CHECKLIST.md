@@ -109,4 +109,6 @@ PYTHONPATH=src python3 -m civ5_agent.preflight shutdown
 6. Re-run `preflight shutdown`; it must remain successful.
 
 Record the command UUID, before/after proof, schema fields observed, and every
-restored shutdown condition in `docs/EXPERIMENT_LOG.md`.
+restored shutdown condition in `docs/EXPERIMENT_LOG.md`. Then update
+`docs/testing/LIVE_VERIFICATION_STATUS.zh-CN.md` and
+`docs/testing/TEST_MATRIX.md` with the sanitized result.
