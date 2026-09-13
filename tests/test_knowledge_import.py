@@ -10,7 +10,8 @@ from civ5_agent.knowledge.import_sqlite import (
     KnowledgeImportError,
     ERA_FIELDS,
     TECHNOLOGY_FIELDS,
-    import_technologies,
+    UNIT_FIELDS,
+    import_ruleset,
 )
 
 
@@ -26,6 +27,11 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
         for column in ERA_FIELDS:
             era_definitions.append(f'"{column}" INTEGER')
         connection.execute(f"CREATE TABLE Eras ({', '.join(era_definitions)})")
+        unit_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        for column, (_, value_type) in UNIT_FIELDS.items():
+            sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
+            unit_definitions.append(f'"{column}" {sql_type}')
+        connection.execute(f"CREATE TABLE Units ({', '.join(unit_definitions)})")
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
         )
@@ -64,20 +70,41 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             "INSERT INTO Technology_PrereqTechs VALUES (?, ?)",
             ("TECH_POTTERY", "TECH_AGRICULTURE"),
         )
+        unit_columns = ["Type", *UNIT_FIELDS]
+        unit_values = []
+        for column, (_, value_type) in UNIT_FIELDS.items():
+            if column == "Combat":
+                value = 8
+            elif column == "Cost":
+                value = 40
+            elif column == "PrereqTech":
+                value = "TECH_AGRICULTURE"
+            elif value_type == "boolean":
+                value = 0
+            elif value_type == "integer":
+                value = 0
+            else:
+                value = None
+            unit_values.append(value)
+        connection.execute(
+            f"INSERT INTO Units ({', '.join(f'\"{column}\"' for column in unit_columns)}) "
+            f"VALUES ({', '.join('?' for _ in unit_columns)})",
+            ["UNIT_WARRIOR", *unit_values],
+        )
         connection.commit()
 
 
-class TechnologyImportTest(unittest.TestCase):
+class RulesetImportTest(unittest.TestCase):
     def test_imports_allowlisted_facts_and_relationships(self):
         with tempfile.TemporaryDirectory() as directory:
             database = Path(directory) / "Civ5DebugDatabase.db"
             create_database(database)
-            bundle = import_technologies(
+            bundle = import_ruleset(
                 database,
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279", ("Expansion2",), ()),
             )
-        self.assertEqual(len(bundle.entities), 3)
+        self.assertEqual(len(bundle.entities), 4)
         self.assertEqual(len(bundle.references), 3)
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
@@ -90,13 +117,17 @@ class TechnologyImportTest(unittest.TestCase):
             if item.kind == "belongs_to" and item.source_type_id == "TECH_POTTERY"
         )
         self.assertEqual(era.target_type_id, "ERA_ANCIENT")
+        warrior = next(item for item in bundle.entities if item.type_id == "UNIT_WARRIOR")
+        self.assertEqual(warrior.attributes["combat"], 8)
+        self.assertEqual(warrior.attributes["cost"], 40)
+        self.assertNotIn("default_unit_ai", warrior.attributes)
 
     def test_records_source_hash_without_absolute_path(self):
         with tempfile.TemporaryDirectory() as directory:
             database = Path(directory) / "Civ5DebugDatabase.db"
             create_database(database)
             expected_hash = hashlib.sha256(database.read_bytes()).hexdigest()
-            bundle = import_technologies(
+            bundle = import_ruleset(
                 database,
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
@@ -109,14 +140,14 @@ class TechnologyImportTest(unittest.TestCase):
             database = Path(directory) / "bad.db"
             create_database(database, invalid_boolean=True)
             with self.assertRaisesRegex(KnowledgeImportError, "invalid boolean Trade"):
-                import_technologies(database, "cache/bad.db", Ruleset("bnw", "test"))
+                import_ruleset(database, "cache/bad.db", Ruleset("bnw", "test"))
 
     def test_rejects_missing_required_table(self):
         with tempfile.TemporaryDirectory() as directory:
             database = Path(directory) / "empty.db"
             sqlite3.connect(database).close()
             with self.assertRaisesRegex(KnowledgeImportError, "required table"):
-                import_technologies(database, "cache/empty.db", Ruleset("bnw", "test"))
+                import_ruleset(database, "cache/empty.db", Ruleset("bnw", "test"))
 
 
 if __name__ == "__main__":

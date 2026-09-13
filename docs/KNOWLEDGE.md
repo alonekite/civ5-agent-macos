@@ -39,14 +39,16 @@ lookups for entities, entity kinds, typed incoming and outgoing references, and
 resolved reference targets. Unknown entities fail closed instead of returning
 an empty result that could be mistaken for “no prerequisites.”
 
-## SQLite technology importer
+## SQLite ruleset importer
 
 The initial importer reads the merged `Civ5DebugDatabase.db` with SQLite
 `query_only`, URI `mode=ro`, and immutable access. It requires the `Eras`,
-`Technologies`, `Technology_PrereqTechs`, and `Technology_ORPrereqTechs` tables.
+`Technologies`, `Technology_PrereqTechs`, `Technology_ORPrereqTechs`, and `Units`
+tables.
 It selects fixed technology and era gameplay-column allowlists rather than
 copying entire rows. Every technology has a validated `belongs_to` edge to an
-era entity.
+era entity. It also imports allowlisted gameplay values for unit types while
+excluding unit AI roles, flavors, presentation assets, and prose.
 
 For reproducibility and safety it:
 
@@ -58,8 +60,8 @@ For reproducibility and safety it:
 6. refuses the result if the source changed.
 
 On the tested Campaign Edition cache this produces 81 technology entities,
-8 era entities, 135 `requires_all` relations, and 81 `belongs_to` relations.
-The observed `requires_any` table is empty.
+8 era entities, 148 unit entities, 135 `requires_all` relations, and 81
+`belongs_to` relations. The observed `requires_any` table is empty.
 
 ## Third-party research
 

@@ -143,11 +143,11 @@ one saved game. It uses canonical JSON, stable game identifiers, typed
 relations, source hashes, and strict referential-integrity validation. AI flavor
 and personality parameters are explicitly rejected.
 
-The first read-only importer extracts 81 BNW technologies, 8 eras, 135
-prerequisite relations, and 81 technology-to-era relations from the merged
-SQLite cache on the tested Campaign Edition installation. The database itself
-and other game assets are not copied into this repository. Generate a local
-artifact with:
+The read-only importer currently extracts 81 BNW technologies, 8 eras, 148
+unit types, 135 prerequisite relations, and 81 technology-to-era relations
+from the merged SQLite cache on the tested Campaign Edition installation. The
+database itself and other game assets are not copied into this repository.
+Generate a local artifact with:
 
 ```bash
 PYTHONPATH=src python3 -m civ5_agent.knowledge.import_sqlite \

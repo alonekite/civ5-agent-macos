@@ -96,12 +96,95 @@ ERA_FIELDS = {
     "WarmongerPercent": ("warmonger_percent", "integer"),
 }
 
+UNIT_FIELDS = {
+    "Combat": ("combat", "integer"),
+    "RangedCombat": ("ranged_combat", "integer"),
+    "Cost": ("cost", "integer"),
+    "FaithCost": ("faith_cost", "integer"),
+    "RequiresFaithPurchaseEnabled": ("requires_faith_purchase", "boolean"),
+    "PurchaseOnly": ("purchase_only", "boolean"),
+    "MoveAfterPurchase": ("move_after_purchase", "boolean"),
+    "Moves": ("moves", "integer"),
+    "Immobile": ("immobile", "boolean"),
+    "Range": ("range", "integer"),
+    "BaseSightRange": ("base_sight_range", "integer"),
+    "Class": ("unit_class", "identifier"),
+    "Special": ("special_unit", "identifier"),
+    "Capture": ("capture_unit", "identifier"),
+    "CombatClass": ("combat_class", "identifier"),
+    "Domain": ("domain", "identifier"),
+    "Food": ("food_production", "boolean"),
+    "NoBadGoodies": ("no_bad_ancient_ruins", "boolean"),
+    "RivalTerritory": ("rival_territory", "boolean"),
+    "MilitarySupport": ("military_support", "boolean"),
+    "MilitaryProduction": ("military_production", "boolean"),
+    "Pillage": ("can_pillage", "boolean"),
+    "PillagePrereqTech": ("pillage_prerequisite_technology", "identifier"),
+    "Found": ("can_found_city", "boolean"),
+    "FoundAbroad": ("can_found_abroad", "boolean"),
+    "CultureBombRadius": ("culture_bomb_radius", "integer"),
+    "GoldenAgeTurns": ("golden_age_turns", "integer"),
+    "FreePolicies": ("free_policies", "integer"),
+    "OneShotTourism": ("one_shot_tourism", "integer"),
+    "OneShotTourismPercentOthers": ("one_shot_tourism_percent_others", "integer"),
+    "IgnoreBuildingDefense": ("ignore_building_defense", "boolean"),
+    "PrereqResources": ("requires_resources", "boolean"),
+    "Mechanized": ("mechanized", "boolean"),
+    "Suicide": ("suicide", "boolean"),
+    "CaptureWhileEmbarked": ("capture_while_embarked", "boolean"),
+    "PrereqTech": ("prerequisite_technology", "identifier"),
+    "ObsoleteTech": ("obsolete_technology", "identifier"),
+    "GoodyHutUpgradeUnitClass": ("ancient_ruin_upgrade_unit_class", "identifier"),
+    "HurryCostModifier": ("hurry_cost_modifier", "integer"),
+    "AdvancedStartCost": ("advanced_start_cost", "integer"),
+    "MinAreaSize": ("minimum_area_size", "integer"),
+    "AirInterceptRange": ("air_intercept_range", "integer"),
+    "AirUnitCap": ("air_unit_cap", "integer"),
+    "NukeDamageLevel": ("nuclear_damage_level", "integer"),
+    "WorkRate": ("work_rate", "integer"),
+    "NumFreeTechs": ("free_technologies", "integer"),
+    "BaseBeakersTurnsToCount": ("base_science_turns_to_count", "integer"),
+    "BaseCultureTurnsToCount": ("base_culture_turns_to_count", "integer"),
+    "RushBuilding": ("can_rush_building", "boolean"),
+    "BaseHurry": ("base_hurry", "integer"),
+    "HurryMultiplier": ("hurry_multiplier", "integer"),
+    "BaseGold": ("base_gold", "integer"),
+    "NumGoldPerEra": ("gold_per_era", "integer"),
+    "SpreadReligion": ("can_spread_religion", "boolean"),
+    "RemoveHeresy": ("can_remove_heresy", "boolean"),
+    "ReligionSpreads": ("religion_spreads", "integer"),
+    "ReligiousStrength": ("religious_strength", "integer"),
+    "FoundReligion": ("can_found_religion", "boolean"),
+    "RequiresEnhancedReligion": ("requires_enhanced_religion", "boolean"),
+    "ProhibitsSpread": ("prohibits_religious_spread", "boolean"),
+    "CanBuyCityState": ("can_buy_city_state", "boolean"),
+    "CombatLimit": ("combat_limit", "integer"),
+    "RangeAttackOnlyInDomain": ("range_attack_only_in_domain", "boolean"),
+    "RangeAttackIgnoreLOS": ("range_attack_ignores_line_of_sight", "boolean"),
+    "Trade": ("trade_unit", "boolean"),
+    "NumExoticGoods": ("exotic_goods", "integer"),
+    "PolicyType": ("required_policy", "identifier"),
+    "RangedCombatLimit": ("ranged_combat_limit", "integer"),
+    "XPValueAttack": ("experience_value_attack", "integer"),
+    "XPValueDefense": ("experience_value_defense", "integer"),
+    "SpecialCargo": ("special_cargo", "identifier"),
+    "DomainCargo": ("domain_cargo", "identifier"),
+    "Conscription": ("conscription", "integer"),
+    "ExtraMaintenanceCost": ("extra_maintenance_cost", "integer"),
+    "NoMaintenance": ("no_maintenance", "boolean"),
+    "Unhappiness": ("unhappiness", "integer"),
+    "ProjectPrereq": ("prerequisite_project", "identifier"),
+    "SpaceshipProject": ("spaceship_project", "identifier"),
+    "LeaderPromotion": ("leader_promotion", "identifier"),
+    "LeaderExperience": ("leader_experience", "integer"),
+}
+
 
 class KnowledgeImportError(ValueError):
     pass
 
 
-def import_technologies(
+def import_ruleset(
     database_path: Path,
     source_label: str,
     ruleset: Ruleset,
@@ -127,6 +210,7 @@ def import_technologies(
                 {"Type", "Era", *TECHNOLOGY_FIELDS},
             )
             _require_columns(connection, "Eras", {"Type", *ERA_FIELDS})
+            _require_columns(connection, "Units", {"Type", *UNIT_FIELDS})
             _require_columns(
                 connection,
                 "Technology_PrereqTechs",
@@ -158,6 +242,17 @@ def import_technologies(
             technology_entities = tuple(
                 _scalar_entity("technology", row, TECHNOLOGY_FIELDS, source_label)
                 for row in rows
+            )
+            unit_columns = ["Type", *UNIT_FIELDS]
+            unit_select = ", ".join(f'"{column}"' for column in unit_columns)
+            unit_rows = connection.execute(
+                f'SELECT {unit_select} FROM "Units" ORDER BY "Type"'
+            ).fetchall()
+            if not unit_rows:
+                raise KnowledgeImportError("Units table is empty")
+            unit_entities = tuple(
+                _scalar_entity("unit", row, UNIT_FIELDS, source_label)
+                for row in unit_rows
             )
             era_references = [
                 Reference(
@@ -196,10 +291,19 @@ def import_technologies(
             schema_version=1,
             ruleset=ruleset,
             sources=(source,),
-            entities=era_entities + technology_entities,
+            entities=era_entities + technology_entities + unit_entities,
             references=references,
         )
     )
+
+
+def import_technologies(
+    database_path: Path,
+    source_label: str,
+    ruleset: Ruleset,
+) -> KnowledgeBundle:
+    """Backward-compatible name for the ruleset importer."""
+    return import_ruleset(database_path, source_label, ruleset)
 
 
 def _scalar_entity(
@@ -300,7 +404,7 @@ def _write_output(path: Path, payload: str, force: bool) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Import a deterministic technology catalog from Civ V SQLite"
+        description="Import deterministic ruleset knowledge from Civ V SQLite"
     )
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--source-label", required=True)
@@ -318,7 +422,7 @@ def main() -> int:
             tuple(sorted(set(args.dlc))),
             tuple(sorted(set(args.mod))),
         )
-        bundle = import_technologies(args.database, args.source_label, ruleset)
+        bundle = import_ruleset(args.database, args.source_label, ruleset)
         payload = dumps(bundle)
         if args.output is None:
             print(payload)
