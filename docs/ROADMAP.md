@@ -65,8 +65,10 @@ No application-bundle modification is required.
 - [ ] Import building effect relation tables after their target entities exist
 - [x] Import civilizations, leaders, traits, and unique/disabled unit and
   building class overrides.
-- [ ] Import religions, beliefs, great people, specialists, terrain, features,
-  improvements, routes, yields, and remaining rule tables
+- [x] Import religions, core beliefs, specialists, and great-person unit-class
+  relationships
+- [ ] Import terrain, features, improvements, routes, yields, dependent effect
+  tables, and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context
 - [x] Expose a validated, deterministic entity/reference query API

@@ -8,6 +8,8 @@ from pathlib import Path
 from civ5_agent.knowledge import Ruleset
 from civ5_agent.knowledge.import_sqlite import (
     BRAVE_NEW_WORLD_PACKAGE_ID,
+    BELIEF_FIELDS,
+    BELIEF_REFERENCE_COLUMNS,
     BUILDING_CLASS_FIELDS,
     BUILDING_FIELDS,
     BUILDING_REFERENCE_COLUMNS,
@@ -21,6 +23,7 @@ from civ5_agent.knowledge.import_sqlite import (
     RESOURCE_CLASS_FIELDS,
     RESOURCE_FIELDS,
     RESOURCE_REFERENCE_COLUMNS,
+    SPECIALIST_FIELDS,
     TECHNOLOGY_FIELDS,
     TRAIT_FIELDS,
     TRAIT_REFERENCE_COLUMNS,
@@ -30,7 +33,9 @@ from civ5_agent.knowledge.import_sqlite import (
 )
 
 
-def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
+def create_database(
+    path: Path, *, invalid_boolean: bool = False, invalid_number: bool = False
+) -> None:
     definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
     definitions.append("Era TEXT NOT NULL")
     for column, (_, value_type) in TECHNOLOGY_FIELDS.items():
@@ -186,6 +191,35 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
         connection.execute(
             "CREATE TABLE Civilization_BuildingClassOverrides "
             "(CivilizationType TEXT, BuildingClassType TEXT, BuildingType TEXT)"
+        )
+        connection.execute("CREATE TABLE Religions (Type TEXT NOT NULL PRIMARY KEY)")
+        belief_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        belief_definitions.extend(
+            f'"{column}" TEXT' for column, _, _ in BELIEF_REFERENCE_COLUMNS
+        )
+        for column, (_, value_type) in BELIEF_FIELDS.items():
+            sql_type = "REAL" if value_type == "number" else "INTEGER"
+            belief_definitions.append(f'"{column}" {sql_type}')
+        connection.execute(
+            f"CREATE TABLE Beliefs ({', '.join(belief_definitions)})"
+        )
+        specialist_definitions = [
+            "Type TEXT NOT NULL PRIMARY KEY",
+            "GreatPeopleUnitClass TEXT",
+        ]
+        specialist_definitions.extend(
+            f'"{column}" INTEGER' for column in SPECIALIST_FIELDS
+        )
+        connection.execute(
+            f"CREATE TABLE Specialists ({', '.join(specialist_definitions)})"
+        )
+        connection.execute(
+            "CREATE TABLE Civilization_Religions "
+            "(CivilizationType TEXT, ReligionType TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE Unit_GreatPersons "
+            "(UnitType TEXT, GreatPersonType TEXT)"
         )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
@@ -521,6 +555,69 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
                 "BUILDING_PYRAMID",
             ),
         )
+        connection.execute(
+            "INSERT INTO Religions VALUES (?)", ("RELIGION_TEST",)
+        )
+        belief_columns = [
+            "Type",
+            *(column for column, _, _ in BELIEF_REFERENCE_COLUMNS),
+            *BELIEF_FIELDS,
+        ]
+        belief_reference_values = {
+            "ObsoleteEra": "ERA_ANCIENT",
+            "ResourceRevealed": "RESOURCE_IRON",
+            "SpreadModifierDoublingTech": "TECH_AGRICULTURE",
+        }
+        belief_values = []
+        for column, (_, value_type) in BELIEF_FIELDS.items():
+            if column == "Founder":
+                value = 1
+            elif column == "GoldPerFollowingCity":
+                value = 2
+            elif column == "HappinessPerFollowingCity":
+                value = "invalid" if invalid_number else 0.5
+            elif value_type in {"integer", "boolean", "number"}:
+                value = 0
+            else:
+                value = None
+            belief_values.append(value)
+        connection.execute(
+            f"INSERT INTO Beliefs ({', '.join(belief_columns)}) VALUES "
+            f"({', '.join('?' for _ in belief_columns)})",
+            [
+                "BELIEF_TEST",
+                *(
+                    belief_reference_values.get(column)
+                    for column, _, _ in BELIEF_REFERENCE_COLUMNS
+                ),
+                *belief_values,
+            ],
+        )
+        specialist_columns = ["Type", "GreatPeopleUnitClass", *SPECIALIST_FIELDS]
+        specialist_values = []
+        for column, (_, value_type) in SPECIALIST_FIELDS.items():
+            if column == "GreatPeopleRateChange":
+                value = 3
+            elif column == "Visible":
+                value = 1
+            elif value_type in {"integer", "boolean"}:
+                value = 0
+            else:
+                value = None
+            specialist_values.append(value)
+        connection.execute(
+            f"INSERT INTO Specialists ({', '.join(specialist_columns)}) VALUES "
+            f"({', '.join('?' for _ in specialist_columns)})",
+            ["SPECIALIST_TEST", "UNITCLASS_WARRIOR", *specialist_values],
+        )
+        connection.execute(
+            "INSERT INTO Civilization_Religions VALUES (?, ?)",
+            ("CIVILIZATION_TEST", "RELIGION_TEST"),
+        )
+        connection.execute(
+            "INSERT INTO Unit_GreatPersons VALUES (?, ?)",
+            ("UNIT_WARRIOR", "SPECIALIST_TEST"),
+        )
         connection.commit()
 
 
@@ -534,8 +631,8 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 18)
-        self.assertEqual(len(bundle.references), 29)
+        self.assertEqual(len(bundle.entities), 21)
+        self.assertEqual(len(bundle.references), 35)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
@@ -713,6 +810,13 @@ class RulesetImportTest(unittest.TestCase):
                     "BUILDING_PYRAMID",
                 ),
                 (
+                    "preferred_religion",
+                    "civilization",
+                    "CIVILIZATION_TEST",
+                    "religion",
+                    "RELIGION_TEST",
+                ),
+                (
                     "grants_unit_class",
                     "trait",
                     "TRAIT_TEST",
@@ -742,6 +846,58 @@ class RulesetImportTest(unittest.TestCase):
                 ),
             },
         )
+        belief = next(item for item in bundle.entities if item.type_id == "BELIEF_TEST")
+        self.assertTrue(belief.attributes["founder"])
+        self.assertEqual(belief.attributes["gold_per_following_city"], 2)
+        self.assertEqual(belief.attributes["happiness_per_following_city"], 0.5)
+        religion = next(
+            item for item in bundle.entities if item.type_id == "RELIGION_TEST"
+        )
+        self.assertEqual(religion.attributes, {})
+        specialist = next(
+            item for item in bundle.entities if item.type_id == "SPECIALIST_TEST"
+        )
+        self.assertTrue(specialist.attributes["visible"])
+        self.assertEqual(specialist.attributes["great_people_rate_change"], 3)
+        religious_relations = {
+            (item.kind, item.source_type_id, item.target_type_id)
+            for item in bundle.references
+            if item.source_type_id
+            in {"BELIEF_TEST", "CIVILIZATION_TEST", "SPECIALIST_TEST"}
+            and item.kind
+            in {
+                "obsoleted_by_era",
+                "reveals_resource",
+                "spread_modifier_doubled_by_technology",
+                "preferred_religion",
+                "generates_great_person_unit_class",
+            }
+        }
+        self.assertEqual(
+            religious_relations,
+            {
+                ("obsoleted_by_era", "BELIEF_TEST", "ERA_ANCIENT"),
+                ("reveals_resource", "BELIEF_TEST", "RESOURCE_IRON"),
+                (
+                    "spread_modifier_doubled_by_technology",
+                    "BELIEF_TEST",
+                    "TECH_AGRICULTURE",
+                ),
+                ("preferred_religion", "CIVILIZATION_TEST", "RELIGION_TEST"),
+                (
+                    "generates_great_person_unit_class",
+                    "SPECIALIST_TEST",
+                    "UNITCLASS_WARRIOR",
+                ),
+            },
+        )
+        self.assertIn(
+            ("great_person_for_specialist", "UNIT_WARRIOR", "SPECIALIST_TEST"),
+            {
+                (item.kind, item.source_type_id, item.target_type_id)
+                for item in bundle.references
+            },
+        )
 
     def test_records_source_hash_without_absolute_path(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -762,6 +918,17 @@ class RulesetImportTest(unittest.TestCase):
             create_database(database, invalid_boolean=True)
             with self.assertRaisesRegex(KnowledgeImportError, "invalid boolean Trade"):
                 import_ruleset(database, "cache/bad.db", Ruleset("bnw", "test"))
+
+    def test_rejects_invalid_database_number(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-number.db"
+            create_database(database, invalid_number=True)
+            with self.assertRaisesRegex(
+                KnowledgeImportError, "invalid number HappinessPerFollowingCity"
+            ):
+                import_ruleset(
+                    database, "cache/bad-number.db", Ruleset("bnw", "test")
+                )
 
     def test_rejects_civilization_replacement_in_wrong_class(self):
         with tempfile.TemporaryDirectory() as directory:

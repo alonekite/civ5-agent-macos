@@ -66,11 +66,12 @@ canonical counts and relations were checked without committing generated data.
 
 Coverage currently stops after eras, technologies, units/classes, promotions,
 policies/branches, buildings/classes, resources/classes, civilizations, leaders,
-and traits plus supported relations. Trait references to improvements remain
-stable identifier attributes until improvement entities are imported.
+traits, religions, beliefs, and specialists/great-person classes plus supported
+relations. Trait references to improvements remain stable identifier attributes
+until improvement entities are imported.
 
 ## Planned extensions
 
-M3 next imports religion, beliefs, great people, and specialists, followed by
-map/effect/scaling families. M4 adds per-game resolution without mutating base
-facts.
+M3 next imports terrain, features, improvements, routes, yields, and dependent
+effect tables, followed by scaling families. M4 adds per-game resolution without
+mutating base facts.

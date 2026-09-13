@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import re
 import sqlite3
@@ -750,6 +751,81 @@ TRAIT_REFERENCE_COLUMNS = (
     ("PrereqTech", "unlocked_by_technology", "technology"),
 )
 
+BELIEF_BOOLEAN_COLUMNS = (
+    "Pantheon",
+    "Founder",
+    "Follower",
+    "Enhancer",
+    "Reformation",
+    "RequiresPeace",
+    "ConvertsBarbarians",
+    "FaithPurchaseAllGreatPeople",
+)
+
+BELIEF_INTEGER_COLUMNS = (
+    "MinPopulation",
+    "MinFollowers",
+    "MaxDistance",
+    "CityGrowthModifier",
+    "FaithFromKills",
+    "FaithFromDyingUnits",
+    "RiverHappiness",
+    "HappinessPerCity",
+    "HappinessPerXPeacefulForeignFollowers",
+    "PlotCultureCostModifier",
+    "CityRangeStrikeModifier",
+    "CombatModifierEnemyCities",
+    "CombatModifierFriendlyCities",
+    "FriendlyHealChange",
+    "CityStateFriendshipModifier",
+    "LandBarbarianConversionPercent",
+    "WonderProductionModifier",
+    "PlayerHappiness",
+    "PlayerCultureModifier",
+    "GoldPerFollowingCity",
+    "GoldPerXFollowers",
+    "GoldPerFirstCityConversion",
+    "SciencePerOtherReligionFollower",
+    "SpreadDistanceModifier",
+    "SpreadStrengthModifier",
+    "ProphetStrengthModifier",
+    "ProphetCostModifier",
+    "MissionaryStrengthModifier",
+    "MissionaryCostModifier",
+    "FriendlyCityStateSpreadModifier",
+    "GreatPersonExpendedFaith",
+    "CityStateMinimumInfluence",
+    "CityStateInfluenceModifier",
+    "OtherReligionPressureErosion",
+    "SpyPressure",
+    "InquisitorPressureRetention",
+    "FaithBuildingTourism",
+)
+
+BELIEF_FIELDS = {
+    **{column: (_snake_case(column), "boolean") for column in BELIEF_BOOLEAN_COLUMNS},
+    **{column: (_snake_case(column), "integer") for column in BELIEF_INTEGER_COLUMNS},
+    "HappinessPerFollowingCity": ("happiness_per_following_city", "number"),
+}
+
+BELIEF_REFERENCE_COLUMNS = (
+    ("ObsoleteEra", "obsoleted_by_era", "era"),
+    ("ResourceRevealed", "reveals_resource", "resource"),
+    (
+        "SpreadModifierDoublingTech",
+        "spread_modifier_doubled_by_technology",
+        "technology",
+    ),
+)
+
+SPECIALIST_FIELDS = {
+    "Visible": ("visible", "boolean"),
+    "Cost": ("cost", "integer"),
+    "Experience": ("experience", "integer"),
+    "GreatPeopleRateChange": ("great_people_rate_change", "integer"),
+    "CulturePerTurn": ("culture_per_turn", "integer"),
+}
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -923,6 +999,31 @@ def import_ruleset(
                 connection,
                 "Civilization_BuildingClassOverrides",
                 {"CivilizationType", "BuildingClassType", "BuildingType"},
+            )
+            _require_columns(connection, "Religions", {"Type"})
+            _require_columns(
+                connection,
+                "Beliefs",
+                {
+                    "Type",
+                    *(column for column, _, _ in BELIEF_REFERENCE_COLUMNS),
+                    *BELIEF_FIELDS,
+                },
+            )
+            _require_columns(
+                connection,
+                "Specialists",
+                {"Type", "GreatPeopleUnitClass", *SPECIALIST_FIELDS},
+            )
+            _require_columns(
+                connection,
+                "Civilization_Religions",
+                {"CivilizationType", "ReligionType"},
+            )
+            _require_columns(
+                connection,
+                "Unit_GreatPersons",
+                {"UnitType", "GreatPersonType"},
             )
             era_columns = ["Type", *ERA_FIELDS]
             era_select = ", ".join(f'"{column}"' for column in era_columns)
@@ -1126,6 +1227,47 @@ def import_ruleset(
                 _scalar_entity("trait", row, TRAIT_FIELDS, source_label)
                 for row in trait_rows
             )
+            religion_rows = connection.execute(
+                'SELECT "Type" FROM "Religions" ORDER BY "Type"'
+            ).fetchall()
+            if not religion_rows:
+                raise KnowledgeImportError("Religions table is empty")
+            religion_entities = tuple(
+                _scalar_entity("religion", row, {}, source_label)
+                for row in religion_rows
+            )
+            belief_columns = [
+                "Type",
+                *(column for column, _, _ in BELIEF_REFERENCE_COLUMNS),
+                *BELIEF_FIELDS,
+            ]
+            belief_select = ", ".join(f'"{column}"' for column in belief_columns)
+            belief_rows = connection.execute(
+                f'SELECT {belief_select} FROM "Beliefs" ORDER BY "Type"'
+            ).fetchall()
+            if not belief_rows:
+                raise KnowledgeImportError("Beliefs table is empty")
+            belief_entities = tuple(
+                _scalar_entity("belief", row, BELIEF_FIELDS, source_label)
+                for row in belief_rows
+            )
+            specialist_columns = [
+                "Type",
+                "GreatPeopleUnitClass",
+                *SPECIALIST_FIELDS,
+            ]
+            specialist_select = ", ".join(
+                f'"{column}"' for column in specialist_columns
+            )
+            specialist_rows = connection.execute(
+                f'SELECT {specialist_select} FROM "Specialists" ORDER BY "Type"'
+            ).fetchall()
+            if not specialist_rows:
+                raise KnowledgeImportError("Specialists table is empty")
+            specialist_entities = tuple(
+                _scalar_entity("specialist", row, SPECIALIST_FIELDS, source_label)
+                for row in specialist_rows
+            )
             era_references = [
                 Reference(
                     "belongs_to",
@@ -1170,6 +1312,9 @@ def import_ruleset(
                     source_label,
                 )
                 + _trait_references(trait_rows, source_label)
+                + _religion_references(
+                    connection, belief_rows, specialist_rows, source_label
+                )
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -1197,6 +1342,9 @@ def import_ruleset(
                 + civilization_entities
                 + leader_entities
                 + trait_entities
+                + religion_entities
+                + belief_entities
+                + specialist_entities
             ),
             references=references,
         )
@@ -1231,6 +1379,15 @@ def _scalar_entity(
             if not isinstance(value, int) or isinstance(value, bool):
                 raise KnowledgeImportError(
                     f"{kind} {row['Type']} has invalid integer {column}: {value}"
+                )
+        elif value_type == "number":
+            if (
+                not isinstance(value, (int, float))
+                or isinstance(value, bool)
+                or not math.isfinite(value)
+            ):
+                raise KnowledgeImportError(
+                    f"{kind} {row['Type']} has invalid number {column}: {value}"
                 )
         elif value is not None and not isinstance(value, str):
             raise KnowledgeImportError(
@@ -1579,6 +1736,69 @@ def _trait_references(
                     (source_label,),
                 )
             )
+    return references
+
+
+def _religion_references(
+    connection: sqlite3.Connection,
+    belief_rows: list[sqlite3.Row],
+    specialist_rows: list[sqlite3.Row],
+    source_label: str,
+) -> list[Reference]:
+    references: list[Reference] = []
+    for row in belief_rows:
+        for column, kind, target_kind in BELIEF_REFERENCE_COLUMNS:
+            target = row[column]
+            if target in (None, "NONE"):
+                continue
+            references.append(
+                Reference(
+                    kind,
+                    "belief",
+                    row["Type"],
+                    target_kind,
+                    target,
+                    (source_label,),
+                )
+            )
+    for row in specialist_rows:
+        target = row["GreatPeopleUnitClass"]
+        if target in (None, "NONE"):
+            continue
+        references.append(
+            Reference(
+                "generates_great_person_unit_class",
+                "specialist",
+                row["Type"],
+                "unit_class",
+                target,
+                (source_label,),
+            )
+        )
+    references.extend(
+        _two_column_references(
+            connection,
+            "Civilization_Religions",
+            "CivilizationType",
+            "ReligionType",
+            "preferred_religion",
+            "civilization",
+            "religion",
+            source_label,
+        )
+    )
+    references.extend(
+        _two_column_references(
+            connection,
+            "Unit_GreatPersons",
+            "UnitType",
+            "GreatPersonType",
+            "great_person_for_specialist",
+            "unit",
+            "specialist",
+            source_label,
+        )
+    )
     return references
 
 

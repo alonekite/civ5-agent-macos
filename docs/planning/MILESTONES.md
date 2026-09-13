@@ -68,9 +68,10 @@ Acceptance criteria:
 - Exclude AI flavor/personality data and copyrighted descriptive assets.
 - Produce byte-for-byte repeatable canonical output from unchanged sources.
 
-Completed coverage slice: civilizations, leaders, deterministic trait effects,
-and unique/disabled unit and building class overrides. Current next deliverable:
-religions, beliefs, great people, and specialists.
+Completed coverage slices: civilizations, leaders, deterministic trait effects,
+unique/disabled unit and building class overrides, religions, core beliefs, and
+specialists/great-person classes. Current next deliverable: terrain, features,
+improvements, routes, yields, and their dependent effect tables.
 
 ## M4 — Ruleset resolver
 

@@ -15,6 +15,7 @@ versioned releases. Development details belong in
 - Versioned ruleset knowledge core and partial BNW knowledge importer.
 - Civilization, leader, deterministic trait, and unique/disabled class
   knowledge coverage without AI personality data.
+- Religion, core belief, specialist, and great-person class knowledge coverage.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

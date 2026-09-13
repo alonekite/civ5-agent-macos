@@ -48,7 +48,9 @@ The initial importer reads the merged `Civ5DebugDatabase.db` with SQLite
 `Unit_FreePromotions` tables, plus `Policies`, `PolicyBranchTypes`, and the
 policy prerequisite/disable tables, `Buildings`, `BuildingClasses`, `Resources`,
 and `ResourceClasses`, plus `Civilizations`, `Leaders`, `Traits`, their mapping
-tables, and civilization unit/building class overrides.
+tables, and civilization unit/building class overrides. It also requires
+`Religions`, `Beliefs`, `Specialists`, `Civilization_Religions`, and
+`Unit_GreatPersons` for the religion and great-person slice.
 Active package IDs come from
 `DownloadableContent`; callers cannot silently relabel a BNW database as
 vanilla or Gods & Kings.
@@ -90,6 +92,12 @@ unique units and buildings, and disabled default classes. If a merged database
 contains both a null and a non-null override for the same slot, the non-null
 replacement wins; multiple distinct non-null replacements are rejected. Every
 non-null replacement must belong to its declared unit or building class.
+Religion entities preserve stable identifiers without prose or art. Beliefs
+include category flags, scalar gameplay effects, and references to known eras,
+resources, and technologies. Specialists include gameplay rates and link to the
+unit class they generate as a great person. Yield-, terrain-, feature-, and
+improvement-dependent belief/specialist effects remain deferred until those
+target entity families exist.
 
 For reproducibility and safety it:
 
@@ -110,12 +118,15 @@ technology prerequisites, 307 unit free-promotion relations, 148 unit-class
 memberships, 82 class defaults, and 105 distinct upgrade targets. The observed
 technology `requires_any` table is empty.
 
-The same tested database adds 45 civilizations, 44 leaders, and 48 traits. The
-complete current import contains 1,100 entities and 2,059 references, including
+The same tested database adds 45 civilizations, 44 leaders, 48 traits, 14
+religions, 69 beliefs, and 7 specialists. The complete current import contains
+1,190 entities and 2,110 references, including
 45 civilization-to-leader, 43 leader-to-trait, 66 unique-unit, 20
 unique-building, 45 disabled-unit-class, and 121 disabled-building-class
 relationships. Two consecutive imports produced the same canonical bundle
-hash. No generated bundle or local database is committed.
+hash. Six specialist types reference a great-person unit class; the installed
+database's optional `Unit_GreatPersons` mapping is empty and therefore produces
+no invented relationships. No generated bundle or local database is committed.
 
 ## Third-party research
 

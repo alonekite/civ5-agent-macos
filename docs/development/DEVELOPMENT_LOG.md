@@ -71,6 +71,10 @@ Governance commit: `a053797`.
   declared unit/building class does not match the target entity.
 - Imported the target installation's merged database read-only without writing
   a generated bundle to the repository: 1,100 entities and 2,059 references.
+- Added religion identifiers, allowlisted core belief effects, preferred
+  religions, specialists, and great-person unit-class relationships. The
+  expanded real import contains 1,190 entities and 2,110 references and remains
+  byte-repeatable across consecutive runs.
 
 ## Archive policy
 
