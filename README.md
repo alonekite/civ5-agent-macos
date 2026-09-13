@@ -179,7 +179,9 @@ listening, and the agent Unix socket is absent.
 On the tested Campaign Edition build, enabling FireTuner made Civ V listen on
 `TCP *:4318`, not loopback only. That endpoint accepts Lua commands and has no
 authentication observed by this project. Use it only for bounded development
-sessions. See [SECURITY.md](SECURITY.md) before enabling it.
+sessions. See [SECURITY.md](SECURITY.md) before enabling it. For the next
+schema-3 and unit-action verification, follow the ordered
+[bounded live-test checklist](docs/LIVE_TEST_CHECKLIST.md).
 
 ## Prior art and references
 
