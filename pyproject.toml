@@ -8,6 +8,7 @@ civ5-watch = "civ5_agent.watch:main"
 civ5-command = "civ5_agent.command:main"
 civ5-controller = "civ5_agent.controller:main"
 civ5-preflight = "civ5_agent.preflight:main"
+civ5-knowledge = "civ5_agent.knowledge.import_sqlite:main"
 
 [build-system]
 requires = ["setuptools>=68"]

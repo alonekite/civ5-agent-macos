@@ -6,10 +6,13 @@
 [ Lua Bridge ]
         │
 [ IPC / Storage Adapter ]
-        │
-[ Python Controller ]
-        │
-[ Agent / LLM ]
+        ├──────────────┐
+        │              │
+[ Ruleset Knowledge ]  │
+        │              │
+        └──────┬───────┘
+               │
+    [ Deterministic Controller ]
 ```
 
 The verified Phase 1 transport is the game's bundled FireTuner server on
@@ -89,4 +92,24 @@ response with `replayed: true`; reuse with different arguments is rejected.
 The lookup, execution, audit, and cache insertion share the connection lock so
 concurrent duplicate requests cannot both reach Civ V.
 
-Do not expose arbitrary Lua execution to the LLM.
+## Ruleset knowledge
+
+`civ5_agent.knowledge` is independent of live-game state. It represents a
+versioned ruleset as entities, typed references, and source records containing
+relative paths, byte sizes, and SHA-256 hashes. Canonical JSON serialization is
+stable across input ordering, and loading rejects unknown fields, broken
+references, invalid identifiers, missing provenance, and non-finite numbers.
+
+The first importer reads the game's merged `Civ5DebugDatabase.db` in SQLite
+read-only and immutable mode. It currently exports technology gameplay fields
+and AND/OR prerequisite relations. It uses an explicit column allowlist and
+does not export AI weights, flavor tables, Civilopedia prose, quotations, art,
+or audio. It refuses a database with a live write-ahead log or one that changes
+during import.
+
+The knowledge module is deterministic and never requires an LLM. A local model
+may help draft code or mappings during development, but model output is accepted
+only after schema, integrity, fixture, and test validation.
+
+Do not expose arbitrary Lua execution to any controller or external decision
+system.

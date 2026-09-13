@@ -1,6 +1,8 @@
 # Civ5 Agent on macOS (Apple Silicon)
 
-Goal: build a minimal, testable bridge between **Civilization V running on Apple Silicon macOS** and an external Python agent, then add an LLM controller.
+Goal: build a reusable, testable read/write core between **Civilization V
+running on Apple Silicon macOS** and external Python, backed by versioned
+ruleset knowledge and a deterministic controller.
 
 ## Core question
 Can a Lua mod running inside Civ V on an M4 Mac:
@@ -10,7 +12,8 @@ Can a Lua mod running inside Civ V on an M4 Mac:
 4. execute safe game actions,
 5. report success/failure back?
 
-The first implementation should **not use MCP** and **not depend on an LLM**. Prove the game I/O loop first.
+This repository does not implement MCP or LLM decision-making. Its job is to
+provide safe, deterministic game I/O, ruleset knowledge, and verification.
 
 Status: the low-level MVP was verified end-to-end on the target Mac on
 2026-09-12. The watcher observed a live rich snapshot and the command CLI
@@ -39,8 +42,9 @@ Bridge storage / IPC
    └── commands: Python → Civ V
    ▼
 Python controller
-   ▼
-LLM agent (later)
+   ▲
+   │
+Versioned ruleset knowledge
 ```
 
 Verified transport on the target App Store build: bundled FireTuner over
@@ -51,11 +55,12 @@ Fallbacks:
 - `Modding.OpenUserData()` / database-backed persistence on a distribution that exposes Mods
 - other Civ V-supported persistence/event mechanisms
 
-Avoid initially:
+Out of scope:
 - Windows-only GameCore DLL approaches
 - mouse/keyboard automation
 - screen OCR
-- MCP before the low-level bridge is stable
+- LLM decision-making
+- MCP integration
 
 ## MVP success criteria
 Read: turn, active player, gold, capital/cities, research, units.
@@ -130,6 +135,34 @@ PYTHONPATH=src python3 -m civ5_agent.controller
 It conservatively reports one of: wait, choose research, choose production,
 issue unit orders, or end turn. Add `--execute` only when it should submit an
 end-turn decision through the same verified command path.
+
+## Versioned ruleset knowledge
+
+`civ5_agent.knowledge` stores facts that belong to a Civ V ruleset rather than
+one saved game. It uses canonical JSON, stable game identifiers, typed
+relations, source hashes, and strict referential-integrity validation. AI flavor
+and personality parameters are explicitly rejected.
+
+The first read-only importer extracts 81 BNW technologies and their 135
+prerequisite relations from the merged SQLite cache on the tested Campaign
+Edition installation. The database itself and other game assets are not copied
+into this repository. Generate a local artifact with:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.knowledge.import_sqlite \
+  --database "/path/to/Civ5DebugDatabase.db" \
+  --source-label cache/Civ5DebugDatabase.db \
+  --family bnw \
+  --game-version 1.0.3.279 \
+  --dlc Expansion \
+  --dlc Expansion2 \
+  --output technologies.json
+```
+
+The importer excludes AI weights and flavor tables, Civilopedia prose, quotes,
+icons, and audio. It also refuses to read a database with an active write-ahead
+log or one that changes during extraction. See
+[docs/KNOWLEDGE.md](docs/KNOWLEDGE.md) for the data contract and reuse policy.
 
 Two additional allowlisted commands were verified in a bounded live-game
 session on the target Mac:

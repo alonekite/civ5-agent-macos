@@ -44,5 +44,17 @@ No application-bundle modification is required.
 - [ ] unit skip (implemented and unit-tested; live verification pending)
 - [ ] coordinate-based unit movement
 - [x] deterministic policy (live-verified refusal and successful execution paths)
-- [ ] LLM controller
-- [ ] optional MCP wrapper
+
+## Versioned ruleset knowledge
+- [x] Define canonical entities, references, ruleset metadata, and provenance
+- [x] Reject AI flavor/personality data and non-gameplay copyrighted assets
+- [x] Import merged technology facts and prerequisite relations from SQLite
+- [ ] Import eras, units, promotions, buildings, policies, civilizations, traits,
+  religions, terrain, resources, improvements, and remaining rule tables
+- [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
+  policy, belief, DLC, and mod context
+- [x] Expose a validated, deterministic entity/reference query API
+- [ ] Integrate ruleset queries into controller decisions
+
+LLM decision-making and MCP integration are intentionally outside this
+repository's scope.
