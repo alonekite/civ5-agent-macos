@@ -584,3 +584,34 @@ application-firewall guard is absent.
 confirmed offline. The configuration and connection layers both require the
 agreed firewall mitigation; the next live session will verify the complete
 operator workflow.
+
+### 2026-09-13 — Offline schema 3 city economy
+
+**Hypothesis**
+
+The snapshot can expose enough city growth and production data for later
+planning without relying on rounded UI strings.
+
+**Procedure**
+
+1. Inspected the bundled Brave New World `CityView.lua`,
+   `CityBannerManager.lua`, and `EconomicGeneralInfo.lua`.
+2. Added food stored, growth threshold, food per turn, production stored,
+   production needed, and production per turn to schema 3 city records.
+3. Preserved the game's times-100 integers for fractional food and production.
+4. Required the snapshot header to precede records and rejected duplicate
+   headers to prevent unrelated FireTuner output from being merged.
+5. Kept six-field schema 2 city records parseable and validated all new schema
+   3 fields before policy or command code can consume them.
+
+**Observed result**
+
+- 74 tests pass with no warnings.
+- Tests cover exact fixed-point parsing, missing schema 3 fields, legacy city
+  records, records before headers, duplicate headers, and the existing
+  read-only Lua denylist.
+
+**Conclusion**
+
+confirmed offline only. The expanded city records are ready for the same
+bounded, firewall-protected live verification as the other schema 3 fields.

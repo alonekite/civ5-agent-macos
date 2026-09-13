@@ -19,11 +19,12 @@ expression using `CMD:<state-id>:<code>`. Game output and command completion are
 returned over the same socket.
 
 The live-verified schema 2 snapshot contains economy, culture, research,
-cities, units, and end-turn readiness. Schema 3 adds score, current era, and a
-record for each alive major civilization the active team has met: player/team
-IDs, visible names, score, war state, and the stock UI's approach estimate.
-Unmet civilizations are deliberately omitted. Schema 3 is implemented and
-offline-tested but not yet live-verified.
+cities, units, and end-turn readiness. Schema 3 adds score, current era, exact
+city food/growth and production progress, and a record for each alive major
+civilization the active team has met: player/team IDs, visible names, score,
+war state, and the stock UI's approach estimate. Unmet civilizations are
+deliberately omitted. Schema 3 is implemented and offline-tested but not yet
+live-verified. Its city rates remain in Civ V's times-100 integer units.
 
 `Modding.OpenUserData()` remains a fallback for a distribution that exposes the
 Mods browser. This App Store Campaign Edition discovers custom mods but keeps

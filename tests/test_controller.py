@@ -82,8 +82,30 @@ class StateValidationTest(unittest.TestCase):
     def test_schema_three_requires_score_and_era(self):
         with self.assertRaisesRegex(StateValidationError, "score and current_era"):
             validate_live_state(ready_state(schema_version=3))
-        state = ready_state(schema_version=3, score=33, current_era=0)
+        city = dict(ready_state().cities[0])
+        city.update(
+            {
+                "food_times100": 525,
+                "growth_threshold": 24,
+                "food_per_turn_times100": 300,
+                "production_times100": 800,
+                "production_needed": 40,
+                "production_per_turn_times100": 500,
+            }
+        )
+        state = ready_state(
+            schema_version=3,
+            score=33,
+            current_era=0,
+            cities=[city],
+        )
         self.assertIs(validate_live_state(state), state)
+
+    def test_schema_three_requires_city_economy_fields(self):
+        with self.assertRaisesRegex(StateValidationError, "food_times100"):
+            validate_live_state(
+                ready_state(schema_version=3, score=33, current_era=0)
+            )
 
 
 class DeterministicPolicyTest(unittest.TestCase):

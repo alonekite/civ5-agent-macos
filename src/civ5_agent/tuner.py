@@ -244,7 +244,10 @@ def snapshot_lua() -> str:
         '..tostring(p:IsTurnActive()).."|"..tostring(UI.CanEndTurn()).."|"..blocking); '
         f'for c in p:Cities() do print("{CITY_MARKER}"..c:GetID().."|"..esc(c:GetName())'
         '.."|"..c:GetX().."|"..c:GetY().."|"..c:GetPopulation().."|"'
-        '..esc(c:GetProductionNameKey())) end; '
+        '..esc(c:GetProductionNameKey()).."|"..c:GetFoodTimes100().."|"'
+        '..c:GrowthThreshold().."|"..c:FoodDifferenceTimes100().."|"'
+        '..c:GetProductionTimes100().."|"..c:GetProductionNeeded().."|"'
+        '..c:GetCurrentProductionDifferenceTimes100(false,false)) end; '
         f'for u in p:Units() do local info=GameInfo.Units[u:GetUnitType()]; '
         f'print("{UNIT_MARKER}"..u:GetID().."|"..esc(u:GetName()).."|"'
         '..esc(info and info.Type or "").."|"..u:GetX().."|"..u:GetY()'
@@ -408,6 +411,8 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     for message in messages:
         for line in message.payload.splitlines():
             if SNAPSHOT_MARKER in line:
+                if snapshot is not None:
+                    raise ValueError("multiple snapshot headers in one response")
                 fields = line.split(SNAPSHOT_MARKER, 1)[1].split("|")
                 schema_version = int(fields[0])
                 if schema_version not in {2, SNAPSHOT_SCHEMA_VERSION}:
@@ -455,20 +460,35 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     },
                 )
             elif CITY_MARKER in line:
+                if snapshot is None:
+                    raise ValueError("city record appeared before snapshot header")
                 fields = line.split(CITY_MARKER, 1)[1].split("|")
-                if len(fields) != 6:
+                expected_fields = 6 if snapshot.schema_version == 2 else 12
+                if len(fields) != expected_fields:
                     raise ValueError(f"malformed city record: {line!r}")
-                cities.append(
-                    {
-                        "id": int(fields[0]),
-                        "name": unquote(fields[1]),
-                        "x": int(fields[2]),
-                        "y": int(fields[3]),
-                        "population": int(fields[4]),
-                        "production": unquote(fields[5]),
-                    }
-                )
+                city: dict[str, object] = {
+                    "id": int(fields[0]),
+                    "name": unquote(fields[1]),
+                    "x": int(fields[2]),
+                    "y": int(fields[3]),
+                    "population": int(fields[4]),
+                    "production": unquote(fields[5]),
+                }
+                if snapshot.schema_version == 3:
+                    city.update(
+                        {
+                            "food_times100": int(fields[6]),
+                            "growth_threshold": int(fields[7]),
+                            "food_per_turn_times100": int(fields[8]),
+                            "production_times100": int(fields[9]),
+                            "production_needed": int(fields[10]),
+                            "production_per_turn_times100": int(fields[11]),
+                        }
+                    )
+                cities.append(city)
             elif UNIT_MARKER in line:
+                if snapshot is None:
+                    raise ValueError("unit record appeared before snapshot header")
                 fields = line.split(UNIT_MARKER, 1)[1].split("|")
                 if len(fields) != 6:
                     raise ValueError(f"malformed unit record: {line!r}")
@@ -483,6 +503,10 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     }
                 )
             elif DIPLOMACY_MARKER in line:
+                if snapshot is None or snapshot.schema_version != 3:
+                    raise ValueError(
+                        "diplomacy record requires a schema 3 snapshot header"
+                    )
                 fields = line.split(DIPLOMACY_MARKER, 1)[1].split("|")
                 if len(fields) != 7:
                     raise ValueError(f"malformed diplomacy record: {line!r}")

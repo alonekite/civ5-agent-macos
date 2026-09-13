@@ -134,7 +134,8 @@ class TunerProtocolTest(unittest.TestCase):
             ),
             TunerMessage(
                 -1,
-                "O\x00InGame: CIV5_AGENT_CITY|4|Mad%7Crid|10|11|2|TXT_KEY_UNIT_WARRIOR",
+                "O\x00InGame: CIV5_AGENT_CITY|4|Mad%7Crid|10|11|2|"
+                "TXT_KEY_UNIT_WARRIOR|525|24|300|800|40|500",
             ),
             TunerMessage(
                 -1,
@@ -162,6 +163,8 @@ class TunerProtocolTest(unittest.TestCase):
             {"id": 3, "type": "TECH_POTTERY", "progress": 6, "cost": 35},
         )
         self.assertEqual(state.cities[0]["name"], "Mad|rid")
+        self.assertEqual(state.cities[0]["food_times100"], 525)
+        self.assertEqual(state.cities[0]["production_per_turn_times100"], 500)
         self.assertEqual(state.units[0]["moves"], 120)
         self.assertEqual(
             state.diplomacy[0],
@@ -189,6 +192,18 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertIsNone(state.score)
         self.assertIsNone(state.current_era)
         self.assertIsNone(state.research)
+
+    def test_rejects_records_before_header_and_duplicate_headers(self):
+        with self.assertRaisesRegex(ValueError, "before snapshot header"):
+            parse_snapshot(
+                (TunerMessage(-1, "CIV5_AGENT_UNIT|8|W|UNIT_W|1|2|0"),)
+            )
+        header = (
+            "CIV5_AGENT_SNAPSHOT|3|2|0|7|4|5|9|0|1|33|0|Isabella|Spain|"
+            "-1||-1|-1|true|true|-1"
+        )
+        with self.assertRaisesRegex(ValueError, "multiple snapshot headers"):
+            parse_snapshot((TunerMessage(-1, header), TunerMessage(-1, header)))
 
     def test_parses_end_turn_precondition_result(self):
         self.assertEqual(

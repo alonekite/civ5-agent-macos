@@ -79,6 +79,27 @@ def validate_live_state(state: GameState) -> GameState:
         for field in ("name", "production"):
             if not isinstance(city.get(field), str):
                 raise StateValidationError(f"city {city.get('id')} has invalid {field}")
+        if state.schema_version == 3:
+            for field in (
+                "food_times100",
+                "growth_threshold",
+                "production_times100",
+                "production_needed",
+            ):
+                value = city.get(field)
+                if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                    raise StateValidationError(
+                        f"city {city.get('id')} has invalid {field}"
+                    )
+            for field in (
+                "food_per_turn_times100",
+                "production_per_turn_times100",
+            ):
+                value = city.get(field)
+                if not isinstance(value, int) or isinstance(value, bool):
+                    raise StateValidationError(
+                        f"city {city.get('id')} has invalid {field}"
+                    )
     for unit in state.units:
         moves = unit.get("moves")
         if not isinstance(moves, int) or isinstance(moves, bool) or moves < 0:
