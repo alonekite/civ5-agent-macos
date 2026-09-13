@@ -20,7 +20,7 @@ Current working conclusions:
 
 Open questions:
 1. Does the implemented unit-specific `skip_unit` action work on this build?
-2. Which additional state is safe and useful for diplomacy and victory progress?
+2. Which additional victory-progress fields are stable enough to add?
 3. What is the smallest safe coordinate-movement API with reliable read-back?
 
 Resolved since the initial notes:
@@ -32,4 +32,7 @@ Resolved since the initial notes:
   bundled UI and have been live-verified with strict identifiers, capability
   checks, and read-back verification.
 - Snapshot schema 2 and the deterministic controller have been live-verified.
+- Snapshot schema 3 has offline-tested score, era, and met-major diplomacy
+  records derived from the bundled Brave New World UI; live verification is
+  pending.
 - The MVP read/write loop is complete; unit skip is the next live experiment.

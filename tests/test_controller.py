@@ -62,6 +62,29 @@ class StateValidationTest(unittest.TestCase):
         with self.assertRaisesRegex(StateValidationError, "gold_per_turn"):
             validate_live_state(ready_state(gold_per_turn="3"))
 
+    def test_validates_diplomacy_records(self):
+        relation = {
+            "player_id": 1,
+            "team_id": 1,
+            "name": "Harun al-Rashid",
+            "civilization": "Arabia",
+            "score": 24,
+            "at_war": False,
+            "approach": 4,
+        }
+        state = ready_state(diplomacy=[relation])
+        self.assertIs(validate_live_state(state), state)
+        with self.assertRaisesRegex(StateValidationError, "invalid at_war"):
+            validate_live_state(
+                ready_state(diplomacy=[{**relation, "at_war": "false"}])
+            )
+
+    def test_schema_three_requires_score_and_era(self):
+        with self.assertRaisesRegex(StateValidationError, "score and current_era"):
+            validate_live_state(ready_state(schema_version=3))
+        state = ready_state(schema_version=3, score=33, current_era=0)
+        self.assertIs(validate_live_state(state), state)
+
 
 class DeterministicPolicyTest(unittest.TestCase):
     def test_requests_research_before_turn_end(self):

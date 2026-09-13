@@ -39,9 +39,10 @@ class LuaState:
 STATE_MARKER = "CIV5_AGENT_STATE:"
 STATE_PATTERN = re.compile(r"CIV5_AGENT_STATE:(-?\d+):(-?\d+):(-?\d+)")
 SNAPSHOT_MARKER = "CIV5_AGENT_SNAPSHOT|"
-SNAPSHOT_SCHEMA_VERSION = 2
+SNAPSHOT_SCHEMA_VERSION = 3
 CITY_MARKER = "CIV5_AGENT_CITY|"
 UNIT_MARKER = "CIV5_AGENT_UNIT|"
+DIPLOMACY_MARKER = "CIV5_AGENT_DIPLOMACY|"
 COMMAND_MARKER = "CIV5_AGENT_COMMAND|"
 TECH_TYPE_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
 PRODUCTION_TYPE_PATTERNS = {
@@ -234,7 +235,8 @@ def snapshot_lua() -> str:
         f'print("{SNAPSHOT_MARKER}{SNAPSHOT_SCHEMA_VERSION}|"..Game.GetGameTurn().."|"..pid.."|"..p:GetGold()'
         '.."|"..p:CalculateGoldRate().."|"..p:GetScience().."|"'
         '..p:GetExcessHappiness().."|"..p:GetJONSCulture().."|"'
-        '..p:GetTotalJONSCulturePerTurn().."|"..esc(p:GetName()).."|"'
+        '..p:GetTotalJONSCulturePerTurn().."|"..p:GetScore().."|"'
+        '..p:GetCurrentEra().."|"..esc(p:GetName()).."|"'
         '..esc(p:GetCivilizationShortDescription()).."|"..tostring(tech or -1).."|"'
         '..esc(techType).."|"..techProgress.."|"..techCost.."|"'
         '..tostring(p:IsTurnActive()).."|"..tostring(UI.CanEndTurn()).."|"..blocking); '
@@ -244,7 +246,17 @@ def snapshot_lua() -> str:
         f'for u in p:Units() do local info=GameInfo.Units[u:GetUnitType()]; '
         f'print("{UNIT_MARKER}"..u:GetID().."|"..esc(u:GetName()).."|"'
         '..esc(info and info.Type or "").."|"..u:GetX().."|"..u:GetY()'
-        '.."|"..u:MovesLeft()) end'
+        '.."|"..u:MovesLeft()) end; '
+        'local myTeam=Teams[p:GetTeam()]; '
+        'for oid=0,GameDefines.MAX_MAJOR_CIVS-1 do local o=Players[oid]; '
+        'if oid~=pid and o and o:IsAlive() and myTeam:IsHasMet(o:GetTeam()) then '
+        'local otherTeam=Teams[o:GetTeam()]; local approach=-1; '
+        'if not o:IsHuman() and not otherTeam:IsHuman() then '
+        'approach=p:GetApproachTowardsUsGuess(oid) end; '
+        f'print("{DIPLOMACY_MARKER}"..oid.."|"..o:GetTeam().."|"'
+        '..esc(o:GetName()).."|"..esc(o:GetCivilizationShortDescription()).."|"'
+        '..o:GetScore().."|"..tostring(myTeam:IsAtWar(o:GetTeam())).."|"'
+        '..approach) end end'
     )
 
 
@@ -389,17 +401,31 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     snapshot: GameState | None = None
     cities: list[dict[str, object]] = []
     units: list[dict[str, object]] = []
+    diplomacy: list[dict[str, object]] = []
 
     for message in messages:
         for line in message.payload.splitlines():
             if SNAPSHOT_MARKER in line:
                 fields = line.split(SNAPSHOT_MARKER, 1)[1].split("|")
-                if len(fields) != 18:
-                    raise ValueError(f"malformed snapshot header: {line!r}")
                 schema_version = int(fields[0])
-                if schema_version != SNAPSHOT_SCHEMA_VERSION:
+                if schema_version not in {2, SNAPSHOT_SCHEMA_VERSION}:
                     raise ValueError(f"unsupported snapshot schema: {schema_version}")
-                tech_id = int(fields[11])
+                expected_fields = 18 if schema_version == 2 else 20
+                if len(fields) != expected_fields:
+                    raise ValueError(f"malformed snapshot header: {line!r}")
+                if schema_version == 2:
+                    score = None
+                    current_era = None
+                    name_index = 9
+                    technology_index = 11
+                    turn_active_index = 15
+                else:
+                    score = int(fields[9])
+                    current_era = int(fields[10])
+                    name_index = 11
+                    technology_index = 13
+                    turn_active_index = 17
+                tech_id = int(fields[technology_index])
                 snapshot = GameState(
                     schema_version=schema_version,
                     turn=int(fields[1]),
@@ -410,18 +436,20 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     happiness=int(fields[6]),
                     culture=int(fields[7]),
                     culture_per_turn=int(fields[8]),
-                    player_name=unquote(fields[9]),
-                    civilization=unquote(fields[10]),
-                    turn_active=_parse_lua_bool(fields[15]),
-                    can_end_turn=_parse_lua_bool(fields[16]),
-                    end_turn_blocking_type=int(fields[17]),
+                    score=score,
+                    current_era=current_era,
+                    player_name=unquote(fields[name_index]),
+                    civilization=unquote(fields[name_index + 1]),
+                    turn_active=_parse_lua_bool(fields[turn_active_index]),
+                    can_end_turn=_parse_lua_bool(fields[turn_active_index + 1]),
+                    end_turn_blocking_type=int(fields[turn_active_index + 2]),
                     research=None
                     if tech_id < 0
                     else {
                         "id": tech_id,
-                        "type": unquote(fields[12]),
-                        "progress": int(fields[13]),
-                        "cost": int(fields[14]),
+                        "type": unquote(fields[technology_index + 1]),
+                        "progress": int(fields[technology_index + 2]),
+                        "cost": int(fields[technology_index + 3]),
                     },
                 )
             elif CITY_MARKER in line:
@@ -452,12 +480,28 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                         "moves": int(fields[5]),
                     }
                 )
+            elif DIPLOMACY_MARKER in line:
+                fields = line.split(DIPLOMACY_MARKER, 1)[1].split("|")
+                if len(fields) != 7:
+                    raise ValueError(f"malformed diplomacy record: {line!r}")
+                diplomacy.append(
+                    {
+                        "player_id": int(fields[0]),
+                        "team_id": int(fields[1]),
+                        "name": unquote(fields[2]),
+                        "civilization": unquote(fields[3]),
+                        "score": int(fields[4]),
+                        "at_war": _parse_lua_bool(fields[5]),
+                        "approach": int(fields[6]),
+                    }
+                )
 
     if snapshot is None:
         details = _summarize_messages(messages)
         raise ValueError(f"InGame Lua did not return {SNAPSHOT_MARKER} ({details})")
     snapshot.cities = cities
     snapshot.units = units
+    snapshot.diplomacy = diplomacy
     return snapshot
 
 

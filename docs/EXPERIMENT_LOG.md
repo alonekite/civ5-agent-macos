@@ -488,3 +488,40 @@ gate before connecting and a strict cleanup check after the session.
 Use `preflight ready` and `preflight live` in the next firewall-protected game
 session, then live-verify `skip_unit` before permitting controller execution of
 unit actions.
+
+### 2026-09-13 — Offline schema 3 diplomacy read
+
+**Hypothesis**
+
+The bridge can add useful diplomacy context without exposing civilizations the
+player has not met and without breaking schema 2 consumers.
+
+**Procedure**
+
+1. Inspected the bundled Brave New World `DiploList.lua` and
+   `VictoryProgress.lua` rather than assuming undocumented APIs.
+2. Added active-player score and era, plus records for alive major
+   civilizations only when the active team reports `IsHasMet`.
+3. Included the visible player/civilization names, team, score, war state, and
+   the same approach estimate shown by the stock diplomacy list.
+4. Added strict record validation, duplicate/self-player rejection, URL-style
+   delimiter escaping, and schema 2 parser compatibility.
+5. Ran the complete warning-enabled suite.
+
+**Observed result**
+
+- 66 tests pass with no warnings.
+- Tests prove the emitted Lua filters on `IsHasMet`, remains read-only, parses
+  escaped diplomacy records, validates field types, and accepts legacy schema
+  2 snapshots without the new fields.
+
+**Conclusion**
+
+confirmed offline only. Schema 3 is ready for a bounded live read test, but its
+new fields are not marked live-verified.
+
+**Next step**
+
+During the next firewall-protected game session, first confirm schema 3 in an
+early game (an empty diplomacy list is valid), then verify a met civilization
+later or from a suitable save before closing the roadmap item.

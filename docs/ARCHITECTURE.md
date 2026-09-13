@@ -18,6 +18,13 @@ the `InGame` Lua state reported by Civ V, and sends an allowlisted read-only Lua
 expression using `CMD:<state-id>:<code>`. Game output and command completion are
 returned over the same socket.
 
+The live-verified schema 2 snapshot contains economy, culture, research,
+cities, units, and end-turn readiness. Schema 3 adds score, current era, and a
+record for each alive major civilization the active team has met: player/team
+IDs, visible names, score, war state, and the stock UI's approach estimate.
+Unmet civilizations are deliberately omitted. Schema 3 is implemented and
+offline-tested but not yet live-verified.
+
 `Modding.OpenUserData()` remains a fallback for a distribution that exposes the
 Mods browser. This App Store Campaign Edition discovers custom mods but keeps
 them disabled because its vendor UI forcibly hides that browser.
@@ -55,7 +62,7 @@ Initial allowlist:
 - set_city_production
 - skip_unit (offline-verified; live verification pending)
 
-The latter two use the same stock calls as the bundled Brave New World UI:
+Research and production use the same stock calls as the bundled Brave New World UI:
 `Network.SendResearch(...)` from `TechPopup.lua` and
 `Game.CityPushOrder(...)` from `ProductionPopup.lua`. They validate identifier
 shape and Civ V capability predicates before writing, then re-read the selected

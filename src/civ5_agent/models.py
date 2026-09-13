@@ -13,6 +13,8 @@ class GameState:
     happiness: int | None = None
     culture: int | None = None
     culture_per_turn: int | None = None
+    score: int | None = None
+    current_era: int | None = None
     player_name: str | None = None
     civilization: str | None = None
     turn_active: bool | None = None
@@ -20,6 +22,7 @@ class GameState:
     end_turn_blocking_type: int | None = None
     cities: list[dict[str, Any]] = field(default_factory=list)
     units: list[dict[str, Any]] = field(default_factory=list)
+    diplomacy: list[dict[str, Any]] = field(default_factory=list)
     research: dict[str, Any] | None = None
 
 @dataclass

@@ -119,7 +119,7 @@ class TunerProtocolTest(unittest.TestCase):
         messages = (
             TunerMessage(
                 -1,
-                "O\x00InGame: CIV5_AGENT_SNAPSHOT|2|2|0|7|4|5|9|0|1|Isabella|Spain|3|TECH_POTTERY|6|35|true|false|8",
+                "O\x00InGame: CIV5_AGENT_SNAPSHOT|3|2|0|7|4|5|9|0|1|33|0|Isabella|Spain|3|TECH_POTTERY|6|35|true|false|8",
             ),
             TunerMessage(
                 -1,
@@ -129,14 +129,20 @@ class TunerProtocolTest(unittest.TestCase):
                 -1,
                 "O\x00InGame: CIV5_AGENT_UNIT|8|Warrior|UNIT_WARRIOR|9|12|120",
             ),
+            TunerMessage(
+                -1,
+                "O\x00InGame: CIV5_AGENT_DIPLOMACY|1|1|Harun%7Cal-Rashid|Arabia|24|false|4",
+            ),
             TunerMessage(3, ""),
         )
 
         state = parse_snapshot(messages)
 
-        self.assertEqual(state.schema_version, 2)
+        self.assertEqual(state.schema_version, 3)
         self.assertEqual(state.turn, 2)
         self.assertEqual(state.player_name, "Isabella")
+        self.assertEqual(state.score, 33)
+        self.assertEqual(state.current_era, 0)
         self.assertTrue(state.turn_active)
         self.assertFalse(state.can_end_turn)
         self.assertEqual(state.end_turn_blocking_type, 8)
@@ -146,6 +152,32 @@ class TunerProtocolTest(unittest.TestCase):
         )
         self.assertEqual(state.cities[0]["name"], "Mad|rid")
         self.assertEqual(state.units[0]["moves"], 120)
+        self.assertEqual(
+            state.diplomacy[0],
+            {
+                "player_id": 1,
+                "team_id": 1,
+                "name": "Harun|al-Rashid",
+                "civilization": "Arabia",
+                "score": 24,
+                "at_war": False,
+                "approach": 4,
+            },
+        )
+
+    def test_parses_legacy_schema_two_snapshot(self):
+        state = parse_snapshot(
+            (
+                TunerMessage(
+                    -1,
+                    "CIV5_AGENT_SNAPSHOT|2|2|0|7|4|5|9|0|1|Isabella|Spain|-1||-1|-1|true|true|-1",
+                ),
+            )
+        )
+        self.assertEqual(state.schema_version, 2)
+        self.assertIsNone(state.score)
+        self.assertIsNone(state.current_era)
+        self.assertIsNone(state.research)
 
     def test_parses_end_turn_precondition_result(self):
         self.assertEqual(
@@ -165,6 +197,12 @@ class TunerProtocolTest(unittest.TestCase):
             "SelectionListGameNetMessage",
         ):
             self.assertNotIn(forbidden, lua)
+
+    def test_snapshot_lua_only_emits_met_major_civilizations(self):
+        lua = snapshot_lua()
+        self.assertIn("GameDefines.MAX_MAJOR_CIVS", lua)
+        self.assertIn("myTeam:IsHasMet(o:GetTeam())", lua)
+        self.assertIn("myTeam:IsAtWar(o:GetTeam())", lua)
 
     def test_end_turn_is_narrow_and_preconditioned(self):
         lua = end_turn_lua()

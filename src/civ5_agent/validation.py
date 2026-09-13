@@ -36,6 +36,8 @@ def validate_live_state(state: GameState) -> GameState:
         "happiness",
         "culture",
         "culture_per_turn",
+        "score",
+        "current_era",
     ):
         value = getattr(state, field)
         if value is not None and (not isinstance(value, int) or isinstance(value, bool)):
@@ -43,15 +45,27 @@ def validate_live_state(state: GameState) -> GameState:
     for field in ("turn_active", "can_end_turn"):
         if not isinstance(getattr(state, field), bool):
             raise StateValidationError(f"{field} must be a boolean")
-    if state.schema_version != 2:
+    if state.schema_version not in {2, 3}:
         raise StateValidationError(f"unsupported schema_version: {state.schema_version}")
     if state.turn is not None and state.turn < 0:
         raise StateValidationError("turn must be non-negative")
     if state.active_player is not None and state.active_player < 0:
         raise StateValidationError("active_player must be non-negative")
+    if state.score is not None and state.score < 0:
+        raise StateValidationError("score must be non-negative")
+    if state.current_era is not None and state.current_era < 0:
+        raise StateValidationError("current_era must be non-negative")
+    if state.schema_version == 3 and (
+        state.score is None or state.current_era is None
+    ):
+        raise StateValidationError("schema 3 requires score and current_era")
 
-    if not isinstance(state.cities, list) or not isinstance(state.units, list):
-        raise StateValidationError("cities and units must be lists")
+    if (
+        not isinstance(state.cities, list)
+        or not isinstance(state.units, list)
+        or not isinstance(state.diplomacy, list)
+    ):
+        raise StateValidationError("cities, units, and diplomacy must be lists")
     _validate_records(state.cities, "city")
     _validate_records(state.units, "unit")
     for city in state.cities:
@@ -72,6 +86,41 @@ def validate_live_state(state: GameState) -> GameState:
         for field in ("name", "type"):
             if not isinstance(unit.get(field), str):
                 raise StateValidationError(f"unit {unit.get('id')} has invalid {field}")
+
+    diplomacy_players: set[int] = set()
+    for relation in state.diplomacy:
+        if not isinstance(relation, dict):
+            raise StateValidationError("diplomacy record must be an object")
+        player_id = relation.get("player_id")
+        if (
+            not isinstance(player_id, int)
+            or isinstance(player_id, bool)
+            or player_id < 0
+        ):
+            raise StateValidationError("diplomacy record has invalid player_id")
+        if player_id == state.active_player or player_id in diplomacy_players:
+            raise StateValidationError(f"invalid diplomacy player id: {player_id}")
+        diplomacy_players.add(player_id)
+        for field in ("team_id", "score"):
+            value = relation.get(field)
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                raise StateValidationError(
+                    f"diplomacy player {player_id} has invalid {field}"
+                )
+        approach = relation.get("approach")
+        if not isinstance(approach, int) or isinstance(approach, bool) or approach < -1:
+            raise StateValidationError(
+                f"diplomacy player {player_id} has invalid approach"
+            )
+        if not isinstance(relation.get("at_war"), bool):
+            raise StateValidationError(
+                f"diplomacy player {player_id} has invalid at_war"
+            )
+        for field in ("name", "civilization"):
+            if not isinstance(relation.get(field), str):
+                raise StateValidationError(
+                    f"diplomacy player {player_id} has invalid {field}"
+                )
 
     if state.research is not None:
         if not isinstance(state.research, dict):

@@ -27,7 +27,7 @@ No application-bundle modification is required.
 - [x] cities
 - [x] research
 - [x] units
-- [ ] diplomacy
+- [ ] diplomacy (schema 3 implemented and offline-tested; live verification pending)
 - [ ] victory progress if accessible
 
 ## Phase 3 — Write PoC
