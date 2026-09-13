@@ -13,6 +13,7 @@ from civ5_agent.knowledge.import_sqlite import (
     PROMOTION_PREREQUISITE_COLUMNS,
     TECHNOLOGY_FIELDS,
     UNIT_FIELDS,
+    UNIT_CLASS_FIELDS,
     import_ruleset,
 )
 
@@ -29,11 +30,20 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
         for column in ERA_FIELDS:
             era_definitions.append(f'"{column}" INTEGER')
         connection.execute(f"CREATE TABLE Eras ({', '.join(era_definitions)})")
-        unit_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        unit_definitions = ["Type TEXT NOT NULL PRIMARY KEY", "Class TEXT"]
         for column, (_, value_type) in UNIT_FIELDS.items():
             sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
             unit_definitions.append(f'"{column}" {sql_type}')
         connection.execute(f"CREATE TABLE Units ({', '.join(unit_definitions)})")
+        unit_class_definitions = ["Type TEXT NOT NULL PRIMARY KEY", "DefaultUnit TEXT"]
+        for column in UNIT_CLASS_FIELDS:
+            unit_class_definitions.append(f'"{column}" INTEGER')
+        connection.execute(
+            f"CREATE TABLE UnitClasses ({', '.join(unit_class_definitions)})"
+        )
+        connection.execute(
+            "CREATE TABLE Unit_ClassUpgrades (UnitType TEXT, UnitClassType TEXT)"
+        )
         promotion_definitions = ["Type TEXT NOT NULL PRIMARY KEY", "TechPrereq TEXT"]
         promotion_definitions.extend(
             f'"{column}" TEXT' for column in PROMOTION_PREREQUISITE_COLUMNS
@@ -85,7 +95,20 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             "INSERT INTO Technology_PrereqTechs VALUES (?, ?)",
             ("TECH_POTTERY", "TECH_AGRICULTURE"),
         )
-        unit_columns = ["Type", *UNIT_FIELDS]
+        unit_class_columns = ["Type", "DefaultUnit", *UNIT_CLASS_FIELDS]
+        quoted_unit_class_columns = ", ".join(
+            f'"{column}"' for column in unit_class_columns
+        )
+        for type_id, default_unit in (
+            ("UNITCLASS_WARRIOR", "UNIT_WARRIOR"),
+            ("UNITCLASS_SWORDSMAN", "NONE"),
+        ):
+            connection.execute(
+                f"INSERT INTO UnitClasses ({quoted_unit_class_columns}) VALUES "
+                f"({', '.join('?' for _ in unit_class_columns)})",
+                [type_id, default_unit, *([-1] * len(UNIT_CLASS_FIELDS))],
+            )
+        unit_columns = ["Type", "Class", *UNIT_FIELDS]
         unit_values = []
         for column, (_, value_type) in UNIT_FIELDS.items():
             if column == "Combat":
@@ -104,7 +127,14 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
         connection.execute(
             f"INSERT INTO Units ({', '.join(f'\"{column}\"' for column in unit_columns)}) "
             f"VALUES ({', '.join('?' for _ in unit_columns)})",
-            ["UNIT_WARRIOR", *unit_values],
+            ["UNIT_WARRIOR", "UNITCLASS_WARRIOR", *unit_values],
+        )
+        connection.executemany(
+            "INSERT INTO Unit_ClassUpgrades VALUES (?, ?)",
+            [
+                ("UNIT_WARRIOR", "UNITCLASS_SWORDSMAN"),
+                ("UNIT_WARRIOR", "UNITCLASS_SWORDSMAN"),
+            ],
         )
         promotion_columns = [
             "Type",
@@ -151,8 +181,8 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279", ("Expansion2",), ()),
             )
-        self.assertEqual(len(bundle.entities), 6)
-        self.assertEqual(len(bundle.references), 6)
+        self.assertEqual(len(bundle.entities), 8)
+        self.assertEqual(len(bundle.references), 9)
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
         self.assertNotIn("ai_weight", pottery.attributes)
@@ -168,16 +198,37 @@ class RulesetImportTest(unittest.TestCase):
         self.assertEqual(warrior.attributes["combat"], 8)
         self.assertEqual(warrior.attributes["cost"], 40)
         self.assertNotIn("default_unit_ai", warrior.attributes)
+        self.assertNotIn("unit_class", warrior.attributes)
         shock = next(item for item in bundle.entities if item.type_id == "PROMOTION_SHOCK_2")
         self.assertEqual(shock.attributes["combat_percent"], 15)
         promotion_relations = {
             item.kind
             for item in bundle.references
             if item.source_type_id in {"PROMOTION_SHOCK_2", "UNIT_WARRIOR"}
+            and item.kind
+            in {"requires_any", "unlocked_by_technology", "starts_with_promotion"}
         }
         self.assertEqual(
             promotion_relations,
             {"requires_any", "unlocked_by_technology", "starts_with_promotion"},
+        )
+        warrior_relations = {
+            (item.kind, item.target_type_id)
+            for item in bundle.references
+            if item.source_type_id == "UNIT_WARRIOR"
+        }
+        self.assertIn(
+            ("belongs_to_unit_class", "UNITCLASS_WARRIOR"), warrior_relations
+        )
+        self.assertIn(
+            ("upgrades_to_unit_class", "UNITCLASS_SWORDSMAN"), warrior_relations
+        )
+        self.assertEqual(
+            sum(
+                item.kind == "upgrades_to_unit_class"
+                for item in bundle.references
+            ),
+            1,
         )
 
     def test_records_source_hash_without_absolute_path(self):

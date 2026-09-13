@@ -114,7 +114,6 @@ UNIT_FIELDS = {
     "Immobile": ("immobile", "boolean"),
     "Range": ("range", "integer"),
     "BaseSightRange": ("base_sight_range", "integer"),
-    "Class": ("unit_class", "identifier"),
     "Special": ("special_unit", "identifier"),
     "Capture": ("capture_unit", "identifier"),
     "CombatClass": ("combat_class", "identifier"),
@@ -183,6 +182,13 @@ UNIT_FIELDS = {
     "SpaceshipProject": ("spaceship_project", "identifier"),
     "LeaderPromotion": ("leader_promotion", "identifier"),
     "LeaderExperience": ("leader_experience", "integer"),
+}
+
+UNIT_CLASS_FIELDS = {
+    "MaxGlobalInstances": ("maximum_global_instances", "integer"),
+    "MaxTeamInstances": ("maximum_team_instances", "integer"),
+    "MaxPlayerInstances": ("maximum_player_instances", "integer"),
+    "InstanceCostModifier": ("instance_cost_modifier", "integer"),
 }
 
 PROMOTION_BOOLEAN_COLUMNS = (
@@ -354,7 +360,17 @@ def import_ruleset(
                 {"Type", "Era", *TECHNOLOGY_FIELDS},
             )
             _require_columns(connection, "Eras", {"Type", *ERA_FIELDS})
-            _require_columns(connection, "Units", {"Type", *UNIT_FIELDS})
+            _require_columns(connection, "Units", {"Type", "Class", *UNIT_FIELDS})
+            _require_columns(
+                connection,
+                "UnitClasses",
+                {"Type", "DefaultUnit", *UNIT_CLASS_FIELDS},
+            )
+            _require_columns(
+                connection,
+                "Unit_ClassUpgrades",
+                {"UnitType", "UnitClassType"},
+            )
             _require_columns(
                 connection,
                 "UnitPromotions",
@@ -402,7 +418,20 @@ def import_ruleset(
                 _scalar_entity("technology", row, TECHNOLOGY_FIELDS, source_label)
                 for row in rows
             )
-            unit_columns = ["Type", *UNIT_FIELDS]
+            unit_class_columns = ["Type", "DefaultUnit", *UNIT_CLASS_FIELDS]
+            unit_class_select = ", ".join(
+                f'"{column}"' for column in unit_class_columns
+            )
+            unit_class_rows = connection.execute(
+                f'SELECT {unit_class_select} FROM "UnitClasses" ORDER BY "Type"'
+            ).fetchall()
+            if not unit_class_rows:
+                raise KnowledgeImportError("UnitClasses table is empty")
+            unit_class_entities = tuple(
+                _scalar_entity("unit_class", row, UNIT_CLASS_FIELDS, source_label)
+                for row in unit_class_rows
+            )
+            unit_columns = ["Type", "Class", *UNIT_FIELDS]
             unit_select = ", ".join(f'"{column}"' for column in unit_columns)
             unit_rows = connection.execute(
                 f'SELECT {unit_select} FROM "Units" ORDER BY "Type"'
@@ -458,6 +487,9 @@ def import_ruleset(
                 )
                 + _promotion_references(promotion_rows, source_label)
                 + _free_promotion_references(connection, source_label)
+                + _unit_class_references(
+                    connection, unit_rows, unit_class_rows, source_label
+                )
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -474,6 +506,7 @@ def import_ruleset(
                 era_entities
                 + technology_entities
                 + unit_entities
+                + unit_class_entities
                 + promotion_entities
             ),
             references=references,
@@ -592,6 +625,54 @@ def _free_promotion_references(
         )
         for row in rows
     ]
+
+
+def _unit_class_references(
+    connection: sqlite3.Connection,
+    unit_rows: list[sqlite3.Row],
+    unit_class_rows: list[sqlite3.Row],
+    source_label: str,
+) -> list[Reference]:
+    references = [
+        Reference(
+            "belongs_to_unit_class",
+            "unit",
+            row["Type"],
+            "unit_class",
+            row["Class"],
+            (source_label,),
+        )
+        for row in unit_rows
+        if row["Class"] not in (None, "NONE")
+    ]
+    references.extend(
+        Reference(
+            "default_unit",
+            "unit_class",
+            row["Type"],
+            "unit",
+            row["DefaultUnit"],
+            (source_label,),
+        )
+        for row in unit_class_rows
+        if row["DefaultUnit"] not in (None, "NONE")
+    )
+    upgrade_rows = connection.execute(
+        'SELECT DISTINCT "UnitType", "UnitClassType" FROM "Unit_ClassUpgrades" '
+        'ORDER BY "UnitType", "UnitClassType"'
+    ).fetchall()
+    references.extend(
+        Reference(
+            "upgrades_to_unit_class",
+            "unit",
+            row["UnitType"],
+            "unit_class",
+            row["UnitClassType"],
+            (source_label,),
+        )
+        for row in upgrade_rows
+    )
+    return references
 
 
 def _require_columns(

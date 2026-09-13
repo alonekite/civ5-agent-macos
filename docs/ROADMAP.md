@@ -51,6 +51,7 @@ No application-bundle modification is required.
 - [x] Import merged technology facts and prerequisite relations from SQLite
 - [x] Import eras and connect every technology to its era
 - [x] Import allowlisted unit types and gameplay values
+- [x] Import unit classes, default units, and class-based upgrade routes
 - [x] Import promotion effects, prerequisites, and unit free promotions
 - [ ] Import buildings, policies, civilizations, traits,
   religions, terrain, resources, improvements, and remaining rule tables

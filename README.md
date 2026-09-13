@@ -146,7 +146,8 @@ and personality parameters are explicitly rejected.
 The read-only importer currently extracts 81 BNW technologies, 8 eras, 148
 unit types, 214 promotions, and their technology, era, prerequisite, and free
 promotion relations from the merged SQLite cache on the tested Campaign Edition
-installation. The database itself and other game assets are not copied into
+installation. It also preserves 83 unit classes and their default and upgrade
+relationships. The database itself and other game assets are not copied into
 this repository. Generate a local artifact with:
 
 ```bash
