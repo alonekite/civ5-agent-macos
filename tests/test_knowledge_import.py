@@ -199,6 +199,7 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
                 [type_id, default_unit, *([-1] * len(UNIT_CLASS_FIELDS))],
             )
         unit_columns = ["Type", "Class", *UNIT_FIELDS]
+        quoted_unit_columns = ", ".join(f'"{column}"' for column in unit_columns)
         unit_values = []
         for column, (_, value_type) in UNIT_FIELDS.items():
             if column == "Combat":
@@ -215,7 +216,7 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
                 value = None
             unit_values.append(value)
         connection.execute(
-            f"INSERT INTO Units ({', '.join(f'\"{column}\"' for column in unit_columns)}) "
+            f"INSERT INTO Units ({quoted_unit_columns}) "
             f"VALUES ({', '.join('?' for _ in unit_columns)})",
             ["UNIT_WARRIOR", "UNITCLASS_WARRIOR", *unit_values],
         )
@@ -285,9 +286,12 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             "FreeFinishingPolicy",
             *POLICY_BRANCH_FIELDS,
         ]
+        quoted_branch_columns = ", ".join(
+            f'"{column}"' for column in branch_columns
+        )
         connection.execute(
             f"INSERT INTO PolicyBranchTypes "
-            f"({', '.join(f'\"{column}\"' for column in branch_columns)}) VALUES "
+            f"({quoted_branch_columns}) VALUES "
             f"({', '.join('?' for _ in branch_columns)})",
             [
                 "POLICY_BRANCH_TRADITION",
@@ -307,6 +311,9 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             *(column for column, _, _ in BUILDING_REFERENCE_COLUMNS),
             *BUILDING_FIELDS,
         ]
+        quoted_building_columns = ", ".join(
+            f'"{column}"' for column in building_columns
+        )
         building_values = []
         for column, (_, value_type) in BUILDING_FIELDS.items():
             if column == "Cost":
@@ -321,7 +328,7 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
         }
         connection.execute(
             f"INSERT INTO Buildings "
-            f"({', '.join(f'\"{column}\"' for column in building_columns)}) VALUES "
+            f"({quoted_building_columns}) VALUES "
             f"({', '.join('?' for _ in building_columns)})",
             [
                 "BUILDING_PYRAMID",
@@ -335,6 +342,9 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             "DefaultBuilding",
             *BUILDING_CLASS_FIELDS,
         ]
+        quoted_building_class_columns = ", ".join(
+            f'"{column}"' for column in building_class_columns
+        )
         building_class_values = {
             "MaxGlobalInstances": 1,
             "MaxTeamInstances": -1,
@@ -345,7 +355,7 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
         }
         connection.execute(
             f"INSERT INTO BuildingClasses "
-            f"({', '.join(f'\"{column}\"' for column in building_class_columns)}) "
+            f"({quoted_building_class_columns}) "
             f"VALUES ({', '.join('?' for _ in building_class_columns)})",
             [
                 "BUILDINGCLASS_PYRAMID",
@@ -354,9 +364,12 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             ],
         )
         resource_class_columns = ["Type", *RESOURCE_CLASS_FIELDS]
+        quoted_resource_class_columns = ", ".join(
+            f'"{column}"' for column in resource_class_columns
+        )
         connection.execute(
             f"INSERT INTO ResourceClasses "
-            f"({', '.join(f'\"{column}\"' for column in resource_class_columns)}) "
+            f"({quoted_resource_class_columns}) "
             f"VALUES ({', '.join('?' for _ in resource_class_columns)})",
             ["RESOURCECLASS_RUSH", *([1] * len(RESOURCE_CLASS_FIELDS))],
         )
@@ -365,6 +378,9 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             *(column for column, _, _ in RESOURCE_REFERENCE_COLUMNS),
             *RESOURCE_FIELDS,
         ]
+        quoted_resource_columns = ", ".join(
+            f'"{column}"' for column in resource_columns
+        )
         resource_values = []
         for column, (_, value_type) in RESOURCE_FIELDS.items():
             if column == "StartingResourceQuantity":
@@ -382,7 +398,7 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
         }
         connection.execute(
             f"INSERT INTO Resources "
-            f"({', '.join(f'\"{column}\"' for column in resource_columns)}) VALUES "
+            f"({quoted_resource_columns}) VALUES "
             f"({', '.join('?' for _ in resource_columns)})",
             [
                 "RESOURCE_IRON",
