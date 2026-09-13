@@ -157,14 +157,14 @@ PYTHONPATH=src python3 -m civ5_agent.knowledge.import_sqlite \
   --source-label cache/Civ5DebugDatabase.db \
   --family bnw \
   --game-version 1.0.3.279 \
-  --dlc Expansion \
-  --dlc Expansion2 \
   --output technologies.json
 ```
 
 The importer excludes AI weights and flavor tables, Civilopedia prose, quotes,
 icons, and audio. It also refuses to read a database with an active write-ahead
-log or one that changes during extraction. See
+log or one that changes during extraction. Active DLC package IDs are read from
+the database, and the requested vanilla/G&K/BNW family must match the detected
+expansion content. See
 [docs/KNOWLEDGE.md](docs/KNOWLEDGE.md) for the data contract and reuse policy.
 
 Two additional allowlisted commands were verified in a bounded live-game

@@ -108,7 +108,8 @@ tree relations. It uses
 explicit column allowlists and does not export AI
 weights, roles, flavor tables, Civilopedia prose, quotations, hotkeys, art, or
 audio. It refuses a database with a live write-ahead log or one that changes
-during import.
+during import. Active package IDs are derived from the database and checked
+against the declared vanilla/G&K/BNW family.
 
 The knowledge module is deterministic and never requires an LLM. A local model
 may help draft code or mappings during development, but model output is accepted

@@ -17,6 +17,10 @@ from .models import Entity, KnowledgeBundle, Reference, Ruleset, Source
 from .validation import KnowledgeValidationError, validate_bundle
 
 
+GODS_AND_KINGS_PACKAGE_ID = "0E3751A1F8404E1B9706519BF484E59D"
+BRAVE_NEW_WORLD_PACKAGE_ID = "6DA0763641234018B6436575B4EC336B"
+
+
 def _snake_case(value: str) -> str:
     words = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", value)
     return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", words).lower()
@@ -481,6 +485,23 @@ def import_ruleset(
         with closing(sqlite3.connect(uri, uri=True)) as connection:
             connection.row_factory = sqlite3.Row
             connection.execute("PRAGMA query_only=ON")
+            _require_columns(
+                connection,
+                "DownloadableContent",
+                {"PackageID", "IsActive"},
+            )
+            active_packages = _active_packages(connection)
+            _validate_ruleset_family(ruleset.family, active_packages)
+            if ruleset.dlc and ruleset.dlc != active_packages:
+                raise KnowledgeImportError(
+                    "declared DLC package IDs do not match active database content"
+                )
+            ruleset = Ruleset(
+                ruleset.family,
+                ruleset.game_version,
+                active_packages,
+                ruleset.mods,
+            )
             _require_columns(
                 connection,
                 "Technologies",
@@ -1006,6 +1027,38 @@ def _require_columns(
         )
 
 
+def _active_packages(connection: sqlite3.Connection) -> tuple[str, ...]:
+    rows = connection.execute(
+        'SELECT "PackageID", "IsActive" FROM "DownloadableContent" '
+        'ORDER BY "PackageID"'
+    ).fetchall()
+    active: list[str] = []
+    for row in rows:
+        if row["IsActive"] not in (0, 1):
+            raise KnowledgeImportError(
+                f"downloadable content {row['PackageID']} has invalid IsActive"
+            )
+        if row["IsActive"] == 1:
+            active.append(row["PackageID"])
+    return tuple(active)
+
+
+def _validate_ruleset_family(family: str, active_packages: tuple[str, ...]) -> None:
+    active = set(active_packages)
+    has_gk = GODS_AND_KINGS_PACKAGE_ID in active
+    has_bnw = BRAVE_NEW_WORLD_PACKAGE_ID in active
+    valid = (
+        (family == "vanilla" and not has_gk and not has_bnw)
+        or (family == "gk" and has_gk and not has_bnw)
+        or (family == "bnw" and has_bnw)
+    )
+    if not valid:
+        detected = "bnw" if has_bnw else "gk" if has_gk else "vanilla"
+        raise KnowledgeImportError(
+            f"declared ruleset family {family} does not match detected {detected} content"
+        )
+
+
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -1041,7 +1094,12 @@ def main() -> int:
     parser.add_argument("--source-label", required=True)
     parser.add_argument("--family", choices=("vanilla", "gk", "bnw"), required=True)
     parser.add_argument("--game-version", required=True)
-    parser.add_argument("--dlc", action="append", default=[])
+    parser.add_argument(
+        "--dlc",
+        action="append",
+        default=[],
+        help="expected active DLC PackageID; repeat as needed (auto-detected if omitted)",
+    )
     parser.add_argument("--mod", action="append", default=[])
     parser.add_argument("--output", type=Path)
     parser.add_argument("--force", action="store_true")

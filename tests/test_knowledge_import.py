@@ -7,6 +7,7 @@ from pathlib import Path
 
 from civ5_agent.knowledge import Ruleset
 from civ5_agent.knowledge.import_sqlite import (
+    BRAVE_NEW_WORLD_PACKAGE_ID,
     KnowledgeImportError,
     ERA_FIELDS,
     PROMOTION_FIELDS,
@@ -27,6 +28,13 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
         sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
         definitions.append(f'"{column}" {sql_type}')
     with closing(sqlite3.connect(path)) as connection:
+        connection.execute(
+            "CREATE TABLE DownloadableContent (PackageID TEXT, IsActive INTEGER)"
+        )
+        connection.execute(
+            "INSERT INTO DownloadableContent VALUES (?, 1)",
+            (BRAVE_NEW_WORLD_PACKAGE_ID,),
+        )
         connection.execute(f"CREATE TABLE Technologies ({', '.join(definitions)})")
         era_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
         for column in ERA_FIELDS:
@@ -258,10 +266,11 @@ class RulesetImportTest(unittest.TestCase):
             bundle = import_ruleset(
                 database,
                 "cache/Civ5DebugDatabase.db",
-                Ruleset("bnw", "1.0.3.279", ("Expansion2",), ()),
+                Ruleset("bnw", "1.0.3.279"),
             )
         self.assertEqual(len(bundle.entities), 11)
         self.assertEqual(len(bundle.references), 15)
+        self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
         self.assertNotIn("ai_weight", pottery.attributes)
@@ -359,6 +368,28 @@ class RulesetImportTest(unittest.TestCase):
             sqlite3.connect(database).close()
             with self.assertRaisesRegex(KnowledgeImportError, "required table"):
                 import_ruleset(database, "cache/empty.db", Ruleset("bnw", "test"))
+
+    def test_rejects_mislabeled_ruleset_family(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "Civ5DebugDatabase.db"
+            create_database(database)
+            with self.assertRaisesRegex(KnowledgeImportError, "does not match detected bnw"):
+                import_ruleset(
+                    database,
+                    "cache/Civ5DebugDatabase.db",
+                    Ruleset("vanilla", "test"),
+                )
+
+    def test_rejects_declared_dlc_that_does_not_match_database(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "Civ5DebugDatabase.db"
+            create_database(database)
+            with self.assertRaisesRegex(KnowledgeImportError, "DLC package IDs"):
+                import_ruleset(
+                    database,
+                    "cache/Civ5DebugDatabase.db",
+                    Ruleset("bnw", "test", ("Expansion2",)),
+                )
 
 
 if __name__ == "__main__":

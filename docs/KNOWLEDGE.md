@@ -46,7 +46,9 @@ The initial importer reads the merged `Civ5DebugDatabase.db` with SQLite
 `Technologies`, `Technology_PrereqTechs`, `Technology_ORPrereqTechs`, `Units`,
 `UnitClasses`, `Unit_ClassUpgrades`, `UnitPromotions`, and
 `Unit_FreePromotions` tables, plus `Policies`, `PolicyBranchTypes`, and the
-policy prerequisite/disable tables.
+policy prerequisite/disable tables. Active package IDs come from
+`DownloadableContent`; callers cannot silently relabel a BNW database as
+vanilla or Gods & Kings.
 It selects fixed technology and era gameplay-column allowlists rather than
 copying entire rows. Every technology has a validated `belongs_to` edge to an
 era entity. It also imports allowlisted gameplay values for unit types while
@@ -66,11 +68,12 @@ specialists, or unit-combat classes remain deferred until those targets exist.
 For reproducibility and safety it:
 
 1. refuses a non-empty SQLite WAL;
-2. hashes and sizes the source database before reading;
-3. validates every scalar and boolean;
-4. constructs and validates all technology references;
-5. hashes and sizes the database again after reading; and
-6. refuses the result if the source changed.
+2. detects active DLC packages and verifies the declared ruleset family;
+3. hashes and sizes the source database before reading;
+4. validates every scalar and boolean;
+5. constructs and validates all references;
+6. hashes and sizes the database again after reading; and
+7. refuses the result if the source changed.
 
 On the tested Campaign Edition cache this produces 81 technology entities,
 8 era entities, 148 unit entities, 83 unit-class entities, and 214 promotion
