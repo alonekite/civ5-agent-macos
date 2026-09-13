@@ -634,6 +634,122 @@ RESOURCE_REFERENCE_COLUMNS = (
     ("WonderProductionModObsoleteEra", "wonder_bonus_obsoleted_by_era", "era"),
 )
 
+CIVILIZATION_FIELDS = {
+    # AIPlayable is intentionally excluded: it is an engine control flag for AI use,
+    # not a rules fact needed by the read/write core.
+    "Playable": ("playable", "boolean"),
+}
+
+TRAIT_INTEGER_COLUMNS = (
+    "LevelExperienceModifier",
+    "GreatPeopleRateModifier",
+    "GreatScientistRateModifier",
+    "GreatGeneralRateModifier",
+    "GreatGeneralExtraBonus",
+    "GreatPersonGiftInfluence",
+    "MaxGlobalBuildingProductionModifier",
+    "MaxTeamBuildingProductionModifier",
+    "MaxPlayerBuildingProductionModifier",
+    "CityUnhappinessModifier",
+    "PopulationUnhappinessModifier",
+    "CityStateBonusModifier",
+    "CityStateFriendshipModifier",
+    "CityStateCombatModifier",
+    "LandBarbarianConversionPercent",
+    "LandBarbarianConversionExtraUnits",
+    "SeaBarbarianConversionPercent",
+    "LandUnitMaintenanceModifier",
+    "NavalUnitMaintenanceModifier",
+    "CapitalBuildingModifier",
+    "PlotBuyCostModifier",
+    "PlotCultureCostModifier",
+    "CultureFromKills",
+    "FaithFromKills",
+    "CityCultureBonus",
+    "CapitalThemingBonusModifier",
+    "PolicyCostModifier",
+    "CityConnectionTradeRouteChange",
+    "WonderProductionModifier",
+    "PlunderModifier",
+    "ImprovementMaintenanceModifier",
+    "GoldenAgeDurationModifier",
+    "GoldenAgeMoveChange",
+    "GoldenAgeCombatModifier",
+    "GoldenAgeTourismModifier",
+    "GoldenAgeGreatArtistRateModifier",
+    "GoldenAgeGreatMusicianRateModifier",
+    "GoldenAgeGreatWriterRateModifier",
+    "ExtraEmbarkMoves",
+    "NaturalWonderFirstFinderGold",
+    "NaturalWonderSubsequentFinderGold",
+    "NaturalWonderYieldModifier",
+    "NaturalWonderHappinessModifier",
+    "NearbyImprovementCombatBonus",
+    "NearbyImprovementBonusRange",
+    "CultureBuildingYieldChange",
+    "CombatBonusVsHigherTech",
+    "CombatBonusVsLargerCiv",
+    "RazeSpeedModifier",
+    "DOFGreatPersonModifier",
+    "LuxuryHappinessRetention",
+    "ExtraSpies",
+    "UnresearchedTechBonusFromKills",
+    "ExtraFoundedCityTerritoryClaimRange",
+    "FreeSocialPoliciesPerEra",
+    "NumTradeRoutesModifier",
+    "TradeRouteResourceModifier",
+    "UniqueLuxuryCities",
+    "UniqueLuxuryQuantity",
+    "WorkerSpeedModifier",
+    "AfraidMinorPerTurnInfluence",
+    "LandTradeRouteRangeBonus",
+    "TradeReligionModifier",
+    "TradeBuildingModifier",
+)
+
+TRAIT_BOOLEAN_COLUMNS = (
+    "FightWellDamaged",
+    "MoveFriendlyWoodsAsRoad",
+    "FasterAlongRiver",
+    "FasterInHills",
+    "EmbarkedAllWater",
+    "EmbarkedToLandFlatCost",
+    "NoHillsImprovementMaintenance",
+    "TechBoostFromCapitalScienceBuildings",
+    "StaysAliveZeroCities",
+    "FaithFromUnimprovedForest",
+    "BonusReligiousBelief",
+    "AbleToAnnexCityStates",
+    "CrossesMountainsAfterGreatGeneral",
+    "MayaCalendarBonuses",
+    "NoAnnexing",
+    "TechFromCityConquer",
+    "UniqueLuxuryRequiresNewArea",
+    "RiverTradeRoad",
+    "AngerFreeIntrusionOfCityStates",
+)
+
+TRAIT_FIELDS = {
+    **{column: (_snake_case(column), "integer") for column in TRAIT_INTEGER_COLUMNS},
+    **{column: (_snake_case(column), "boolean") for column in TRAIT_BOOLEAN_COLUMNS},
+    # Improvements are imported in a later M3 slice. Preserve the stable ID now;
+    # convert it to a typed reference when improvement entities exist.
+    "CombatBonusImprovement": ("combat_bonus_improvement", "identifier"),
+}
+
+TRAIT_REFERENCE_COLUMNS = (
+    ("FreeUnit", "grants_unit_class", "unit_class"),
+    (
+        "FreeUnitPrereqTech",
+        "free_unit_unlocked_by_technology",
+        "technology",
+    ),
+    ("FreeBuilding", "grants_free_building", "building"),
+    ("FreeBuildingOnConquest", "grants_building_on_conquest", "building"),
+    ("ObsoleteTech", "obsoleted_by_technology", "technology"),
+    ("PrereqTech", "unlocked_by_technology", "technology"),
+)
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -772,6 +888,41 @@ def import_ruleset(
                 connection,
                 "Technology_ORPrereqTechs",
                 {"TechType", "PrereqTech"},
+            )
+            _require_columns(
+                connection,
+                "Civilizations",
+                {"Type", *CIVILIZATION_FIELDS},
+            )
+            _require_columns(connection, "Leaders", {"Type"})
+            _require_columns(
+                connection,
+                "Traits",
+                {
+                    "Type",
+                    *(column for column, _, _ in TRAIT_REFERENCE_COLUMNS),
+                    *TRAIT_FIELDS,
+                },
+            )
+            _require_columns(
+                connection,
+                "Civilization_Leaders",
+                {"CivilizationType", "LeaderheadType"},
+            )
+            _require_columns(
+                connection,
+                "Leader_Traits",
+                {"LeaderType", "TraitType"},
+            )
+            _require_columns(
+                connection,
+                "Civilization_UnitClassOverrides",
+                {"CivilizationType", "UnitClassType", "UnitType"},
+            )
+            _require_columns(
+                connection,
+                "Civilization_BuildingClassOverrides",
+                {"CivilizationType", "BuildingClassType", "BuildingType"},
             )
             era_columns = ["Type", *ERA_FIELDS]
             era_select = ", ".join(f'"{column}"' for column in era_columns)
@@ -934,6 +1085,47 @@ def import_ruleset(
                 )
                 for row in resource_class_rows
             )
+            civilization_columns = ["Type", *CIVILIZATION_FIELDS]
+            civilization_select = ", ".join(
+                f'"{column}"' for column in civilization_columns
+            )
+            civilization_rows = connection.execute(
+                f'SELECT {civilization_select} FROM "Civilizations" ORDER BY "Type"'
+            ).fetchall()
+            if not civilization_rows:
+                raise KnowledgeImportError("Civilizations table is empty")
+            civilization_entities = tuple(
+                _scalar_entity(
+                    "civilization", row, CIVILIZATION_FIELDS, source_label
+                )
+                for row in civilization_rows
+            )
+            leader_rows = connection.execute(
+                'SELECT "Type" FROM "Leaders" ORDER BY "Type"'
+            ).fetchall()
+            if not leader_rows:
+                raise KnowledgeImportError("Leaders table is empty")
+            # Leaders are stable identifiers here. All descriptive, art, flavor,
+            # and personality columns are deliberately outside the allowlist.
+            leader_entities = tuple(
+                _scalar_entity("leader", row, {}, source_label)
+                for row in leader_rows
+            )
+            trait_columns = [
+                "Type",
+                *(column for column, _, _ in TRAIT_REFERENCE_COLUMNS),
+                *TRAIT_FIELDS,
+            ]
+            trait_select = ", ".join(f'"{column}"' for column in trait_columns)
+            trait_rows = connection.execute(
+                f'SELECT {trait_select} FROM "Traits" ORDER BY "Type"'
+            ).fetchall()
+            if not trait_rows:
+                raise KnowledgeImportError("Traits table is empty")
+            trait_entities = tuple(
+                _scalar_entity("trait", row, TRAIT_FIELDS, source_label)
+                for row in trait_rows
+            )
             era_references = [
                 Reference(
                     "belongs_to",
@@ -971,6 +1163,13 @@ def import_ruleset(
                     building_rows, building_class_rows, source_label
                 )
                 + _resource_references(resource_rows, source_label)
+                + _civilization_references(
+                    connection,
+                    unit_rows,
+                    building_rows,
+                    source_label,
+                )
+                + _trait_references(trait_rows, source_label)
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -995,6 +1194,9 @@ def import_ruleset(
                 + building_class_entities
                 + resource_entities
                 + resource_class_entities
+                + civilization_entities
+                + leader_entities
+                + trait_entities
             ),
             references=references,
         )
@@ -1352,6 +1554,156 @@ def _resource_references(
                     row["Type"],
                     target_kind,
                     target,
+                    (source_label,),
+                )
+            )
+    return references
+
+
+def _trait_references(
+    trait_rows: list[sqlite3.Row], source_label: str
+) -> list[Reference]:
+    references: list[Reference] = []
+    for row in trait_rows:
+        for column, kind, target_kind in TRAIT_REFERENCE_COLUMNS:
+            target = row[column]
+            if target in (None, "NONE"):
+                continue
+            references.append(
+                Reference(
+                    kind,
+                    "trait",
+                    row["Type"],
+                    target_kind,
+                    target,
+                    (source_label,),
+                )
+            )
+    return references
+
+
+def _civilization_references(
+    connection: sqlite3.Connection,
+    unit_rows: list[sqlite3.Row],
+    building_rows: list[sqlite3.Row],
+    source_label: str,
+) -> list[Reference]:
+    references = _two_column_references(
+        connection,
+        "Civilization_Leaders",
+        "CivilizationType",
+        "LeaderheadType",
+        "led_by",
+        "civilization",
+        "leader",
+        source_label,
+    )
+    references.extend(
+        _two_column_references(
+            connection,
+            "Leader_Traits",
+            "LeaderType",
+            "TraitType",
+            "has_trait",
+            "leader",
+            "trait",
+            source_label,
+        )
+    )
+    references.extend(
+        _civilization_override_references(
+            connection,
+            table="Civilization_UnitClassOverrides",
+            slot_column="UnitClassType",
+            target_column="UnitType",
+            target_kind="unit",
+            slot_kind="unit_class",
+            target_slots={row["Type"]: row["Class"] for row in unit_rows},
+            unique_kind="unique_unit",
+            disabled_kind="disables_unit_class",
+            source_label=source_label,
+        )
+    )
+    references.extend(
+        _civilization_override_references(
+            connection,
+            table="Civilization_BuildingClassOverrides",
+            slot_column="BuildingClassType",
+            target_column="BuildingType",
+            target_kind="building",
+            slot_kind="building_class",
+            target_slots={row["Type"]: row["BuildingClass"] for row in building_rows},
+            unique_kind="unique_building",
+            disabled_kind="disables_building_class",
+            source_label=source_label,
+        )
+    )
+    return references
+
+
+def _civilization_override_references(
+    connection: sqlite3.Connection,
+    *,
+    table: str,
+    slot_column: str,
+    target_column: str,
+    target_kind: str,
+    slot_kind: str,
+    target_slots: dict[str, str | None],
+    unique_kind: str,
+    disabled_kind: str,
+    source_label: str,
+) -> list[Reference]:
+    rows = connection.execute(
+        f'SELECT "CivilizationType", "{slot_column}", "{target_column}" '
+        f'FROM "{table}" ORDER BY "CivilizationType", "{slot_column}", '
+        f'"{target_column}"'
+    ).fetchall()
+    slots: dict[tuple[str, str], set[str]] = {}
+    for row in rows:
+        key = (row["CivilizationType"], row[slot_column])
+        targets = slots.setdefault(key, set())
+        target = row[target_column]
+        if target not in (None, "NONE"):
+            targets.add(target)
+
+    references: list[Reference] = []
+    for (civilization, slot), targets in sorted(slots.items()):
+        if len(targets) > 1:
+            raise KnowledgeImportError(
+                f"{table} has multiple replacements for {civilization}/{slot}: "
+                + ", ".join(sorted(targets))
+            )
+        if targets:
+            target = next(iter(targets))
+            declared_slot = target_slots.get(target)
+            if declared_slot is None:
+                raise KnowledgeImportError(
+                    f"{table} references unknown {target_kind}: {target}"
+                )
+            if declared_slot != slot:
+                raise KnowledgeImportError(
+                    f"{table} replacement {target} belongs to {declared_slot}, "
+                    f"not {slot}"
+                )
+            references.append(
+                Reference(
+                    unique_kind,
+                    "civilization",
+                    civilization,
+                    target_kind,
+                    target,
+                    (source_label,),
+                )
+            )
+        else:
+            references.append(
+                Reference(
+                    disabled_kind,
+                    "civilization",
+                    civilization,
+                    slot_kind,
+                    slot,
                     (source_label,),
                 )
             )

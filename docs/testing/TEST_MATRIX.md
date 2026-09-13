@@ -23,7 +23,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | Command UUID/audit/idempotency | Yes | Yes | Partial | Confirmed offline; live core path observed |
 | Knowledge canonical codec/index | Yes | Yes | N/A | Confirmed offline |
 | Local SQLite knowledge import | Yes | Yes, including local real source | N/A | Confirmed offline |
-| Civilization/trait/replacement knowledge | Source tables pending review | No | N/A | Not implemented |
+| Civilization/trait/replacement knowledge | Real merged database imported; counts and class consistency checked | Synthetic schema, allowlist, relation, duplicate-slot, and mismatch tests | N/A | Implemented offline |
 | Ruleset resolver | No | No | N/A | Not implemented |
 | Turn journal | Proposed contract | No | N/A | Not implemented |
 | Expanded deterministic controller | Yes | Basic tests | Basic live path | In progress |

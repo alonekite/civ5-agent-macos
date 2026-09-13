@@ -9,10 +9,10 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: civilizations, leaders, traits, and unique unit and
-  building replacements.
-- Functional test baseline: 103 tests; the last local run and Python 3.11/3.13
-  CI passed at documentation-governance commit `a053797`.
+- Active next deliverable: religions, beliefs, great people, and specialists.
+- Functional test baseline: 104 tests locally; Python 3.11/3.13 CI last passed
+  at documentation-governance commit `a053797` before the current knowledge
+  batch.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only the pending schema 3 and `skip_unit` bounded
   live verifications.
@@ -37,13 +37,19 @@ decisions, not raw chat transcripts.
   preflight checks, and write-after-read verification are implemented.
 - The versioned knowledge core imports eras, technologies, units, unit classes,
   promotions, policy branches, policies, buildings, building classes,
-  resources, resource classes, and their currently supported relations from a
-  local merged Civ V SQLite database.
+  resources, resource classes, civilizations, leaders, deterministic trait
+  effects, unique replacements, disabled class overrides, and their currently
+  supported relations from a local merged Civ V SQLite database.
+- The real Campaign Edition database currently yields 1,100 entities and 2,059
+  validated references, including 45 civilizations, 44 leaders, 48 traits, 66
+  unique-unit relationships, and 20 unique-building relationships. Generated
+  bundles remain local and uncommitted.
 - The knowledge importer records provenance, validates the active ruleset
   family, rejects broken references, and excludes AI flavor/personality data
   and copyrighted descriptive assets.
-- The test suite contains 103 tests. The last local run and GitHub Actions on
-  Python 3.11 and 3.13 passed at commit `a053797`.
+- The test suite contains 104 tests locally. GitHub Actions on Python 3.11 and
+  3.13 last passed at commit `a053797`; the current batch must pass CI after it
+  is pushed.
 
 ## Implemented but awaiting bounded live verification
 
@@ -77,9 +83,9 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Continue the ruleset importer with civilizations, leaders, traits, unique
-   replacements, religions, beliefs, great people, specialists, terrain,
-   features, improvements, routes, yields, and remaining relation tables.
+1. Continue the ruleset importer with religions, beliefs, great people,
+   specialists, terrain, features, improvements, routes, yields, and remaining
+   relation tables.
 2. Add ruleset scaling and per-game modifier resolution without mutating base
    knowledge.
 3. Define the factual turn-journal schema, storage interface, canonical

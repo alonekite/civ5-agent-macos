@@ -11,6 +11,7 @@ from civ5_agent.knowledge.import_sqlite import (
     BUILDING_CLASS_FIELDS,
     BUILDING_FIELDS,
     BUILDING_REFERENCE_COLUMNS,
+    CIVILIZATION_FIELDS,
     KnowledgeImportError,
     ERA_FIELDS,
     PROMOTION_FIELDS,
@@ -21,6 +22,8 @@ from civ5_agent.knowledge.import_sqlite import (
     RESOURCE_FIELDS,
     RESOURCE_REFERENCE_COLUMNS,
     TECHNOLOGY_FIELDS,
+    TRAIT_FIELDS,
+    TRAIT_REFERENCE_COLUMNS,
     UNIT_FIELDS,
     UNIT_CLASS_FIELDS,
     import_ruleset,
@@ -146,6 +149,43 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             resource_class_definitions.append(f'"{column}" {sql_type}')
         connection.execute(
             f"CREATE TABLE ResourceClasses ({', '.join(resource_class_definitions)})"
+        )
+        civilization_definitions = [
+            "Type TEXT NOT NULL PRIMARY KEY",
+            "Playable INTEGER",
+            "AIPlayable INTEGER",
+        ]
+        connection.execute(
+            f"CREATE TABLE Civilizations ({', '.join(civilization_definitions)})"
+        )
+        connection.execute(
+            "CREATE TABLE Leaders ("
+            "Type TEXT NOT NULL PRIMARY KEY, Boldness INTEGER)"
+        )
+        trait_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        trait_definitions.extend(
+            f'"{column}" TEXT' for column, _, _ in TRAIT_REFERENCE_COLUMNS
+        )
+        for column, (_, value_type) in TRAIT_FIELDS.items():
+            sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
+            trait_definitions.append(f'"{column}" {sql_type}')
+        connection.execute(
+            f"CREATE TABLE Traits ({', '.join(trait_definitions)})"
+        )
+        connection.execute(
+            "CREATE TABLE Civilization_Leaders "
+            "(CivilizationType TEXT, LeaderheadType TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE Leader_Traits (LeaderType TEXT, TraitType TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE Civilization_UnitClassOverrides "
+            "(CivilizationType TEXT, UnitClassType TEXT, UnitType TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE Civilization_BuildingClassOverrides "
+            "(CivilizationType TEXT, BuildingClassType TEXT, BuildingType TEXT)"
         )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
@@ -409,6 +449,78 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
                 *resource_values,
             ],
         )
+        civilization_columns = ["Type", *CIVILIZATION_FIELDS, "AIPlayable"]
+        connection.execute(
+            f"INSERT INTO Civilizations "
+            f"({', '.join(civilization_columns)}) VALUES "
+            f"({', '.join('?' for _ in civilization_columns)})",
+            ["CIVILIZATION_TEST", 1, 0],
+        )
+        connection.execute(
+            "INSERT INTO Leaders (Type, Boldness) VALUES (?, ?)",
+            ("LEADER_TEST", 10),
+        )
+        trait_columns = [
+            "Type",
+            *(column for column, _, _ in TRAIT_REFERENCE_COLUMNS),
+            *TRAIT_FIELDS,
+        ]
+        trait_reference_values = {
+            "FreeUnit": "UNITCLASS_WARRIOR",
+            "FreeUnitPrereqTech": "TECH_AGRICULTURE",
+            "FreeBuilding": "BUILDING_PYRAMID",
+            "PrereqTech": "TECH_POTTERY",
+        }
+        trait_values = []
+        for column, (_, value_type) in TRAIT_FIELDS.items():
+            if column == "WonderProductionModifier":
+                value = 20
+            elif column == "MoveFriendlyWoodsAsRoad":
+                value = 1
+            elif column == "CombatBonusImprovement":
+                value = "IMPROVEMENT_MOAI"
+            elif value_type in {"integer", "boolean"}:
+                value = 0
+            else:
+                value = None
+            trait_values.append(value)
+        connection.execute(
+            f"INSERT INTO Traits "
+            f"({', '.join(trait_columns)}) VALUES "
+            f"({', '.join('?' for _ in trait_columns)})",
+            [
+                "TRAIT_TEST",
+                *(
+                    trait_reference_values.get(column)
+                    for column, _, _ in TRAIT_REFERENCE_COLUMNS
+                ),
+                *trait_values,
+            ],
+        )
+        connection.execute(
+            "INSERT INTO Civilization_Leaders VALUES (?, ?)",
+            ("CIVILIZATION_TEST", "LEADER_TEST"),
+        )
+        connection.execute(
+            "INSERT INTO Leader_Traits VALUES (?, ?)",
+            ("LEADER_TEST", "TRAIT_TEST"),
+        )
+        connection.executemany(
+            "INSERT INTO Civilization_UnitClassOverrides VALUES (?, ?, ?)",
+            [
+                ("CIVILIZATION_TEST", "UNITCLASS_WARRIOR", None),
+                ("CIVILIZATION_TEST", "UNITCLASS_WARRIOR", "UNIT_WARRIOR"),
+                ("CIVILIZATION_TEST", "UNITCLASS_SWORDSMAN", None),
+            ],
+        )
+        connection.execute(
+            "INSERT INTO Civilization_BuildingClassOverrides VALUES (?, ?, ?)",
+            (
+                "CIVILIZATION_TEST",
+                "BUILDINGCLASS_PYRAMID",
+                "BUILDING_PYRAMID",
+            ),
+        )
         connection.commit()
 
 
@@ -422,8 +534,8 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 15)
-        self.assertEqual(len(bundle.references), 20)
+        self.assertEqual(len(bundle.entities), 18)
+        self.assertEqual(len(bundle.references), 29)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
@@ -536,6 +648,100 @@ class RulesetImportTest(unittest.TestCase):
             ("unlocked_by_era", "POLICY_BRANCH_TRADITION", "ERA_ANCIENT"),
             policy_relations,
         )
+        civilization = next(
+            item for item in bundle.entities if item.type_id == "CIVILIZATION_TEST"
+        )
+        self.assertEqual(civilization.attributes, {"playable": True})
+        leader = next(
+            item for item in bundle.entities if item.type_id == "LEADER_TEST"
+        )
+        self.assertEqual(leader.attributes, {})
+        trait = next(item for item in bundle.entities if item.type_id == "TRAIT_TEST")
+        self.assertEqual(trait.attributes["wonder_production_modifier"], 20)
+        self.assertTrue(trait.attributes["move_friendly_woods_as_road"])
+        self.assertEqual(
+            trait.attributes["combat_bonus_improvement"], "IMPROVEMENT_MOAI"
+        )
+        civilization_relations = {
+            (
+                item.kind,
+                item.source_kind,
+                item.source_type_id,
+                item.target_kind,
+                item.target_type_id,
+            )
+            for item in bundle.references
+            if item.source_type_id
+            in {"CIVILIZATION_TEST", "LEADER_TEST", "TRAIT_TEST"}
+        }
+        self.assertEqual(
+            civilization_relations,
+            {
+                (
+                    "led_by",
+                    "civilization",
+                    "CIVILIZATION_TEST",
+                    "leader",
+                    "LEADER_TEST",
+                ),
+                (
+                    "has_trait",
+                    "leader",
+                    "LEADER_TEST",
+                    "trait",
+                    "TRAIT_TEST",
+                ),
+                (
+                    "unique_unit",
+                    "civilization",
+                    "CIVILIZATION_TEST",
+                    "unit",
+                    "UNIT_WARRIOR",
+                ),
+                (
+                    "disables_unit_class",
+                    "civilization",
+                    "CIVILIZATION_TEST",
+                    "unit_class",
+                    "UNITCLASS_SWORDSMAN",
+                ),
+                (
+                    "unique_building",
+                    "civilization",
+                    "CIVILIZATION_TEST",
+                    "building",
+                    "BUILDING_PYRAMID",
+                ),
+                (
+                    "grants_unit_class",
+                    "trait",
+                    "TRAIT_TEST",
+                    "unit_class",
+                    "UNITCLASS_WARRIOR",
+                ),
+                (
+                    "free_unit_unlocked_by_technology",
+                    "trait",
+                    "TRAIT_TEST",
+                    "technology",
+                    "TECH_AGRICULTURE",
+                ),
+                (
+                    "grants_free_building",
+                    "trait",
+                    "TRAIT_TEST",
+                    "building",
+                    "BUILDING_PYRAMID",
+                ),
+                (
+                    "unlocked_by_technology",
+                    "trait",
+                    "TRAIT_TEST",
+                    "technology",
+                    "TECH_POTTERY",
+                ),
+            },
+        )
 
     def test_records_source_hash_without_absolute_path(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -556,6 +762,24 @@ class RulesetImportTest(unittest.TestCase):
             create_database(database, invalid_boolean=True)
             with self.assertRaisesRegex(KnowledgeImportError, "invalid boolean Trade"):
                 import_ruleset(database, "cache/bad.db", Ruleset("bnw", "test"))
+
+    def test_rejects_civilization_replacement_in_wrong_class(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-override.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Civilization_UnitClassOverrides "
+                    "SET UnitClassType = ? WHERE UnitType = ?",
+                    ("UNITCLASS_SWORDSMAN", "UNIT_WARRIOR"),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(KnowledgeImportError, "belongs to"):
+                import_ruleset(
+                    database,
+                    "cache/bad-override.db",
+                    Ruleset("bnw", "test"),
+                )
 
     def test_rejects_missing_required_table(self):
         with tempfile.TemporaryDirectory() as directory:

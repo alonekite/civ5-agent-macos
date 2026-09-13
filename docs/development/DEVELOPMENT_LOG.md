@@ -60,6 +60,18 @@ Commits: `76473f8` through `756ab68`.
 Related commits before this governance batch: `144291b`, `14daa1d`.
 Governance commit: `a053797`.
 
+## 2026-09-13 — Civilization knowledge coverage
+
+- Added allowlisted civilization, leader, and deterministic trait entities.
+- Added civilization-to-leader, leader-to-trait, unique unit/building, and
+  disabled class relationships.
+- Explicitly excluded leader personality values, AI playability, flavor tables,
+  prose, and presentation assets.
+- Defined deterministic duplicate-slot handling and rejected replacements whose
+  declared unit/building class does not match the target entity.
+- Imported the target installation's merged database read-only without writing
+  a generated bundle to the repository: 1,100 entities and 2,059 references.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

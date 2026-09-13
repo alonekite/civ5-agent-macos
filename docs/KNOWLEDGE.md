@@ -47,7 +47,8 @@ The initial importer reads the merged `Civ5DebugDatabase.db` with SQLite
 `UnitClasses`, `Unit_ClassUpgrades`, `UnitPromotions`, and
 `Unit_FreePromotions` tables, plus `Policies`, `PolicyBranchTypes`, and the
 policy prerequisite/disable tables, `Buildings`, `BuildingClasses`, `Resources`,
-and `ResourceClasses`.
+and `ResourceClasses`, plus `Civilizations`, `Leaders`, `Traits`, their mapping
+tables, and civilization unit/building class overrides.
 Active package IDs come from
 `DownloadableContent`; callers cannot silently relabel a BNW database as
 vanilla or Gods & Kings.
@@ -80,6 +81,15 @@ technologies, policy reveal, and wonder-bonus obsolescence. AI trade/objective
 columns and resource flavors are excluded. Quantity-bearing unit and building
 requirements remain deferred until reference attributes are added to the
 knowledge schema.
+Civilization entities retain only deterministic playability facts; leader
+entities retain stable IDs but no personality, competitiveness, diplomacy, or
+presentation attributes. Traits include an explicit allowlist of numeric and
+boolean gameplay effects and typed references to existing unit classes,
+technologies, and buildings. Civilization mappings connect leaders and traits,
+unique units and buildings, and disabled default classes. If a merged database
+contains both a null and a non-null override for the same slot, the non-null
+replacement wins; multiple distinct non-null replacements are rejected. Every
+non-null replacement must belong to its declared unit or building class.
 
 For reproducibility and safety it:
 
@@ -99,6 +109,13 @@ promotion prerequisites, 134 alternative promotion prerequisites, 4 promotion
 technology prerequisites, 307 unit free-promotion relations, 148 unit-class
 memberships, 82 class defaults, and 105 distinct upgrade targets. The observed
 technology `requires_any` table is empty.
+
+The same tested database adds 45 civilizations, 44 leaders, and 48 traits. The
+complete current import contains 1,100 entities and 2,059 references, including
+45 civilization-to-leader, 43 leader-to-trait, 66 unique-unit, 20
+unique-building, 45 disabled-unit-class, and 121 disabled-building-class
+relationships. Two consecutive imports produced the same canonical bundle
+hash. No generated bundle or local database is committed.
 
 ## Third-party research
 

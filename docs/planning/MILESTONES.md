@@ -68,8 +68,9 @@ Acceptance criteria:
 - Exclude AI flavor/personality data and copyrighted descriptive assets.
 - Produce byte-for-byte repeatable canonical output from unchanged sources.
 
-Current next deliverable: civilizations, leaders, traits, and unique unit and
-building replacements.
+Completed coverage slice: civilizations, leaders, deterministic trait effects,
+and unique/disabled unit and building class overrides. Current next deliverable:
+religions, beliefs, great people, and specialists.
 
 ## M4 — Ruleset resolver
 

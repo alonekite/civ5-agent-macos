@@ -63,8 +63,10 @@ No application-bundle modification is required.
 - [x] Import resource classes, resource placement facts, and unlock relations
 - [ ] Import unit/building resource quantities after reference attributes exist
 - [ ] Import building effect relation tables after their target entities exist
-- [ ] Import civilizations, traits,
-  religions, terrain, resources, improvements, and remaining rule tables
+- [x] Import civilizations, leaders, traits, and unique/disabled unit and
+  building class overrides.
+- [ ] Import religions, beliefs, great people, specialists, terrain, features,
+  improvements, routes, yields, and remaining rule tables
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context
 - [x] Expose a validated, deterministic entity/reference query API

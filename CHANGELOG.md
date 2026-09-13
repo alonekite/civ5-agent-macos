@@ -13,6 +13,8 @@ versioned releases. Development details belong in
 - Verified end-turn, research-selection, and city-production actions.
 - Deterministic controller proof.
 - Versioned ruleset knowledge core and partial BNW knowledge importer.
+- Civilization, leader, deterministic trait, and unique/disabled class
+  knowledge coverage without AI personality data.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 
