@@ -42,9 +42,11 @@ an empty result that could be mistaken for “no prerequisites.”
 ## SQLite technology importer
 
 The initial importer reads the merged `Civ5DebugDatabase.db` with SQLite
-`query_only`, URI `mode=ro`, and immutable access. It requires the
+`query_only`, URI `mode=ro`, and immutable access. It requires the `Eras`,
 `Technologies`, `Technology_PrereqTechs`, and `Technology_ORPrereqTechs` tables.
-It selects a fixed gameplay-column allowlist rather than copying entire rows.
+It selects fixed technology and era gameplay-column allowlists rather than
+copying entire rows. Every technology has a validated `belongs_to` edge to an
+era entity.
 
 For reproducibility and safety it:
 
@@ -55,8 +57,9 @@ For reproducibility and safety it:
 5. hashes and sizes the database again after reading; and
 6. refuses the result if the source changed.
 
-On the tested Campaign Edition cache this produces 81 technology entities and
-135 `requires_all` relations. The observed `requires_any` table is empty.
+On the tested Campaign Edition cache this produces 81 technology entities,
+8 era entities, 135 `requires_all` relations, and 81 `belongs_to` relations.
+The observed `requires_any` table is empty.
 
 ## Third-party research
 

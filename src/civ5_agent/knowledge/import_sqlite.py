@@ -19,7 +19,6 @@ from .validation import KnowledgeValidationError, validate_bundle
 TECHNOLOGY_FIELDS = {
     "Cost": ("cost", "integer"),
     "AdvancedStartCost": ("advanced_start_cost", "integer"),
-    "Era": ("era", "identifier"),
     "FirstFreeUnitClass": ("first_free_unit_class", "identifier"),
     "FeatureProductionModifier": ("feature_production_modifier", "integer"),
     "UnitFortificationModifier": ("unit_fortification_modifier", "integer"),
@@ -59,6 +58,44 @@ TECHNOLOGY_FIELDS = {
     "GridY": ("grid_y", "integer"),
 }
 
+ERA_FIELDS = {
+    "NoGoodies": ("no_ancient_ruins", "boolean"),
+    "NoBarbUnits": ("no_barbarian_units", "boolean"),
+    "NoReligion": ("no_religion", "boolean"),
+    "ResearchAgreementCost": ("research_agreement_cost", "integer"),
+    "EmbarkedUnitDefense": ("embarked_unit_defense", "integer"),
+    "StartingUnitMultiplier": ("starting_unit_multiplier", "integer"),
+    "StartingDefenseUnits": ("starting_defense_units", "integer"),
+    "StartingWorkerUnits": ("starting_worker_units", "integer"),
+    "StartingExploreUnits": ("starting_explore_units", "integer"),
+    "StartingGold": ("starting_gold", "integer"),
+    "StartingCulture": ("starting_culture", "integer"),
+    "FreePopulation": ("free_population", "integer"),
+    "LaterEraBuildingConstructMod": ("later_era_building_construct_modifier", "integer"),
+    "StartPercent": ("start_percent", "integer"),
+    "BuildingMaintenancePercent": ("building_maintenance_percent", "integer"),
+    "GrowthPercent": ("growth_percent", "integer"),
+    "TrainPercent": ("train_percent", "integer"),
+    "ConstructPercent": ("construct_percent", "integer"),
+    "CreatePercent": ("create_percent", "integer"),
+    "ResearchPercent": ("research_percent", "integer"),
+    "BuildPercent": ("build_percent", "integer"),
+    "ImprovementPercent": ("improvement_percent", "integer"),
+    "GreatPeoplePercent": ("great_people_percent", "integer"),
+    "CulturePercent": ("culture_percent", "integer"),
+    "TradeRouteFoodBonusTimes100": ("trade_route_food_bonus_times100", "integer"),
+    "TradeRouteProductionBonusTimes100": (
+        "trade_route_production_bonus_times100",
+        "integer",
+    ),
+    "EventChancePerTurn": ("event_chance_per_turn", "integer"),
+    "SpiesGrantedForPlayer": ("spies_granted_for_player", "integer"),
+    "SpiesGrantedForEveryone": ("spies_granted_for_everyone", "integer"),
+    "FaithCostMultiplier": ("faith_cost_multiplier", "integer"),
+    "LeaguePercent": ("league_percent", "integer"),
+    "WarmongerPercent": ("warmonger_percent", "integer"),
+}
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -87,8 +124,9 @@ def import_technologies(
             _require_columns(
                 connection,
                 "Technologies",
-                {"Type", *TECHNOLOGY_FIELDS},
+                {"Type", "Era", *TECHNOLOGY_FIELDS},
             )
+            _require_columns(connection, "Eras", {"Type", *ERA_FIELDS})
             _require_columns(
                 connection,
                 "Technology_PrereqTechs",
@@ -99,16 +137,42 @@ def import_technologies(
                 "Technology_ORPrereqTechs",
                 {"TechType", "PrereqTech"},
             )
-            columns = ["Type", *TECHNOLOGY_FIELDS]
+            era_columns = ["Type", *ERA_FIELDS]
+            era_select = ", ".join(f'"{column}"' for column in era_columns)
+            era_rows = connection.execute(
+                f'SELECT {era_select} FROM "Eras" ORDER BY "Type"'
+            ).fetchall()
+            if not era_rows:
+                raise KnowledgeImportError("Eras table is empty")
+            era_entities = tuple(
+                _scalar_entity("era", row, ERA_FIELDS, source_label)
+                for row in era_rows
+            )
+            columns = ["Type", "Era", *TECHNOLOGY_FIELDS]
             select = ", ".join(f'"{column}"' for column in columns)
             rows = connection.execute(
                 f'SELECT {select} FROM "Technologies" ORDER BY "Type"'
             ).fetchall()
             if not rows:
                 raise KnowledgeImportError("Technologies table is empty")
-            entities = tuple(_technology_entity(row, source_label) for row in rows)
+            technology_entities = tuple(
+                _scalar_entity("technology", row, TECHNOLOGY_FIELDS, source_label)
+                for row in rows
+            )
+            era_references = [
+                Reference(
+                    "belongs_to",
+                    "technology",
+                    row["Type"],
+                    "era",
+                    row["Era"],
+                    (source_label,),
+                )
+                for row in rows
+            ]
             references = tuple(
-                _technology_references(
+                era_references
+                + _technology_references(
                     connection,
                     "Technology_PrereqTechs",
                     "requires_all",
@@ -132,33 +196,38 @@ def import_technologies(
             schema_version=1,
             ruleset=ruleset,
             sources=(source,),
-            entities=entities,
+            entities=era_entities + technology_entities,
             references=references,
         )
     )
 
 
-def _technology_entity(row: sqlite3.Row, source_label: str) -> Entity:
+def _scalar_entity(
+    kind: str,
+    row: sqlite3.Row,
+    fields: dict[str, tuple[str, str]],
+    source_label: str,
+) -> Entity:
     attributes: dict[str, Any] = {}
-    for column, (attribute, value_type) in TECHNOLOGY_FIELDS.items():
+    for column, (attribute, value_type) in fields.items():
         value = row[column]
         if value_type == "boolean":
             if value not in (0, 1):
                 raise KnowledgeImportError(
-                    f"technology {row['Type']} has invalid boolean {column}: {value}"
+                    f"{kind} {row['Type']} has invalid boolean {column}: {value}"
                 )
             value = bool(value)
         elif value_type == "integer":
             if not isinstance(value, int) or isinstance(value, bool):
                 raise KnowledgeImportError(
-                    f"technology {row['Type']} has invalid integer {column}: {value}"
+                    f"{kind} {row['Type']} has invalid integer {column}: {value}"
                 )
         elif value is not None and not isinstance(value, str):
             raise KnowledgeImportError(
-                f"technology {row['Type']} has invalid identifier {column}: {value}"
+                f"{kind} {row['Type']} has invalid identifier {column}: {value}"
             )
         attributes[attribute] = value
-    return Entity("technology", row["Type"], attributes, (source_label,))
+    return Entity(kind, row["Type"], attributes, (source_label,))
 
 
 def _technology_references(

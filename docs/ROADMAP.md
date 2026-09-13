@@ -49,7 +49,8 @@ No application-bundle modification is required.
 - [x] Define canonical entities, references, ruleset metadata, and provenance
 - [x] Reject AI flavor/personality data and non-gameplay copyrighted assets
 - [x] Import merged technology facts and prerequisite relations from SQLite
-- [ ] Import eras, units, promotions, buildings, policies, civilizations, traits,
+- [x] Import eras and connect every technology to its era
+- [ ] Import units, promotions, buildings, policies, civilizations, traits,
   religions, terrain, resources, improvements, and remaining rule tables
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context
