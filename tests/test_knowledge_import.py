@@ -9,6 +9,8 @@ from civ5_agent.knowledge import Ruleset
 from civ5_agent.knowledge.import_sqlite import (
     KnowledgeImportError,
     ERA_FIELDS,
+    PROMOTION_FIELDS,
+    PROMOTION_PREREQUISITE_COLUMNS,
     TECHNOLOGY_FIELDS,
     UNIT_FIELDS,
     import_ruleset,
@@ -32,6 +34,19 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
             unit_definitions.append(f'"{column}" {sql_type}')
         connection.execute(f"CREATE TABLE Units ({', '.join(unit_definitions)})")
+        promotion_definitions = ["Type TEXT NOT NULL PRIMARY KEY", "TechPrereq TEXT"]
+        promotion_definitions.extend(
+            f'"{column}" TEXT' for column in PROMOTION_PREREQUISITE_COLUMNS
+        )
+        for column, (_, value_type) in PROMOTION_FIELDS.items():
+            sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
+            promotion_definitions.append(f'"{column}" {sql_type}')
+        connection.execute(
+            f"CREATE TABLE UnitPromotions ({', '.join(promotion_definitions)})"
+        )
+        connection.execute(
+            "CREATE TABLE Unit_FreePromotions (UnitType TEXT, PromotionType TEXT)"
+        )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
         )
@@ -91,6 +106,38 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             f"VALUES ({', '.join('?' for _ in unit_columns)})",
             ["UNIT_WARRIOR", *unit_values],
         )
+        promotion_columns = [
+            "Type",
+            "TechPrereq",
+            *PROMOTION_PREREQUISITE_COLUMNS,
+            *PROMOTION_FIELDS,
+        ]
+        quoted_promotion_columns = ", ".join(
+            f'"{column}"' for column in promotion_columns
+        )
+        for type_id, or_prerequisite, tech_prerequisite, combat_percent in (
+            ("PROMOTION_SHOCK_1", None, None, 15),
+            ("PROMOTION_SHOCK_2", "PROMOTION_SHOCK_1", "TECH_AGRICULTURE", 15),
+        ):
+            promotion_values = []
+            for column, (_, value_type) in PROMOTION_FIELDS.items():
+                if column == "CombatPercent":
+                    value = combat_percent
+                elif value_type in {"boolean", "integer"}:
+                    value = 0
+                else:
+                    value = None
+                promotion_values.append(value)
+            prerequisites = [None, or_prerequisite, *([None] * 8)]
+            connection.execute(
+                f"INSERT INTO UnitPromotions ({quoted_promotion_columns}) VALUES "
+                f"({', '.join('?' for _ in promotion_columns)})",
+                [type_id, tech_prerequisite, *prerequisites, *promotion_values],
+            )
+        connection.execute(
+            "INSERT INTO Unit_FreePromotions VALUES (?, ?)",
+            ("UNIT_WARRIOR", "PROMOTION_SHOCK_1"),
+        )
         connection.commit()
 
 
@@ -104,8 +151,8 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279", ("Expansion2",), ()),
             )
-        self.assertEqual(len(bundle.entities), 4)
-        self.assertEqual(len(bundle.references), 3)
+        self.assertEqual(len(bundle.entities), 6)
+        self.assertEqual(len(bundle.references), 6)
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
         self.assertNotIn("ai_weight", pottery.attributes)
@@ -121,6 +168,17 @@ class RulesetImportTest(unittest.TestCase):
         self.assertEqual(warrior.attributes["combat"], 8)
         self.assertEqual(warrior.attributes["cost"], 40)
         self.assertNotIn("default_unit_ai", warrior.attributes)
+        shock = next(item for item in bundle.entities if item.type_id == "PROMOTION_SHOCK_2")
+        self.assertEqual(shock.attributes["combat_percent"], 15)
+        promotion_relations = {
+            item.kind
+            for item in bundle.references
+            if item.source_type_id in {"PROMOTION_SHOCK_2", "UNIT_WARRIOR"}
+        }
+        self.assertEqual(
+            promotion_relations,
+            {"requires_any", "unlocked_by_technology", "starts_with_promotion"},
+        )
 
     def test_records_source_hash_without_absolute_path(self):
         with tempfile.TemporaryDirectory() as directory:

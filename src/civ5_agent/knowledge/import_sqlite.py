@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sqlite3
 import sys
 import tempfile
@@ -14,6 +15,11 @@ from typing import Any
 from .codec import dumps
 from .models import Entity, KnowledgeBundle, Reference, Ruleset, Source
 from .validation import KnowledgeValidationError, validate_bundle
+
+
+def _snake_case(value: str) -> str:
+    words = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", value)
+    return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", words).lower()
 
 
 TECHNOLOGY_FIELDS = {
@@ -179,6 +185,144 @@ UNIT_FIELDS = {
     "LeaderExperience": ("leader_experience", "integer"),
 }
 
+PROMOTION_BOOLEAN_COLUMNS = (
+    "CannotBeChosen",
+    "LostWithUpgrade",
+    "NotWithUpgrade",
+    "InstaHeal",
+    "Leader",
+    "Blitz",
+    "Amphib",
+    "River",
+    "EnemyRoute",
+    "RivalTerritory",
+    "MustSetUpToRangedAttack",
+    "RangedSupportFire",
+    "CanMoveAfterAttacking",
+    "AlwaysHeal",
+    "HealOutsideFriendly",
+    "HillsDoubleMove",
+    "RoughTerrainEndsTurn",
+    "IgnoreTerrainCost",
+    "HoveringUnit",
+    "FlatMovementCost",
+    "CanMoveImpassable",
+    "NoCapture",
+    "OnlyDefensive",
+    "NoDefensiveBonus",
+    "NukeImmune",
+    "HiddenNationality",
+    "AlwaysHostile",
+    "NoRevealMap",
+    "Recon",
+    "CanMoveAllTerrain",
+    "FreePillageMoves",
+    "AirSweepCapable",
+    "AllowsEmbarkation",
+    "EmbarkedAllWater",
+    "HealIfDestroyExcludesBarbarians",
+    "RangeAttackIgnoreLOS",
+    "CityAttackOnly",
+    "CaptureDefeatedEnemy",
+    "HealOnPillage",
+    "IgnoreGreatGeneralBenefit",
+    "IgnoreZOC",
+    "HasPostCombatPromotions",
+    "PostCombatPromotionsExclusive",
+    "GreatGeneral",
+    "GreatAdmiral",
+    "GreatGeneralReceivesMovement",
+    "Sapper",
+    "HeavyCharge",
+)
+
+PROMOTION_INTEGER_COLUMNS = (
+    "RangedAttackModifier",
+    "InterceptionCombatModifier",
+    "InterceptionDefenseDamageModifier",
+    "AirSweepCombatModifier",
+    "ExtraAttacks",
+    "ExtraNavalMovement",
+    "VisibilityChange",
+    "MovesChange",
+    "MoveDiscountChange",
+    "RangeChange",
+    "InterceptChanceChange",
+    "NumInterceptionChange",
+    "EvasionChange",
+    "CargoChange",
+    "EnemyHealChange",
+    "NeutralHealChange",
+    "FriendlyHealChange",
+    "SameTileHealChange",
+    "AdjacentTileHealChange",
+    "EnemyDamageChance",
+    "NeutralDamageChance",
+    "EnemyDamage",
+    "NeutralDamage",
+    "CombatPercent",
+    "CityAttack",
+    "CityDefense",
+    "RangedDefenseMod",
+    "HillsAttack",
+    "HillsDefense",
+    "OpenAttack",
+    "OpenRangedAttackMod",
+    "OpenDefense",
+    "RoughAttack",
+    "RoughRangedAttackMod",
+    "RoughDefense",
+    "AttackFortifiedMod",
+    "AttackWoundedMod",
+    "FlankAttackModifier",
+    "NearbyEnemyCombatMod",
+    "NearbyEnemyCombatRange",
+    "UpgradeDiscount",
+    "ExperiencePercent",
+    "AdjacentMod",
+    "AttackMod",
+    "DefenseMod",
+    "DropRange",
+    "GreatGeneralModifier",
+    "GreatGeneralCombatModifier",
+    "FriendlyLandsModifier",
+    "FriendlyLandsAttackModifier",
+    "OutsideFriendlyLandsModifier",
+    "HPHealedIfDestroyEnemy",
+    "ExtraWithdrawal",
+    "EmbarkExtraVisibility",
+    "EmbarkDefenseModifier",
+    "CapitalDefenseModifier",
+    "CapitalDefenseFalloff",
+    "CityAttackPlunderModifier",
+    "ReligiousStrengthLossRivalTerritory",
+    "TradeMissionInfluenceModifier",
+    "TradeMissionGoldModifier",
+    "GoldenAgeValueFromKills",
+)
+
+PROMOTION_IDENTIFIER_COLUMNS = ("Invisible", "SeeInvisible")
+PROMOTION_PREREQUISITE_COLUMNS = (
+    "PromotionPrereq",
+    "PromotionPrereqOr1",
+    "PromotionPrereqOr2",
+    "PromotionPrereqOr3",
+    "PromotionPrereqOr4",
+    "PromotionPrereqOr5",
+    "PromotionPrereqOr6",
+    "PromotionPrereqOr7",
+    "PromotionPrereqOr8",
+    "PromotionPrereqOr9",
+)
+PROMOTION_FIELDS = {
+    **{column: (_snake_case(column), "boolean") for column in PROMOTION_BOOLEAN_COLUMNS},
+    **{column: (_snake_case(column), "integer") for column in PROMOTION_INTEGER_COLUMNS},
+    **{
+        column: (_snake_case(column), "identifier")
+        for column in PROMOTION_IDENTIFIER_COLUMNS
+    },
+}
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -211,6 +355,21 @@ def import_ruleset(
             )
             _require_columns(connection, "Eras", {"Type", *ERA_FIELDS})
             _require_columns(connection, "Units", {"Type", *UNIT_FIELDS})
+            _require_columns(
+                connection,
+                "UnitPromotions",
+                {
+                    "Type",
+                    "TechPrereq",
+                    *PROMOTION_PREREQUISITE_COLUMNS,
+                    *PROMOTION_FIELDS,
+                },
+            )
+            _require_columns(
+                connection,
+                "Unit_FreePromotions",
+                {"UnitType", "PromotionType"},
+            )
             _require_columns(
                 connection,
                 "Technology_PrereqTechs",
@@ -254,6 +413,24 @@ def import_ruleset(
                 _scalar_entity("unit", row, UNIT_FIELDS, source_label)
                 for row in unit_rows
             )
+            promotion_columns = [
+                "Type",
+                "TechPrereq",
+                *PROMOTION_PREREQUISITE_COLUMNS,
+                *PROMOTION_FIELDS,
+            ]
+            promotion_select = ", ".join(
+                f'"{column}"' for column in promotion_columns
+            )
+            promotion_rows = connection.execute(
+                f'SELECT {promotion_select} FROM "UnitPromotions" ORDER BY "Type"'
+            ).fetchall()
+            if not promotion_rows:
+                raise KnowledgeImportError("UnitPromotions table is empty")
+            promotion_entities = tuple(
+                _scalar_entity("promotion", row, PROMOTION_FIELDS, source_label)
+                for row in promotion_rows
+            )
             era_references = [
                 Reference(
                     "belongs_to",
@@ -279,6 +456,8 @@ def import_ruleset(
                     "requires_any",
                     source_label,
                 )
+                + _promotion_references(promotion_rows, source_label)
+                + _free_promotion_references(connection, source_label)
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -291,7 +470,12 @@ def import_ruleset(
             schema_version=1,
             ruleset=ruleset,
             sources=(source,),
-            entities=era_entities + technology_entities + unit_entities,
+            entities=(
+                era_entities
+                + technology_entities
+                + unit_entities
+                + promotion_entities
+            ),
             references=references,
         )
     )
@@ -351,6 +535,59 @@ def _technology_references(
             row["TechType"],
             "technology",
             row["PrereqTech"],
+            (source_label,),
+        )
+        for row in rows
+    ]
+
+
+def _promotion_references(
+    rows: list[sqlite3.Row], source_label: str
+) -> list[Reference]:
+    references: list[Reference] = []
+    for row in rows:
+        if row["TechPrereq"] is not None:
+            references.append(
+                Reference(
+                    "unlocked_by_technology",
+                    "promotion",
+                    row["Type"],
+                    "technology",
+                    row["TechPrereq"],
+                    (source_label,),
+                )
+            )
+        for column in PROMOTION_PREREQUISITE_COLUMNS:
+            prerequisite = row[column]
+            if prerequisite is None:
+                continue
+            references.append(
+                Reference(
+                    "requires_all" if column == "PromotionPrereq" else "requires_any",
+                    "promotion",
+                    row["Type"],
+                    "promotion",
+                    prerequisite,
+                    (source_label,),
+                )
+            )
+    return references
+
+
+def _free_promotion_references(
+    connection: sqlite3.Connection, source_label: str
+) -> list[Reference]:
+    rows = connection.execute(
+        'SELECT "UnitType", "PromotionType" FROM "Unit_FreePromotions" '
+        'ORDER BY "UnitType", "PromotionType"'
+    ).fetchall()
+    return [
+        Reference(
+            "starts_with_promotion",
+            "unit",
+            row["UnitType"],
+            "promotion",
+            row["PromotionType"],
             (source_label,),
         )
         for row in rows

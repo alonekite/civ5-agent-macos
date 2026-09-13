@@ -49,6 +49,9 @@ It selects fixed technology and era gameplay-column allowlists rather than
 copying entire rows. Every technology has a validated `belongs_to` edge to an
 era entity. It also imports allowlisted gameplay values for unit types while
 excluding unit AI roles, flavors, presentation assets, and prose.
+Promotion entities include an explicit gameplay-effect allowlist, AND/OR
+promotion prerequisites, technology prerequisites, and unit free-promotion
+relationships. Presentation and hotkey fields remain excluded.
 
 For reproducibility and safety it:
 
@@ -60,8 +63,11 @@ For reproducibility and safety it:
 6. refuses the result if the source changed.
 
 On the tested Campaign Edition cache this produces 81 technology entities,
-8 era entities, 148 unit entities, 135 `requires_all` relations, and 81
-`belongs_to` relations. The observed `requires_any` table is empty.
+8 era entities, 148 unit entities, and 214 promotion entities. It contains 135
+technology `requires_all` relations, 81 technology-to-era relations, 8 mandatory
+promotion prerequisites, 134 alternative promotion prerequisites, 4 promotion
+technology prerequisites, and 307 unit free-promotion relations. The observed
+technology `requires_any` table is empty.
 
 ## Third-party research
 

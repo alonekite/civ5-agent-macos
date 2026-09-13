@@ -101,11 +101,12 @@ stable across input ordering, and loading rejects unknown fields, broken
 references, invalid identifiers, missing provenance, and non-finite numbers.
 
 The first importer reads the game's merged `Civ5DebugDatabase.db` in SQLite
-read-only and immutable mode. It currently exports technology, era, and unit
-gameplay fields plus prerequisite and technology-to-era relations. It uses
-explicit column allowlists and does not export AI weights, roles, flavor tables,
-Civilopedia prose, quotations, art, or audio. It refuses a database with a live
-write-ahead log or one that changes during import.
+read-only and immutable mode. It currently exports technology, era, unit, and
+promotion gameplay fields plus their prerequisite, era, technology, and free
+promotion relations. It uses explicit column allowlists and does not export AI
+weights, roles, flavor tables, Civilopedia prose, quotations, hotkeys, art, or
+audio. It refuses a database with a live write-ahead log or one that changes
+during import.
 
 The knowledge module is deterministic and never requires an LLM. A local model
 may help draft code or mappings during development, but model output is accepted
