@@ -555,3 +555,32 @@ snapshots.
 
 confirmed offline. The local IPC boundary now has symmetric, explicit resource
 limits without constraining normal game-state snapshots.
+
+### 2026-09-13 — FireTuner entry-point closure
+
+**Hypothesis**
+
+No shipped CLI should be able to connect to FireTuner, or enable it, while the
+application-firewall guard is absent.
+
+**Procedure**
+
+1. Moved the live-session requirement into `FireTunerClient.connect`, beneath
+   every current Python entry point.
+2. Made `configure_firetuner.sh enable` verify the global firewall state and an
+   explicit Civ V block-incoming rule before creating a backup or editing the
+   game configuration.
+3. Added a test proving an unsafe session fails before `socket.create_connection`
+   and ran shell syntax validation with the full suite.
+
+**Observed result**
+
+- 72 tests pass with no warnings.
+- The watcher, command CLI, tuner diagnostic CLI, and direct library client now
+  share the same fail-closed connection gate.
+
+**Conclusion**
+
+confirmed offline. The configuration and connection layers both require the
+agreed firewall mitigation; the next live session will verify the complete
+operator workflow.

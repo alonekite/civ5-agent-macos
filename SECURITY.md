@@ -39,7 +39,9 @@ The command reports JSON and makes no system changes.
 The watcher and direct command path enforce the live check automatically. The
 watcher's local control socket rechecks it before each allowlisted write, so a
 removed firewall rule prevents the game action. The bridge refuses FireTuner
-hosts and ports other than the verified `127.0.0.1:4318` endpoint.
+hosts and ports other than the verified `127.0.0.1:4318` endpoint. The low-level
+client enforces the same rule, and `configure_firetuner.sh enable` refuses to
+change the configuration until the firewall and Civ V rule are present.
 
 Never expose FireTuner through port forwarding, a public Wi-Fi network, a VPN
 that permits peer access, or an untrusted LAN. Do not pass arbitrary Lua from an

@@ -2,6 +2,7 @@ import socket
 import unittest
 from unittest.mock import patch
 
+from civ5_agent.preflight import UnsafeSessionError
 from civ5_agent.tuner import (
     HEADER,
     TAG_COMMAND,
@@ -27,6 +28,16 @@ from civ5_agent.tuner import (
 
 
 class TunerProtocolTest(unittest.TestCase):
+    def test_connect_requires_safe_session_before_opening_socket(self):
+        client = FireTunerClient()
+        with patch(
+            "civ5_agent.tuner.require_safe_tuner_session",
+            side_effect=UnsafeSessionError("firewall disabled"),
+        ), patch("civ5_agent.tuner.socket.create_connection") as connect:
+            with self.assertRaisesRegex(UnsafeSessionError, "firewall disabled"):
+                client.connect()
+        connect.assert_not_called()
+
     def test_encodes_firaxis_frame(self):
         frame = encode_message(TAG_HANDSHAKE, "APP:")
         length, tag = HEADER.unpack(frame[: HEADER.size])

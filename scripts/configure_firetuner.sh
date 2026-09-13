@@ -8,9 +8,40 @@ action="${1:-status}"
 user_data_dir="${HOME}/Library/Containers/com.aspyr.civ5campaign/Data/Library/Application Support/Civilization V Campaign Edition"
 config_path="${user_data_dir}/config.ini"
 backup_path="${user_data_dir}/config.ini.civ5-agent-backup"
+firewall_tool="/usr/libexec/ApplicationFirewall/socketfilterfw"
+civ_executable="/Applications/Civilization V Campaign Edition.app/Contents/MacOS/Civilization V Campaign Edition"
 
 show_status() {
   grep -E '^(EnableTuner|SendRemarksToTuner|LoggingEnabled)[[:space:]]*=' "$config_path"
+}
+
+require_guarded_firewall() {
+  local global_state
+  local apps_output
+  local found_civ
+  global_state="$($firewall_tool --getglobalstate)"
+  if [[ "$global_state" != *"State = 1"* ]]; then
+    printf 'ERROR: refusing to enable FireTuner while the macOS application firewall is disabled\n' >&2
+    exit 1
+  fi
+
+  apps_output="$($firewall_tool --listapps)"
+  found_civ=0
+  while IFS= read -r line; do
+    if [[ "$line" == *"$civ_executable" ]]; then
+      found_civ=1
+      continue
+    fi
+    if [ "$found_civ" -eq 1 ]; then
+      if [[ "$line" == *"(Block incoming connections)"* ]]; then
+        return
+      fi
+      break
+    fi
+  done <<< "$apps_output"
+
+  printf 'ERROR: refusing to enable FireTuner without an explicit Civ V block-incoming firewall rule\n' >&2
+  exit 1
 }
 
 if [ ! -f "$config_path" ]; then
@@ -23,6 +54,7 @@ case "$action" in
     show_status
     ;;
   enable)
+    require_guarded_firewall
     if [ ! -f "$backup_path" ]; then
       cp -p "$config_path" "$backup_path"
       printf 'Backup created: %s\n' "$backup_path"

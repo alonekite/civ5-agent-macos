@@ -69,8 +69,9 @@ PYTHONPATH=src python3 -m civ5_agent.preflight ready
 ```
 
 The check fails closed unless FireTuner, the firewall, and the explicit Civ V
-rule are all present. The configuration helper creates a timestamp-preserving
-backup and verifies the changed line:
+rule are all present. The configuration helper itself refuses `enable` until
+the firewall and rule are verified, then creates a timestamp-preserving backup
+and verifies the changed line:
 
 ```bash
 bash scripts/configure_firetuner.sh enable

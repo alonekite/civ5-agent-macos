@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from urllib.parse import unquote
 
 from .models import GameState
+from .preflight import require_safe_tuner_session
 
 
 HEADER = struct.Struct("<Ii")
@@ -96,6 +97,7 @@ class FireTunerClient:
     def connect(self) -> None:
         if self._socket is not None:
             return
+        require_safe_tuner_session(self.host, self.port)
         self._socket = socket.create_connection((self.host, self.port), self.timeout)
         self._socket.settimeout(self.timeout)
 
@@ -607,7 +609,7 @@ def main() -> int:
                 print(f"response_count={len(responses)}")
                 for response in responses:
                     print(f"response_tag={response.tag} payload={response.payload!r}")
-    except (ConnectionError, OSError, TimeoutError, ValueError) as error:
+    except (ConnectionError, OSError, RuntimeError, TimeoutError, ValueError) as error:
         print(f"FireTuner unavailable: {error}")
         return 1
     return 0
