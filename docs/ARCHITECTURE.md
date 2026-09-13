@@ -37,6 +37,11 @@ game connection. It exposes a per-user Unix socket with mode `0600` so the
 command CLI can share that exact connection. Requests are serialized with the
 watcher's reads.
 
+The local protocol accepts one JSON object per line. Requests are capped at
+64 KiB and responses at 4 MiB; both peers reject oversized messages. The
+server converts malformed JSON, non-object callbacks, serialization failures,
+and unexpected callback exceptions into bounded structured errors.
+
 ## Write safety
 
 The first live-verified write is `end_turn`. The implementation:

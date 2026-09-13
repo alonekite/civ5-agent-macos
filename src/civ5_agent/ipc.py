@@ -27,13 +27,19 @@ def request(
     timeout: float = 35.0,
 ) -> dict[str, Any]:
     path = socket_path or default_socket_path()
-    encoded = json.dumps(payload, separators=(",", ":")).encode() + b"\n"
+    encoded = json.dumps(
+        payload,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode() + b"\n"
+    if len(encoded) > MAX_REQUEST_BYTES:
+        raise ValueError("local bridge request too large")
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
         connection.settimeout(timeout)
         connection.connect(str(path))
         connection.sendall(encoded)
         response = _receive_line(connection)
-    parsed = json.loads(response)
+    parsed = json.loads(response, parse_constant=_reject_json_constant)
     if not isinstance(parsed, dict):
         raise ValueError("local bridge returned a non-object response")
     return parsed
@@ -46,13 +52,36 @@ class _Handler(socketserver.StreamRequestHandler):
             response = {"ok": False, "error": "request too large"}
         else:
             try:
-                payload = json.loads(line)
+                payload = json.loads(line, parse_constant=_reject_json_constant)
                 if not isinstance(payload, dict):
                     raise ValueError("request must be a JSON object")
                 response = self.server.callback(payload)  # type: ignore[attr-defined]
-            except (ConnectionError, json.JSONDecodeError, OSError, TimeoutError, ValueError) as error:
+                if not isinstance(response, dict):
+                    raise TypeError("callback must return a JSON object")
+            except (
+                ConnectionError,
+                json.JSONDecodeError,
+                OSError,
+                TimeoutError,
+                ValueError,
+            ) as error:
                 response = {"ok": False, "error": str(error)}
-        self.wfile.write(json.dumps(response, separators=(",", ":")).encode() + b"\n")
+            except Exception as error:
+                response = {
+                    "ok": False,
+                    "error": f"internal bridge error: {type(error).__name__}",
+                }
+        try:
+            encoded = json.dumps(
+                response,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode() + b"\n"
+        except (TypeError, ValueError) as error:
+            encoded = _error_response(f"response is not valid JSON: {error}")
+        if len(encoded) > MAX_RESPONSE_BYTES:
+            encoded = _error_response("local bridge response too large")
+        self.wfile.write(encoded)
 
 
 class _UnixServer(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
@@ -131,3 +160,14 @@ def _receive_line(connection: socket.socket) -> str:
         if size > MAX_RESPONSE_BYTES:
             raise ValueError("local bridge response too large")
     return b"".join(chunks).decode()
+
+
+def _error_response(message: str) -> bytes:
+    return json.dumps(
+        {"ok": False, "error": message},
+        separators=(",", ":"),
+    ).encode() + b"\n"
+
+
+def _reject_json_constant(value: str) -> None:
+    raise ValueError(f"invalid JSON constant: {value}")

@@ -525,3 +525,33 @@ new fields are not marked live-verified.
 During the next firewall-protected game session, first confirm schema 3 in an
 early game (an empty diplomacy list is valid), then verify a met civilization
 later or from a suitable save before closing the roadmap item.
+
+### 2026-09-13 — Local IPC boundary hardening
+
+**Hypothesis**
+
+The watcher control socket can bound memory use and return a useful response
+for every malformed or failing request without affecting legitimate rich
+snapshots.
+
+**Procedure**
+
+1. Enforced the existing 64 KiB request limit in the client before it opens a
+   socket.
+2. Enforced the 4 MiB response limit in the server after JSON serialization.
+3. Rejected non-finite JSON values and converted non-object, unserializable,
+   and unexpectedly failing callbacks into bounded error objects.
+4. Added round-trip tests for every new rejection path while retaining a test
+   proving legitimate responses may exceed the smaller request limit.
+
+**Observed result**
+
+- 71 tests pass with no warnings.
+- Oversized client requests fail before connection; oversized and invalid
+  callback responses return structured errors; unexpected callback details are
+  not reflected to the caller.
+
+**Conclusion**
+
+confirmed offline. The local IPC boundary now has symmetric, explicit resource
+limits without constraining normal game-state snapshots.
