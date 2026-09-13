@@ -17,11 +17,12 @@ Status: the low-level MVP was verified end-to-end on the target Mac on
 advanced turn 0 → 1 with verified before/after state.
 
 Snapshot schema 3 additionally reads the active player's score and era, city
-growth/production progress, and met major civilizations' public diplomacy
-state. Its parser and validation are offline-tested and retain schema 2
-compatibility; schema 3 still requires a bounded live-game verification before
-it is considered confirmed. City food and production rates use Civ V's exact
-times-100 integers rather than rounded floats.
+growth/production progress, owned-unit health and strength, and met major
+civilizations' public diplomacy state. Its parser and validation are
+offline-tested and retain schema 2 compatibility; schema 3 still requires a
+bounded live-game verification before it is considered confirmed. City food
+and production rates use Civ V's exact times-100 integers rather than rounded
+floats.
 
 This is an unofficial, independently developed project. It is not affiliated
 with or endorsed by Firaxis Games, 2K, Aspyr, or Apple, and it does not include

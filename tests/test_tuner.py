@@ -139,7 +139,8 @@ class TunerProtocolTest(unittest.TestCase):
             ),
             TunerMessage(
                 -1,
-                "O\x00InGame: CIV5_AGENT_UNIT|8|Warrior|UNIT_WARRIOR|9|12|120",
+                "O\x00InGame: CIV5_AGENT_UNIT|8|Warrior|UNIT_WARRIOR|"
+                "9|12|120|15|100|8|0|1",
             ),
             TunerMessage(
                 -1,
@@ -166,6 +167,8 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertEqual(state.cities[0]["food_times100"], 525)
         self.assertEqual(state.cities[0]["production_per_turn_times100"], 500)
         self.assertEqual(state.units[0]["moves"], 120)
+        self.assertEqual(state.units[0]["damage"], 15)
+        self.assertEqual(state.units[0]["combat_strength"], 8)
         self.assertEqual(
             state.diplomacy[0],
             {

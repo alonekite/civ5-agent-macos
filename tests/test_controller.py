@@ -93,11 +93,22 @@ class StateValidationTest(unittest.TestCase):
                 "production_per_turn_times100": 500,
             }
         )
+        unit = dict(ready_state().units[0])
+        unit.update(
+            {
+                "damage": 15,
+                "max_hit_points": 100,
+                "combat_strength": 8,
+                "ranged_strength": 0,
+                "range": 1,
+            }
+        )
         state = ready_state(
             schema_version=3,
             score=33,
             current_era=0,
             cities=[city],
+            units=[unit],
         )
         self.assertIs(validate_live_state(state), state)
 
@@ -106,6 +117,33 @@ class StateValidationTest(unittest.TestCase):
             validate_live_state(
                 ready_state(schema_version=3, score=33, current_era=0)
             )
+
+    def test_schema_three_rejects_impossible_unit_damage(self):
+        state = ready_state()
+        state.schema_version = 3
+        state.score = 33
+        state.current_era = 0
+        state.cities[0].update(
+            {
+                "food_times100": 525,
+                "growth_threshold": 24,
+                "food_per_turn_times100": 300,
+                "production_times100": 800,
+                "production_needed": 40,
+                "production_per_turn_times100": 500,
+            }
+        )
+        state.units[0].update(
+            {
+                "damage": 101,
+                "max_hit_points": 100,
+                "combat_strength": 8,
+                "ranged_strength": 0,
+                "range": 1,
+            }
+        )
+        with self.assertRaisesRegex(StateValidationError, "damage exceeds"):
+            validate_live_state(state)
 
 
 class DeterministicPolicyTest(unittest.TestCase):

@@ -251,7 +251,9 @@ def snapshot_lua() -> str:
         f'for u in p:Units() do local info=GameInfo.Units[u:GetUnitType()]; '
         f'print("{UNIT_MARKER}"..u:GetID().."|"..esc(u:GetName()).."|"'
         '..esc(info and info.Type or "").."|"..u:GetX().."|"..u:GetY()'
-        '.."|"..u:MovesLeft()) end; '
+        '.."|"..u:MovesLeft().."|"..u:GetDamage().."|"..u:GetMaxHitPoints()'
+        '.."|"..u:GetBaseCombatStrength().."|"'
+        '..u:GetBaseRangedCombatStrength().."|"..u:Range()) end; '
         'local myTeam=Teams[p:GetTeam()]; '
         'for oid=0,GameDefines.MAX_MAJOR_CIVS-1 do local o=Players[oid]; '
         'if oid~=pid and o and o:IsAlive() and myTeam:IsHasMet(o:GetTeam()) then '
@@ -490,18 +492,28 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                 if snapshot is None:
                     raise ValueError("unit record appeared before snapshot header")
                 fields = line.split(UNIT_MARKER, 1)[1].split("|")
-                if len(fields) != 6:
+                expected_fields = 6 if snapshot.schema_version == 2 else 11
+                if len(fields) != expected_fields:
                     raise ValueError(f"malformed unit record: {line!r}")
-                units.append(
-                    {
-                        "id": int(fields[0]),
-                        "name": unquote(fields[1]),
-                        "type": unquote(fields[2]),
-                        "x": int(fields[3]),
-                        "y": int(fields[4]),
-                        "moves": int(fields[5]),
-                    }
-                )
+                unit: dict[str, object] = {
+                    "id": int(fields[0]),
+                    "name": unquote(fields[1]),
+                    "type": unquote(fields[2]),
+                    "x": int(fields[3]),
+                    "y": int(fields[4]),
+                    "moves": int(fields[5]),
+                }
+                if snapshot.schema_version == 3:
+                    unit.update(
+                        {
+                            "damage": int(fields[6]),
+                            "max_hit_points": int(fields[7]),
+                            "combat_strength": int(fields[8]),
+                            "ranged_strength": int(fields[9]),
+                            "range": int(fields[10]),
+                        }
+                    )
+                units.append(unit)
             elif DIPLOMACY_MARKER in line:
                 if snapshot is None or snapshot.schema_version != 3:
                     raise ValueError(

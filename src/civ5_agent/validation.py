@@ -107,6 +107,31 @@ def validate_live_state(state: GameState) -> GameState:
         for field in ("name", "type"):
             if not isinstance(unit.get(field), str):
                 raise StateValidationError(f"unit {unit.get('id')} has invalid {field}")
+        if state.schema_version == 3:
+            for field in (
+                "damage",
+                "combat_strength",
+                "ranged_strength",
+                "range",
+            ):
+                value = unit.get(field)
+                if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                    raise StateValidationError(
+                        f"unit {unit.get('id')} has invalid {field}"
+                    )
+            max_hit_points = unit.get("max_hit_points")
+            if (
+                not isinstance(max_hit_points, int)
+                or isinstance(max_hit_points, bool)
+                or max_hit_points <= 0
+            ):
+                raise StateValidationError(
+                    f"unit {unit.get('id')} has invalid max_hit_points"
+                )
+            if unit["damage"] > max_hit_points:
+                raise StateValidationError(
+                    f"unit {unit.get('id')} damage exceeds max_hit_points"
+                )
 
     diplomacy_players: set[int] = set()
     for relation in state.diplomacy:

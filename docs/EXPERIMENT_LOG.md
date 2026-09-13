@@ -615,3 +615,33 @@ planning without relying on rounded UI strings.
 
 confirmed offline only. The expanded city records are ready for the same
 bounded, firewall-protected live verification as the other schema 3 fields.
+
+### 2026-09-13 — Offline schema 3 unit condition
+
+**Hypothesis**
+
+Owned-unit condition can be represented with stable read-only values before
+any automatic unit policy is attempted.
+
+**Procedure**
+
+1. Inspected the bundled Brave New World `UnitPanel.lua`,
+   `MilitaryOverview.lua`, and `PlotMouseoverInclude.lua`.
+2. Added damage, maximum hit points, base combat strength, base ranged
+   strength, and range to schema 3 unit records.
+3. Retained six-field schema 2 unit parsing and made the new fields mandatory
+   only for schema 3.
+4. Added type, non-negative, positive-max-health, and damage-within-health
+   validation.
+
+**Observed result**
+
+- 75 tests pass with no warnings.
+- Tests parse the added unit fields and reject damage greater than maximum hit
+  points while all existing skip-unit verification remains green.
+
+**Conclusion**
+
+confirmed offline only. The bridge now has enough owned-unit condition data to
+support a future conservative unit policy after schema 3 and `skip_unit` are
+live-verified.
