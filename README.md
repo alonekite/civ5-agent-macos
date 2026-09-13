@@ -150,8 +150,10 @@ installation. It also preserves 83 unit classes and their default and upgrade
 relationships, plus 111 policies and 12 policy branches with their core effects
 and prerequisite graph. Building classes preserve instance limits so 140
 buildings—including national and world wonders—can be classified without
-localized text. The database itself and other game assets are not copied into
-this repository. Generate a local artifact with:
+localized text. It also imports 42 resources and 4 resource classes with their
+placement and unlock rules, excluding AI trading/objective data. The database
+itself and other game assets are not copied into this repository. Generate a
+local artifact with:
 
 ```bash
 PYTHONPATH=src python3 -m civ5_agent.knowledge.import_sqlite \

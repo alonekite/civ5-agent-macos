@@ -584,6 +584,56 @@ BUILDING_REFERENCE_COLUMNS = (
     ("PolicyBranchType", "requires_policy_branch", "policy_branch"),
 )
 
+RESOURCE_INTEGER_COLUMNS = (
+    "Happiness",
+    "WonderProductionMod",
+    "StartingResourceQuantity",
+    "PlacementOrder",
+    "ConstAppearance",
+    "MinAreaSize",
+    "MinLatitude",
+    "MaxLatitude",
+    "RandApp1",
+    "RandApp2",
+    "RandApp3",
+    "RandApp4",
+    "Player",
+    "TilesPer",
+    "MinLandPercent",
+    "Unique",
+    "GroupRange",
+    "GroupRand",
+    "ResourceUsage",
+)
+
+RESOURCE_BOOLEAN_COLUMNS = (
+    "PresentOnAllValidPlots",
+    "Area",
+    "Hills",
+    "Flatlands",
+    "NoRiverSide",
+    "Normalize",
+    "OnlyMinorCivs",
+)
+
+RESOURCE_FIELDS = {
+    **{column: (_snake_case(column), "integer") for column in RESOURCE_INTEGER_COLUMNS},
+    **{column: (_snake_case(column), "boolean") for column in RESOURCE_BOOLEAN_COLUMNS},
+}
+
+RESOURCE_CLASS_FIELDS = {
+    "UniqueRange": ("unique_range", "integer"),
+}
+
+RESOURCE_REFERENCE_COLUMNS = (
+    ("ResourceClassType", "belongs_to_resource_class", "resource_class"),
+    ("TechReveal", "revealed_by_technology", "technology"),
+    ("PolicyReveal", "revealed_by_policy", "policy"),
+    ("TechCityTrade", "trade_enabled_by_technology", "technology"),
+    ("TechObsolete", "obsoleted_by_technology", "technology"),
+    ("WonderProductionModObsoleteEra", "wonder_bonus_obsoleted_by_era", "era"),
+)
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -698,6 +748,20 @@ def import_ruleset(
                 connection,
                 "BuildingClasses",
                 {"Type", "DefaultBuilding", *BUILDING_CLASS_FIELDS},
+            )
+            _require_columns(
+                connection,
+                "Resources",
+                {
+                    "Type",
+                    *(column for column, _, _ in RESOURCE_REFERENCE_COLUMNS),
+                    *RESOURCE_FIELDS,
+                },
+            )
+            _require_columns(
+                connection,
+                "ResourceClasses",
+                {"Type", *RESOURCE_CLASS_FIELDS},
             )
             _require_columns(
                 connection,
@@ -838,6 +902,38 @@ def import_ruleset(
                 )
                 for row in building_class_rows
             )
+            resource_columns = [
+                "Type",
+                *(column for column, _, _ in RESOURCE_REFERENCE_COLUMNS),
+                *RESOURCE_FIELDS,
+            ]
+            resource_select = ", ".join(
+                f'"{column}"' for column in resource_columns
+            )
+            resource_rows = connection.execute(
+                f'SELECT {resource_select} FROM "Resources" ORDER BY "Type"'
+            ).fetchall()
+            if not resource_rows:
+                raise KnowledgeImportError("Resources table is empty")
+            resource_entities = tuple(
+                _scalar_entity("resource", row, RESOURCE_FIELDS, source_label)
+                for row in resource_rows
+            )
+            resource_class_columns = ["Type", *RESOURCE_CLASS_FIELDS]
+            resource_class_select = ", ".join(
+                f'"{column}"' for column in resource_class_columns
+            )
+            resource_class_rows = connection.execute(
+                f'SELECT {resource_class_select} FROM "ResourceClasses" ORDER BY "Type"'
+            ).fetchall()
+            if not resource_class_rows:
+                raise KnowledgeImportError("ResourceClasses table is empty")
+            resource_class_entities = tuple(
+                _scalar_entity(
+                    "resource_class", row, RESOURCE_CLASS_FIELDS, source_label
+                )
+                for row in resource_class_rows
+            )
             era_references = [
                 Reference(
                     "belongs_to",
@@ -874,6 +970,7 @@ def import_ruleset(
                 + _building_references(
                     building_rows, building_class_rows, source_label
                 )
+                + _resource_references(resource_rows, source_label)
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -896,6 +993,8 @@ def import_ruleset(
                 + branch_entities
                 + building_entities
                 + building_class_entities
+                + resource_entities
+                + resource_class_entities
             ),
             references=references,
         )
@@ -1234,6 +1333,28 @@ def _building_references(
         for row in building_class_rows
         if row["DefaultBuilding"] not in (None, "NONE")
     )
+    return references
+
+
+def _resource_references(
+    resource_rows: list[sqlite3.Row], source_label: str
+) -> list[Reference]:
+    references: list[Reference] = []
+    for row in resource_rows:
+        for column, kind, target_kind in RESOURCE_REFERENCE_COLUMNS:
+            target = row[column]
+            if target in (None, "NONE"):
+                continue
+            references.append(
+                Reference(
+                    kind,
+                    "resource",
+                    row["Type"],
+                    target_kind,
+                    target,
+                    (source_label,),
+                )
+            )
     return references
 
 

@@ -56,6 +56,8 @@ No application-bundle modification is required.
 - [x] Import policy branches, core policy effects, and prerequisites
 - [ ] Import policy effect relation tables after their target entities exist
 - [x] Import building classes, core building facts, and known prerequisites
+- [x] Import resource classes, resource placement facts, and unlock relations
+- [ ] Import unit/building resource quantities after reference attributes exist
 - [ ] Import building effect relation tables after their target entities exist
 - [ ] Import civilizations, traits,
   religions, terrain, resources, improvements, and remaining rule tables

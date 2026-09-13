@@ -46,7 +46,8 @@ The initial importer reads the merged `Civ5DebugDatabase.db` with SQLite
 `Technologies`, `Technology_PrereqTechs`, `Technology_ORPrereqTechs`, `Units`,
 `UnitClasses`, `Unit_ClassUpgrades`, `UnitPromotions`, and
 `Unit_FreePromotions` tables, plus `Policies`, `PolicyBranchTypes`, and the
-policy prerequisite/disable tables, and `Buildings` and `BuildingClasses`.
+policy prerequisite/disable tables, `Buildings`, `BuildingClasses`, `Resources`,
+and `ResourceClasses`.
 Active package IDs come from
 `DownloadableContent`; callers cannot silently relabel a BNW database as
 vanilla or Gods & Kings.
@@ -73,6 +74,12 @@ Instance limits preserve the distinction among ordinary buildings, national
 wonders, team wonders, and world wonders without relying on localized names.
 Detailed yield/resource/specialist effect tables remain deferred until their
 target entities exist.
+Resource and resource-class entities include happiness, usage, initial
+quantity, map-placement rules, class membership, reveal/trade/obsolete
+technologies, policy reveal, and wonder-bonus obsolescence. AI trade/objective
+columns and resource flavors are excluded. Quantity-bearing unit and building
+requirements remain deferred until reference attributes are added to the
+knowledge schema.
 
 For reproducibility and safety it:
 

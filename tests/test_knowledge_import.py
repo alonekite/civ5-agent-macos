@@ -17,6 +17,9 @@ from civ5_agent.knowledge.import_sqlite import (
     PROMOTION_PREREQUISITE_COLUMNS,
     POLICY_BRANCH_FIELDS,
     POLICY_FIELDS,
+    RESOURCE_CLASS_FIELDS,
+    RESOURCE_FIELDS,
+    RESOURCE_REFERENCE_COLUMNS,
     TECHNOLOGY_FIELDS,
     UNIT_FIELDS,
     UNIT_CLASS_FIELDS,
@@ -126,6 +129,23 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
             building_class_definitions.append(f'"{column}" {sql_type}')
         connection.execute(
             f"CREATE TABLE BuildingClasses ({', '.join(building_class_definitions)})"
+        )
+        resource_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        resource_definitions.extend(
+            f'"{column}" TEXT' for column, _, _ in RESOURCE_REFERENCE_COLUMNS
+        )
+        for column, (_, value_type) in RESOURCE_FIELDS.items():
+            sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
+            resource_definitions.append(f'"{column}" {sql_type}')
+        connection.execute(
+            f"CREATE TABLE Resources ({', '.join(resource_definitions)})"
+        )
+        resource_class_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        for column, (_, value_type) in RESOURCE_CLASS_FIELDS.items():
+            sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
+            resource_class_definitions.append(f'"{column}" {sql_type}')
+        connection.execute(
+            f"CREATE TABLE ResourceClasses ({', '.join(resource_class_definitions)})"
         )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
@@ -333,6 +353,46 @@ def create_database(path: Path, *, invalid_boolean: bool = False) -> None:
                 *(building_class_values[column] for column in BUILDING_CLASS_FIELDS),
             ],
         )
+        resource_class_columns = ["Type", *RESOURCE_CLASS_FIELDS]
+        connection.execute(
+            f"INSERT INTO ResourceClasses "
+            f"({', '.join(f'\"{column}\"' for column in resource_class_columns)}) "
+            f"VALUES ({', '.join('?' for _ in resource_class_columns)})",
+            ["RESOURCECLASS_RUSH", *([1] * len(RESOURCE_CLASS_FIELDS))],
+        )
+        resource_columns = [
+            "Type",
+            *(column for column, _, _ in RESOURCE_REFERENCE_COLUMNS),
+            *RESOURCE_FIELDS,
+        ]
+        resource_values = []
+        for column, (_, value_type) in RESOURCE_FIELDS.items():
+            if column == "StartingResourceQuantity":
+                value = 2
+            elif column == "ResourceUsage":
+                value = 1
+            elif value_type in {"integer", "boolean"}:
+                value = 0
+            else:
+                value = None
+            resource_values.append(value)
+        resource_reference_values = {
+            "ResourceClassType": "RESOURCECLASS_RUSH",
+            "TechReveal": "TECH_AGRICULTURE",
+        }
+        connection.execute(
+            f"INSERT INTO Resources "
+            f"({', '.join(f'\"{column}\"' for column in resource_columns)}) VALUES "
+            f"({', '.join('?' for _ in resource_columns)})",
+            [
+                "RESOURCE_IRON",
+                *(
+                    resource_reference_values.get(column)
+                    for column, _, _ in RESOURCE_REFERENCE_COLUMNS
+                ),
+                *resource_values,
+            ],
+        )
         connection.commit()
 
 
@@ -346,8 +406,8 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 13)
-        self.assertEqual(len(bundle.references), 18)
+        self.assertEqual(len(bundle.entities), 15)
+        self.assertEqual(len(bundle.references), 20)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
@@ -429,6 +489,20 @@ class RulesetImportTest(unittest.TestCase):
                 "BUILDINGCLASS_PYRAMID",
             ),
             building_relations,
+        )
+        iron = next(item for item in bundle.entities if item.type_id == "RESOURCE_IRON")
+        self.assertEqual(iron.attributes["starting_resource_quantity"], 2)
+        resource_relations = {
+            (item.kind, item.target_type_id)
+            for item in bundle.references
+            if item.source_type_id == "RESOURCE_IRON"
+        }
+        self.assertEqual(
+            resource_relations,
+            {
+                ("belongs_to_resource_class", "RESOURCECLASS_RUSH"),
+                ("revealed_by_technology", "TECH_AGRICULTURE"),
+            },
         )
         self.assertIn(
             ("unlocked_by_technology", "BUILDING_PYRAMID", "TECH_AGRICULTURE"),

@@ -102,7 +102,8 @@ references, invalid identifiers, missing provenance, and non-finite numbers.
 
 The first importer reads the game's merged `Civ5DebugDatabase.db` in SQLite
 read-only and immutable mode. It currently exports technology, era, unit,
-unit-class, promotion, policy, policy-branch, building, and building-class
+unit-class, promotion, policy, policy-branch, building, building-class,
+resource, and resource-class
 gameplay facts plus their prerequisite, era, technology, upgrade, default,
 free-promotion, and policy-tree relations. It uses explicit column allowlists
 and does not export AI
