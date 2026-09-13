@@ -25,7 +25,8 @@ and a record for each alive major civilization the active team has met:
 player/team IDs, visible names, score, war state, and the stock UI's approach
 estimate. Unmet civilizations are deliberately omitted. Schema 3 is
 implemented and offline-tested but not yet live-verified. Its city rates remain
-in Civ V's times-100 integer units.
+in Civ V's times-100 integer units. Science-victory progress is limited to the
+active team's own Apollo Program and spacecraft project counts.
 
 `Modding.OpenUserData()` remains a fallback for a distribution that exposes the
 Mods browser. This App Store Campaign Edition discovers custom mods but keeps

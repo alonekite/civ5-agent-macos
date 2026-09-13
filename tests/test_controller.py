@@ -109,8 +109,19 @@ class StateValidationTest(unittest.TestCase):
             current_era=0,
             cities=[city],
             units=[unit],
+            victory={
+                "science_enabled": True,
+                "apollo": 0,
+                "booster": 0,
+                "cockpit": 0,
+                "stasis_chamber": 0,
+                "engine": 0,
+            },
         )
         self.assertIs(validate_live_state(state), state)
+        state.victory["science_enabled"] = "true"
+        with self.assertRaisesRegex(StateValidationError, "science_enabled"):
+            validate_live_state(state)
 
     def test_schema_three_requires_city_economy_fields(self):
         with self.assertRaisesRegex(StateValidationError, "food_times100"):

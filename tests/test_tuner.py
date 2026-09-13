@@ -146,6 +146,10 @@ class TunerProtocolTest(unittest.TestCase):
                 -1,
                 "O\x00InGame: CIV5_AGENT_DIPLOMACY|1|1|Harun%7Cal-Rashid|Arabia|24|false|4",
             ),
+            TunerMessage(
+                -1,
+                "O\x00InGame: CIV5_AGENT_VICTORY|science|true|1|2|1|0|1",
+            ),
             TunerMessage(3, ""),
         )
 
@@ -181,6 +185,17 @@ class TunerProtocolTest(unittest.TestCase):
                 "approach": 4,
             },
         )
+        self.assertEqual(
+            state.victory,
+            {
+                "science_enabled": True,
+                "apollo": 1,
+                "booster": 2,
+                "cockpit": 1,
+                "stasis_chamber": 0,
+                "engine": 1,
+            },
+        )
 
     def test_parses_legacy_schema_two_snapshot(self):
         state = parse_snapshot(
@@ -207,6 +222,15 @@ class TunerProtocolTest(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "multiple snapshot headers"):
             parse_snapshot((TunerMessage(-1, header), TunerMessage(-1, header)))
+        victory = "CIV5_AGENT_VICTORY|science|true|0|0|0|0|0"
+        with self.assertRaisesRegex(ValueError, "multiple victory records"):
+            parse_snapshot(
+                (
+                    TunerMessage(-1, header),
+                    TunerMessage(-1, victory),
+                    TunerMessage(-1, victory),
+                )
+            )
 
     def test_parses_end_turn_precondition_result(self):
         self.assertEqual(
@@ -232,6 +256,12 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertIn("GameDefines.MAX_MAJOR_CIVS", lua)
         self.assertIn("myTeam:IsHasMet(o:GetTeam())", lua)
         self.assertIn("myTeam:IsAtWar(o:GetTeam())", lua)
+
+    def test_snapshot_lua_reads_active_team_science_victory_projects(self):
+        lua = snapshot_lua()
+        self.assertIn('GameInfo.Victories["VICTORY_SPACE_RACE"]', lua)
+        self.assertIn('projectCount("PROJECT_APOLLO_PROGRAM")', lua)
+        self.assertIn('projectCount("PROJECT_SS_ENGINE")', lua)
 
     def test_end_turn_is_narrow_and_preconditioned(self):
         lua = end_turn_lua()

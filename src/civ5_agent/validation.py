@@ -168,6 +168,22 @@ def validate_live_state(state: GameState) -> GameState:
                     f"diplomacy player {player_id} has invalid {field}"
                 )
 
+    if state.schema_version == 3:
+        if not isinstance(state.victory, dict):
+            raise StateValidationError("schema 3 requires a victory record")
+        if not isinstance(state.victory.get("science_enabled"), bool):
+            raise StateValidationError("victory has invalid science_enabled")
+        for field in (
+            "apollo",
+            "booster",
+            "cockpit",
+            "stasis_chamber",
+            "engine",
+        ):
+            value = state.victory.get(field)
+            if not isinstance(value, int) or isinstance(value, bool) or value < -1:
+                raise StateValidationError(f"victory has invalid {field}")
+
     if state.research is not None:
         if not isinstance(state.research, dict):
             raise StateValidationError("research must be an object when present")

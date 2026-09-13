@@ -28,7 +28,8 @@ No application-bundle modification is required.
 - [x] research
 - [x] units
 - [ ] diplomacy (schema 3 implemented and offline-tested; live verification pending)
-- [ ] victory progress if accessible
+- [ ] victory progress (science projects implemented and offline-tested; live
+  verification pending)
 
 ## Phase 3 — Write PoC
 - [x] Python submits `end_turn`

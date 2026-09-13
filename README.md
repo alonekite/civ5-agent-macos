@@ -18,11 +18,12 @@ advanced turn 0 → 1 with verified before/after state.
 
 Snapshot schema 3 additionally reads the active player's score and era, city
 growth/production progress, owned-unit health and strength, and met major
-civilizations' public diplomacy state. Its parser and validation are
-offline-tested and retain schema 2 compatibility; schema 3 still requires a
-bounded live-game verification before it is considered confirmed. City food
-and production rates use Civ V's exact times-100 integers rather than rounded
-floats.
+civilizations' public diplomacy state. It also reports whether science victory
+is enabled and the active team's Apollo/spacecraft project counts. Its parser
+and validation are offline-tested and retain schema 2 compatibility; schema 3
+still requires a bounded live-game verification before it is considered
+confirmed. City food and production rates use Civ V's exact times-100 integers
+rather than rounded floats.
 
 This is an unofficial, independently developed project. It is not affiliated
 with or endorsed by Firaxis Games, 2K, Aspyr, or Apple, and it does not include

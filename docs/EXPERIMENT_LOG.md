@@ -645,3 +645,30 @@ any automatic unit policy is attempted.
 confirmed offline only. The bridge now has enough owned-unit condition data to
 support a future conservative unit policy after schema 3 and `skip_unit` are
 live-verified.
+
+### 2026-09-13 — Offline science-victory progress
+
+**Hypothesis**
+
+Useful victory progress can be read without exposing other players' hidden
+state by limiting it to the active team's own science projects.
+
+**Procedure**
+
+1. Followed the bundled Brave New World `VictoryProgress.lua` API usage.
+2. Added the science-victory enabled flag and active-team counts for the Apollo
+   Program, SS Booster, Cockpit, Stasis Chamber, and Engine.
+3. Used `-1` as an explicit unavailable-project sentinel and validated all
+   fields and the single-record invariant.
+4. Kept schema 2 snapshots valid without a victory record.
+
+**Observed result**
+
+- 76 tests pass with no warnings.
+- Tests cover Lua construction, record parsing, boolean and count validation,
+  duplicate-record rejection, and the existing read-only denylist.
+
+**Conclusion**
+
+confirmed offline only. The victory roadmap item remains open until these
+values are observed in a bounded live game.

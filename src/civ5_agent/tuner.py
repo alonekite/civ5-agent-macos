@@ -44,6 +44,7 @@ SNAPSHOT_SCHEMA_VERSION = 3
 CITY_MARKER = "CIV5_AGENT_CITY|"
 UNIT_MARKER = "CIV5_AGENT_UNIT|"
 DIPLOMACY_MARKER = "CIV5_AGENT_DIPLOMACY|"
+VICTORY_MARKER = "CIV5_AGENT_VICTORY|"
 COMMAND_MARKER = "CIV5_AGENT_COMMAND|"
 TECH_TYPE_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
 PRODUCTION_TYPE_PATTERNS = {
@@ -263,7 +264,17 @@ def snapshot_lua() -> str:
         f'print("{DIPLOMACY_MARKER}"..oid.."|"..o:GetTeam().."|"'
         '..esc(o:GetName()).."|"..esc(o:GetCivilizationShortDescription()).."|"'
         '..o:GetScore().."|"..tostring(myTeam:IsAtWar(o:GetTeam())).."|"'
-        '..approach) end end'
+        '..approach) end end; '
+        'local function projectCount(t) local id=GameInfoTypes[t]; '
+        'if id==nil or id<0 then return -1 end; return myTeam:GetProjectCount(id) end; '
+        'local scienceVictory=GameInfo.Victories["VICTORY_SPACE_RACE"]; '
+        'local scienceEnabled=scienceVictory~=nil and PreGame.IsVictory(scienceVictory.ID); '
+        f'print("{VICTORY_MARKER}science|"..tostring(scienceEnabled).."|"'
+        '..projectCount("PROJECT_APOLLO_PROGRAM").."|"'
+        '..projectCount("PROJECT_SS_BOOSTER").."|"'
+        '..projectCount("PROJECT_SS_COCKPIT").."|"'
+        '..projectCount("PROJECT_SS_STASIS_CHAMBER").."|"'
+        '..projectCount("PROJECT_SS_ENGINE"))'
     )
 
 
@@ -409,6 +420,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     cities: list[dict[str, object]] = []
     units: list[dict[str, object]] = []
     diplomacy: list[dict[str, object]] = []
+    victory: dict[str, object] | None = None
 
     for message in messages:
         for line in message.payload.splitlines():
@@ -533,6 +545,22 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                         "approach": int(fields[6]),
                     }
                 )
+            elif VICTORY_MARKER in line:
+                if snapshot is None or snapshot.schema_version != 3:
+                    raise ValueError("victory record requires a schema 3 snapshot header")
+                if victory is not None:
+                    raise ValueError("multiple victory records in one response")
+                fields = line.split(VICTORY_MARKER, 1)[1].split("|")
+                if len(fields) != 7 or fields[0] != "science":
+                    raise ValueError(f"malformed victory record: {line!r}")
+                victory = {
+                    "science_enabled": _parse_lua_bool(fields[1]),
+                    "apollo": int(fields[2]),
+                    "booster": int(fields[3]),
+                    "cockpit": int(fields[4]),
+                    "stasis_chamber": int(fields[5]),
+                    "engine": int(fields[6]),
+                }
 
     if snapshot is None:
         details = _summarize_messages(messages)
@@ -540,6 +568,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     snapshot.cities = cities
     snapshot.units = units
     snapshot.diplomacy = diplomacy
+    snapshot.victory = victory
     return snapshot
 
 

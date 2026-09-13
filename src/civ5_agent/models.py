@@ -23,6 +23,7 @@ class GameState:
     cities: list[dict[str, Any]] = field(default_factory=list)
     units: list[dict[str, Any]] = field(default_factory=list)
     diplomacy: list[dict[str, Any]] = field(default_factory=list)
+    victory: dict[str, Any] | None = None
     research: dict[str, Any] | None = None
 
 @dataclass
