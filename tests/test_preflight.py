@@ -1,14 +1,18 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from civ5_agent.preflight import (
     CIV_EXECUTABLE,
     SafetyStatus,
+    UnsafeSessionError,
     _parse_civ_rule,
     _parse_firewall_enabled,
     _phase_issues,
     _read_firetuner_enabled,
+    require_safe_phase,
+    require_safe_tuner_session,
 )
 
 
@@ -62,6 +66,26 @@ class PreflightPolicyTest(unittest.TestCase):
         self.assertEqual(_phase_issues(status), [])
         status.port_4318_listening = True
         self.assertIn("4318", " ".join(_phase_issues(status)))
+
+    def test_required_phase_raises_with_all_issues(self):
+        with patch(
+            "civ5_agent.preflight.inspect_safety",
+            return_value=SafetyStatus(
+                phase="live",
+                issues=["firewall disabled", "rule absent"],
+            ),
+        ):
+            with self.assertRaisesRegex(
+                UnsafeSessionError,
+                "firewall disabled; rule absent",
+            ):
+                require_safe_phase("live")
+
+    def test_rejects_unverified_tuner_endpoint_before_inspection(self):
+        with patch("civ5_agent.preflight.inspect_safety") as inspect:
+            with self.assertRaisesRegex(UnsafeSessionError, "verified local"):
+                require_safe_tuner_session("192.0.2.1", 4318)
+        inspect.assert_not_called()
 
 
 if __name__ == "__main__":

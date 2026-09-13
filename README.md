@@ -87,6 +87,11 @@ PYTHONPATH=src python3 -m civ5_agent.watch
 The `live` check additionally requires a TCP 4318 listener. Neither preflight
 mode changes the game, its configuration, or firewall settings.
 
+The FireTuner watcher enforces the same `live` check before connecting, and
+rechecks it before every watcher-mediated write. A direct command also checks
+before connecting. Only the verified local endpoint `127.0.0.1:4318` is
+accepted; custom or remote FireTuner endpoints fail closed.
+
 The first command prints one JSON snapshot. The second keeps one FireTuner
 connection open and prints only when the observed state changes. On this old
 build, a persistent connection is preferable because the game can retain a

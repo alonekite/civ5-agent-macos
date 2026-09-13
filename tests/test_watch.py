@@ -1,12 +1,13 @@
-import threading
 import json
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 from civ5_agent.audit import CommandAuditLog
 from civ5_agent.models import CommandResult, GameState
+from civ5_agent.preflight import UnsafeSessionError
 from civ5_agent.watch import make_control_handler
 
 
@@ -48,6 +49,22 @@ class WatchControlHandlerTest(unittest.TestCase):
         self.assertTrue(response["ok"])
         self.assertEqual(response["result"]["id"], "test-id")
         self.assertEqual(execute.call_args.kwargs["verify_timeout"], 47.0)
+
+    def test_refuses_write_when_live_safety_check_fails(self):
+        def reject_unsafe_session():
+            raise UnsafeSessionError("firewall disabled")
+
+        handler = make_control_handler(
+            self.client,
+            172,
+            threading.Lock(),
+            safety_check=reject_unsafe_session,
+        )
+        with patch("civ5_agent.watch.execute_end_turn") as execute:
+            response = handler({"op": "end_turn", "id": "unsafe-id"})
+        self.assertFalse(response["ok"])
+        self.assertIn("firewall disabled", response["error"])
+        execute.assert_not_called()
 
     def test_forwards_skip_unit_identifier(self):
         result = CommandResult(id="skip-id", status="success")

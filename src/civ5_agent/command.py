@@ -10,6 +10,7 @@ import sys
 from .audit import CommandAuditLog, default_audit_path
 from .ipc import default_socket_path, request
 from .models import Command, CommandResult
+from .preflight import UnsafeSessionError, require_safe_tuner_session
 from .tuner import DEFAULT_HOST, DEFAULT_PORT, FireTunerClient, _find_state
 from .validation import validate_live_state
 
@@ -348,6 +349,7 @@ def main() -> int:
             return 1
 
     try:
+        require_safe_tuner_session(args.host, args.port, socket_path=args.socket)
         with FireTunerClient(args.host, args.port, args.timeout) as client:
             handshake = client.handshake()
             state_id = _find_state(handshake.lua_states, "InGame")
@@ -367,7 +369,13 @@ def main() -> int:
                 result = execute_skip_unit(
                     client, state_id, command, verify_timeout=args.verify_timeout
                 )
-    except (ConnectionError, OSError, TimeoutError, ValueError) as error:
+    except (
+        ConnectionError,
+        OSError,
+        TimeoutError,
+        UnsafeSessionError,
+        ValueError,
+    ) as error:
         result = CommandResult(id=command.id, status="error", message=str(error))
 
     try:

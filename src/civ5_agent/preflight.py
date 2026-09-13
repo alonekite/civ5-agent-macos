@@ -17,6 +17,8 @@ CIV_EXECUTABLE = Path(
     "/Applications/Civilization V Campaign Edition.app/Contents/MacOS/"
     "Civilization V Campaign Edition"
 )
+VERIFIED_TUNER_HOST = "127.0.0.1"
+VERIFIED_TUNER_PORT = 4318
 
 
 def default_config_path() -> Path:
@@ -41,6 +43,10 @@ class SafetyStatus:
     @property
     def ok(self) -> bool:
         return not self.issues
+
+
+class UnsafeSessionError(RuntimeError):
+    pass
 
 
 def inspect_safety(
@@ -88,6 +94,36 @@ def inspect_safety(
 
     status.issues.extend(_phase_issues(status))
     return status
+
+
+def require_safe_phase(
+    phase: str,
+    *,
+    config_path: Path | None = None,
+    socket_path: Path | None = None,
+) -> SafetyStatus:
+    status = inspect_safety(
+        phase,
+        config_path=config_path,
+        socket_path=socket_path,
+    )
+    if not status.ok:
+        raise UnsafeSessionError("; ".join(status.issues))
+    return status
+
+
+def require_safe_tuner_session(
+    host: str,
+    port: int,
+    *,
+    socket_path: Path | None = None,
+) -> SafetyStatus:
+    if host != VERIFIED_TUNER_HOST or port != VERIFIED_TUNER_PORT:
+        raise UnsafeSessionError(
+            "only the verified local FireTuner endpoint "
+            f"{VERIFIED_TUNER_HOST}:{VERIFIED_TUNER_PORT} is allowed"
+        )
+    return require_safe_phase("live", socket_path=socket_path)
 
 
 def _read_firetuner_enabled(config_path: Path) -> bool:

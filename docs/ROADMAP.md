@@ -7,7 +7,8 @@
 - [x] Test custom Lua mod loading path (mod is scanned, but this App Store build
   forcibly hides the Mods browser; activation/loading is rejected on the stock build)
 - [x] Check TCP 4318 (disabled initially; enabled reversibly and verified in-game)
-- [x] Add read-only preflight checks for guarded startup, live use, and shutdown
+- [x] Add and enforce read-only preflight checks for guarded startup, live use,
+  write commands, and shutdown
 - [x] Record results
 
 Phase 0 reconnaissance was run on 2026-09-12. See `docs/EXPERIMENT_LOG.md`.

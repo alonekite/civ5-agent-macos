@@ -6,6 +6,7 @@ import sqlite3
 import sys
 import threading
 import time
+from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
 
@@ -18,6 +19,7 @@ from .command import (
 )
 from .ipc import LocalControlServer, default_socket_path
 from .models import Command, GameState
+from .preflight import UnsafeSessionError, require_safe_tuner_session
 from .storage import UserDataStateReader, default_state_database
 from .tuner import DEFAULT_HOST, DEFAULT_PORT, FireTunerClient, _find_state
 from .validation import validate_live_state
@@ -28,6 +30,7 @@ def make_control_handler(
     state_id: int,
     connection_lock: threading.Lock,
     audit_log: CommandAuditLog | None = None,
+    safety_check: Callable[[], None] | None = None,
 ):
     def handle_request(request: dict[str, object]) -> dict[str, object]:
         operation = request.get("op")
@@ -43,6 +46,11 @@ def make_control_handler(
             "set_city_production",
             "skip_unit",
         }:
+            if safety_check is not None:
+                try:
+                    safety_check()
+                except UnsafeSessionError as error:
+                    return {"ok": False, "error": f"unsafe FireTuner session: {error}"}
             command_id = request.get("id")
             command = Command(
                 action=str(operation),
@@ -154,12 +162,23 @@ def _watch_tuner(args: argparse.Namespace) -> int:
 
     while True:
         try:
+            require_safe_tuner_session(args.host, args.port, socket_path=args.socket)
             with FireTunerClient(args.host, args.port, args.timeout) as client:
                 handshake = client.handshake()
                 state_id = _find_state(handshake.lua_states, "InGame")
                 waiting_reported = False
                 connection_lock = threading.Lock()
-                handler = make_control_handler(client, state_id, connection_lock, audit_log)
+                handler = make_control_handler(
+                    client,
+                    state_id,
+                    connection_lock,
+                    audit_log,
+                    safety_check=lambda: require_safe_tuner_session(
+                        args.host,
+                        args.port,
+                        socket_path=args.socket,
+                    ),
+                )
 
                 with LocalControlServer(handler, args.socket):
                     while True:
@@ -186,6 +205,9 @@ def _watch_tuner(args: argparse.Namespace) -> int:
                         if args.once:
                             return 0
                         time.sleep(args.interval)
+        except UnsafeSessionError as error:
+            print(f"Unsafe FireTuner session: {error}", file=sys.stderr, flush=True)
+            return 1
         except (ConnectionError, OSError, RuntimeError, TimeoutError, ValueError) as error:
             if args.once:
                 print(f"State unavailable: {error}", file=sys.stderr)

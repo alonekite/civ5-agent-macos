@@ -464,12 +464,15 @@ the game configuration or macOS firewall.
    Civ V rule, TCP 4318 listener state, and agent Unix-socket presence.
 3. Made `ready`, `live`, and `shutdown` fail closed when their required state
    cannot be proved.
-4. Ran the complete warning-enabled test suite and then executed the `status`
+4. Required the watcher and direct command path to pass the live check before
+   connecting, rechecked it before watcher-mediated writes, and rejected any
+   endpoint other than `127.0.0.1:4318`.
+5. Ran the complete warning-enabled test suite and then executed the `status`
    and `shutdown` modes against the restored host.
 
 **Observed result**
 
-- 59 tests pass with no warnings.
+- 62 tests pass with no warnings.
 - The real host reported FireTuner disabled, no TCP 4318 listener, no agent
   socket, the application firewall restored to disabled, and no Civ V rule.
 - Both the neutral `status` report and strict `shutdown` verification returned
