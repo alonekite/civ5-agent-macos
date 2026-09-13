@@ -58,6 +58,7 @@ Commits: `76473f8` through `756ab68`.
   verification matrix.
 
 Related commits before this governance batch: `144291b`, `14daa1d`.
+Governance commit: `a053797`.
 
 ## Archive policy
 
