@@ -9,11 +9,11 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: quantity-bearing terrain, feature, improvement,
-  route, yield, building, policy, belief, and resource effect tables.
-- Functional test baseline: 109 tests locally; Python 3.11/3.13 CI last passed
+- Active next deliverable: contextual and ternary building, policy, belief,
+  specialist, improvement, and resource effect tables.
+- Functional test baseline: 111 tests locally; Python 3.11/3.13 CI last passed
   at documentation-governance commit `a053797` before the current knowledge
-  batch.
+  batches.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only the pending schema 3 and `skip_unit` bounded
   live verifications.
@@ -43,16 +43,19 @@ decisions, not raw chat transcripts.
   beliefs, specialists/great-person classes, terrains, features, improvements,
   routes, yields, build actions, and their currently supported relations from a
   local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,296 entities and 2,259
-  validated references. The new map slice includes 9 terrains, 25 features, 29
-  improvements, 2 routes, 6 yields, and 35 build actions. Generated bundles
-  remain local and uncommitted.
+- The real Campaign Edition database currently yields 1,298 entities and 2,336
+  validated references. The map slice includes 9 terrains, 25 ordinary
+  features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
+  actions. Generated bundles remain local and uncommitted.
 - The knowledge importer records provenance, validates the active ruleset
   family, rejects broken references, and excludes AI flavor/personality data
   and copyrighted descriptive assets.
 - Knowledge schema 2 adds validated attributes to references for quantities and
   modifiers while retaining canonical schema 1 read/write compatibility.
-- The test suite contains 109 tests locally. GitHub Actions on Python 3.11 and
+- Binary terrain, feature, improvement, route, and build quantity tables add 77
+  attributed references. Contextual and ternary effects remain deferred until
+  their relation identity is modeled without ambiguity.
+- The test suite contains 111 tests locally. GitHub Actions on Python 3.11 and
   3.13 last passed at commit `a053797`; the current batch must pass CI after it
   is pushed.
 
@@ -88,9 +91,9 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Define schema support for quantity-bearing references, then import dependent
-   terrain, feature, improvement, route, building, policy, belief, specialist,
-   and resource effect tables.
+1. Define relation identity for contextual and ternary effect tables, then
+   import dependent building, policy, belief, specialist, improvement, and
+   resource effects.
 2. Add ruleset scaling and per-game modifier resolution without mutating base
    knowledge.
 3. Define the factual turn-journal schema, storage interface, canonical

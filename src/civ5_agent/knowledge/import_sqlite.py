@@ -889,6 +889,26 @@ FEATURE_FIELDS = {
         for column in FEATURE_INTEGER_COLUMNS
     },
 }
+FAKE_FEATURE_FIELDS = {
+    **{
+        column: (_snake_case(column), "boolean")
+        for column in FEATURE_BOOLEAN_COLUMNS
+    },
+    **{
+        column: (_snake_case(column), "integer")
+        for column in (
+            "StartingLocationWeight",
+            "SeeThrough",
+            "Defense",
+            "InfluenceCost",
+            "AppearanceProbability",
+            "DisappearanceProbability",
+            "Growth",
+            "TurnDamage",
+            "AdvancedStartRemoveCost",
+        )
+    },
+}
 FEATURE_REFERENCE_COLUMNS = (
     ("GrowthTerrainType", "grows_on_terrain", "terrain"),
     (
@@ -1008,6 +1028,71 @@ BUILD_REFERENCE_COLUMNS = (
     ("RouteType", "creates_route", "route"),
 )
 
+QUANTITY_REFERENCE_TABLES = (
+    (
+        "Terrain_Yields", "TerrainType", "YieldType", "yield",
+        "terrain", "yield", "Yield", "amount",
+    ),
+    (
+        "Terrain_HillsYieldChanges", "TerrainType", "YieldType",
+        "hills_yield_change", "terrain", "yield", "Yield", "amount",
+    ),
+    (
+        "Terrain_RiverYieldChanges", "TerrainType", "YieldType",
+        "river_yield_change", "terrain", "yield", "Yield", "amount",
+    ),
+    (
+        "Feature_YieldChanges", "FeatureType", "YieldType", "yield_change",
+        "feature", "yield", "Yield", "amount",
+    ),
+    (
+        "Feature_HillsYieldChanges", "FeatureType", "YieldType",
+        "hills_yield_change", "feature", "yield", "Yield", "amount",
+    ),
+    (
+        "Feature_RiverYieldChanges", "FeatureType", "YieldType",
+        "river_yield_change", "feature", "yield", "Yield", "amount",
+    ),
+    (
+        "Improvement_Yields", "ImprovementType", "YieldType", "yield_change",
+        "improvement", "yield", "Yield", "amount",
+    ),
+    (
+        "Improvement_FreshWaterYields", "ImprovementType", "YieldType",
+        "fresh_water_yield_change", "improvement", "yield", "Yield", "amount",
+    ),
+    (
+        "Improvement_HillsYields", "ImprovementType", "YieldType",
+        "hills_yield_change", "improvement", "yield", "Yield", "amount",
+    ),
+    (
+        "Improvement_RiverSideYields", "ImprovementType", "YieldType",
+        "river_yield_change", "improvement", "yield", "Yield", "amount",
+    ),
+    (
+        "Improvement_CoastalLandYields", "ImprovementType", "YieldType",
+        "coastal_land_yield_change", "improvement", "yield", "Yield", "amount",
+    ),
+    (
+        "Improvement_YieldPerEra", "ImprovementType", "YieldType",
+        "yield_change_per_era", "improvement", "yield", "Yield", "amount",
+    ),
+    (
+        "Route_Yields", "RouteType", "YieldType", "yield_change",
+        "route", "yield", "Yield", "amount",
+    ),
+    (
+        "Route_TechMovementChanges", "RouteType", "TechType",
+        "movement_changed_by_technology", "route", "technology",
+        "MovementChange", "movement_change",
+    ),
+    (
+        "Build_TechTimeChanges", "BuildType", "TechType",
+        "time_changed_by_technology", "build", "technology",
+        "TimeChange", "time_change",
+    ),
+)
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -1108,6 +1193,21 @@ def import_ruleset(
                 ),
             ):
                 _require_columns(connection, table, columns)
+            for (
+                table,
+                source_column,
+                target_column,
+                _kind,
+                _source_kind,
+                _target_kind,
+                value_column,
+                _attribute,
+            ) in QUANTITY_REFERENCE_TABLES:
+                _require_columns(
+                    connection,
+                    table,
+                    {source_column, target_column, value_column},
+                )
             _require_columns(
                 connection,
                 "Buildings",
@@ -1216,6 +1316,11 @@ def import_ruleset(
                     *(column for column, _, _ in FEATURE_REFERENCE_COLUMNS),
                     *FEATURE_FIELDS,
                 },
+            )
+            _require_columns(
+                connection,
+                "FakeFeatures",
+                {"Type", *FAKE_FEATURE_FIELDS},
             )
             _require_columns(
                 connection,
@@ -1516,6 +1621,15 @@ def import_ruleset(
                 _scalar_entity("feature", row, FEATURE_FIELDS, source_label)
                 for row in feature_rows
             )
+            fake_feature_rows = _select_scalar_rows(
+                connection,
+                "FakeFeatures",
+                FAKE_FEATURE_FIELDS,
+            )
+            fake_feature_entities = tuple(
+                _fake_feature_entity(row, source_label)
+                for row in fake_feature_rows
+            )
             improvement_rows = _select_scalar_rows(
                 connection,
                 "Improvements",
@@ -1602,6 +1716,7 @@ def import_ruleset(
                     build_rows,
                     source_label,
                 )
+                + _quantity_references(connection, source_label)
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -1634,6 +1749,7 @@ def import_ruleset(
                 + specialist_entities
                 + terrain_entities
                 + feature_entities
+                + fake_feature_entities
                 + improvement_entities
                 + route_entities
                 + yield_entities
@@ -1707,6 +1823,16 @@ def _scalar_entity(
             )
         attributes[attribute] = value
     return Entity(kind, row["Type"], attributes, (source_label,))
+
+
+def _fake_feature_entity(row: sqlite3.Row, source_label: str) -> Entity:
+    entity = _scalar_entity("feature", row, FAKE_FEATURE_FIELDS, source_label)
+    return Entity(
+        entity.kind,
+        entity.type_id,
+        {**entity.attributes, "fake": True},
+        entity.source_paths,
+    )
 
 
 def _technology_references(
@@ -2179,6 +2305,45 @@ def _map_references(
         references.extend(
             _two_column_references(connection, *arguments, source_label)
         )
+    return references
+
+
+def _quantity_references(
+    connection: sqlite3.Connection, source_label: str
+) -> list[Reference]:
+    references: list[Reference] = []
+    for (
+        table,
+        source_column,
+        target_column,
+        kind,
+        source_kind,
+        target_kind,
+        value_column,
+        attribute,
+    ) in QUANTITY_REFERENCE_TABLES:
+        rows = connection.execute(
+            f'SELECT "{source_column}", "{target_column}", "{value_column}" '
+            f'FROM "{table}" ORDER BY "{source_column}", "{target_column}", '
+            f'"{value_column}"'
+        ).fetchall()
+        for row in rows:
+            value = row[value_column]
+            if not isinstance(value, int) or isinstance(value, bool):
+                raise KnowledgeImportError(
+                    f"{table} has invalid integer {value_column}: {value}"
+                )
+            references.append(
+                Reference(
+                    kind,
+                    source_kind,
+                    row[source_column],
+                    target_kind,
+                    row[target_column],
+                    (source_label,),
+                    {attribute: value},
+                )
+            )
     return references
 
 

@@ -5,7 +5,7 @@ import unittest
 from contextlib import closing
 from pathlib import Path
 
-from civ5_agent.knowledge import Ruleset
+from civ5_agent.knowledge import KnowledgeValidationError, Ruleset
 from civ5_agent.knowledge.import_sqlite import (
     BRAVE_NEW_WORLD_PACKAGE_ID,
     BELIEF_FIELDS,
@@ -19,6 +19,7 @@ from civ5_agent.knowledge.import_sqlite import (
     KnowledgeImportError,
     ERA_FIELDS,
     FEATURE_FIELDS,
+    FAKE_FEATURE_FIELDS,
     FEATURE_REFERENCE_COLUMNS,
     IMPROVEMENT_FIELDS,
     IMPROVEMENT_REFERENCE_COLUMNS,
@@ -26,6 +27,7 @@ from civ5_agent.knowledge.import_sqlite import (
     PROMOTION_PREREQUISITE_COLUMNS,
     POLICY_BRANCH_FIELDS,
     POLICY_FIELDS,
+    QUANTITY_REFERENCE_TABLES,
     RESOURCE_CLASS_FIELDS,
     RESOURCE_FIELDS,
     RESOURCE_REFERENCE_COLUMNS,
@@ -250,6 +252,13 @@ def create_database(
         connection.execute(
             f"CREATE TABLE Features ({', '.join(feature_definitions)})"
         )
+        fake_feature_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        fake_feature_definitions.extend(
+            f'"{column}" INTEGER' for column in FAKE_FEATURE_FIELDS
+        )
+        connection.execute(
+            f"CREATE TABLE FakeFeatures ({', '.join(fake_feature_definitions)})"
+        )
         improvement_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
         improvement_definitions.extend(
             f'"{column}" TEXT' for column, _, _ in IMPROVEMENT_REFERENCE_COLUMNS
@@ -282,6 +291,21 @@ def create_database(
             "CREATE TABLE Improvement_ValidImprovements "
             "(ImprovementType TEXT, PrereqImprovement TEXT)"
         )
+        for (
+            table,
+            source_column,
+            target_column,
+            _kind,
+            _source_kind,
+            _target_kind,
+            value_column,
+            _attribute,
+        ) in QUANTITY_REFERENCE_TABLES:
+            connection.execute(
+                f'CREATE TABLE "{table}" ('
+                f'"{source_column}" TEXT, "{target_column}" TEXT, '
+                f'"{value_column}" INTEGER)'
+            )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
         )
@@ -720,6 +744,16 @@ def create_database(
                 *feature_values,
             ],
         )
+        fake_feature_columns = ["Type", *FAKE_FEATURE_FIELDS]
+        fake_feature_values = [
+            1 if column == "Impassable" else 0
+            for column in FAKE_FEATURE_FIELDS
+        ]
+        connection.execute(
+            f"INSERT INTO FakeFeatures ({', '.join(fake_feature_columns)}) VALUES "
+            f"({', '.join('?' for _ in fake_feature_columns)})",
+            ["FEATURE_LAKE", *fake_feature_values],
+        )
         improvement_columns = [
             "Type",
             *(column for column, _, _ in IMPROVEMENT_REFERENCE_COLUMNS),
@@ -783,6 +817,26 @@ def create_database(
             "INSERT INTO Improvement_ValidImprovements VALUES (?, ?)",
             ("IMPROVEMENT_TEST", "IMPROVEMENT_TEST"),
         )
+        quantity_rows = {
+            "Terrain_Yields": ("TERRAIN_TEST", "YIELD_TEST", 2),
+            "Terrain_HillsYieldChanges": ("TERRAIN_TEST", "YIELD_TEST", 1),
+            "Feature_YieldChanges": ("FEATURE_TEST", "YIELD_TEST", 3),
+            "Improvement_Yields": ("IMPROVEMENT_TEST", "YIELD_TEST", 4),
+            "Improvement_HillsYields": ("IMPROVEMENT_TEST", "YIELD_TEST", 5),
+            "Improvement_YieldPerEra": ("IMPROVEMENT_TEST", "YIELD_TEST", 1),
+            "Route_Yields": ("ROUTE_TEST", "YIELD_TEST", 6),
+            "Route_TechMovementChanges": (
+                "ROUTE_TEST",
+                "TECH_AGRICULTURE",
+                -10,
+            ),
+        }
+        for table, values in quantity_rows.items():
+            connection.execute(f'INSERT INTO "{table}" VALUES (?, ?, ?)', values)
+        connection.execute(
+            "INSERT INTO Feature_YieldChanges VALUES (?, ?, ?)",
+            ("FEATURE_LAKE", "YIELD_TEST", 2),
+        )
         connection.commit()
 
 
@@ -796,8 +850,8 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 27)
-        self.assertEqual(len(bundle.references), 46)
+        self.assertEqual(len(bundle.entities), 28)
+        self.assertEqual(len(bundle.references), 55)
         self.assertEqual(bundle.schema_version, 2)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
@@ -1092,6 +1146,7 @@ class RulesetImportTest(unittest.TestCase):
             for item in bundle.references
             if item.source_type_id
             in {"FEATURE_TEST", "IMPROVEMENT_TEST", "BUILD_TEST"}
+            and not item.attributes
         }
         self.assertEqual(
             map_relations,
@@ -1120,6 +1175,76 @@ class RulesetImportTest(unittest.TestCase):
                 ("creates_route", "BUILD_TEST", "ROUTE_TEST"),
             },
         )
+        quantity_relations = {
+            (
+                item.kind,
+                item.source_type_id,
+                item.target_type_id,
+                tuple(sorted(item.attributes.items())),
+            )
+            for item in bundle.references
+            if item.attributes
+        }
+        self.assertEqual(
+            quantity_relations,
+            {
+                ("yield", "TERRAIN_TEST", "YIELD_TEST", (("amount", 2),)),
+                (
+                    "hills_yield_change",
+                    "TERRAIN_TEST",
+                    "YIELD_TEST",
+                    (("amount", 1),),
+                ),
+                (
+                    "yield_change",
+                    "FEATURE_LAKE",
+                    "YIELD_TEST",
+                    (("amount", 2),),
+                ),
+                (
+                    "yield_change",
+                    "FEATURE_TEST",
+                    "YIELD_TEST",
+                    (("amount", 3),),
+                ),
+                (
+                    "yield_change",
+                    "IMPROVEMENT_TEST",
+                    "YIELD_TEST",
+                    (("amount", 4),),
+                ),
+                (
+                    "hills_yield_change",
+                    "IMPROVEMENT_TEST",
+                    "YIELD_TEST",
+                    (("amount", 5),),
+                ),
+                (
+                    "yield_change_per_era",
+                    "IMPROVEMENT_TEST",
+                    "YIELD_TEST",
+                    (("amount", 1),),
+                ),
+                (
+                    "yield_change",
+                    "ROUTE_TEST",
+                    "YIELD_TEST",
+                    (("amount", 6),),
+                ),
+                (
+                    "movement_changed_by_technology",
+                    "ROUTE_TEST",
+                    "TECH_AGRICULTURE",
+                    (("movement_change", -10),),
+                ),
+            },
+        )
+        lake = next(
+            item for item in bundle.entities if item.type_id == "FEATURE_LAKE"
+        )
+        self.assertEqual(lake.kind, "feature")
+        self.assertTrue(lake.attributes["fake"])
+        self.assertTrue(lake.attributes["impassable"])
 
     def test_records_source_hash_without_absolute_path(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -1150,6 +1275,41 @@ class RulesetImportTest(unittest.TestCase):
             ):
                 import_ruleset(
                     database, "cache/bad-number.db", Ruleset("bnw", "test")
+                )
+
+    def test_rejects_invalid_quantity_reference(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-quantity.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Terrain_Yields SET Yield = ?", ("invalid",)
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError, "Terrain_Yields has invalid integer Yield"
+            ):
+                import_ruleset(
+                    database, "cache/bad-quantity.db", Ruleset("bnw", "test")
+                )
+
+    def test_rejects_duplicate_quantity_reference(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "duplicate-quantity.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "INSERT INTO Terrain_Yields VALUES (?, ?, ?)",
+                    ("TERRAIN_TEST", "YIELD_TEST", 2),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeValidationError, "duplicate reference"
+            ):
+                import_ruleset(
+                    database,
+                    "cache/duplicate-quantity.db",
+                    Ruleset("bnw", "test"),
                 )
 
     def test_rejects_civilization_replacement_in_wrong_class(self):

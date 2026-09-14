@@ -67,12 +67,14 @@ canonical counts and relations were checked without committing generated data.
 ## Current limitations
 
 Coverage now includes core terrains, features, improvements, routes, yields,
-and build actions in addition to the earlier entity families. Numeric
-yield-change and other quantity-bearing relationship tables remain deferred
-because schema-1 references do not yet carry attributes.
+and build actions in addition to the earlier entity families. It also imports
+the game's `FakeFeatures` rows as feature entities marked `fake`, plus binary
+quantity-bearing map and build relations. Contextual and ternary relationship
+tables remain deferred because their identity cannot always be represented by
+only relation kind, source, and target.
 
 ## Planned extensions
 
-M3 next designs a provenance-preserving representation for quantity-bearing
+M3 next designs a provenance-preserving identity for contextual and ternary
 effect tables, then imports those tables and scaling families. M4 adds per-game
 resolution without mutating base facts.
