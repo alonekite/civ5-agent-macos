@@ -24,6 +24,7 @@ from civ5_agent.tuner import (
     parse_snapshot,
     skip_unit_lua,
     snapshot_lua,
+    snapshot_lua_programs,
 )
 
 
@@ -130,7 +131,11 @@ class TunerProtocolTest(unittest.TestCase):
         messages = (
             TunerMessage(
                 -1,
-                "O\x00InGame: CIV5_AGENT_SNAPSHOT|3|2|0|7|4|5|9|0|1|33|0|Isabella|Spain|3|TECH_POTTERY|6|35|true|false|8",
+                "O\x00InGame: CIV5_AGENT_SNAPSHOT|4|2|0|7|4|5|9|0|1|33|0|Isabella|Spain|3|TECH_POTTERY|6|35|true|false|8",
+            ),
+            TunerMessage(
+                -1,
+                "O\x00InGame: CIV5_AGENT_PART|cities|2|0",
             ),
             TunerMessage(
                 -1,
@@ -139,12 +144,24 @@ class TunerProtocolTest(unittest.TestCase):
             ),
             TunerMessage(
                 -1,
+                "O\x00InGame: CIV5_AGENT_PART|units|2|0",
+            ),
+            TunerMessage(
+                -1,
                 "O\x00InGame: CIV5_AGENT_UNIT|8|Warrior|UNIT_WARRIOR|"
-                "9|12|120|15|100|8|0|1",
+                "9|12|120|15|100|8|0|1|true",
+            ),
+            TunerMessage(
+                -1,
+                "O\x00InGame: CIV5_AGENT_PART|diplomacy|2|0",
             ),
             TunerMessage(
                 -1,
                 "O\x00InGame: CIV5_AGENT_DIPLOMACY|1|1|Harun%7Cal-Rashid|Arabia|24|false|4",
+            ),
+            TunerMessage(
+                -1,
+                "O\x00InGame: CIV5_AGENT_PART|victory|2|0",
             ),
             TunerMessage(
                 -1,
@@ -155,7 +172,7 @@ class TunerProtocolTest(unittest.TestCase):
 
         state = parse_snapshot(messages)
 
-        self.assertEqual(state.schema_version, 3)
+        self.assertEqual(state.schema_version, 4)
         self.assertEqual(state.turn, 2)
         self.assertEqual(state.player_name, "Isabella")
         self.assertEqual(state.score, 33)
@@ -173,6 +190,7 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertEqual(state.units[0]["moves"], 120)
         self.assertEqual(state.units[0]["damage"], 15)
         self.assertEqual(state.units[0]["combat_strength"], 8)
+        self.assertTrue(state.units[0]["ready_to_move"])
         self.assertEqual(
             state.diplomacy[0],
             {
@@ -211,24 +229,63 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertIsNone(state.current_era)
         self.assertIsNone(state.research)
 
+    def test_parses_legacy_schema_three_unit_without_readiness(self):
+        state = parse_snapshot(
+            (
+                TunerMessage(
+                    -1,
+                    "CIV5_AGENT_SNAPSHOT|3|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+                    "-1||-1|-1|true|true|-1",
+                ),
+                TunerMessage(
+                    -1,
+                    "CIV5_AGENT_UNIT|8|Warrior|UNIT_WARRIOR|9|12|120|0|100|8|0|0",
+                ),
+                TunerMessage(
+                    -1,
+                    "CIV5_AGENT_VICTORY|science|true|0|0|0|0|0",
+                ),
+            )
+        )
+        self.assertEqual(state.schema_version, 3)
+        self.assertNotIn("ready_to_move", state.units[0])
+
     def test_rejects_records_before_header_and_duplicate_headers(self):
         with self.assertRaisesRegex(ValueError, "before snapshot header"):
             parse_snapshot(
                 (TunerMessage(-1, "CIV5_AGENT_UNIT|8|W|UNIT_W|1|2|0"),)
             )
         header = (
-            "CIV5_AGENT_SNAPSHOT|3|2|0|7|4|5|9|0|1|33|0|Isabella|Spain|"
+            "CIV5_AGENT_SNAPSHOT|4|2|0|7|4|5|9|0|1|33|0|Isabella|Spain|"
             "-1||-1|-1|true|true|-1"
         )
         with self.assertRaisesRegex(ValueError, "multiple snapshot headers"):
             parse_snapshot((TunerMessage(-1, header), TunerMessage(-1, header)))
+        parts = tuple(
+            TunerMessage(-1, f"CIV5_AGENT_PART|{part}|2|0")
+            for part in ("cities", "units", "diplomacy", "victory")
+        )
         victory = "CIV5_AGENT_VICTORY|science|true|0|0|0|0|0"
         with self.assertRaisesRegex(ValueError, "multiple victory records"):
             parse_snapshot(
                 (
                     TunerMessage(-1, header),
+                    *parts,
                     TunerMessage(-1, victory),
                     TunerMessage(-1, victory),
+                )
+            )
+
+    def test_rejects_split_snapshot_from_different_turn(self):
+        header = (
+            "CIV5_AGENT_SNAPSHOT|4|2|0|7|4|5|9|0|1|33|0|Isabella|Spain|"
+            "-1||-1|-1|true|true|-1"
+        )
+        with self.assertRaisesRegex(ValueError, "does not match header turn/player"):
+            parse_snapshot(
+                (
+                    TunerMessage(-1, header),
+                    TunerMessage(-1, "CIV5_AGENT_PART|cities|3|0"),
                 )
             )
 
@@ -250,6 +307,42 @@ class TunerProtocolTest(unittest.TestCase):
             "SelectionListGameNetMessage",
         ):
             self.assertNotIn(forbidden, lua)
+
+    def test_snapshot_programs_fit_verified_firetuner_command_limit(self):
+        programs = snapshot_lua_programs()
+        self.assertEqual(len(programs), 5)
+        self.assertTrue(all(len(program.encode("utf-8")) < 900 for program in programs))
+
+    def test_read_game_state_collects_every_snapshot_program(self):
+        header = TunerMessage(
+            -1,
+            "CIV5_AGENT_SNAPSHOT|4|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "-1||-1|-1|true|true|-1",
+        )
+        part_names = ("cities", "units", "diplomacy", "victory")
+        part_messages = [
+            TunerMessage(-1, f"CIV5_AGENT_PART|{name}|2|0")
+            for name in part_names
+        ]
+        part_messages[-1] = TunerMessage(
+            -1,
+            "CIV5_AGENT_PART|victory|2|0\n"
+            "CIV5_AGENT_VICTORY|science|true|0|0|0|0|0",
+        )
+        client = FireTunerClient()
+        with patch.object(
+            client,
+            "execute_collect",
+            side_effect=[(header,), *((message,) for message in part_messages)],
+        ) as execute:
+            state = client.read_game_state(172)
+
+        self.assertEqual(state.turn, 2)
+        self.assertEqual(execute.call_count, 5)
+        self.assertEqual(
+            [call.args for call in execute.call_args_list],
+            [(172, program) for program in snapshot_lua_programs()],
+        )
 
     def test_snapshot_lua_only_emits_met_major_civilizations(self):
         lua = snapshot_lua()

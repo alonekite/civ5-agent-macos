@@ -215,11 +215,20 @@ def execute_skip_unit(
             before,
             before,
         )
-    if before_unit.get("moves") == 0:
+    before_ready = before_unit.get("ready_to_move")
+    if not isinstance(before_ready, bool):
+        return CommandResult(
+            command.id,
+            "error",
+            f"unit {unit_id} state does not expose ready_to_move",
+            before,
+            before,
+        )
+    if not before_ready:
         return CommandResult(
             command.id,
             "success",
-            f"verified unit {unit_id} already has no moves",
+            f"verified unit {unit_id} already does not need orders",
             before,
             before,
         )
@@ -247,21 +256,23 @@ def execute_skip_unit(
         )
         if (
             after_unit is not None
-            and after_unit.get("moves") == 0
+            and after_unit.get("ready_to_move") is False
             and after_unit.get("x") == before_unit.get("x")
             and after_unit.get("y") == before_unit.get("y")
+            and after_unit.get("moves") == before_unit.get("moves")
         ):
             return CommandResult(
                 command.id,
                 "success",
-                f"verified unit {unit_id} skipped without moving",
+                f"verified unit {unit_id} skipped without moving or spending movement",
                 before,
                 asdict(after_state),
             )
     return CommandResult(
         command.id,
         "error",
-        f"skip request was accepted but unit {unit_id} was not observed idle in place "
+        f"skip request was accepted but unit {unit_id} was not observed out of the "
+        f"ready-unit cycle in place with unchanged movement "
         f"within {verify_timeout}s",
         before,
         asdict(after_state),

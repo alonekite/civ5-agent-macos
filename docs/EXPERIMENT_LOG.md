@@ -725,3 +725,72 @@ second time.
 
 confirmed offline. Watcher-mediated retries are idempotent within one watcher
 session; persistence across watcher restarts remains future work.
+
+### 2026-09-14 — Segmented live state and corrected unit-skip proof
+
+**Hypothesis**
+
+The target FireTuner can return the full expanded state as bounded, coherent
+segments, and unit skip can be verified through readiness without incorrectly
+requiring movement points to be spent.
+
+**Environment**
+
+- Same Apple Silicon Mac, Campaign Edition build, and stock signed application
+  recorded above.
+- Ordinary early single-player game with one founded city and one ready unit.
+- FireTuner protected by an enabled macOS application firewall and an explicit
+  Civ V block-incoming rule, prepared through the recoverable session manager.
+
+**Procedure**
+
+1. Started the persistent watcher after the live safety preflight passed.
+2. Attempted the expanded schema 3 draft as one read-only Lua program.
+3. After the target truncated that program near 1 KiB, split it into header,
+   cities, units, diplomacy, and victory programs, each below 900 bytes.
+4. Added per-part turn and active-player markers and rejected missing,
+   duplicated, or mismatched parts.
+5. Read all early-game fields from the live match; after preserving the
+   published schema 3 parser, assigned the readiness-bearing segmented shape
+   its own schema 4 version.
+6. Submitted one unit-skip command. Civ V accepted it and the game UI showed the
+   unit had been skipped, but the old verifier incorrectly expected zero
+   movement and reported an error.
+7. Confirmed the stock UI uses `Unit:IsReadyToMove()`, added that boolean to the
+   unit record, and changed the postcondition to require readiness `true ->
+   false` while ID, coordinates, and movement remain unchanged.
+8. Advanced normally to the next turn and, after explicit confirmation,
+   submitted exactly one new unit-skip command through the final reader and
+   verifier.
+
+**Observed result**
+
+- The final five Lua programs were 620–875 bytes and returned one coherent live
+  snapshot. The target run exercised the same readiness-bearing shape before
+  its compatibility-preserving version number was finalized as schema 4.
+- Score and era were valid non-negative integers.
+- City food, growth, production storage, cost, and per-turn values were valid
+  integers and changed consistently across the observed turn transition.
+- Unit health, strength, range, movement, and readiness were returned. The unit
+  became ready again at the start of the next turn.
+- The diplomacy list was empty before contact with another major civilization,
+  as required by the hidden-information filter.
+- The science-victory enabled flag and all five active-team project counts had
+  valid values in the early-game zero-progress branch.
+- The final skip command returned verified success: readiness changed from true
+  to false while unit identity, coordinates, and remaining movement stayed the
+  same. The end-turn blocker cleared as a corresponding secondary observation.
+- No write was retried automatically.
+
+**Conclusion**
+
+confirmed for segmented expanded-state reads, all early-game scalar branches, and the
+corrected `skip_unit` write-after-read postcondition. Non-empty diplomacy and
+non-zero late-game science-project branches remain enhancement tests, not
+blockers for the schema 3 read contract.
+
+**Next step**
+
+Complete and verify session restoration, then keep the segmented command-size
+and identity invariants in the regression suite. Test non-empty diplomacy or
+late-game project progress only when a suitable save is available.

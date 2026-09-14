@@ -26,7 +26,15 @@ def decide(state: GameState) -> Decision:
     without_production = [city for city in state.cities if not city.get("production")]
     if without_production:
         return Decision("manual_required", "choose city production")
-    ready_units = [unit for unit in state.units if int(unit.get("moves", 0)) > 0]
+    ready_units = [
+        unit
+        for unit in state.units
+        if (
+            unit.get("ready_to_move") is True
+            if state.schema_version >= 4
+            else int(unit.get("moves", 0)) > 0
+        )
+    ]
     if ready_units:
         return Decision("manual_required", "issue unit orders")
     if not state.can_end_turn:

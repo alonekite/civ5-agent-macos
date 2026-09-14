@@ -11,11 +11,11 @@ decisions, not raw chat transcripts.
 - Current milestone: M3 — ruleset knowledge coverage.
 - Active next deliverable: model copyright-safe theming constraints, then
   continue ruleset scaling.
-- Functional test baseline: 128 tests locally on Python 3.11; Python 3.11/3.13
-  CI confirmation is pending for development head `4177103`.
+- Functional test baseline: 137 tests locally on Python 3.11 and the default
+  Python runtime; CI confirmation is pending for the current development head.
 - Blocking issue: none for offline M3 work.
-- User presence required next: only the pending schema 3 and `skip_unit` bounded
-  live verifications.
+- User presence required next: only optional non-empty diplomacy or late-game
+  science-victory enhancement tests.
 - Planning source: `docs/planning/MILESTONES.md`.
 - Verification source: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -33,6 +33,8 @@ decisions, not raw chat transcripts.
   game.
 - The deterministic controller was live-verified for refusal and successful
   execution paths.
+- Schema 4's bounded segmented reader and the corrected `skip_unit` readiness
+  postcondition were verified in a live early-game match.
 - Command identifiers, duplicate suppression, bounded IPC, private audit logs,
   preflight checks, and write-after-read verification are implemented.
 - Recoverable live-session preparation/restoration records the private starting
@@ -80,13 +82,16 @@ decisions, not raw chat transcripts.
   era, artifact, creator-unit, and free-building relationships. Only the
   deterministic archaeology flag and artifact-class numeric value are retained;
   names and presentation content remain excluded.
-- The test suite contains 128 tests locally. Python 3.11 passed at development
-  commit `4177103`; GitHub Actions confirmation is pending.
+- The test suite contains 137 tests locally. Python 3.11 and the local default
+  runtime pass at the current development head; GitHub Actions confirmation is
+  pending.
 
-## Implemented but awaiting bounded live verification
+## Implemented with optional enhanced live evidence pending
 
-- Snapshot schema 3 diplomacy and science-victory fields.
-- The allowlisted `skip_unit` action.
+- Schema 4 diplomacy has verified the empty pre-contact branch; a non-empty
+  observed-major branch remains optional.
+- Schema 4 science-victory values have verified the early zero-progress branch;
+  non-zero late-game project counts remain optional.
 
 Future live tests require the user to start the game and explicitly authorize
 the documented `live_session prepare`/`restore` procedure. No background or
@@ -139,6 +144,8 @@ remain out of scope.
   memory to a future LLM-facing project.
 - ADR-0008: include sorted typed context in schema 3 reference identity.
 - ADR-0009: manage live tests as explicit, recoverable bounded sessions.
+- ADR-0010: segment schema 4 snapshots below the target FireTuner command limit
+  and reject cross-turn or cross-player mixtures.
 
 See `docs/architecture/decisions/README.md`. Development history belongs in
 `docs/development/DEVELOPMENT_LOG.md`, not in this dashboard.

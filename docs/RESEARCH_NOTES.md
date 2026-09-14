@@ -32,7 +32,7 @@ Resolved since the initial notes:
   bundled UI and have been live-verified with strict identifiers, capability
   checks, and read-back verification.
 - Snapshot schema 2 and the deterministic controller have been live-verified.
-- Snapshot schema 3 has offline-tested score, era, and met-major diplomacy
-  records derived from the bundled Brave New World UI; live verification is
-  pending.
-- The MVP read/write loop is complete; unit skip is the next live experiment.
+- Snapshot schema 4 has live-verified early-game score, era, city, unit,
+  pre-contact diplomacy, and science-victory values. Non-empty diplomacy and
+  non-zero science projects remain optional enhancement evidence.
+- Unit skip is live-verified using `IsReadyToMove()` rather than spent movement.

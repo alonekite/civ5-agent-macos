@@ -33,27 +33,25 @@ Edition 对局中实际验证。它是便于快速阅读的状态表，不保存
 | 确定性控制器 | 2026-09-12 | dry-run 指出必选事项；满足条件后执行并验证回合推进 | [schema 2 实验](../EXPERIMENT_LOG.md#2026-09-12--schema-2-research-production-and-controller-live-proof) |
 | FireTuner 安全边界与恢复 | 2026-09-12 | 防火墙临时开启、Civ V 入站被阻止；测试后配置、端口、socket 和防火墙恢复 | [schema 2 实验](../EXPERIMENT_LOG.md#2026-09-12--schema-2-research-production-and-controller-live-proof) |
 | 只读安全预检 | 2026-09-13 | 恢复后的主机通过 shutdown 检查：FireTuner 关闭且无监听端口和 agent socket | [预检实验](../EXPERIMENT_LOG.md#2026-09-13--read-only-safety-preflight) |
+| schema 4 分段读取 | 2026-09-14 | 读取分数、时代、城市经济、单位状态及早期外交/胜利分支；分段长度受限并检查回合/玩家一致性 | [分段读取实验](../EXPERIMENT_LOG.md#2026-09-14--segmented-live-state-and-corrected-unit-skip-proof) |
+| `skip_unit` | 2026-09-14 | readiness 从 true 变为 false，单位 ID、坐标及剩余移动力不变，自动回读返回成功 | [单位跳过实验](../EXPERIMENT_LOG.md#2026-09-14--segmented-live-state-and-corrected-unit-skip-proof) |
 
 ## 部分实机验证
 
 | 能力 | 已有证据 | 尚缺证据 |
 |---|---|---|
 | 命令 UUID、审计与重复抑制 | 真实写入命令曾返回 UUID，核心写入路径已运行 | 新的参数审计和同 UUID 重放保护主要是离线验证；需要时再设计不产生二次游戏写入的受限实验 |
+| schema 4：外交非空分支 | 未接触任何主要文明时已确认列表为空 | 遇到主要文明后确认只返回已接触对象 |
+| schema 4：科学胜利非零分支 | 启用标志及五个早期零进度计数已读取 | 用合适后期存档确认非零项目计数 |
 
 ## 待实机验证
 
 | 能力 | 离线状态 | 下一次真实游戏测试 |
 |---|---|---|
-| schema 3：分数与时代 | 已实现并测试 | 确认 `score`、`current_era` 为非负整数 |
-| schema 3：城市经济 | 已实现并测试 | 建城后读取食物、增长阈值、生产存量、成本和每回合增量 |
-| schema 3：单位状态 | 已实现并测试 | 读取伤害、最大生命、近战/远程强度和射程 |
-| schema 3：外交 | 已实现并测试 | 早期未接触时应为空；遇到文明后只出现已接触的主要文明 |
-| schema 3：科学胜利 | 已实现并测试 | 验证启用标志和五种项目计数的类型；后期非零进度可另做增强测试 |
-| `skip_unit` | 已实现并测试 | 对一个仍有移动力的己方单位执行一次；ID 和坐标不变，移动力变为零 |
+| 坐标移动 | 尚未实现 | 先设计路径、所有权、合法性与明确写后条件，不进入当前测试范围 |
 
-下一次手动会话的最低目标是一次完成全部 schema 3 早期字段和
-`skip_unit`。外交非空分支需要遇到另一个主要文明；科学胜利非零项目
-需要合适的后期存档，不阻塞基础 schema 3 验证。
+当前核心早期对局的手动测试目标已经完成。外交非空和科学胜利非零
+属于后续增强证据，不阻塞 schema 4 与 `skip_unit` 的已验证状态。
 
 ## 已否决的实机方案
 

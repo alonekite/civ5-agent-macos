@@ -6,7 +6,7 @@ tests; discrepancies are defects that must be resolved explicitly.
 
 | Contract | Status | Owning module |
 |---|---|---|
-| [Live state](live-state.md) | Evolving, schema 2 live-verified; schema 3 pending | bridge |
+| [Live state](live-state.md) | Evolving; schema 2 and schema 4 live-verified | bridge |
 | [Commands](command.md) | Evolving, core writes live-verified | bridge |
 | [Knowledge bundle](../KNOWLEDGE.md) | Evolving, implemented | knowledge |
 | [Turn journal](journal.md) | Proposed | journal |

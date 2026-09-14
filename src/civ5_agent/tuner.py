@@ -40,7 +40,8 @@ class LuaState:
 STATE_MARKER = "CIV5_AGENT_STATE:"
 STATE_PATTERN = re.compile(r"CIV5_AGENT_STATE:(-?\d+):(-?\d+):(-?\d+)")
 SNAPSHOT_MARKER = "CIV5_AGENT_SNAPSHOT|"
-SNAPSHOT_SCHEMA_VERSION = 3
+SNAPSHOT_SCHEMA_VERSION = 4
+PART_MARKER = "CIV5_AGENT_PART|"
 CITY_MARKER = "CIV5_AGENT_CITY|"
 UNIT_MARKER = "CIV5_AGENT_UNIT|"
 DIPLOMACY_MARKER = "CIV5_AGENT_DIPLOMACY|"
@@ -192,8 +193,10 @@ class FireTunerClient:
 
     def read_game_state(self, state_id: int) -> GameState:
         """Read an allowlisted snapshot without mutating the game."""
-        messages = self.execute_collect(state_id, snapshot_lua())
-        return parse_snapshot(messages)
+        messages: list[TunerMessage] = []
+        for program in snapshot_lua_programs():
+            messages.extend(self.execute_collect(state_id, program))
+        return parse_snapshot(tuple(messages))
 
     def request_end_turn(self, state_id: int) -> tuple[bool, int]:
         """Request end turn only when Civ V itself reports it is currently safe."""
@@ -222,49 +225,70 @@ class FireTunerClient:
         return self._socket
 
 
-def snapshot_lua() -> str:
-    """Return the audited, read-only Lua snapshot program."""
+def _escape_lua() -> str:
     return (
-        'local pid=Game.GetActivePlayer(); local p=Players[pid]; '
-        'local function esc(v) local s=tostring(v or ""); '
-        's=string.gsub(s,"%%","%%25"); s=string.gsub(s,"|","%%7C"); '
-        's=string.gsub(s,"\\r","%%0D"); s=string.gsub(s,"\\n","%%0A"); return s end; '
-        'local tech=p:GetCurrentResearch(); local techType=""; '
-        'local techProgress=-1; local techCost=-1; '
-        'local blocking=p:GetEndTurnBlockingType(); '
-        'if tech and tech>=0 and GameInfo.Technologies[tech] then '
-        'techType=GameInfo.Technologies[tech].Type; '
-        'techProgress=p:GetResearchProgress(tech); techCost=p:GetResearchCost(tech) end; '
-        f'print("{SNAPSHOT_MARKER}{SNAPSHOT_SCHEMA_VERSION}|"..Game.GetGameTurn().."|"..pid.."|"..p:GetGold()'
+        'local function e(v)local s=tostring(v or"");'
+        's=s:gsub("%%","%%25");s=s:gsub("|","%%7C");'
+        's=s:gsub("\\r","%%0D");s=s:gsub("\\n","%%0A");return s end;'
+    )
+
+
+def snapshot_lua_programs() -> tuple[str, ...]:
+    """Return ordered read-only programs below the target FireTuner limit."""
+    header = (
+        'local i=Game.GetActivePlayer();local p=Players[i];'
+        + _escape_lua()
+        + 'local t=p:GetCurrentResearch();local y="";local r=-1;local c=-1;'
+        'if t and t>=0 and GameInfo.Technologies[t]then '
+        'y=GameInfo.Technologies[t].Type;r=p:GetResearchProgress(t);c=p:GetResearchCost(t)end;'
+        'local b=p:GetEndTurnBlockingType();'
+        f'print("{SNAPSHOT_MARKER}{SNAPSHOT_SCHEMA_VERSION}|"..Game.GetGameTurn().."|"..i.."|"..p:GetGold()'
         '.."|"..p:CalculateGoldRate().."|"..p:GetScience().."|"'
         '..p:GetExcessHappiness().."|"..p:GetJONSCulture().."|"'
         '..p:GetTotalJONSCulturePerTurn().."|"..p:GetScore().."|"'
-        '..p:GetCurrentEra().."|"..esc(p:GetName()).."|"'
-        '..esc(p:GetCivilizationShortDescription()).."|"..tostring(tech or -1).."|"'
-        '..esc(techType).."|"..techProgress.."|"..techCost.."|"'
-        '..tostring(p:IsTurnActive()).."|"..tostring(UI.CanEndTurn()).."|"..blocking); '
-        f'for c in p:Cities() do print("{CITY_MARKER}"..c:GetID().."|"..esc(c:GetName())'
+        '..p:GetCurrentEra().."|"..e(p:GetName()).."|"'
+        '..e(p:GetCivilizationShortDescription()).."|"..tostring(t or -1).."|"'
+        '..e(y).."|"..r.."|"..c.."|"'
+        '..tostring(p:IsTurnActive()).."|"..tostring(UI.CanEndTurn()).."|"..b)'
+    )
+    cities = (
+        'local i=Game.GetActivePlayer();local p=Players[i];'
+        + _escape_lua()
+        + f'print("{PART_MARKER}cities|"..Game.GetGameTurn().."|"..i);'
+        + f'for c in p:Cities() do print("{CITY_MARKER}"..c:GetID().."|"..e(c:GetName())'
         '.."|"..c:GetX().."|"..c:GetY().."|"..c:GetPopulation().."|"'
-        '..esc(c:GetProductionNameKey()).."|"..c:GetFoodTimes100().."|"'
+        '..e(c:GetProductionNameKey()).."|"..c:GetFoodTimes100().."|"'
         '..c:GrowthThreshold().."|"..c:FoodDifferenceTimes100().."|"'
         '..c:GetProductionTimes100().."|"..c:GetProductionNeeded().."|"'
-        '..c:GetCurrentProductionDifferenceTimes100(false,false)) end; '
-        f'for u in p:Units() do local info=GameInfo.Units[u:GetUnitType()]; '
-        f'print("{UNIT_MARKER}"..u:GetID().."|"..esc(u:GetName()).."|"'
-        '..esc(info and info.Type or "").."|"..u:GetX().."|"..u:GetY()'
+        '..c:GetCurrentProductionDifferenceTimes100(false,false))end'
+    )
+    units = (
+        'local i=Game.GetActivePlayer();local p=Players[i];'
+        + _escape_lua()
+        + f'print("{PART_MARKER}units|"..Game.GetGameTurn().."|"..i);'
+        + f'for u in p:Units() do local n=GameInfo.Units[u:GetUnitType()];'
+        f'print("{UNIT_MARKER}"..u:GetID().."|"..e(u:GetName()).."|"'
+        '..e(n and n.Type or "").."|"..u:GetX().."|"..u:GetY()'
         '.."|"..u:MovesLeft().."|"..u:GetDamage().."|"..u:GetMaxHitPoints()'
         '.."|"..u:GetBaseCombatStrength().."|"'
-        '..u:GetBaseRangedCombatStrength().."|"..u:Range()) end; '
-        'local myTeam=Teams[p:GetTeam()]; '
-        'for oid=0,GameDefines.MAX_MAJOR_CIVS-1 do local o=Players[oid]; '
-        'if oid~=pid and o and o:IsAlive() and myTeam:IsHasMet(o:GetTeam()) then '
-        'local otherTeam=Teams[o:GetTeam()]; local approach=-1; '
-        'if not o:IsHuman() and not otherTeam:IsHuman() then '
-        'approach=p:GetApproachTowardsUsGuess(oid) end; '
-        f'print("{DIPLOMACY_MARKER}"..oid.."|"..o:GetTeam().."|"'
-        '..esc(o:GetName()).."|"..esc(o:GetCivilizationShortDescription()).."|"'
-        '..o:GetScore().."|"..tostring(myTeam:IsAtWar(o:GetTeam())).."|"'
-        '..approach) end end; '
+        '..u:GetBaseRangedCombatStrength().."|"..u:Range().."|"'
+        '..tostring(u:IsReadyToMove()))end'
+    )
+    diplomacy = (
+        'local pid=Game.GetActivePlayer();local p=Players[pid];local myTeam=Teams[p:GetTeam()];'
+        + _escape_lua()
+        + f'print("{PART_MARKER}diplomacy|"..Game.GetGameTurn().."|"..pid);'
+        + 'for i=0,GameDefines.MAX_MAJOR_CIVS-1 do local o=Players[i];'
+        'if i~=pid and o and o:IsAlive() and myTeam:IsHasMet(o:GetTeam())then '
+        'local ot=Teams[o:GetTeam()];local a=-1;if not o:IsHuman()and not ot:IsHuman()then '
+        'a=p:GetApproachTowardsUsGuess(i)end;'
+        f'print("{DIPLOMACY_MARKER}"..i.."|"..o:GetTeam().."|"'
+        '..e(o:GetName()).."|"..e(o:GetCivilizationShortDescription()).."|"'
+        '..o:GetScore().."|"..tostring(myTeam:IsAtWar(o:GetTeam())).."|"..a)end end'
+    )
+    victory = (
+        'local i=Game.GetActivePlayer();local p=Players[i];local myTeam=Teams[p:GetTeam()];'
+        + f'print("{PART_MARKER}victory|"..Game.GetGameTurn().."|"..i);'
         'local function projectCount(t) local id=GameInfoTypes[t]; '
         'if id==nil or id<0 then return -1 end; return myTeam:GetProjectCount(id) end; '
         'local scienceVictory=GameInfo.Victories["VICTORY_SPACE_RACE"]; '
@@ -276,6 +300,12 @@ def snapshot_lua() -> str:
         '..projectCount("PROJECT_SS_STASIS_CHAMBER").."|"'
         '..projectCount("PROJECT_SS_ENGINE"))'
     )
+    return header, cities, units, diplomacy, victory
+
+
+def snapshot_lua() -> str:
+    """Return all audited snapshot programs for static inspection."""
+    return "\n".join(snapshot_lua_programs())
 
 
 def end_turn_lua() -> str:
@@ -421,6 +451,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     units: list[dict[str, object]] = []
     diplomacy: list[dict[str, object]] = []
     victory: dict[str, object] | None = None
+    parts: set[str] = set()
 
     for message in messages:
         for line in message.payload.splitlines():
@@ -429,7 +460,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     raise ValueError("multiple snapshot headers in one response")
                 fields = line.split(SNAPSHOT_MARKER, 1)[1].split("|")
                 schema_version = int(fields[0])
-                if schema_version not in {2, SNAPSHOT_SCHEMA_VERSION}:
+                if schema_version not in {2, 3, SNAPSHOT_SCHEMA_VERSION}:
                     raise ValueError(f"unsupported snapshot schema: {schema_version}")
                 expected_fields = 18 if schema_version == 2 else 20
                 if len(fields) != expected_fields:
@@ -473,6 +504,25 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                         "cost": int(fields[technology_index + 3]),
                     },
                 )
+            elif PART_MARKER in line:
+                if snapshot is None:
+                    raise ValueError("snapshot part appeared before snapshot header")
+                fields = line.split(PART_MARKER, 1)[1].split("|")
+                if len(fields) != 3 or fields[0] not in {
+                    "cities",
+                    "units",
+                    "diplomacy",
+                    "victory",
+                }:
+                    raise ValueError(f"malformed snapshot part: {line!r}")
+                part, turn, active_player = fields
+                if part in parts:
+                    raise ValueError(f"duplicate snapshot part: {part}")
+                if int(turn) != snapshot.turn or int(active_player) != snapshot.active_player:
+                    raise ValueError(
+                        f"snapshot part {part} does not match header turn/player"
+                    )
+                parts.add(part)
             elif CITY_MARKER in line:
                 if snapshot is None:
                     raise ValueError("city record appeared before snapshot header")
@@ -488,7 +538,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     "population": int(fields[4]),
                     "production": unquote(fields[5]),
                 }
-                if snapshot.schema_version == 3:
+                if snapshot.schema_version >= 3:
                     city.update(
                         {
                             "food_times100": int(fields[6]),
@@ -504,7 +554,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                 if snapshot is None:
                     raise ValueError("unit record appeared before snapshot header")
                 fields = line.split(UNIT_MARKER, 1)[1].split("|")
-                expected_fields = 6 if snapshot.schema_version == 2 else 11
+                expected_fields = {2: 6, 3: 11, 4: 12}[snapshot.schema_version]
                 if len(fields) != expected_fields:
                     raise ValueError(f"malformed unit record: {line!r}")
                 unit: dict[str, object] = {
@@ -515,7 +565,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     "y": int(fields[4]),
                     "moves": int(fields[5]),
                 }
-                if snapshot.schema_version == 3:
+                if snapshot.schema_version >= 3:
                     unit.update(
                         {
                             "damage": int(fields[6]),
@@ -525,11 +575,13 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                             "range": int(fields[10]),
                         }
                     )
+                if snapshot.schema_version >= 4:
+                    unit["ready_to_move"] = _parse_lua_bool(fields[11])
                 units.append(unit)
             elif DIPLOMACY_MARKER in line:
-                if snapshot is None or snapshot.schema_version != 3:
+                if snapshot is None or snapshot.schema_version not in {3, 4}:
                     raise ValueError(
-                        "diplomacy record requires a schema 3 snapshot header"
+                        "diplomacy record requires a schema 3 or 4 snapshot header"
                     )
                 fields = line.split(DIPLOMACY_MARKER, 1)[1].split("|")
                 if len(fields) != 7:
@@ -546,8 +598,10 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     }
                 )
             elif VICTORY_MARKER in line:
-                if snapshot is None or snapshot.schema_version != 3:
-                    raise ValueError("victory record requires a schema 3 snapshot header")
+                if snapshot is None or snapshot.schema_version not in {3, 4}:
+                    raise ValueError(
+                        "victory record requires a schema 3 or 4 snapshot header"
+                    )
                 if victory is not None:
                     raise ValueError("multiple victory records in one response")
                 fields = line.split(VICTORY_MARKER, 1)[1].split("|")
@@ -565,6 +619,11 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     if snapshot is None:
         details = _summarize_messages(messages)
         raise ValueError(f"InGame Lua did not return {SNAPSHOT_MARKER} ({details})")
+    if snapshot.schema_version >= 4:
+        expected_parts = {"cities", "units", "diplomacy", "victory"}
+        if parts != expected_parts:
+            missing = ", ".join(sorted(expected_parts - parts))
+            raise ValueError(f"incomplete snapshot parts: {missing}")
     snapshot.cities = cities
     snapshot.units = units
     snapshot.diplomacy = diplomacy

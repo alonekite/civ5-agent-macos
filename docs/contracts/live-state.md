@@ -14,12 +14,15 @@ and the deterministic controller. The implementation in `models.py`,
 |---|---|---|
 | Legacy/unversioned | Compatibility-tested | Minimal early reader |
 | 2 | Live-verified | Economy, culture, research, cities, units, turn readiness |
-| 3 | Offline-tested; live verification pending | Score, era, exact city progress, unit condition, met-major diplomacy, science-victory progress |
+| 3 | Compatibility-tested | Score, era, exact city progress, unit condition, met-major diplomacy, science-victory progress |
+| 4 | Live-verified for early-game branches | Schema 3 fields plus unit readiness and coherent segmented collection |
 
 ## Stable requirements
 
 - `schema_version`, when present, selects validation rules.
 - Turn and active-player identity are non-negative integers.
+- A schema 4 read contains all four non-header parts exactly once; each part's
+  turn and active-player identity must match the header.
 - Lists use stable in-game identifiers and reject duplicates where identity must
   be unique.
 - Unmet major civilizations are omitted rather than disclosed.
@@ -31,7 +34,7 @@ and the deterministic controller. The implementation in `models.py`,
 
 ## Compatibility
 
-Readers retain schema 2 support while schema 3 is being verified. A future
+Readers retain schema 2 and 3 support. A future
 breaking shape change increments `schema_version`; it does not reinterpret an
 existing field silently.
 

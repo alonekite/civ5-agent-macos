@@ -354,6 +354,23 @@ and FireTuner are stopped, verifies that rule, and only then enables the
 firewall and FireTuner. The failed attempt returned the machine to its clean
 shutdown baseline.
 
+## 2026-09-14 — Segmented live state and unit readiness
+
+- Replaced the over-limit monolithic live snapshot with five read-only programs
+  capped below 900 bytes.
+- Added mandatory part completeness plus turn/player identity checks so a turn
+  transition cannot silently produce a mixed snapshot.
+- Preserved legacy schema 2 and 3 parsing and assigned the segmented,
+  readiness-bearing shape schema 4.
+- Corrected `skip_unit` verification to require `ready_to_move` true-to-false
+  while unit identity, coordinates, and remaining movement stay unchanged.
+- Live-verified early-game expanded state and one complete skip before/after
+  lifecycle; the original zero-movement assumption was disproved by both game
+  observation and stock UI API usage.
+- Passed all 137 tests on Python 3.11 and the local default Python runtime.
+
+Implementation commit: pending.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

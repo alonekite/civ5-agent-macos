@@ -45,7 +45,7 @@ def validate_live_state(state: GameState) -> GameState:
     for field in ("turn_active", "can_end_turn"):
         if not isinstance(getattr(state, field), bool):
             raise StateValidationError(f"{field} must be a boolean")
-    if state.schema_version not in {2, 3}:
+    if state.schema_version not in {2, 3, 4}:
         raise StateValidationError(f"unsupported schema_version: {state.schema_version}")
     if state.turn is not None and state.turn < 0:
         raise StateValidationError("turn must be non-negative")
@@ -55,10 +55,10 @@ def validate_live_state(state: GameState) -> GameState:
         raise StateValidationError("score must be non-negative")
     if state.current_era is not None and state.current_era < 0:
         raise StateValidationError("current_era must be non-negative")
-    if state.schema_version == 3 and (
+    if state.schema_version >= 3 and (
         state.score is None or state.current_era is None
     ):
-        raise StateValidationError("schema 3 requires score and current_era")
+        raise StateValidationError("schema 3+ requires score and current_era")
 
     if (
         not isinstance(state.cities, list)
@@ -79,7 +79,7 @@ def validate_live_state(state: GameState) -> GameState:
         for field in ("name", "production"):
             if not isinstance(city.get(field), str):
                 raise StateValidationError(f"city {city.get('id')} has invalid {field}")
-        if state.schema_version == 3:
+        if state.schema_version >= 3:
             for field in (
                 "food_times100",
                 "growth_threshold",
@@ -107,7 +107,7 @@ def validate_live_state(state: GameState) -> GameState:
         for field in ("name", "type"):
             if not isinstance(unit.get(field), str):
                 raise StateValidationError(f"unit {unit.get('id')} has invalid {field}")
-        if state.schema_version == 3:
+        if state.schema_version >= 3:
             for field in (
                 "damage",
                 "combat_strength",
@@ -131,6 +131,12 @@ def validate_live_state(state: GameState) -> GameState:
             if unit["damage"] > max_hit_points:
                 raise StateValidationError(
                     f"unit {unit.get('id')} damage exceeds max_hit_points"
+                )
+            if state.schema_version >= 4 and not isinstance(
+                unit.get("ready_to_move"), bool
+            ):
+                raise StateValidationError(
+                    f"unit {unit.get('id')} has invalid ready_to_move"
                 )
 
     diplomacy_players: set[int] = set()
@@ -168,9 +174,9 @@ def validate_live_state(state: GameState) -> GameState:
                     f"diplomacy player {player_id} has invalid {field}"
                 )
 
-    if state.schema_version == 3:
+    if state.schema_version >= 3:
         if not isinstance(state.victory, dict):
-            raise StateValidationError("schema 3 requires a victory record")
+            raise StateValidationError("schema 3+ requires a victory record")
         if not isinstance(state.victory.get("science_enabled"), bool):
             raise StateValidationError("victory has invalid science_enabled")
         for field in (

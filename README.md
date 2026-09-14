@@ -31,14 +31,14 @@ Status: the low-level MVP was verified end-to-end on the target Mac on
 2026-09-12. The watcher observed a live rich snapshot and the command CLI
 advanced turn 0 → 1 with verified before/after state.
 
-Snapshot schema 3 additionally reads the active player's score and era, city
+Snapshot schema 4 additionally reads the active player's score and era, city
 growth/production progress, owned-unit health and strength, and met major
 civilizations' public diplomacy state. It also reports whether science victory
-is enabled and the active team's Apollo/spacecraft project counts. Its parser
-and validation are offline-tested and retain schema 2 compatibility; schema 3
-still requires a bounded live-game verification before it is considered
-confirmed. City food and production rates use Civ V's exact times-100 integers
-rather than rounded floats.
+is enabled, the active team's Apollo/spacecraft project counts, and whether each
+owned unit still needs orders. Its bounded segmented reader and early-game
+branches are live-verified and retain schema 2/3 compatibility. City food and
+production rates use Civ V's exact times-100 integers rather than rounded
+floats.
 
 This is an unofficial, independently developed project. It is not affiliated
 with or endorsed by Firaxis Games, 2K, Aspyr, or Apple, and it does not include
@@ -197,8 +197,7 @@ non-negative city ID, one of `unit|building|project`, and the corresponding
 own capability predicate and verify the resulting snapshot. The live test
 observed `null -> TECH_POTTERY` and empty production -> `TXT_KEY_UNIT_SCOUT`.
 
-A unit-specific skip command is implemented and unit-tested, pending one
-bounded live verification:
+A unit-specific skip command is implemented, unit-tested, and live-verified:
 
 ```bash
 PYTHONPATH=src python3 -m civ5_agent.command skip_unit 16385
@@ -207,7 +206,7 @@ PYTHONPATH=src python3 -m civ5_agent.command skip_unit 16385
 It accepts only a non-negative unit ID, proves the unit belongs to the active
 player, clears and re-establishes the UI selection on that exact unit, checks
 the stock action predicate, and succeeds only after the same unit is observed
-at the same coordinates with zero movement.
+at the same coordinates with unchanged movement and `ready_to_move=false`.
 
 Every watcher-mediated command is appended to
 `~/Library/Logs/civ5-agent/commands.jsonl`. The directory and JSONL file are

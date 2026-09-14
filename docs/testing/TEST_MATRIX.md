@@ -10,13 +10,13 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | FireTuner read transport | Yes | Yes | Yes | Confirmed with security constraints |
 | Persistent single-client watcher | Yes | Yes | Yes | Confirmed |
 | Schema 2 rich state | Yes | Yes | Yes | Confirmed |
-| Schema 3 score/era/city/unit fields | Yes | Yes | No | Live verification pending |
-| Schema 3 met-major diplomacy | Yes | Yes | No | Live verification pending |
-| Schema 3 science-victory progress | Yes | Yes | No | Live verification pending |
+| Schema 4 score/era/city/unit/readiness fields | Yes | Yes | Yes | Confirmed for early-game values |
+| Schema 4 met-major diplomacy | Yes | Yes | Partial | Empty pre-contact branch confirmed; non-empty branch pending |
+| Schema 4 science-victory progress | Yes | Yes | Partial | Enabled/zero-progress branch confirmed; non-zero branch pending |
 | `end_turn` | Stock API matched | Yes | Yes | Confirmed |
 | `choose_research` | Stock UI matched | Yes | Yes | Confirmed |
 | `set_city_production` | Stock UI matched | Yes | Yes | Confirmed |
-| `skip_unit` | Stock behavior inspected | Yes | No | Live verification pending |
+| `skip_unit` | Stock behavior inspected | Yes | Yes | Confirmed with readiness and unchanged movement/location |
 | Coordinate movement | No | No | No | Not implemented |
 | Safety preflight/shutdown | Yes | Yes | Yes | Confirmed |
 | Local IPC bounds and permissions | Yes | Yes | Indirectly | Confirmed offline |

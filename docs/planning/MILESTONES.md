@@ -50,8 +50,8 @@ Acceptance criteria:
   failure behavior are tested.
 - At least end turn, research selection, and city production are live-verified.
 
-Remaining extension: `skip_unit` is implemented and offline-tested but awaits a
-bounded live check; it does not block the completed core milestone.
+Completed extension: `skip_unit` is live-verified using unit readiness with
+unchanged identity, location, and remaining movement.
 
 ## M3 — Ruleset knowledge coverage
 

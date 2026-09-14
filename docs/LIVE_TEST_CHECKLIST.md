@@ -1,9 +1,10 @@
 # Bounded live-test checklist
 
 Use this checklist only on the target Mac with the original App Store
-Civilization V: Campaign Edition. The next session has two goals:
+Civilization V: Campaign Edition. The completed 2026-09-14 session used this
+procedure for two goals:
 
-1. verify snapshot schema 3 against a live match;
+1. verify snapshot schema 4 against a live match;
 2. verify one `skip_unit` action without moving the unit.
 
 Do not enable FireTuner until the firewall guard is in place.
@@ -43,7 +44,7 @@ PYTHONPATH=src python3 -m civ5_agent.preflight live
 
 Do not continue unless `ok` is `true`.
 
-## 3. Verify schema 3
+## 3. Verify schema 4
 
 Start the persistent watcher and leave it running:
 
@@ -51,20 +52,21 @@ Start the persistent watcher and leave it running:
 PYTHONPATH=src python3 -m civ5_agent.watch
 ```
 
-The first validated JSON snapshot must have `schema_version: 3`. Check:
+The first validated JSON snapshot must have `schema_version: 4`. Check:
 
 - `score` and `current_era` are non-negative integers;
 - every city has the six `food_*` / `production_*` economy fields;
 - every owned unit has `damage`, `max_hit_points`, both strength fields, and
-  `range`;
+  `range`, plus boolean `ready_to_move`;
 - `diplomacy` is empty in an unmet early game or contains only met major
   civilizations;
 - `victory.science_enabled` is boolean and all five project counts are
   integers at least `-1`.
 
-Any missing marker, malformed value, duplicate record, or Lua error is a failed
-schema 3 test. Preserve the exact watcher output in the experiment log, but do
-not commit player names or save-specific data.
+Any missing marker, malformed value, duplicate record, inconsistent part
+turn/player identity, or Lua error is a failed schema 4 test. Record only a
+sanitized conclusion in the experiment log; do not commit exact watcher output,
+player names, or save-specific data.
 
 ## 4. Verify `skip_unit`
 
@@ -80,7 +82,8 @@ Success requires all of the following in the returned JSON:
 - `status` is `success`;
 - before and after contain the same unit ID;
 - `x` and `y` are unchanged;
-- movement changes from a positive value to zero;
+- `ready_to_move` changes from `true` to `false`;
+- movement remains unchanged;
 - the result has a command UUID and appears once in the private audit log.
 
 If the game rejects the action or read-back cannot prove every condition, keep

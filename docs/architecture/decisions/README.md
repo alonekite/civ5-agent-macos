@@ -16,6 +16,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0007](ADR-0007-reference-attributes.md) | Add attributes to knowledge references | Accepted |
 | [ADR-0008](ADR-0008-contextual-reference-identity.md) | Add typed context to knowledge references | Accepted |
 | [ADR-0009](ADR-0009-recoverable-live-session.md) | Manage live tests as recoverable bounded sessions | Accepted |
+| [ADR-0010](ADR-0010-segment-live-snapshots.md) | Segment live snapshots below the FireTuner command limit | Accepted |
 
 ## Template
 

@@ -171,14 +171,30 @@ class SkipUnitTest(unittest.TestCase):
         self.assertEqual(result.status, "error")
         self.assertIn("not owned", result.message)
 
-    def test_success_requires_unit_to_be_idle_without_moving(self):
+    def test_success_requires_unit_to_leave_ready_cycle_without_moving(self):
         before = game_state(0, 0)
         before.units = [
-            {"id": 8, "name": "Warrior", "type": "UNIT_WARRIOR", "x": 9, "y": 12, "moves": 120}
+            {
+                "id": 8,
+                "name": "Warrior",
+                "type": "UNIT_WARRIOR",
+                "x": 9,
+                "y": 12,
+                "moves": 120,
+                "ready_to_move": True,
+            }
         ]
         after = game_state(0, 0)
         after.units = [
-            {"id": 8, "name": "Warrior", "type": "UNIT_WARRIOR", "x": 9, "y": 12, "moves": 0}
+            {
+                "id": 8,
+                "name": "Warrior",
+                "type": "UNIT_WARRIOR",
+                "x": 9,
+                "y": 12,
+                "moves": 120,
+                "ready_to_move": False,
+            }
         ]
         client = _FakeClient([before, after], skip_result=("accepted", 8))
         command = Command("skip_unit", {"unit_id": 8})
@@ -187,7 +203,92 @@ class SkipUnitTest(unittest.TestCase):
         ):
             result = execute_skip_unit(client, 172, command, verify_timeout=1.0)
         self.assertEqual(result.status, "success")
-        self.assertEqual(result.after["units"][0]["moves"], 0)
+        self.assertEqual(result.after["units"][0]["moves"], 120)
+        self.assertFalse(result.after["units"][0]["ready_to_move"])
+
+    def test_already_skipped_unit_is_success_without_a_write(self):
+        state = game_state(0, 0)
+        state.units = [
+            {
+                "id": 8,
+                "name": "Warrior",
+                "type": "UNIT_WARRIOR",
+                "x": 9,
+                "y": 12,
+                "moves": 120,
+                "ready_to_move": False,
+            }
+        ]
+        client = _FakeClient([state], skip_result=("accepted", 8))
+        with patch.object(client, "request_skip_unit", wraps=client.request_skip_unit) as write:
+            result = execute_skip_unit(
+                client, 172, Command("skip_unit", {"unit_id": 8})
+            )
+
+        self.assertEqual(result.status, "success")
+        self.assertIn("already", result.message)
+        write.assert_not_called()
+
+    def test_rejects_snapshot_without_readiness_before_writing(self):
+        state = game_state(0, 0)
+        state.units = [
+            {
+                "id": 8,
+                "name": "Warrior",
+                "type": "UNIT_WARRIOR",
+                "x": 9,
+                "y": 12,
+                "moves": 120,
+            }
+        ]
+        client = _FakeClient([state], skip_result=("accepted", 8))
+        with patch.object(client, "request_skip_unit", wraps=client.request_skip_unit) as write:
+            result = execute_skip_unit(
+                client, 172, Command("skip_unit", {"unit_id": 8})
+            )
+
+        self.assertEqual(result.status, "error")
+        self.assertIn("ready_to_move", result.message)
+        write.assert_not_called()
+
+    def test_rejects_postcondition_that_spends_movement(self):
+        before = game_state(0, 0)
+        before.units = [
+            {
+                "id": 8,
+                "name": "Warrior",
+                "type": "UNIT_WARRIOR",
+                "x": 9,
+                "y": 12,
+                "moves": 120,
+                "ready_to_move": True,
+            }
+        ]
+        after = game_state(0, 0)
+        after.units = [
+            {
+                "id": 8,
+                "name": "Warrior",
+                "type": "UNIT_WARRIOR",
+                "x": 9,
+                "y": 12,
+                "moves": 0,
+                "ready_to_move": False,
+            }
+        ]
+        client = _FakeClient([before, after], skip_result=("accepted", 8))
+        with patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1, 1.1]
+        ):
+            result = execute_skip_unit(
+                client,
+                172,
+                Command("skip_unit", {"unit_id": 8}),
+                verify_timeout=1.0,
+            )
+
+        self.assertEqual(result.status, "error")
+        self.assertIn("unchanged movement", result.message)
 
 
 if __name__ == "__main__":

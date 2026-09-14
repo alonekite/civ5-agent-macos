@@ -31,9 +31,10 @@ No application-bundle modification is required.
 - [x] cities
 - [x] research
 - [x] units
-- [ ] diplomacy (schema 3 implemented and offline-tested; live verification pending)
-- [ ] victory progress (science projects implemented and offline-tested; live
-  verification pending)
+- [x] diplomacy (schema 4 empty pre-contact branch live-verified; non-empty
+  branch remains an enhancement test)
+- [x] victory progress (schema 4 enabled/zero-progress branch live-verified;
+  non-zero late-game progress remains an enhancement test)
 
 ## Phase 3 — Write PoC
 - [x] Python submits `end_turn`

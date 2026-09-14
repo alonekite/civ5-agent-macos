@@ -20,7 +20,7 @@ sessions are rejected before a game write.
 | `end_turn` | none | turn number increases | Live-verified |
 | `choose_research` | `TECH_*` identifier | selected research matches identifier | Live-verified |
 | `set_city_production` | city ID, `unit\|building\|project`, matching stable ID | target city's production matches | Live-verified |
-| `skip_unit` | owned unit ID | same unit/location, movement becomes zero | Offline-tested; live pending |
+| `skip_unit` | schema 4 owned unit ID | same unit/location/movement; `ready_to_move` becomes false | Live-verified |
 
 Coordinate movement is not implemented and is not part of the allowlist.
 

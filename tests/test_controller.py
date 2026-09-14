@@ -101,6 +101,7 @@ class StateValidationTest(unittest.TestCase):
                 "combat_strength": 8,
                 "ranged_strength": 0,
                 "range": 1,
+                "ready_to_move": False,
             }
         )
         state = ready_state(
@@ -131,7 +132,7 @@ class StateValidationTest(unittest.TestCase):
 
     def test_schema_three_rejects_impossible_unit_damage(self):
         state = ready_state()
-        state.schema_version = 3
+        state.schema_version = 4
         state.score = 33
         state.current_era = 0
         state.cities[0].update(
@@ -151,9 +152,46 @@ class StateValidationTest(unittest.TestCase):
                 "combat_strength": 8,
                 "ranged_strength": 0,
                 "range": 1,
+                "ready_to_move": False,
             }
         )
         with self.assertRaisesRegex(StateValidationError, "damage exceeds"):
+            validate_live_state(state)
+
+    def test_schema_four_requires_unit_readiness(self):
+        state = ready_state()
+        state.schema_version = 4
+        state.score = 33
+        state.current_era = 0
+        state.cities[0].update(
+            {
+                "food_times100": 525,
+                "growth_threshold": 24,
+                "food_per_turn_times100": 300,
+                "production_times100": 800,
+                "production_needed": 40,
+                "production_per_turn_times100": 500,
+            }
+        )
+        state.units[0].update(
+            {
+                "damage": 0,
+                "max_hit_points": 100,
+                "combat_strength": 8,
+                "ranged_strength": 0,
+                "range": 1,
+            }
+        )
+        state.victory = {
+            "science_enabled": True,
+            "apollo": 0,
+            "booster": 0,
+            "cockpit": 0,
+            "stasis_chamber": 0,
+            "engine": 0,
+        }
+
+        with self.assertRaisesRegex(StateValidationError, "ready_to_move"):
             validate_live_state(state)
 
 
@@ -173,6 +211,42 @@ class DeterministicPolicyTest(unittest.TestCase):
         state = ready_state()
         state.units[0]["moves"] = 120
         self.assertEqual(decide(state).reason, "issue unit orders")
+
+    def test_schema_three_uses_ready_state_not_remaining_movement(self):
+        state = ready_state()
+        state.schema_version = 4
+        state.score = 10
+        state.current_era = 0
+        state.cities[0].update(
+            {
+                "food_times100": 0,
+                "growth_threshold": 15,
+                "food_per_turn_times100": 300,
+                "production_times100": 0,
+                "production_needed": 40,
+                "production_per_turn_times100": 500,
+            }
+        )
+        state.units[0].update(
+            {
+                "moves": 120,
+                "damage": 0,
+                "max_hit_points": 100,
+                "combat_strength": 8,
+                "ranged_strength": 0,
+                "range": 0,
+                "ready_to_move": False,
+            }
+        )
+        state.victory = {
+            "science_enabled": True,
+            "apollo": 0,
+            "booster": 0,
+            "cockpit": 0,
+            "stasis_chamber": 0,
+            "engine": 0,
+        }
+        self.assertEqual(decide(state).action, "end_turn")
 
     def test_ends_turn_only_when_observed_state_is_ready(self):
         self.assertEqual(decide(ready_state()).action, "end_turn")
