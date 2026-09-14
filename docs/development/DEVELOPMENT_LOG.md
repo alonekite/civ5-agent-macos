@@ -87,6 +87,23 @@ Governance commit: `a053797`.
   fields and non-finite values, and documented the compatibility decision in
   ADR-0007.
 
+Contract commit: `de60745`.
+
+## 2026-09-14 — Binary quantity-bearing map knowledge
+
+- Imported 15 binary terrain, feature, improvement, route, and build effect
+  tables as schema 2 references with validated integer attributes.
+- Imported the official `FakeFeatures` lake and river identifiers as feature
+  entities marked `fake`, resolving their source-backed yield relationships
+  without skipping dangling-looking rows.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,298 entities, 2,336 references, and 77 attributed references. No generated
+  bundle or source database was committed.
+- Passed the complete 111-test Python 3.11 suite and the sensitive-information
+  scan before submission.
+
+Implementation commit: `2ee9f89`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
