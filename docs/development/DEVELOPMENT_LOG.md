@@ -131,6 +131,23 @@ Implementation commit: `a20bbe6`.
 
 Implementation commit: `fb80fa5`.
 
+## 2026-09-14 — Expanded quantified knowledge effects
+
+- Expanded schema 3 coverage to 19 single-context belief, building,
+  improvement, and policy effect-table families.
+- Expanded binary attributed coverage to 48 table families, including belief,
+  building, policy, resource, and specialist yields plus unit/building resource
+  quantities and requirements.
+- Made the synthetic SQLite fixture exercise every configured binary and
+  single-context table mapping.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,298 entities, 2,762 references, 503 attributed references, and 159
+  contextual references. No generated bundle or source database was committed.
+- Passed the complete 117-test suite on Python 3.11 and the local default Python
+  runtime, and scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `18bba03`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
