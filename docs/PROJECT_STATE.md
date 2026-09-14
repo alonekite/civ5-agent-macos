@@ -42,9 +42,9 @@ decisions, not raw chat transcripts.
   effects, unique replacements, disabled class overrides, religions, core
   beliefs, specialists/great-person classes, terrains, features, improvements,
   routes, yields, build actions, projects, processes, victories, unit-combat
-  categories, and their currently supported relations from a local merged Civ V
-  SQLite database.
-- The real Campaign Edition database currently yields 1,328 entities and 3,262
+  categories, domains, special-unit categories, and their currently supported
+  relations from a local merged Civ V SQLite database.
+- The real Campaign Edition database currently yields 1,337 entities and 3,432
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.

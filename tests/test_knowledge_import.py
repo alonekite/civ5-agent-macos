@@ -37,6 +37,7 @@ from civ5_agent.knowledge.import_sqlite import (
     RESOURCE_FIELDS,
     RESOURCE_REFERENCE_COLUMNS,
     ROUTE_FIELDS,
+    SPECIAL_UNIT_FIELDS,
     SPECIALIST_FIELDS,
     TECHNOLOGY_FIELDS,
     TRAIT_FIELDS,
@@ -63,6 +64,7 @@ FIXTURE_TYPE_IDS = {
     "promotion": "PROMOTION_SHOCK_1",
     "resource": "RESOURCE_IRON",
     "route": "ROUTE_TEST",
+    "special_unit": "SPECIALUNIT_TEST",
     "specialist": "SPECIALIST_TEST",
     "technology": "TECH_AGRICULTURE",
     "terrain": "TERRAIN_TEST",
@@ -71,6 +73,7 @@ FIXTURE_TYPE_IDS = {
     "unit_combat": "UNITCOMBAT_MELEE",
     "victory": "VICTORY_TEST",
     "yield": "YIELD_TEST",
+    "domain": "DOMAIN_LAND",
 }
 
 
@@ -124,6 +127,14 @@ def create_database(
         )
         connection.execute(
             "CREATE TABLE UnitCombatInfos (Type TEXT NOT NULL PRIMARY KEY)"
+        )
+        connection.execute("CREATE TABLE Domains (Type TEXT NOT NULL PRIMARY KEY)")
+        special_unit_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        special_unit_definitions.extend(
+            f'"{column}" INTEGER' for column in SPECIAL_UNIT_FIELDS
+        )
+        connection.execute(
+            f"CREATE TABLE SpecialUnits ({', '.join(special_unit_definitions)})"
         )
         connection.execute(
             "CREATE TABLE UnitPromotions_UnitCombats "
@@ -447,6 +458,11 @@ def create_database(
         connection.execute(
             "INSERT INTO UnitCombatInfos VALUES (?)", ("UNITCOMBAT_MELEE",)
         )
+        connection.execute("INSERT INTO Domains VALUES (?)", ("DOMAIN_LAND",))
+        connection.execute(
+            "INSERT INTO SpecialUnits VALUES (?, ?, ?)",
+            ("SPECIALUNIT_TEST", 1, 0),
+        )
         unit_class_columns = ["Type", "DefaultUnit", *UNIT_CLASS_FIELDS]
         quoted_unit_class_columns = ", ".join(
             f'"{column}"' for column in unit_class_columns
@@ -472,6 +488,10 @@ def create_database(
                 value = "TECH_AGRICULTURE"
             elif column == "CombatClass":
                 value = "UNITCOMBAT_MELEE"
+            elif column == "Domain":
+                value = "DOMAIN_LAND"
+            elif column == "Special":
+                value = "SPECIALUNIT_TEST"
             elif value_type == "boolean":
                 value = 0
             elif value_type == "integer":
@@ -1055,10 +1075,10 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 32)
+        self.assertEqual(len(bundle.entities), 34)
         self.assertEqual(
             len(bundle.references),
-            55
+            57
             + len(QUANTITY_REFERENCE_TABLES)
             + 1
             + len(CONTEXTUAL_QUANTITY_REFERENCE_TABLES)

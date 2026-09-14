@@ -27,6 +27,7 @@ versioned releases. Development details belong in
   production conversion, and resource requirements.
 - Unit-combat categories with unit/promotion applicability, quantified category
   modifiers, and contextual free-promotion grants.
+- Typed unit-domain and special-unit classifications.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

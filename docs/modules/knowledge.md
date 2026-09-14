@@ -71,8 +71,9 @@ and build actions in addition to the earlier entity families. It also imports
 the game's `FakeFeatures` rows as feature entities marked `fake`, projects,
 processes, victory conditions, and 51 single-value binary effect and
 resource-quantity table families. It also covers unit-combat categories,
-unit/promotion applicability, and seven category-specific quantified effect
-families, bringing the single-value binary total to 58. Schema 3 coverage
+domains, special-unit categories, unit/promotion applicability, and seven
+category-specific quantified effect families, bringing the single-value binary
+total to 58. Schema 3 coverage
 includes 19 quantified and two promotion-grant contextual table families.
 Effects that need multiple context items or new target entity families are
 deferred.

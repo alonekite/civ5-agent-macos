@@ -1088,6 +1088,10 @@ VICTORY_FIELDS = {
         )
     },
 }
+SPECIAL_UNIT_FIELDS = {
+    "Valid": ("valid", "boolean"),
+    "CityLoad": ("city_load", "boolean"),
+}
 
 QUANTITY_REFERENCE_TABLES = (
     (
@@ -1684,6 +1688,10 @@ def import_ruleset(
                 {"UnitType", "PromotionType"},
             )
             _require_columns(connection, "UnitCombatInfos", {"Type"})
+            _require_columns(connection, "Domains", {"Type"})
+            _require_columns(
+                connection, "SpecialUnits", {"Type", *SPECIAL_UNIT_FIELDS}
+            )
             _require_columns(
                 connection,
                 "UnitPromotions_UnitCombats",
@@ -1984,6 +1992,18 @@ def import_ruleset(
             unit_combat_entities = tuple(
                 _scalar_entity("unit_combat", row, {}, source_label)
                 for row in unit_combat_rows
+            )
+            domain_rows = _select_scalar_rows(connection, "Domains", {})
+            domain_entities = tuple(
+                _scalar_entity("domain", row, {}, source_label)
+                for row in domain_rows
+            )
+            special_unit_rows = _select_scalar_rows(
+                connection, "SpecialUnits", SPECIAL_UNIT_FIELDS
+            )
+            special_unit_entities = tuple(
+                _scalar_entity("special_unit", row, SPECIAL_UNIT_FIELDS, source_label)
+                for row in special_unit_rows
             )
             unit_columns = ["Type", "Class", *UNIT_FIELDS]
             unit_select = ", ".join(f'"{column}"' for column in unit_columns)
@@ -2357,6 +2377,8 @@ def import_ruleset(
                 + unit_entities
                 + unit_class_entities
                 + unit_combat_entities
+                + domain_entities
+                + special_unit_entities
                 + promotion_entities
                 + policy_entities
                 + branch_entities
@@ -2554,6 +2576,24 @@ def _unit_combat_references(
         for row in unit_rows
         if row["CombatClass"] not in (None, "NONE")
     ]
+    for row in unit_rows:
+        for column, kind, target_kind in (
+            ("Domain", "belongs_to_domain", "domain"),
+            ("Special", "belongs_to_special_unit", "special_unit"),
+        ):
+            target = row[column]
+            if target in (None, "NONE"):
+                continue
+            references.append(
+                Reference(
+                    kind,
+                    "unit",
+                    row["Type"],
+                    target_kind,
+                    target,
+                    (source_label,),
+                )
+            )
     references.extend(
         _two_column_references(
             connection,
