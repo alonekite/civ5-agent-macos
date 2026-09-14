@@ -148,6 +148,21 @@ Implementation commit: `fb80fa5`.
 
 Implementation commit: `18bba03`.
 
+## 2026-09-14 — Project, process, and victory knowledge
+
+- Added deterministic project, process, and victory entities while excluding
+  descriptive, movie, audio, and presentation fields.
+- Added technology and victory gates, project prerequisites, resource
+  requirements, production conversion, and multi-attribute victory thresholds.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,314 entities and 2,781 references, including 16 new entities and 19 outgoing
+  project/process references. No generated bundle or source database was
+  committed.
+- Passed all 118 tests on Python 3.11 and the local default Python runtime, and
+  scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `a014fdc`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
