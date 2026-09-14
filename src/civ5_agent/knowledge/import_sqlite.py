@@ -1406,6 +1406,105 @@ QUANTITY_REFERENCE_TABLES = (
         "UnitPromotions_UnitCombatMods", "PromotionType", "UnitCombatType",
         "combat_modifier", "promotion", "unit_combat", "Modifier", "percent",
     ),
+    (
+        "Belief_BuildingClassHappiness", "BeliefType", "BuildingClassType",
+        "happiness_change", "belief", "building_class", "Happiness", "amount",
+    ),
+    (
+        "Belief_BuildingClassTourism", "BeliefType", "BuildingClassType",
+        "tourism_change", "belief", "building_class", "Tourism", "amount",
+    ),
+    (
+        "Building_BuildingClassHappiness", "BuildingType", "BuildingClassType",
+        "happiness_change", "building", "building_class", "Happiness", "amount",
+    ),
+    (
+        "Building_DomainFreeExperiencePerGreatWork", "BuildingType", "DomainType",
+        "experience_per_great_work", "building", "domain", "Experience", "amount",
+    ),
+    (
+        "Building_DomainFreeExperiences", "BuildingType", "DomainType",
+        "grants_experience", "building", "domain", "Experience", "amount",
+    ),
+    (
+        "Building_DomainProductionModifiers", "BuildingType", "DomainType",
+        "production_modifier", "building", "domain", "Modifier", "percent",
+    ),
+    (
+        "Building_FreeUnits", "BuildingType", "UnitType", "grants_free_unit",
+        "building", "unit", "NumUnits", "amount",
+    ),
+    (
+        "Building_PrereqBuildingClasses", "BuildingType", "BuildingClassType",
+        "requires_building_class", "building", "building_class",
+        "NumBuildingNeeded", "amount",
+    ),
+    (
+        "Improvement_AdjacentMountainYieldChanges", "ImprovementType", "YieldType",
+        "adjacent_mountain_yield_change", "improvement", "yield", "Yield", "amount",
+    ),
+    (
+        "Policy_BuildingClassCultureChanges", "PolicyType", "BuildingClassType",
+        "culture_change", "policy", "building_class", "CultureChange", "amount",
+    ),
+    (
+        "Policy_BuildingClassHappiness", "PolicyType", "BuildingClassType",
+        "happiness_change", "policy", "building_class", "Happiness", "amount",
+    ),
+    (
+        "Policy_BuildingClassProductionModifiers", "PolicyType", "BuildingClassType",
+        "production_modifier", "policy", "building_class", "ProductionModifier",
+        "percent",
+    ),
+    (
+        "Policy_BuildingClassTourismModifiers", "PolicyType", "BuildingClassType",
+        "tourism_modifier", "policy", "building_class", "TourismModifier", "percent",
+    ),
+    (
+        "Policy_FreeUnitClasses", "PolicyType", "UnitClassType",
+        "grants_unit_class", "policy", "unit_class", "Count", "amount",
+    ),
+    (
+        "Policy_ImprovementCultureChanges", "PolicyType", "ImprovementType",
+        "culture_change", "policy", "improvement", "CultureChange", "amount",
+    ),
+    (
+        "Policy_TourismOnUnitCreation", "PolicyType", "UnitClassType",
+        "tourism_on_unit_creation", "policy", "unit_class", "Tourism", "amount",
+    ),
+    (
+        "Technology_TradeRouteDomainExtraRange", "TechType", "DomainType",
+        "trade_route_range_change", "technology", "domain", "Range", "amount",
+    ),
+    (
+        "Trait_ExtraYieldThresholds", "TraitType", "YieldType",
+        "extra_yield_threshold", "trait", "yield", "Yield", "threshold",
+    ),
+    (
+        "Trait_ResourceQuantityModifiers", "TraitType", "ResourceType",
+        "resource_quantity_modifier", "trait", "resource",
+        "ResourceQuantityModifier", "percent",
+    ),
+    (
+        "Trait_YieldChanges", "TraitType", "YieldType", "yield_change", "trait",
+        "yield", "Yield", "amount",
+    ),
+    (
+        "Trait_YieldChangesIncomingTradeRoute", "TraitType", "YieldType",
+        "incoming_trade_route_yield_change", "trait", "yield", "Yield", "amount",
+    ),
+    (
+        "Trait_YieldChangesPerTradePartner", "TraitType", "YieldType",
+        "yield_change_per_trade_partner", "trait", "yield", "Yield", "amount",
+    ),
+    (
+        "Trait_YieldChangesStrategicResources", "TraitType", "YieldType",
+        "strategic_resource_yield_change", "trait", "yield", "Yield", "amount",
+    ),
+    (
+        "Unit_YieldFromKills", "UnitType", "YieldType", "yield_from_kills",
+        "unit", "yield", "Yield", "amount",
+    ),
 )
 
 CONTEXTUAL_QUANTITY_REFERENCE_TABLES = (
@@ -1653,6 +1752,45 @@ CONTEXTUAL_QUANTITY_REFERENCE_TABLES = (
         "ImprovementType",
         "improvement",
         "for_improvement",
+        "Yield",
+        "amount",
+    ),
+    (
+        "Trait_ImprovementYieldChanges",
+        "TraitType",
+        "YieldType",
+        "yield_change",
+        "trait",
+        "yield",
+        "ImprovementType",
+        "improvement",
+        "for_improvement",
+        "Yield",
+        "amount",
+    ),
+    (
+        "Trait_SpecialistYieldChanges",
+        "TraitType",
+        "YieldType",
+        "yield_change",
+        "trait",
+        "yield",
+        "SpecialistType",
+        "specialist",
+        "for_specialist",
+        "Yield",
+        "amount",
+    ),
+    (
+        "Trait_UnimprovedFeatureYieldChanges",
+        "TraitType",
+        "YieldType",
+        "unimproved_feature_yield_change",
+        "trait",
+        "yield",
+        "FeatureType",
+        "feature",
+        "for_feature",
         "Yield",
         "amount",
     ),

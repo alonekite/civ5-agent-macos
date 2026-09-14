@@ -9,8 +9,8 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: import remaining quantified effects, then inventory
-  effect tables that need multiple context items or new knowledge entities.
+- Active next deliverable: inventory effect tables that need multiple context
+  items, derived context, or new knowledge entities.
 - Functional test baseline: 119 tests locally; Python 3.11/3.13 CI passed at
   prior pushed head `d96b693`.
 - Blocking issue: none for offline M3 work.
@@ -43,7 +43,7 @@ decisions, not raw chat transcripts.
   routes, yields, build actions, projects, processes, victories, unit-combat
   categories, domains, special-unit categories, and their currently supported
   relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,337 entities and 4,042
+- The real Campaign Edition database currently yields 1,337 entities and 4,214
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -54,10 +54,10 @@ decisions, not raw chat transcripts.
   modifiers while retaining canonical schema 1 read/write compatibility.
 - Knowledge schema 3 adds sorted, referentially validated context items to edge
   identity while retaining canonical schema 1 and schema 2 compatibility.
-- Fifty-eight single-value binary table families, four multi-attribute promotion
-  modifier families, and project victory thresholds add 419 attributed binary
-  references. Nineteen contextual quantity families, two contextual promotion
-  grant families, and promotion terrain/feature passability add 197 schema 3
+- Eighty-two single-value binary table families, four multi-attribute promotion
+  modifier families, and project victory thresholds add 576 attributed binary
+  references. Twenty-two contextual quantity families, two contextual promotion
+  grant families, and promotion terrain/feature passability add 212 schema 3
   contextual references; effects requiring multiple context items or new entity
   families remain deferred.
 - Eleven unit identifier columns emit 323 typed, referentially checked

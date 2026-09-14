@@ -84,8 +84,10 @@ Pedia metadata. Unit capture, technology, ancient-ruin upgrade, policy, cargo,
 project, and leader-promotion identifiers now have typed references. Resource
 placement, faith-purchase eligibility, local prerequisites, training
 restrictions, random promotions, and unit build capabilities are also typed.
-Current next deliverable: remaining quantified effects, then effects requiring
-multiple context items or new target entity families, followed by scaling rules.
+Additional building-class, domain, free-unit, trade-route, trait, and combat
+yield quantities are imported, including three typed trait contexts. Current
+next deliverable: effects requiring multiple context items or new target entity
+families, followed by scaling rules.
 
 ## M4 — Ruleset resolver
 

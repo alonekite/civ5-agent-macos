@@ -34,6 +34,8 @@ versioned releases. Development details belong in
   classes, including typed technology-conditioned passability.
 - Typed faith-purchase, prerequisite, resource-placement, promotion,
   training-restriction, and unit build-capability relationships.
+- Expanded quantified building-class, domain, free-unit, trade-route, trait,
+  and combat-yield rules, including typed trait contexts.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

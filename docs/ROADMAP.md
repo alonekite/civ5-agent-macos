@@ -90,6 +90,8 @@ No application-bundle modification is required.
   terrains, and unit classes, including technology-conditioned passability
 - [x] Import plain faith-purchase, prerequisite, resource-placement, promotion,
   training-restriction, and unit build-capability relations
+- [x] Import remaining direct building-class, domain, free-unit, trade-route,
+  trait, and combat-yield quantities with supported typed contexts
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context
