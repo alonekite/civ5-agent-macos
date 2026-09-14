@@ -222,6 +222,20 @@ Implementation commit: `332595e`.
 
 Implementation commit: `a1f68c5`.
 
+## 2026-09-14 — Expanded plain knowledge relations
+
+- Added a declarative importer for 14 plain relationship tables covering faith
+  purchasing, building and local-resource prerequisites, free/random
+  promotions, resource placement, training restrictions, and unit build
+  capabilities.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,337 entities and 4,042 references, including 253 new typed links. No
+  generated bundle or source database was committed.
+- Passed all 119 tests on Python 3.11 and the local default Python runtime, and
+  scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `cdac7e5`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
