@@ -86,10 +86,19 @@ def prepare(
     _write_state(state_path, baseline)
 
     try:
+        if not baseline.civ_rule_present:
+            runner(FIREWALL_TOOL, "--add", str(CIV_EXECUTABLE))
+            runner(FIREWALL_TOOL, "--blockapp", str(CIV_EXECUTABLE))
+        elif not baseline.civ_incoming_blocked:
+            runner(FIREWALL_TOOL, "--blockapp", str(CIV_EXECUTABLE))
+        guarded = inspect_safety("status", config_path=config)
+        if (
+            guarded.civ_rule_present is not True
+            or guarded.civ_incoming_blocked is not True
+        ):
+            raise LiveSessionError("Civ V block-incoming rule verification failed")
         if not baseline.firewall_enabled:
             runner(FIREWALL_TOOL, "--setglobalstate", "on")
-        if not baseline.civ_rule_present or not baseline.civ_incoming_blocked:
-            runner(FIREWALL_TOOL, "--blockapp", str(CIV_EXECUTABLE))
         _set_firetuner(config, enabled=True)
         status = inspect_safety("ready", config_path=config)
         if not status.ok:

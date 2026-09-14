@@ -21,6 +21,8 @@ PYTHONPATH=src python3 -m civ5_agent.live_session prepare
 This records the original settings outside the repository, establishes and
 verifies the guard, and rolls back on failure. A sandboxed process may see a
 false disabled/empty firewall state, so it must not be used for this operation.
+If the Civ V entry is absent, preparation adds and blocks it while the game and
+FireTuner are stopped, then verifies the block before enabling FireTuner.
 Run the read-only safety check again after the game starts:
 
 ```bash

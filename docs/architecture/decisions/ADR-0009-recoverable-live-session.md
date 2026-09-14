@@ -21,6 +21,11 @@ establishes the firewall guard, enables FireTuner, and verifies the ready phase.
 Failure triggers rollback. A repeated prepare is accepted only when the saved
 session is already safe.
 
+When no Civ V rule exists, preparation adds the entry while the game and
+FireTuner are both confirmed stopped, immediately changes it to block incoming,
+and re-reads that rule before enabling FireTuner. `socketfilterfw --blockapp`
+does not create a missing application entry on the target macOS version.
+
 `restore` refuses to run while the game listener or watcher socket remains,
 then restores the configuration, Civ V rule, and global firewall state to the
 recorded baseline. It deletes recovery files only after verification succeeds.

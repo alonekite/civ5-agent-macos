@@ -51,6 +51,7 @@ class LiveSessionTest(unittest.TestCase):
                 "civ5_agent.live_session.inspect_safety",
                 side_effect=[
                     status(),
+                    status(civ_rule_present=True, civ_incoming_blocked=True),
                     status(
                         phase="ready",
                         firetuner_enabled=True,
@@ -69,8 +70,9 @@ class LiveSessionTest(unittest.TestCase):
             self.assertEqual(result["result"], "prepared")
             self.assertIn("EnableTuner = 1", config.read_text())
             self.assertEqual([command[1] for command in commands], [
-                "--setglobalstate",
+                "--add",
                 "--blockapp",
+                "--setglobalstate",
             ])
             state_path = root / "session/live-session.json"
             self.assertEqual(json.loads(state_path.read_text())["phase"], "prepared")
@@ -135,7 +137,12 @@ class LiveSessionTest(unittest.TestCase):
             )
             with patch(
                 "civ5_agent.live_session.inspect_safety",
-                side_effect=[status(), unsafe, unsafe],
+                side_effect=[
+                    status(),
+                    status(civ_rule_present=True, civ_incoming_blocked=True),
+                    unsafe,
+                    unsafe,
+                ],
             ):
                 with self.assertRaisesRegex(LiveSessionError, "rolled back"):
                     prepare(
@@ -145,8 +152,9 @@ class LiveSessionTest(unittest.TestCase):
                     )
             self.assertEqual(config.read_text(), "EnableTuner = 0\n")
             self.assertEqual([command[1] for command in commands], [
-                "--setglobalstate",
+                "--add",
                 "--blockapp",
+                "--setglobalstate",
                 "--remove",
                 "--setglobalstate",
             ])
