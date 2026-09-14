@@ -266,6 +266,19 @@ Implementation commit: `f467161`.
 
 Implementation commit: `d7255db`.
 
+## 2026-09-14 — Hurry-method knowledge
+
+- Added gold- and population-based hurry methods as typed entities with
+  deterministic conversion rates and optional policy prerequisites.
+- Added building and policy hurry-cost modifiers while excluding descriptions.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,339 entities and 4,285 references, including two hurry entities and two
+  cost-modifier links. No generated bundle or source database was committed.
+- Passed all 120 tests on Python 3.11 and the local default Python runtime, and
+  scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `e11357a`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
