@@ -178,7 +178,7 @@ The same tested database adds 45 civilizations, 44 leaders, 48 traits, 14
 religions, 69 beliefs, 7 specialists, 9 terrains, 25 ordinary features, 2 fake
 features, 29 improvements, 2 routes, 6 yields, 35 build actions, 6 projects, 5
 processes, 5 victory types, 14 unit-combat categories, 5 domains, and 4 special
-unit categories. The complete current import contains 1,337 entities and 3,789
+unit categories. The complete current import contains 1,337 entities and 4,042
 references, including 148 unit-domain, 22 special-unit, and 323 additional typed
 unit-identifier relationships; 419 binary attributed references from 58
 single-value table families, four multi-attribute promotion families, and
@@ -190,6 +190,12 @@ relationships. Two consecutive imports produced the same canonical bundle
 hash. Six specialist types reference a great-person unit class; the installed
 database's optional `Unit_GreatPersons` mapping is empty and therefore produces
 no invented relationships. No generated bundle or local database is committed.
+
+Fourteen additional plain table families contribute 253 of those relationships:
+belief faith-purchase eligibility; building class and local-resource
+prerequisites; policy free promotions; resource feature and terrain placement;
+trait training restrictions; promotion civilian-unit applicability and random
+post-combat upgrades; and unit building-class prerequisites and build actions.
 
 ## Third-party research
 

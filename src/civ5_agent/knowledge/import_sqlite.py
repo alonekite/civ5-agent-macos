@@ -1106,6 +1106,65 @@ SPECIAL_UNIT_FIELDS = {
     "CityLoad": ("city_load", "boolean"),
 }
 
+PLAIN_REFERENCE_TABLES = (
+    (
+        "Belief_BuildingClassFaithPurchase", "BeliefType", "BuildingClassType",
+        "allows_faith_purchase", "belief", "building_class",
+    ),
+    (
+        "Belief_EraFaithUnitPurchase", "BeliefType", "EraType",
+        "allows_faith_unit_purchase_from_era", "belief", "era",
+    ),
+    (
+        "Building_ClassesNeededInCity", "BuildingType", "BuildingClassType",
+        "requires_building_class_in_city", "building", "building_class",
+    ),
+    (
+        "Building_LocalResourceAnds", "BuildingType", "ResourceType",
+        "requires_all_local_resources", "building", "resource",
+    ),
+    (
+        "Building_LocalResourceOrs", "BuildingType", "ResourceType",
+        "requires_any_local_resource", "building", "resource",
+    ),
+    (
+        "Policy_FreePromotions", "PolicyType", "PromotionType",
+        "grants_free_promotion", "policy", "promotion",
+    ),
+    (
+        "Resource_FeatureBooleans", "ResourceType", "FeatureType",
+        "allowed_on_feature", "resource", "feature",
+    ),
+    (
+        "Resource_FeatureTerrainBooleans", "ResourceType", "TerrainType",
+        "allowed_on_feature_terrain", "resource", "terrain",
+    ),
+    (
+        "Resource_TerrainBooleans", "ResourceType", "TerrainType",
+        "allowed_on_terrain", "resource", "terrain",
+    ),
+    (
+        "Trait_NoTrain", "TraitType", "UnitClassType",
+        "cannot_train_unit_class", "trait", "unit_class",
+    ),
+    (
+        "UnitPromotions_CivilianUnitType", "PromotionType", "UnitType",
+        "applies_to_civilian_unit", "promotion", "unit",
+    ),
+    (
+        "UnitPromotions_PostCombatRandomPromotion", "PromotionType",
+        "NewPromotion", "may_gain_after_combat", "promotion", "promotion",
+    ),
+    (
+        "Unit_BuildingClassRequireds", "UnitType", "BuildingClassType",
+        "requires_building_class", "unit", "building_class",
+    ),
+    (
+        "Unit_Builds", "UnitType", "BuildType", "can_perform_build", "unit",
+        "build",
+    ),
+)
+
 QUANTITY_REFERENCE_TABLES = (
     (
         "Terrain_Yields", "TerrainType", "YieldType", "yield",
@@ -1796,6 +1855,19 @@ def import_ruleset(
                 _kind,
                 _source_kind,
                 _target_kind,
+            ) in PLAIN_REFERENCE_TABLES:
+                _require_columns(
+                    connection,
+                    table,
+                    {source_column, target_column},
+                )
+            for (
+                table,
+                source_column,
+                target_column,
+                _kind,
+                _source_kind,
+                _target_kind,
                 value_column,
                 _attribute,
             ) in QUANTITY_REFERENCE_TABLES:
@@ -2449,6 +2521,7 @@ def import_ruleset(
                 + _project_references(
                     connection, project_rows, process_rows, source_label
                 )
+                + _plain_references(connection, source_label)
                 + _quantity_references(connection, source_label)
                 + _contextual_quantity_references(connection, source_label)
                 + _contextual_references(connection, source_label)
@@ -3151,6 +3224,33 @@ def _project_references(
                 row["VictoryType"],
                 (source_label,),
                 {"threshold": threshold, "minimum_threshold": minimum},
+            )
+        )
+    return references
+
+
+def _plain_references(
+    connection: sqlite3.Connection, source_label: str
+) -> list[Reference]:
+    references: list[Reference] = []
+    for (
+        table,
+        source_column,
+        target_column,
+        kind,
+        source_kind,
+        target_kind,
+    ) in PLAIN_REFERENCE_TABLES:
+        references.extend(
+            _two_column_references(
+                connection,
+                table,
+                source_column,
+                target_column,
+                kind,
+                source_kind,
+                target_kind,
+                source_label,
             )
         )
     return references

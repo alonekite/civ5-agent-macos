@@ -79,7 +79,9 @@ Schema 3 coverage includes 19 quantified and two promotion-grant contextual
 table families, plus technology-conditioned promotion passability.
 Unit scalar identifiers for capture class, technology gates, ancient-ruin
 upgrade, policy, cargo, project, and leader promotion also have validated typed
-relationships.
+relationships. Further plain relationships cover faith-purchase eligibility,
+building and local-resource prerequisites, resource placement, free and random
+promotions, training restrictions, and unit build capabilities.
 Effects that need multiple context items or new target entity families are
 deferred.
 

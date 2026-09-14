@@ -30,6 +30,7 @@ from civ5_agent.knowledge.import_sqlite import (
     PROMOTION_PREREQUISITE_COLUMNS,
     POLICY_BRANCH_FIELDS,
     POLICY_FIELDS,
+    PLAIN_REFERENCE_TABLES,
     PROCESS_REFERENCE_COLUMNS,
     PROJECT_FIELDS,
     PROJECT_REFERENCE_COLUMNS,
@@ -77,6 +78,7 @@ FIXTURE_TYPE_IDS = {
     "victory": "VICTORY_TEST",
     "yield": "YIELD_TEST",
     "domain": "DOMAIN_LAND",
+    "era": "ERA_ANCIENT",
 }
 
 
@@ -384,6 +386,18 @@ def create_database(
             "CREATE TABLE Improvement_ValidImprovements "
             "(ImprovementType TEXT, PrereqImprovement TEXT)"
         )
+        for (
+            table,
+            source_column,
+            target_column,
+            _kind,
+            _source_kind,
+            _target_kind,
+        ) in PLAIN_REFERENCE_TABLES:
+            connection.execute(
+                f'CREATE TABLE "{table}" '
+                f'("{source_column}" TEXT, "{target_column}" TEXT)'
+            )
         for (
             table,
             source_column,
@@ -1050,6 +1064,21 @@ def create_database(
             _kind,
             source_kind,
             target_kind,
+        ) in PLAIN_REFERENCE_TABLES:
+            connection.execute(
+                f'INSERT INTO "{table}" VALUES (?, ?)',
+                (
+                    FIXTURE_TYPE_IDS[source_kind],
+                    FIXTURE_TYPE_IDS[target_kind],
+                ),
+            )
+        for (
+            table,
+            _source_column,
+            _target_column,
+            _kind,
+            source_kind,
+            target_kind,
             _value_column,
             _attribute,
         ) in QUANTITY_REFERENCE_TABLES:
@@ -1152,6 +1181,7 @@ class RulesetImportTest(unittest.TestCase):
             len(bundle.references),
             57
             + len(UNIT_REFERENCE_COLUMNS)
+            + len(PLAIN_REFERENCE_TABLES)
             + len(QUANTITY_REFERENCE_TABLES)
             + 1
             + len(CONTEXTUAL_QUANTITY_REFERENCE_TABLES)
@@ -1161,6 +1191,35 @@ class RulesetImportTest(unittest.TestCase):
         )
         self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
+        plain_relations = {
+            (
+                item.kind,
+                item.source_kind,
+                item.source_type_id,
+                item.target_kind,
+                item.target_type_id,
+            )
+            for item in bundle.references
+            if not item.attributes and not item.context
+        }
+        for (
+            _table,
+            _source_column,
+            _target_column,
+            kind,
+            source_kind,
+            target_kind,
+        ) in PLAIN_REFERENCE_TABLES:
+            self.assertIn(
+                (
+                    kind,
+                    source_kind,
+                    FIXTURE_TYPE_IDS[source_kind],
+                    target_kind,
+                    FIXTURE_TYPE_IDS[target_kind],
+                ),
+                plain_relations,
+            )
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
         self.assertNotIn("ai_weight", pottery.attributes)
@@ -1254,6 +1313,9 @@ class RulesetImportTest(unittest.TestCase):
             {
                 ("belongs_to_resource_class", "RESOURCECLASS_RUSH"),
                 ("revealed_by_technology", "TECH_AGRICULTURE"),
+                ("allowed_on_feature", "FEATURE_TEST"),
+                ("allowed_on_feature_terrain", "TERRAIN_TEST"),
+                ("allowed_on_terrain", "TERRAIN_TEST"),
             },
         )
         self.assertIn(
@@ -1376,6 +1438,13 @@ class RulesetImportTest(unittest.TestCase):
                     "TRAIT_TEST",
                     "improvement",
                     "IMPROVEMENT_TEST",
+                ),
+                (
+                    "cannot_train_unit_class",
+                    "trait",
+                    "TRAIT_TEST",
+                    "unit_class",
+                    "UNITCLASS_WARRIOR",
                 ),
             },
         )

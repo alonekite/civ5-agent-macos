@@ -88,6 +88,8 @@ No application-bundle modification is required.
   project, and promotion identifiers into validated typed relationships
 - [x] Import multi-attribute promotion modifiers for domains, features,
   terrains, and unit classes, including technology-conditioned passability
+- [x] Import plain faith-purchase, prerequisite, resource-placement, promotion,
+  training-restriction, and unit build-capability relations
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

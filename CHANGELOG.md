@@ -32,6 +32,8 @@ versioned releases. Development details belong in
   and promotion relationships.
 - Multi-attribute promotion modifiers for domains, features, terrains, and unit
   classes, including typed technology-conditioned passability.
+- Typed faith-purchase, prerequisite, resource-placement, promotion,
+  training-restriction, and unit build-capability relationships.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

@@ -81,9 +81,11 @@ applicability, category modifiers, and contextual trait promotion grants are
 also complete. Promotion modifiers against domains, features, terrains, and unit
 classes, including technology-conditioned passability, are imported without
 Pedia metadata. Unit capture, technology, ancient-ruin upgrade, policy, cargo,
-project, and leader-promotion identifiers now have typed references.
-Current next deliverable: effects requiring multiple context items or new
-target entity families, followed by scaling rules.
+project, and leader-promotion identifiers now have typed references. Resource
+placement, faith-purchase eligibility, local prerequisites, training
+restrictions, random promotions, and unit build capabilities are also typed.
+Current next deliverable: remaining quantified effects, then effects requiring
+multiple context items or new target entity families, followed by scaling rules.
 
 ## M4 — Ruleset resolver
 

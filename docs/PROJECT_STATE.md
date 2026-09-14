@@ -9,8 +9,8 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: inventory and model effect tables that need multiple
-  context items or targets not yet represented as knowledge entities.
+- Active next deliverable: import remaining quantified effects, then inventory
+  effect tables that need multiple context items or new knowledge entities.
 - Functional test baseline: 119 tests locally; Python 3.11/3.13 CI passed at
   prior pushed head `d96b693`.
 - Blocking issue: none for offline M3 work.
@@ -43,7 +43,7 @@ decisions, not raw chat transcripts.
   routes, yields, build actions, projects, processes, victories, unit-combat
   categories, domains, special-unit categories, and their currently supported
   relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,337 entities and 3,789
+- The real Campaign Edition database currently yields 1,337 entities and 4,042
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -63,6 +63,10 @@ decisions, not raw chat transcripts.
 - Eleven unit identifier columns emit 323 typed, referentially checked
   relationships for technology gates, obsolescence, capture classes, ancient-
   ruin upgrades, policies, cargo categories, projects, and promotions.
+- Fourteen additional plain relationship families add 253 validated links for
+  faith purchasing, city/building prerequisites, local resources, free
+  promotions, resource placement, trait training restrictions, post-combat
+  promotions, and unit build capabilities.
 - The test suite contains 119 tests locally. GitHub Actions on Python 3.11 and
   3.13 passed at the prior pushed commit `d96b693`; CI for this batch is pending.
 
