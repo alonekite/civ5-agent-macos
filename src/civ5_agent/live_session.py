@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Callable
 
 from .preflight import (
-    CIV_APP_BUNDLE,
     CIV_EXECUTABLE,
     FIREWALL_TOOL,
     SafetyStatus,
@@ -199,7 +198,10 @@ def _restore_baseline(
             action = "--blockapp" if baseline.civ_incoming_blocked else "--unblockapp"
             runner(FIREWALL_TOOL, action, str(CIV_EXECUTABLE))
     elif current.civ_rule_present is True:
-        runner(FIREWALL_TOOL, "--remove", str(CIV_APP_BUNDLE))
+        # Preparation adds the executable path. socketfilterfw can display both
+        # executable and bundle paths, but removal on the target requires the
+        # exact executable path used by --add.
+        runner(FIREWALL_TOOL, "--remove", str(CIV_EXECUTABLE))
     if current.firewall_enabled is not baseline.firewall_enabled:
         runner(
             FIREWALL_TOOL,

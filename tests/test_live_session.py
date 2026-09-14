@@ -10,7 +10,7 @@ from civ5_agent.live_session import (
     prepare,
     restore,
 )
-from civ5_agent.preflight import SafetyStatus
+from civ5_agent.preflight import CIV_EXECUTABLE, SafetyStatus
 
 
 def status(**overrides):
@@ -223,6 +223,7 @@ class LiveSessionTest(unittest.TestCase):
                 "--remove",
                 "--setglobalstate",
             ])
+            self.assertEqual(commands[0][2], str(CIV_EXECUTABLE))
             self.assertFalse((session / "live-session.json").exists())
             self.assertFalse((session / "live-session-config.backup").exists())
 
