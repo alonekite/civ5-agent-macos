@@ -12,7 +12,7 @@ decisions, not raw chat transcripts.
 - Active next deliverable: model copyright-safe theming constraints, then
   continue ruleset scaling.
 - Functional test baseline: 128 tests locally on Python 3.11; Python 3.11/3.13
-  CI confirmation is pending for development head `7cca72e`.
+  CI confirmation is pending for development head `4177103`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only the pending schema 3 and `skip_unit` bounded
   live verifications.
@@ -81,7 +81,7 @@ decisions, not raw chat transcripts.
   deterministic archaeology flag and artifact-class numeric value are retained;
   names and presentation content remain excluded.
 - The test suite contains 128 tests locally. Python 3.11 passed at development
-  commit `7cca72e`; GitHub Actions confirmation is pending.
+  commit `4177103`; GitHub Actions confirmation is pending.
 
 ## Implemented but awaiting bounded live verification
 

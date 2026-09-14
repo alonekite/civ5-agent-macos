@@ -347,6 +347,13 @@ boundaries are no longer touched during rollback, and private recovery state is
 cleaned without requiring a second authorization. The full Python 3.11 suite
 then passed with 128 tests.
 
+Follow-up commit `4177103` corrected the target-Mac creation sequence after a
+real prepare attempt proved that `socketfilterfw --blockapp` does not create a
+missing entry. Preparation now adds and immediately blocks Civ V while the game
+and FireTuner are stopped, verifies that rule, and only then enables the
+firewall and FireTuner. The failed attempt returned the machine to its clean
+shutdown baseline.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
