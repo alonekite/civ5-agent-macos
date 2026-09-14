@@ -22,6 +22,8 @@ embedded safety result proves FireTuner enabled, firewall enabled, and Civ V
 blocked. The command records the original settings and rolls back if readiness
 cannot be proved. On macOS, enter the administrator password in the terminal if
 `sudo` requests it; only the firewall subcommand is elevated.
+If `sudo -v` was run separately, run `prepare` in that same terminal because
+macOS may scope the authorization ticket to the terminal session.
 
 Do not run this through a sandbox that hides the host firewall state. The
 manual firewall plus `configure_firetuner.sh` sequence is an emergency fallback,

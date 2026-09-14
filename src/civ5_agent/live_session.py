@@ -99,11 +99,13 @@ def prepare(
         return _result("prepared", prepared, status)
     except Exception as error:
         try:
+            rollback_status = inspect_safety("status", config_path=config)
             _restore_baseline(
                 baseline,
                 config=config,
                 backup=backup_path,
                 runner=runner,
+                current=rollback_status,
             )
         except Exception as rollback_error:
             raise LiveSessionError(
@@ -144,7 +146,13 @@ def restore(
     if not backup_path.is_file():
         raise LiveSessionError("live-session configuration backup is missing")
 
-    _restore_baseline(baseline, config=config, backup=backup_path, runner=runner)
+    _restore_baseline(
+        baseline,
+        config=config,
+        backup=backup_path,
+        runner=runner,
+        current=current,
+    )
     restored = inspect_safety("shutdown", config_path=config)
     _verify_restored(restored, baseline)
     state_path.unlink()
@@ -171,18 +179,24 @@ def _restore_baseline(
     config: Path,
     backup: Path,
     runner: CommandRunner,
+    current: SafetyStatus,
 ) -> None:
     shutil.copy2(backup, config)
     if baseline.civ_rule_present:
-        action = "--blockapp" if baseline.civ_incoming_blocked else "--unblockapp"
-        runner(FIREWALL_TOOL, action, str(CIV_EXECUTABLE))
-    else:
+        if (
+            current.civ_rule_present is not True
+            or current.civ_incoming_blocked is not baseline.civ_incoming_blocked
+        ):
+            action = "--blockapp" if baseline.civ_incoming_blocked else "--unblockapp"
+            runner(FIREWALL_TOOL, action, str(CIV_EXECUTABLE))
+    elif current.civ_rule_present is True:
         runner(FIREWALL_TOOL, "--remove", str(CIV_APP_BUNDLE))
-    runner(
-        FIREWALL_TOOL,
-        "--setglobalstate",
-        "on" if baseline.firewall_enabled else "off",
-    )
+    if current.firewall_enabled is not baseline.firewall_enabled:
+        runner(
+            FIREWALL_TOOL,
+            "--setglobalstate",
+            "on" if baseline.firewall_enabled else "off",
+        )
 
 
 def _verify_restored(status: SafetyStatus, baseline: SessionBaseline) -> None:

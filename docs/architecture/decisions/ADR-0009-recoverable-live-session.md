@@ -40,6 +40,8 @@ become root-owned.
   `prepare` or `restore`; importing the module and all normal bridge operations
   remain non-mutating.
 - The user may still need to authorize host-level firewall changes on macOS.
+- Terminal-scoped sudo authorization cannot be inherited by a separate Codex
+  execution process; the operator may need to run the command interactively.
 - Recovery state and configuration backups are local-only and must never be
   committed.
 

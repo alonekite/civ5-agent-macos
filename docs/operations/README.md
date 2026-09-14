@@ -21,6 +21,9 @@ checks in response. Recovery files live under the current user's Application
 Support directory with private permissions and are never repository artifacts.
 The Python process remains unprivileged and invokes `sudo` only for the narrow
 firewall mutations; macOS may request an administrator password in the terminal.
+Sudo tickets may be scoped to one terminal. Run `prepare` or `restore` in the
+same interactive terminal that accepts the password; a separate automation
+process must not assume it can inherit that authorization.
 
 ## Project continuity and recovery
 

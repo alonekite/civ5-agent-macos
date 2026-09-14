@@ -135,7 +135,7 @@ class LiveSessionTest(unittest.TestCase):
             )
             with patch(
                 "civ5_agent.live_session.inspect_safety",
-                side_effect=[status(), unsafe],
+                side_effect=[status(), unsafe, unsafe],
             ):
                 with self.assertRaisesRegex(LiveSessionError, "rolled back"):
                     prepare(
@@ -150,6 +150,30 @@ class LiveSessionTest(unittest.TestCase):
                 "--remove",
                 "--setglobalstate",
             ])
+            self.assertFalse((root / "session/live-session.json").exists())
+
+    def test_prepare_cleans_recovery_state_when_first_mutation_is_denied(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            config = root / "config.ini"
+            config.write_text("EnableTuner = 0\n")
+            commands = []
+
+            def deny_first(*args):
+                commands.append(args)
+                raise PermissionError("administrator authentication required")
+
+            with patch(
+                "civ5_agent.live_session.inspect_safety",
+                side_effect=[status(), status()],
+            ):
+                with self.assertRaisesRegex(LiveSessionError, "rolled back"):
+                    prepare(
+                        config_path=config,
+                        session_dir=root / "session",
+                        command_runner=deny_first,
+                    )
+            self.assertEqual(len(commands), 1)
             self.assertFalse((root / "session/live-session.json").exists())
 
     def test_restore_returns_all_boundaries_to_recorded_baseline(self):
