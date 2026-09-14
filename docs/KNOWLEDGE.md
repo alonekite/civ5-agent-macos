@@ -177,8 +177,9 @@ technology `requires_any` table is empty.
 The same tested database adds 45 civilizations, 44 leaders, 48 traits, 14
 religions, 69 beliefs, 7 specialists, 9 terrains, 25 ordinary features, 2 fake
 features, 29 improvements, 2 routes, 6 yields, 35 build actions, 6 projects, 5
-processes, 5 victory types, 14 unit-combat categories, 5 domains, and 4 special
-unit categories. The complete current import contains 1,339 entities and 4,285
+processes, 5 victory types, 14 unit-combat categories, 5 domains, 4 special
+unit categories, 2 hurry methods, 4 great-work classes, and 3 great-work slot
+types. The complete current import contains 1,346 entities and 4,309
 references, including 148 unit-domain, 22 special-unit, and 323 additional typed
 unit-identifier relationships; 646 binary attributed references from 84
 single-value table families, four multi-attribute promotion families, and
@@ -209,6 +210,9 @@ without that declared technology is rejected instead of treated as unconditional
 Two hurry methods retain deterministic production, population, science, and
 culture conversion rates. Their building and policy cost modifiers are typed
 quantity references; descriptions remain excluded.
+Great-work class-to-slot and building-to-slot relationships add 24 typed links.
+This slice deliberately excludes individual work titles, descriptions, icons,
+images, quotes, and audio.
 
 ## Third-party research
 

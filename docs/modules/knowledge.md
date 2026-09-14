@@ -88,6 +88,9 @@ their required technology from the validated building row and fail closed when
 that context is absent.
 Hurry methods are first-class entities with conversion rates and optional policy
 requirements; building and policy cost modifiers target those stable IDs.
+Great-work classes and slot types are represented by stable identifiers and
+typed class/building slot relations; presentation fields and individual works
+remain outside this slice.
 Effects that need multiple context items or new target entity families are
 deferred.
 

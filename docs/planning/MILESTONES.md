@@ -90,6 +90,8 @@ Improvement/resource multi-attribute rules and building yields derived from a
 validated enhanced-yield technology are also complete.
 Hurry methods and their building/policy cost modifiers are first-class typed
 knowledge without importing descriptions.
+Great-work classes, slot types, and building slot capacity have typed
+relationships without importing individual work content or presentation assets.
 Current next deliverable: effects requiring multiple context items or new target
 entity families, followed by scaling rules.
 

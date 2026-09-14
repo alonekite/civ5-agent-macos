@@ -96,6 +96,8 @@ No application-bundle modification is required.
   conditioned by the building's enhanced-yield technology
 - [x] Import hurry methods, conversion rates, policy gates, and building/policy
   cost modifiers
+- [x] Import great-work classes, slot types, and building slot relationships
+  without individual work content or presentation assets
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

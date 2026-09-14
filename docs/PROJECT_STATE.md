@@ -9,8 +9,8 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: inventory effect tables that need multiple context
-  items, derived context, or new knowledge entities.
+- Active next deliverable: design a copyright-safe great-work/theming rules
+  slice, then continue ruleset scaling.
 - Functional test baseline: 120 tests locally; Python 3.11/3.13 CI passed at
   prior pushed head `d96b693`.
 - Blocking issue: none for offline M3 work.
@@ -41,9 +41,10 @@ decisions, not raw chat transcripts.
   effects, unique replacements, disabled class overrides, religions, core
   beliefs, specialists/great-person classes, terrains, features, improvements,
   routes, yields, build actions, projects, processes, victories, unit-combat
-  categories, domains, special-unit categories, and their currently supported
-  relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,339 entities and 4,285
+  categories, domains, special-unit categories, hurry methods, great-work
+  classes and slots, and their currently supported relations from a local merged
+  Civ V SQLite database.
+- The real Campaign Edition database currently yields 1,346 entities and 4,309
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -69,6 +70,9 @@ decisions, not raw chat transcripts.
   promotions, and unit build capabilities.
 - Two hurry-method entities preserve deterministic conversion rates; building
   and policy hurry-cost modifiers target them through validated references.
+- Four great-work classes and three slot types are first-class entities; their
+  class-slot and building-slot relationships add 24 validated links without
+  importing work titles, prose, icons, images, quotes, or audio.
 - The test suite contains 120 tests locally. GitHub Actions on Python 3.11 and
   3.13 passed at the prior pushed commit `d96b693`; CI for this batch is pending.
 

@@ -40,6 +40,8 @@ versioned releases. Development details belong in
   enhanced building yields.
 - Hurry-method entities, conversion rates, policy gates, and building/policy
   cost modifiers.
+- Great-work class and slot entities with typed class/building slot relations,
+  excluding individual work content and presentation assets.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

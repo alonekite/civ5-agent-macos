@@ -63,6 +63,8 @@ FIXTURE_TYPE_IDS = {
     "feature": "FEATURE_TEST",
     "improvement": "IMPROVEMENT_TEST",
     "hurry": "HURRY_TEST",
+    "great_work_class": "GREAT_WORK_CLASS_TEST",
+    "great_work_slot": "GREAT_WORK_SLOT_TEST",
     "policy": "POLICY_TRADITION",
     "process": "PROCESS_TEST",
     "project": "PROJECT_TEST",
@@ -163,6 +165,13 @@ def create_database(
         ]
         connection.execute(
             f"CREATE TABLE HurryInfos ({', '.join(hurry_definitions)})"
+        )
+        connection.execute(
+            "CREATE TABLE GreatWorkSlots (Type TEXT NOT NULL PRIMARY KEY)"
+        )
+        connection.execute(
+            "CREATE TABLE GreatWorkClasses "
+            "(Type TEXT NOT NULL PRIMARY KEY, SlotType TEXT)"
         )
         connection.execute(
             "CREATE TABLE UnitPromotions_UnitCombats "
@@ -528,6 +537,14 @@ def create_database(
             f"({', '.join('?' for _ in range(2 + len(HURRY_FIELDS)))})",
             ("HURRY_TEST", "POLICY_TRADITION", *([1] * len(HURRY_FIELDS))),
         )
+        connection.execute(
+            "INSERT INTO GreatWorkSlots VALUES (?)",
+            ("GREAT_WORK_SLOT_TEST",),
+        )
+        connection.execute(
+            "INSERT INTO GreatWorkClasses VALUES (?, ?)",
+            ("GREAT_WORK_CLASS_TEST", "GREAT_WORK_SLOT_TEST"),
+        )
         unit_class_columns = ["Type", "DefaultUnit", *UNIT_CLASS_FIELDS]
         quoted_unit_class_columns = ", ".join(
             f'"{column}"' for column in unit_class_columns
@@ -687,6 +704,8 @@ def create_database(
         for column, (_, value_type) in BUILDING_FIELDS.items():
             if column == "Cost":
                 value = 185
+            elif column == "GreatWorkSlotType":
+                value = "GREAT_WORK_SLOT_TEST"
             elif value_type in {"integer", "boolean"}:
                 value = 0
             else:
@@ -1200,7 +1219,7 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 35)
+        self.assertEqual(len(bundle.entities), 37)
         self.assertEqual(
             len(bundle.references),
             58
@@ -1213,7 +1232,8 @@ class RulesetImportTest(unittest.TestCase):
             + len(ATTRIBUTED_REFERENCE_TABLES)
             + 2
             + 1
-            + 1,
+            + 1
+            + 2,
         )
         self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
@@ -1225,6 +1245,24 @@ class RulesetImportTest(unittest.TestCase):
                 (item.kind, item.target_type_id)
                 for item in bundle.references
                 if item.source_type_id == "HURRY_TEST"
+            },
+        )
+        self.assertIn(
+            ("uses_slot", "GREAT_WORK_CLASS_TEST", "GREAT_WORK_SLOT_TEST"),
+            {
+                (item.kind, item.source_type_id, item.target_type_id)
+                for item in bundle.references
+            },
+        )
+        self.assertIn(
+            (
+                "contains_great_work_slot",
+                "BUILDING_PYRAMID",
+                "GREAT_WORK_SLOT_TEST",
+            ),
+            {
+                (item.kind, item.source_type_id, item.target_type_id)
+                for item in bundle.references
             },
         )
         plain_relations = {

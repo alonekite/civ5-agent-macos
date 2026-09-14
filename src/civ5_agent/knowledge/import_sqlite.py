@@ -1990,6 +1990,12 @@ def import_ruleset(
                 "HurryInfos",
                 {"Type", "PolicyPrereq", *HURRY_FIELDS},
             )
+            _require_columns(connection, "GreatWorkSlots", {"Type"})
+            _require_columns(
+                connection,
+                "GreatWorkClasses",
+                {"Type", "SlotType"},
+            )
             _require_columns(
                 connection,
                 "UnitPromotions_UnitCombats",
@@ -2358,6 +2364,20 @@ def import_ruleset(
                 _scalar_entity("hurry", row, HURRY_FIELDS, source_label)
                 for row in hurry_rows
             )
+            great_work_slot_rows = _select_scalar_rows(
+                connection, "GreatWorkSlots", {}
+            )
+            great_work_slot_entities = tuple(
+                _scalar_entity("great_work_slot", row, {}, source_label)
+                for row in great_work_slot_rows
+            )
+            great_work_class_rows = _select_scalar_rows(
+                connection, "GreatWorkClasses", {}, ("SlotType",)
+            )
+            great_work_class_entities = tuple(
+                _scalar_entity("great_work_class", row, {}, source_label)
+                for row in great_work_class_rows
+            )
             unit_columns = ["Type", "Class", *UNIT_FIELDS]
             unit_select = ", ".join(f'"{column}"' for column in unit_columns)
             unit_rows = connection.execute(
@@ -2683,6 +2703,9 @@ def import_ruleset(
                 )
                 + _unit_combat_references(connection, unit_rows, source_label)
                 + _hurry_references(hurry_rows, source_label)
+                + _great_work_references(
+                    great_work_class_rows, building_rows, source_label
+                )
                 + _policy_references(
                     connection, policy_rows, branch_rows, source_label
                 )
@@ -2740,6 +2763,8 @@ def import_ruleset(
                 + domain_entities
                 + special_unit_entities
                 + hurry_entities
+                + great_work_slot_entities
+                + great_work_class_entities
                 + promotion_entities
                 + policy_entities
                 + branch_entities
@@ -3034,6 +3059,37 @@ def _hurry_references(
         for row in rows
         if row["PolicyPrereq"] not in (None, "NONE")
     ]
+
+
+def _great_work_references(
+    class_rows: list[sqlite3.Row],
+    building_rows: list[sqlite3.Row],
+    source_label: str,
+) -> list[Reference]:
+    references = [
+        Reference(
+            "uses_slot",
+            "great_work_class",
+            row["Type"],
+            "great_work_slot",
+            row["SlotType"],
+            (source_label,),
+        )
+        for row in class_rows
+    ]
+    references.extend(
+        Reference(
+            "contains_great_work_slot",
+            "building",
+            row["Type"],
+            "great_work_slot",
+            row["GreatWorkSlotType"],
+            (source_label,),
+        )
+        for row in building_rows
+        if row["GreatWorkSlotType"] not in (None, "NONE")
+    )
+    return references
 
 
 def _policy_references(
