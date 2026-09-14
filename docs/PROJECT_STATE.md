@@ -11,9 +11,8 @@ decisions, not raw chat transcripts.
 - Current milestone: M3 — ruleset knowledge coverage.
 - Active next deliverable: inventory and model effect tables that need multiple
   context items or targets not yet represented as knowledge entities.
-- Functional test baseline: 118 tests locally; Python 3.11/3.13 CI last passed
-  at documentation-governance commit `a053797` before the current knowledge
-  batches.
+- Functional test baseline: 118 tests locally; Python 3.11/3.13 CI passed at
+  current knowledge head `a3a931c`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only the pending schema 3 and `skip_unit` bounded
   live verifications.
@@ -64,8 +63,7 @@ decisions, not raw chat transcripts.
   relationships for technology gates, obsolescence, capture classes, ancient-
   ruin upgrades, policies, cargo categories, projects, and promotions.
 - The test suite contains 118 tests locally. GitHub Actions on Python 3.11 and
-  3.13 last passed at commit `a053797`; the current batch must pass CI after it
-  is pushed.
+  3.13 passed at commit `a3a931c`.
 
 ## Implemented but awaiting bounded live verification
 
