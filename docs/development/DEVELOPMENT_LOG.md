@@ -236,6 +236,21 @@ Implementation commit: `a1f68c5`.
 
 Implementation commit: `cdac7e5`.
 
+## 2026-09-14 — Expanded quantified rules
+
+- Added 24 direct quantity table mappings for building-class, domain, free-unit,
+  prerequisite, trade-route, trait, and combat-yield rules.
+- Added typed improvement, specialist, and unimproved-feature context to three
+  trait yield table families.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,337 entities and 4,214 references, including 157 new binary quantities and
+  15 new contextual quantities. No generated bundle or source database was
+  committed.
+- Passed all 119 tests on Python 3.11 and the local default Python runtime, and
+  scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `f467161`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
