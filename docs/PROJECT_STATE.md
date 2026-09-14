@@ -12,7 +12,7 @@ decisions, not raw chat transcripts.
 - Active next deliverable: model copyright-safe theming constraints, then
   continue ruleset scaling.
 - Functional test baseline: 137 tests locally on Python 3.11 and the default
-  Python runtime; CI confirmation is pending for the current development head.
+  Python runtime; CI confirmation is pending for development head `54efd81`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only optional non-empty diplomacy or late-game
   science-victory enhancement tests.
@@ -40,6 +40,9 @@ decisions, not raw chat transcripts.
 - Recoverable live-session preparation/restoration records the private starting
   firewall state, guards FireTuner, rolls back failed preparation, and verifies
   restoration without committing machine-specific state.
+- The complete 2026-09-14 live session returned FireTuner, TCP 4318, watcher
+  socket, firewall state, and Civ V rule presence to the recorded baseline; an
+  independent shutdown preflight confirmed the result.
 - The versioned knowledge core imports eras, technologies, units, unit classes,
   promotions, policy branches, policies, buildings, building classes,
   resources, resource classes, civilizations, leaders, deterministic trait

@@ -762,6 +762,11 @@ requiring movement points to be spent.
 8. Advanced normally to the next turn and, after explicit confirmation,
    submitted exactly one new unit-skip command through the final reader and
    verifier.
+9. Quit the game, stopped the watcher, and ran session restoration. The first
+   restoration exposed a path-identity defect: `socketfilterfw` retained the
+   executable-path rule when asked to remove the application-bundle path.
+10. Changed removal to use the same executable path as preparation, reran the
+    saved recovery state, and independently checked the shutdown phase.
 
 **Observed result**
 
@@ -781,16 +786,21 @@ requiring movement points to be spent.
   to false while unit identity, coordinates, and remaining movement stayed the
   same. The end-turn blocker cleared as a corresponding secondary observation.
 - No write was retried automatically.
+- Final restoration returned the exact recorded baseline: FireTuner disabled,
+  no TCP 4318 listener, no watcher socket, global firewall disabled, and no Civ
+  V application rule. A separate read-only shutdown preflight confirmed all six
+  conditions with no issues.
 
 **Conclusion**
 
-confirmed for segmented expanded-state reads, all early-game scalar branches, and the
-corrected `skip_unit` write-after-read postcondition. Non-empty diplomacy and
-non-zero late-game science-project branches remain enhancement tests, not
-blockers for the schema 3 read contract.
+confirmed for segmented expanded-state reads, all early-game scalar branches,
+the corrected `skip_unit` write-after-read postcondition, and complete recovery
+to the pre-test machine state. Non-empty diplomacy and non-zero late-game
+science-project branches remain enhancement tests, not blockers for the schema
+4 read contract.
 
 **Next step**
 
-Complete and verify session restoration, then keep the segmented command-size
-and identity invariants in the regression suite. Test non-empty diplomacy or
-late-game project progress only when a suitable save is available.
+Keep the segmented command-size, identity, and exact firewall-rule removal
+invariants in the regression suite. Test non-empty diplomacy or late-game
+project progress only when a suitable save is available.

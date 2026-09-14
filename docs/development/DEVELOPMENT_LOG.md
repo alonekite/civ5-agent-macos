@@ -369,7 +369,12 @@ shutdown baseline.
   observation and stock UI API usage.
 - Passed all 137 tests on Python 3.11 and the local default Python runtime.
 
-Implementation commit: pending.
+Implementation commit: `429b50f`.
+
+Follow-up commit `54efd81` corrected live-session restoration to remove the
+exact executable-path firewall entry created by preparation. The target Mac
+then restored to its recorded baseline and passed an independent shutdown
+preflight.
 
 ## Archive policy
 
