@@ -11,7 +11,7 @@ decisions, not raw chat transcripts.
 - Current milestone: M3 — ruleset knowledge coverage.
 - Active next deliverable: inventory and model effect tables that need multiple
   context items or targets not yet represented as knowledge entities.
-- Functional test baseline: 117 tests locally; Python 3.11/3.13 CI last passed
+- Functional test baseline: 118 tests locally; Python 3.11/3.13 CI last passed
   at documentation-governance commit `a053797` before the current knowledge
   batches.
 - Blocking issue: none for offline M3 work.
@@ -41,9 +41,9 @@ decisions, not raw chat transcripts.
   resources, resource classes, civilizations, leaders, deterministic trait
   effects, unique replacements, disabled class overrides, religions, core
   beliefs, specialists/great-person classes, terrains, features, improvements,
-  routes, yields, build actions, and their currently supported relations from a
-  local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,298 entities and 2,762
+  routes, yields, build actions, projects, processes, victories, and their
+  currently supported relations from a local merged Civ V SQLite database.
+- The real Campaign Edition database currently yields 1,314 entities and 2,781
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -54,11 +54,12 @@ decisions, not raw chat transcripts.
   modifiers while retaining canonical schema 1 read/write compatibility.
 - Knowledge schema 3 adds sorted, referentially validated context items to edge
   identity while retaining canonical schema 1 and schema 2 compatibility.
-- Forty-eight binary effect and resource-quantity table families add 344
-  attributed references. Nineteen single-context belief, building, improvement,
-  and policy table families add 159 schema 3 contextual references; effects
-  requiring multiple context items or new entity families remain deferred.
-- The test suite contains 117 tests locally. GitHub Actions on Python 3.11 and
+- Fifty-one single-value binary table families plus project victory thresholds
+  add 354 attributed references. Nineteen single-context belief, building,
+  improvement, and policy table families add 159 schema 3 contextual
+  references; effects requiring multiple context items or new entity families
+  remain deferred.
+- The test suite contains 118 tests locally. GitHub Actions on Python 3.11 and
   3.13 last passed at commit `a053797`; the current batch must pass CI after it
   is pushed.
 

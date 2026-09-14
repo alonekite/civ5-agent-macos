@@ -23,6 +23,8 @@ versioned releases. Development details belong in
 - Single-context belief, building, improvement, and policy yield relations.
 - Binary belief, building, policy, resource, specialist, map, build, and
   resource-requirement relations with validated quantities.
+- Project, process, and victory entities with prerequisites, thresholds,
+  production conversion, and resource requirements.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

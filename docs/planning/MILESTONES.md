@@ -71,9 +71,10 @@ Acceptance criteria:
 Completed coverage slices: civilizations, leaders, deterministic trait effects,
 unique/disabled unit and building class overrides, religions, core beliefs, and
 specialists/great-person classes, terrains, ordinary and fake features,
-improvements, routes, yields, build actions, their direct relationships, and
-binary quantity-bearing effects and resource requirements across 48 table
-families. Schema 3 now covers 19
+improvements, routes, yields, build actions, projects, processes, victory rules,
+their direct relationships, and binary quantity-bearing effects and resource
+requirements across 51 single-value table families plus project victory
+thresholds. Schema 3 now covers 19
 single-context belief, building, improvement, and policy effect-table families.
 Current next deliverable: effects requiring multiple context items or new
 target entity families, followed by scaling rules.

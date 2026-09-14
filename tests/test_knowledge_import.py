@@ -28,6 +28,9 @@ from civ5_agent.knowledge.import_sqlite import (
     PROMOTION_PREREQUISITE_COLUMNS,
     POLICY_BRANCH_FIELDS,
     POLICY_FIELDS,
+    PROCESS_REFERENCE_COLUMNS,
+    PROJECT_FIELDS,
+    PROJECT_REFERENCE_COLUMNS,
     QUANTITY_REFERENCE_TABLES,
     RESOURCE_CLASS_FIELDS,
     RESOURCE_FIELDS,
@@ -40,6 +43,7 @@ from civ5_agent.knowledge.import_sqlite import (
     TERRAIN_FIELDS,
     UNIT_FIELDS,
     UNIT_CLASS_FIELDS,
+    VICTORY_FIELDS,
     YIELD_FIELDS,
     import_ruleset,
 )
@@ -53,12 +57,15 @@ FIXTURE_TYPE_IDS = {
     "feature": "FEATURE_TEST",
     "improvement": "IMPROVEMENT_TEST",
     "policy": "POLICY_TRADITION",
+    "process": "PROCESS_TEST",
+    "project": "PROJECT_TEST",
     "resource": "RESOURCE_IRON",
     "route": "ROUTE_TEST",
     "specialist": "SPECIALIST_TEST",
     "technology": "TECH_AGRICULTURE",
     "terrain": "TERRAIN_TEST",
     "unit": "UNIT_WARRIOR",
+    "victory": "VICTORY_TEST",
     "yield": "YIELD_TEST",
 }
 
@@ -294,6 +301,35 @@ def create_database(
         )
         build_definitions.extend(f'"{column}" INTEGER' for column in BUILD_FIELDS)
         connection.execute(f"CREATE TABLE Builds ({', '.join(build_definitions)})")
+        project_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        project_definitions.extend(
+            f'"{column}" TEXT' for column, _, _ in PROJECT_REFERENCE_COLUMNS
+        )
+        project_definitions.extend(
+            f'"{column}" INTEGER' for column in PROJECT_FIELDS
+        )
+        connection.execute(
+            f"CREATE TABLE Projects ({', '.join(project_definitions)})"
+        )
+        process_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        process_definitions.extend(
+            f'"{column}" TEXT' for column, _, _ in PROCESS_REFERENCE_COLUMNS
+        )
+        connection.execute(
+            f"CREATE TABLE Processes ({', '.join(process_definitions)})"
+        )
+        victory_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        victory_definitions.extend(
+            f'"{column}" INTEGER' for column in VICTORY_FIELDS
+        )
+        connection.execute(
+            f"CREATE TABLE Victories ({', '.join(victory_definitions)})"
+        )
+        connection.execute(
+            "CREATE TABLE Project_VictoryThresholds "
+            "(ProjectType TEXT, VictoryType TEXT, Threshold INTEGER, "
+            "MinThreshold INTEGER)"
+        )
         connection.execute(
             "CREATE TABLE Feature_TerrainBooleans "
             "(FeatureType TEXT, TerrainType TEXT)"
@@ -838,6 +874,55 @@ def create_database(
                 *build_values,
             ],
         )
+        project_columns = [
+            "Type",
+            *(column for column, _, _ in PROJECT_REFERENCE_COLUMNS),
+            *PROJECT_FIELDS,
+        ]
+        project_references = {
+            "VictoryPrereq": "VICTORY_TEST",
+            "TechPrereq": "TECH_AGRICULTURE",
+            "AnyonePrereqProject": "PROJECT_TEST",
+        }
+        project_values = [
+            1 if value_type == "boolean" else 10
+            for _, value_type in PROJECT_FIELDS.values()
+        ]
+        connection.execute(
+            f"INSERT INTO Projects ({', '.join(project_columns)}) VALUES "
+            f"({', '.join('?' for _ in project_columns)})",
+            [
+                "PROJECT_TEST",
+                *(
+                    project_references[column]
+                    for column, _, _ in PROJECT_REFERENCE_COLUMNS
+                ),
+                *project_values,
+            ],
+        )
+        process_columns = [
+            "Type",
+            *(column for column, _, _ in PROCESS_REFERENCE_COLUMNS),
+        ]
+        connection.execute(
+            f"INSERT INTO Processes ({', '.join(process_columns)}) VALUES "
+            f"({', '.join('?' for _ in process_columns)})",
+            ["PROCESS_TEST", "TECH_AGRICULTURE"],
+        )
+        victory_columns = ["Type", *VICTORY_FIELDS]
+        victory_values = [
+            1 if value_type == "boolean" else 10
+            for _, value_type in VICTORY_FIELDS.values()
+        ]
+        connection.execute(
+            f"INSERT INTO Victories ({', '.join(victory_columns)}) VALUES "
+            f"({', '.join('?' for _ in victory_columns)})",
+            ["VICTORY_TEST", *victory_values],
+        )
+        connection.execute(
+            "INSERT INTO Project_VictoryThresholds VALUES (?, ?, ?, ?)",
+            ("PROJECT_TEST", "VICTORY_TEST", 3, 1),
+        )
         connection.execute(
             "INSERT INTO Feature_TerrainBooleans VALUES (?, ?)",
             ("FEATURE_TEST", "TERRAIN_TEST"),
@@ -915,10 +1000,10 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 28)
+        self.assertEqual(len(bundle.entities), 31)
         self.assertEqual(
             len(bundle.references),
-            46
+            51
             + len(QUANTITY_REFERENCE_TABLES)
             + 1
             + len(CONTEXTUAL_QUANTITY_REFERENCE_TABLES)
@@ -1283,6 +1368,14 @@ class RulesetImportTest(unittest.TestCase):
                 (("amount", 2),),
             )
         )
+        expected_quantity_relations.add(
+            (
+                "victory_threshold",
+                "PROJECT_TEST",
+                "VICTORY_TEST",
+                (("minimum_threshold", 1), ("threshold", 3)),
+            )
+        )
         self.assertEqual(quantity_relations, expected_quantity_relations)
         lake = next(
             item for item in bundle.entities if item.type_id == "FEATURE_LAKE"
@@ -1345,6 +1438,32 @@ class RulesetImportTest(unittest.TestCase):
             )
         )
         self.assertEqual(contextual_relations, expected_contextual_relations)
+        project = next(
+            item for item in bundle.entities if item.type_id == "PROJECT_TEST"
+        )
+        self.assertTrue(project.attributes["spaceship"])
+        process = next(
+            item for item in bundle.entities if item.type_id == "PROCESS_TEST"
+        )
+        self.assertEqual(process.attributes, {})
+        victory = next(
+            item for item in bundle.entities if item.type_id == "VICTORY_TEST"
+        )
+        self.assertTrue(victory.attributes["wins_game"])
+        project_relations = {
+            (item.kind, item.source_type_id, item.target_type_id)
+            for item in bundle.references
+            if item.source_kind in {"project", "process"} and not item.attributes
+        }
+        self.assertEqual(
+            project_relations,
+            {
+                ("requires_victory", "PROJECT_TEST", "VICTORY_TEST"),
+                ("unlocked_by_technology", "PROJECT_TEST", "TECH_AGRICULTURE"),
+                ("requires_anyone_project", "PROJECT_TEST", "PROJECT_TEST"),
+                ("unlocked_by_technology", "PROCESS_TEST", "TECH_AGRICULTURE"),
+            },
+        )
 
     def test_records_source_hash_without_absolute_path(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -1429,6 +1548,26 @@ class RulesetImportTest(unittest.TestCase):
                 import_ruleset(
                     database,
                     "cache/bad-contextual-quantity.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_invalid_project_victory_threshold(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-project-threshold.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Project_VictoryThresholds SET MinThreshold = ?",
+                    ("invalid",),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "Project_VictoryThresholds has invalid integer MinThreshold",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-project-threshold.db",
                     Ruleset("bnw", "test"),
                 )
 

@@ -1035,6 +1035,60 @@ BUILD_REFERENCE_COLUMNS = (
     ("RouteType", "creates_route", "route"),
 )
 
+PROJECT_FIELDS = {
+    **{
+        column: (_snake_case(column), "integer")
+        for column in (
+            "MaxGlobalInstances",
+            "MaxTeamInstances",
+            "Cost",
+            "NukeInterception",
+            "CultureBranchesRequired",
+            "TechShare",
+            "VictoryDelayPercent",
+        )
+    },
+    **{
+        column: (_snake_case(column), "boolean")
+        for column in ("Spaceship", "Religious", "AllowsNukes")
+    },
+}
+PROJECT_REFERENCE_COLUMNS = (
+    ("VictoryPrereq", "requires_victory", "victory"),
+    ("TechPrereq", "unlocked_by_technology", "technology"),
+    ("AnyonePrereqProject", "requires_anyone_project", "project"),
+)
+PROCESS_REFERENCE_COLUMNS = (
+    ("TechPrereq", "unlocked_by_technology", "technology"),
+)
+VICTORY_FIELDS = {
+    **{
+        column: (_snake_case(column), "boolean")
+        for column in (
+            "WinsGame",
+            "TargetScore",
+            "EndScore",
+            "Conquest",
+            "Influential",
+            "DiploVote",
+            "Permanent",
+            "ReligionInAllCities",
+            "FindAllNaturalWonders",
+        )
+    },
+    **{
+        column: (_snake_case(column), "integer")
+        for column in (
+            "PopulationPercentLead",
+            "LandPercent",
+            "MinLandPercent",
+            "NumCultureCities",
+            "TotalCultureRatio",
+            "VictoryDelayTurns",
+        )
+    },
+}
+
 QUANTITY_REFERENCE_TABLES = (
     (
         "Terrain_Yields", "TerrainType", "YieldType", "yield",
@@ -1233,6 +1287,18 @@ QUANTITY_REFERENCE_TABLES = (
     (
         "Unit_ResourceQuantityRequirements", "UnitType", "ResourceType",
         "requires_resource", "unit", "resource", "Cost", "amount",
+    ),
+    (
+        "Project_ResourceQuantityRequirements", "ProjectType", "ResourceType",
+        "requires_resource", "project", "resource", "Quantity", "amount",
+    ),
+    (
+        "Project_Prereqs", "ProjectType", "PrereqProjectType",
+        "requires_project", "project", "project", "AmountNeeded", "amount",
+    ),
+    (
+        "Process_ProductionYields", "ProcessType", "YieldType",
+        "converts_production_to", "process", "yield", "Yield", "percent",
     ),
 )
 
@@ -1758,6 +1824,29 @@ def import_ruleset(
                     *BUILD_FIELDS,
                 },
             )
+            _require_columns(
+                connection,
+                "Projects",
+                {
+                    "Type",
+                    *(column for column, _, _ in PROJECT_REFERENCE_COLUMNS),
+                    *PROJECT_FIELDS,
+                },
+            )
+            _require_columns(
+                connection,
+                "Processes",
+                {
+                    "Type",
+                    *(column for column, _, _ in PROCESS_REFERENCE_COLUMNS),
+                },
+            )
+            _require_columns(connection, "Victories", {"Type", *VICTORY_FIELDS})
+            _require_columns(
+                connection,
+                "Project_VictoryThresholds",
+                {"ProjectType", "VictoryType", "Threshold", "MinThreshold"},
+            )
             for table, columns in (
                 (
                     "Feature_TerrainBooleans",
@@ -2078,6 +2167,33 @@ def import_ruleset(
                 _scalar_entity("build", row, BUILD_FIELDS, source_label)
                 for row in build_rows
             )
+            project_rows = _select_scalar_rows(
+                connection,
+                "Projects",
+                PROJECT_FIELDS,
+                tuple(column for column, _, _ in PROJECT_REFERENCE_COLUMNS),
+            )
+            project_entities = tuple(
+                _scalar_entity("project", row, PROJECT_FIELDS, source_label)
+                for row in project_rows
+            )
+            process_rows = _select_scalar_rows(
+                connection,
+                "Processes",
+                {},
+                tuple(column for column, _, _ in PROCESS_REFERENCE_COLUMNS),
+            )
+            process_entities = tuple(
+                _scalar_entity("process", row, {}, source_label)
+                for row in process_rows
+            )
+            victory_rows = _select_scalar_rows(
+                connection, "Victories", VICTORY_FIELDS
+            )
+            victory_entities = tuple(
+                _scalar_entity("victory", row, VICTORY_FIELDS, source_label)
+                for row in victory_rows
+            )
             era_references = [
                 Reference(
                     "belongs_to",
@@ -2132,6 +2248,9 @@ def import_ruleset(
                     build_rows,
                     source_label,
                 )
+                + _project_references(
+                    connection, project_rows, process_rows, source_label
+                )
                 + _quantity_references(connection, source_label)
                 + _contextual_quantity_references(connection, source_label)
             )
@@ -2171,6 +2290,9 @@ def import_ruleset(
                 + route_entities
                 + yield_entities
                 + build_entities
+                + project_entities
+                + process_entities
+                + victory_entities
             ),
             references=references,
         )
@@ -2721,6 +2843,60 @@ def _map_references(
     ):
         references.extend(
             _two_column_references(connection, *arguments, source_label)
+        )
+    return references
+
+
+def _project_references(
+    connection: sqlite3.Connection,
+    project_rows: list[sqlite3.Row],
+    process_rows: list[sqlite3.Row],
+    source_label: str,
+) -> list[Reference]:
+    references: list[Reference] = []
+    for source_kind, rows, columns in (
+        ("project", project_rows, PROJECT_REFERENCE_COLUMNS),
+        ("process", process_rows, PROCESS_REFERENCE_COLUMNS),
+    ):
+        for row in rows:
+            for column, kind, target_kind in columns:
+                target = row[column]
+                if target in (None, "NONE"):
+                    continue
+                references.append(
+                    Reference(
+                        kind,
+                        source_kind,
+                        row["Type"],
+                        target_kind,
+                        target,
+                        (source_label,),
+                    )
+                )
+
+    rows = connection.execute(
+        'SELECT "ProjectType", "VictoryType", "Threshold", "MinThreshold" '
+        'FROM "Project_VictoryThresholds" '
+        'ORDER BY "ProjectType", "VictoryType", "Threshold", "MinThreshold"'
+    ).fetchall()
+    for row in rows:
+        threshold = row["Threshold"]
+        minimum = row["MinThreshold"]
+        for column, value in (("Threshold", threshold), ("MinThreshold", minimum)):
+            if not isinstance(value, int) or isinstance(value, bool):
+                raise KnowledgeImportError(
+                    f"Project_VictoryThresholds has invalid integer {column}: {value}"
+                )
+        references.append(
+            Reference(
+                "victory_threshold",
+                "project",
+                row["ProjectType"],
+                "victory",
+                row["VictoryType"],
+                (source_label,),
+                {"threshold": threshold, "minimum_threshold": minimum},
+            )
         )
     return references
 

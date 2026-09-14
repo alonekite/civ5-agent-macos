@@ -78,6 +78,8 @@ No application-bundle modification is required.
   effects with schema 3 context
 - [x] Import binary belief, building, policy, resource, and specialist yield
   effects
+- [x] Import projects, processes, victory conditions, prerequisites, thresholds,
+  production conversion, and resource requirements
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

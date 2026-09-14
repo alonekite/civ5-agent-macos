@@ -68,8 +68,9 @@ canonical counts and relations were checked without committing generated data.
 
 Coverage now includes core terrains, features, improvements, routes, yields,
 and build actions in addition to the earlier entity families. It also imports
-the game's `FakeFeatures` rows as feature entities marked `fake`, plus 48 binary
-effect and resource-quantity table families. Schema 3 coverage includes 19
+the game's `FakeFeatures` rows as feature entities marked `fake`, projects,
+processes, victory conditions, and 51 single-value binary effect and
+resource-quantity table families. Schema 3 coverage includes 19
 single-context belief, building, improvement, and policy effect-table families.
 Effects that need multiple context items or new target entity families are
 deferred.

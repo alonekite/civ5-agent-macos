@@ -70,7 +70,9 @@ tables, and civilization unit/building class overrides. It also requires
 `Unit_GreatPersons` for the religion and great-person slice. The map slice uses
 `Terrains`, `Features`, `FakeFeatures`, `Improvements`, `Routes`, `Yields`,
 `Builds`, direct feature/improvement validity tables, and selected binary
-quantity tables.
+quantity tables. Projects, processes, and victory rules use `Projects`,
+`Processes`, `Victories`, their prerequisite and threshold tables, production
+conversion yields, and resource requirements.
 Active package IDs come from
 `DownloadableContent`; callers cannot silently relabel a BNW database as
 vanilla or Gods & Kings.
@@ -135,7 +137,12 @@ time changes. Contextual imports cover improvement yield changes conditioned by
 resource or route and technology-enabled base, fresh-water, and no-fresh-water
 changes, as well as the single-context belief, building, and policy effects
 described above. Binary effects also cover beliefs, policies, buildings,
-resources, specialists, and unit/building resource quantities. Yield AI weights,
+resources, specialists, and unit/building resource quantities. Projects retain
+instance limits, cost, deterministic flags, technology and victory gates,
+project prerequisites, resource requirements, and victory thresholds. Processes
+retain technology gates and production-conversion percentages. Victory entities
+retain deterministic conditions while excluding prose, movies, and audio.
+Yield AI weights,
 graphical-only flags, prose, hotkeys, and assets are excluded.
 
 For reproducibility and safety it:
@@ -159,9 +166,10 @@ technology `requires_any` table is empty.
 
 The same tested database adds 45 civilizations, 44 leaders, 48 traits, 14
 religions, 69 beliefs, 7 specialists, 9 terrains, 25 ordinary features, 2 fake
-features, 29 improvements, 2 routes, 6 yields, and 35 build actions. The
-complete current import contains 1,298 entities and 2,762 references, including
-344 binary quantity-bearing references across 48 table families and 159
+features, 29 improvements, 2 routes, 6 yields, 35 build actions, 6 projects, 5
+processes, and 5 victory types. The complete current import contains 1,314
+entities and 2,781 references, including 354 binary attributed references from
+51 single-value table families plus project victory thresholds and 159
 single-context quantity-bearing references across 19 table families, and
 45 civilization-to-leader, 43 leader-to-trait, 66 unique-unit, 20
 unique-building, 45 disabled-unit-class, and 121 disabled-building-class
