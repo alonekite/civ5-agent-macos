@@ -33,6 +33,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | Project/process/victory knowledge | Real merged database imported twice with 16 entities and 19 outgoing project/process references and equal hashes | Synthetic scalar, direct-reference, quantified prerequisite/conversion, threshold, and invalid-threshold cases | N/A | Implemented offline |
 | Unit-combat knowledge | Real merged database imported twice with 14 entities, 444 unit-combat targets, 37 contextual promotion grants, and equal hashes | Synthetic entity, membership, applicability, quantity-table, and contextual-table coverage | N/A | Implemented offline |
 | Unit domain/special classifications | Real merged database imported twice with 5 domains, 4 special-unit categories, 148 domain links, 22 special links, and equal hashes | Synthetic entities, scalar flags, and typed-link coverage | N/A | Implemented offline |
+| Typed unit identifier relations | Real merged database imported twice with 323 links across 11 allowlisted identifier columns and equal hashes | Synthetic coverage of every mapping plus bundle-level target validation | N/A | Implemented offline |
 | Ruleset resolver | No | No | N/A | Not implemented |
 | Turn journal | Proposed contract | No | N/A | Not implemented |
 | Expanded deterministic controller | Yes | Basic tests | Basic live path | In progress |

@@ -75,6 +75,9 @@ domains, special-unit categories, unit/promotion applicability, and seven
 category-specific quantified effect families, bringing the single-value binary
 total to 58. Schema 3 coverage
 includes 19 quantified and two promotion-grant contextual table families.
+Unit scalar identifiers for capture class, technology gates, ancient-ruin
+upgrade, policy, cargo, project, and leader promotion also have validated typed
+relationships.
 Effects that need multiple context items or new target entity families are
 deferred.
 

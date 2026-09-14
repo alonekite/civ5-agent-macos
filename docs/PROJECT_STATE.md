@@ -44,7 +44,7 @@ decisions, not raw chat transcripts.
   routes, yields, build actions, projects, processes, victories, unit-combat
   categories, domains, special-unit categories, and their currently supported
   relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,337 entities and 3,432
+- The real Campaign Edition database currently yields 1,337 entities and 3,755
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -60,6 +60,9 @@ decisions, not raw chat transcripts.
   and two contextual promotion families add 196 schema 3 contextual references;
   effects requiring multiple context items or new entity families remain
   deferred.
+- Eleven unit identifier columns emit 323 typed, referentially checked
+  relationships for technology gates, obsolescence, capture classes, ancient-
+  ruin upgrades, policies, cargo categories, projects, and promotions.
 - The test suite contains 118 tests locally. GitHub Actions on Python 3.11 and
   3.13 last passed at commit `a053797`; the current batch must pass CI after it
   is pushed.

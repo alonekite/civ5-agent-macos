@@ -195,6 +195,19 @@ UNIT_FIELDS = {
     "LeaderPromotion": ("leader_promotion", "identifier"),
     "LeaderExperience": ("leader_experience", "integer"),
 }
+UNIT_REFERENCE_COLUMNS = (
+    ("Capture", "captured_as_unit_class", "unit_class"),
+    ("PillagePrereqTech", "pillage_unlocked_by_technology", "technology"),
+    ("PrereqTech", "unlocked_by_technology", "technology"),
+    ("ObsoleteTech", "obsoleted_by_technology", "technology"),
+    ("GoodyHutUpgradeUnitClass", "ancient_ruin_upgrade", "unit_class"),
+    ("PolicyType", "requires_policy", "policy"),
+    ("SpecialCargo", "carries_special_unit", "special_unit"),
+    ("DomainCargo", "carries_domain", "domain"),
+    ("ProjectPrereq", "requires_project", "project"),
+    ("SpaceshipProject", "completes_project", "project"),
+    ("LeaderPromotion", "grants_leader_promotion", "promotion"),
+)
 
 UNIT_CLASS_FIELDS = {
     "MaxGlobalInstances": ("maximum_global_instances", "integer"),
@@ -2580,6 +2593,7 @@ def _unit_combat_references(
         for column, kind, target_kind in (
             ("Domain", "belongs_to_domain", "domain"),
             ("Special", "belongs_to_special_unit", "special_unit"),
+            *UNIT_REFERENCE_COLUMNS,
         ):
             target = row[column]
             if target in (None, "NONE"):

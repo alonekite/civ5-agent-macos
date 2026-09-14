@@ -84,6 +84,8 @@ No application-bundle modification is required.
   category modifiers, and contextual free promotions
 - [x] Import unit domains and special-unit categories as validated typed
   relationships
+- [x] Convert supported unit technology, capture, ancient-ruin, policy, cargo,
+  project, and promotion identifiers into validated typed relationships
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

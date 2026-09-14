@@ -45,6 +45,7 @@ from civ5_agent.knowledge.import_sqlite import (
     TERRAIN_FIELDS,
     UNIT_FIELDS,
     UNIT_CLASS_FIELDS,
+    UNIT_REFERENCE_COLUMNS,
     VICTORY_FIELDS,
     YIELD_FIELDS,
     import_ruleset,
@@ -492,6 +493,22 @@ def create_database(
                 value = "DOMAIN_LAND"
             elif column == "Special":
                 value = "SPECIALUNIT_TEST"
+            elif column == "Capture":
+                value = "UNITCLASS_WARRIOR"
+            elif column in {"PillagePrereqTech", "PrereqTech", "ObsoleteTech"}:
+                value = "TECH_AGRICULTURE"
+            elif column == "GoodyHutUpgradeUnitClass":
+                value = "UNITCLASS_WARRIOR"
+            elif column == "PolicyType":
+                value = "POLICY_TRADITION"
+            elif column == "SpecialCargo":
+                value = "SPECIALUNIT_TEST"
+            elif column == "DomainCargo":
+                value = "DOMAIN_LAND"
+            elif column in {"ProjectPrereq", "SpaceshipProject"}:
+                value = "PROJECT_TEST"
+            elif column == "LeaderPromotion":
+                value = "PROMOTION_SHOCK_1"
             elif value_type == "boolean":
                 value = 0
             elif value_type == "integer":
@@ -1079,6 +1096,7 @@ class RulesetImportTest(unittest.TestCase):
         self.assertEqual(
             len(bundle.references),
             57
+            + len(UNIT_REFERENCE_COLUMNS)
             + len(QUANTITY_REFERENCE_TABLES)
             + 1
             + len(CONTEXTUAL_QUANTITY_REFERENCE_TABLES)

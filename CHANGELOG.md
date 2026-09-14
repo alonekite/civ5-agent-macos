@@ -28,6 +28,8 @@ versioned releases. Development details belong in
 - Unit-combat categories with unit/promotion applicability, quantified category
   modifiers, and contextual free-promotion grants.
 - Typed unit-domain and special-unit classifications.
+- Typed unit technology, capture-class, ancient-ruin, policy, cargo, project,
+  and promotion relationships.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 
