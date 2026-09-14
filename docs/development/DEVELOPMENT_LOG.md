@@ -341,6 +341,12 @@ Implementation commit: `097542f`.
 
 Implementation commit: `bc2cd1d`.
 
+Follow-up commit `7cca72e` made rollback state-aware after a target-Mac sudo
+authorization failure. If the first mutation is denied, unchanged firewall
+boundaries are no longer touched during rollback, and private recovery state is
+cleaned without requiring a second authorization. The full Python 3.11 suite
+then passed with 128 tests.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
