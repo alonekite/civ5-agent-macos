@@ -323,6 +323,24 @@ Implementation commit: `097542f`.
   expanded real import contains 1,190 entities and 2,110 references and remains
   byte-repeatable across consecutive runs.
 
+## 2026-09-14 — Recoverable live-test sessions
+
+- Added explicit, idempotent `live_session prepare` and `restore` operations
+  that record a private baseline outside the repository, guard FireTuner with
+  the macOS application firewall, and verify restoration before deleting the
+  recovery state.
+- Kept the Python process unprivileged while elevating only narrow firewall
+  mutations, and added rollback for failed preparation.
+- Accepted both executable and canonical `.app` paths returned by
+  `socketfilterfw`, including path-line whitespace observed on the target Mac.
+- Added ADR-0009 and updated the security policy, CLI ownership, operations
+  index, risk register, and live-test checklist.
+- Passed all 127 tests on Python 3.11 in the host environment. End-to-end
+  prepare/restore still requires one interactive administrator authentication
+  on the target Mac.
+
+Implementation commit: `bc2cd1d`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
