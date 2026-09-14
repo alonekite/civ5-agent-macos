@@ -5,13 +5,14 @@ import unittest
 from contextlib import closing
 from pathlib import Path
 
-from civ5_agent.knowledge import KnowledgeValidationError, Ruleset
+from civ5_agent.knowledge import KnowledgeValidationError, ReferenceContext, Ruleset
 from civ5_agent.knowledge.import_sqlite import (
     BRAVE_NEW_WORLD_PACKAGE_ID,
     BELIEF_FIELDS,
     BELIEF_REFERENCE_COLUMNS,
     BUILD_FIELDS,
     BUILD_REFERENCE_COLUMNS,
+    CONTEXTUAL_QUANTITY_REFERENCE_TABLES,
     BUILDING_CLASS_FIELDS,
     BUILDING_FIELDS,
     BUILDING_REFERENCE_COLUMNS,
@@ -305,6 +306,24 @@ def create_database(
                 f'CREATE TABLE "{table}" ('
                 f'"{source_column}" TEXT, "{target_column}" TEXT, '
                 f'"{value_column}" INTEGER)'
+            )
+        for (
+            table,
+            source_column,
+            target_column,
+            _kind,
+            _source_kind,
+            _target_kind,
+            context_column,
+            _context_kind,
+            _context_role,
+            value_column,
+            _attribute,
+        ) in CONTEXTUAL_QUANTITY_REFERENCE_TABLES:
+            connection.execute(
+                f'CREATE TABLE "{table}" ('
+                f'"{source_column}" TEXT, "{target_column}" TEXT, '
+                f'"{context_column}" TEXT, "{value_column}" INTEGER)'
             )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
@@ -837,6 +856,18 @@ def create_database(
             "INSERT INTO Feature_YieldChanges VALUES (?, ?, ?)",
             ("FEATURE_LAKE", "YIELD_TEST", 2),
         )
+        connection.executemany(
+            "INSERT INTO Improvement_TechYieldChanges VALUES (?, ?, ?, ?)",
+            (
+                (
+                    "IMPROVEMENT_TEST",
+                    "YIELD_TEST",
+                    "TECH_AGRICULTURE",
+                    1,
+                ),
+                ("IMPROVEMENT_TEST", "YIELD_TEST", "TECH_POTTERY", 2),
+            ),
+        )
         connection.commit()
 
 
@@ -851,8 +882,8 @@ class RulesetImportTest(unittest.TestCase):
                 Ruleset("bnw", "1.0.3.279"),
             )
         self.assertEqual(len(bundle.entities), 28)
-        self.assertEqual(len(bundle.references), 55)
-        self.assertEqual(bundle.schema_version, 2)
+        self.assertEqual(len(bundle.references), 57)
+        self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
@@ -1183,7 +1214,7 @@ class RulesetImportTest(unittest.TestCase):
                 tuple(sorted(item.attributes.items())),
             )
             for item in bundle.references
-            if item.attributes
+            if item.attributes and not item.context
         }
         self.assertEqual(
             quantity_relations,
@@ -1245,6 +1276,48 @@ class RulesetImportTest(unittest.TestCase):
         self.assertEqual(lake.kind, "feature")
         self.assertTrue(lake.attributes["fake"])
         self.assertTrue(lake.attributes["impassable"])
+        contextual_relations = {
+            (
+                item.kind,
+                item.source_type_id,
+                item.target_type_id,
+                tuple(sorted(item.attributes.items())),
+                item.context,
+            )
+            for item in bundle.references
+            if item.context
+        }
+        self.assertEqual(
+            contextual_relations,
+            {
+                (
+                    "yield_change",
+                    "IMPROVEMENT_TEST",
+                    "YIELD_TEST",
+                    (("amount", 1),),
+                    (
+                        ReferenceContext(
+                            "enabled_by_technology",
+                            "technology",
+                            "TECH_AGRICULTURE",
+                        ),
+                    ),
+                ),
+                (
+                    "yield_change",
+                    "IMPROVEMENT_TEST",
+                    "YIELD_TEST",
+                    (("amount", 2),),
+                    (
+                        ReferenceContext(
+                            "enabled_by_technology",
+                            "technology",
+                            "TECH_POTTERY",
+                        ),
+                    ),
+                ),
+            },
+        )
 
     def test_records_source_hash_without_absolute_path(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -1309,6 +1382,26 @@ class RulesetImportTest(unittest.TestCase):
                 import_ruleset(
                     database,
                     "cache/duplicate-quantity.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_invalid_contextual_quantity_reference(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-contextual-quantity.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Improvement_TechYieldChanges SET Yield = ?",
+                    ("invalid",),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "Improvement_TechYieldChanges has invalid integer Yield",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-contextual-quantity.db",
                     Ruleset("bnw", "test"),
                 )
 

@@ -69,12 +69,12 @@ canonical counts and relations were checked without committing generated data.
 Coverage now includes core terrains, features, improvements, routes, yields,
 and build actions in addition to the earlier entity families. It also imports
 the game's `FakeFeatures` rows as feature entities marked `fake`, plus binary
-quantity-bearing map and build relations. Contextual and ternary relationship
-tables remain deferred because their identity cannot always be represented by
-only relation kind, source, and target.
+quantity-bearing map and build relations. The first schema 3 contextual import
+covers improvement yield changes enabled by technologies. Other contextual and
+ternary relationship tables remain deferred.
 
 ## Planned extensions
 
-M3 next designs a provenance-preserving identity for contextual and ternary
-effect tables, then imports those tables and scaling families. M4 adds per-game
-resolution without mutating base facts.
+M3 next extends the schema 3 pattern to building, policy, belief, specialist,
+resource, and other contextual effect tables, then imports scaling families. M4
+adds per-game resolution without mutating base facts.

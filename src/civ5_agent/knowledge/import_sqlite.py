@@ -14,7 +14,14 @@ from pathlib import Path
 from typing import Any
 
 from .codec import dumps
-from .models import Entity, KnowledgeBundle, Reference, Ruleset, Source
+from .models import (
+    Entity,
+    KnowledgeBundle,
+    Reference,
+    ReferenceContext,
+    Ruleset,
+    Source,
+)
 from .validation import KnowledgeValidationError, validate_bundle
 
 
@@ -1093,6 +1100,22 @@ QUANTITY_REFERENCE_TABLES = (
     ),
 )
 
+CONTEXTUAL_QUANTITY_REFERENCE_TABLES = (
+    (
+        "Improvement_TechYieldChanges",
+        "ImprovementType",
+        "YieldType",
+        "yield_change",
+        "improvement",
+        "yield",
+        "TechType",
+        "technology",
+        "enabled_by_technology",
+        "Yield",
+        "amount",
+    ),
+)
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -1207,6 +1230,29 @@ def import_ruleset(
                     connection,
                     table,
                     {source_column, target_column, value_column},
+                )
+            for (
+                table,
+                source_column,
+                target_column,
+                _kind,
+                _source_kind,
+                _target_kind,
+                context_column,
+                _context_kind,
+                _context_role,
+                value_column,
+                _attribute,
+            ) in CONTEXTUAL_QUANTITY_REFERENCE_TABLES:
+                _require_columns(
+                    connection,
+                    table,
+                    {
+                        source_column,
+                        target_column,
+                        context_column,
+                        value_column,
+                    },
                 )
             _require_columns(
                 connection,
@@ -1717,6 +1763,7 @@ def import_ruleset(
                     source_label,
                 )
                 + _quantity_references(connection, source_label)
+                + _contextual_quantity_references(connection, source_label)
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -1726,7 +1773,7 @@ def import_ruleset(
         raise KnowledgeImportError("database changed during import; close Civ V and retry")
     return validate_bundle(
         KnowledgeBundle(
-            schema_version=2,
+            schema_version=3,
             ruleset=ruleset,
             sources=(source,),
             entities=(
@@ -2342,6 +2389,56 @@ def _quantity_references(
                     row[target_column],
                     (source_label,),
                     {attribute: value},
+                )
+            )
+    return references
+
+
+def _contextual_quantity_references(
+    connection: sqlite3.Connection, source_label: str
+) -> list[Reference]:
+    references: list[Reference] = []
+    for (
+        table,
+        source_column,
+        target_column,
+        kind,
+        source_kind,
+        target_kind,
+        context_column,
+        context_kind,
+        context_role,
+        value_column,
+        attribute,
+    ) in CONTEXTUAL_QUANTITY_REFERENCE_TABLES:
+        rows = connection.execute(
+            f'SELECT "{source_column}", "{target_column}", '
+            f'"{context_column}", "{value_column}" FROM "{table}" '
+            f'ORDER BY "{source_column}", "{target_column}", '
+            f'"{context_column}", "{value_column}"'
+        ).fetchall()
+        for row in rows:
+            value = row[value_column]
+            if not isinstance(value, int) or isinstance(value, bool):
+                raise KnowledgeImportError(
+                    f"{table} has invalid integer {value_column}: {value}"
+                )
+            references.append(
+                Reference(
+                    kind,
+                    source_kind,
+                    row[source_column],
+                    target_kind,
+                    row[target_column],
+                    (source_label,),
+                    {attribute: value},
+                    (
+                        ReferenceContext(
+                            context_role,
+                            context_kind,
+                            row[context_column],
+                        ),
+                    ),
                 )
             )
     return references

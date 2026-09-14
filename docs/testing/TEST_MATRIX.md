@@ -29,6 +29,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | Religion/belief/specialist knowledge | Real merged database imported; counts and canonical repeatability checked | Synthetic scalar, reference, and invalid-number tests | N/A | Implemented offline |
 | Terrain/feature/improvement/route/yield/build knowledge | Real merged database imported; counts, references, and canonical repeatability checked | Synthetic allowlist, optional scalar, validity, unlock, and creation relations | N/A | Core slice implemented offline |
 | Binary quantity-bearing map/build knowledge | Real merged database imported twice with 77 attributed references and equal hashes | Synthetic positive, negative, invalid-integer, duplicate-reference, and fake-feature cases | N/A | Implemented offline |
+| Technology-contextual improvement yields | Real merged database imported twice with 18 contextual references and equal hashes | Synthetic same-edge/different-context and invalid-integer cases | N/A | Implemented offline |
 | Ruleset resolver | No | No | N/A | Not implemented |
 | Turn journal | Proposed contract | No | N/A | Not implemented |
 | Expanded deterministic controller | Yes | Basic tests | Basic live path | In progress |

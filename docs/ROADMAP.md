@@ -72,6 +72,7 @@ No application-bundle modification is required.
 - [x] Import binary terrain, feature, improvement, route, and build quantity
   relations with schema 2 reference attributes
 - [x] Define schema 3 typed context for contextual/ternary relation identity
+- [x] Import technology-enabled improvement yield changes with schema 3 context
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

@@ -37,9 +37,9 @@ paths, invalid identifiers, unsupported value types, non-finite numbers, and AI
 parameter fields are rejected.
 
 Schema 1 remains readable and serializes references without `attributes`.
-Schema 1 in-memory references must have empty attributes. The current importer
-emits schema 2; its reference attributes use the same strict JSON and
-finite-number rules as entity attributes. See
+Schema 1 in-memory references must have empty attributes. Schema 2 introduced
+reference attributes, which use the same strict JSON and finite-number rules as
+entity attributes. See
 [ADR-0007](architecture/decisions/ADR-0007-reference-attributes.md).
 
 Schema 3 adds a sorted `context` array to references. Each context item has a
@@ -48,7 +48,7 @@ the complete context participates in reference identity. This permits multiple
 otherwise-identical edges whose effects apply under different technologies,
 policies, terrain, features, resources, or other typed conditions. Schema 1 and
 2 cannot contain context and retain their existing canonical JSON shapes. The
-importer will move to schema 3 with its first contextual table. See
+current importer emits schema 3. See
 [ADR-0008](architecture/decisions/ADR-0008-contextual-reference-identity.md).
 
 `KnowledgeIndex` validates a bundle before indexing it, then provides stable
@@ -127,8 +127,9 @@ upgrades, build unlocks and outputs, valid terrains/features/improvements, and
 the trait improvement combat bonus. Attributed binary relations cover base and
 conditional terrain, feature, improvement, and route yields, improvement
 yield-per-era values, route technology movement changes, and build technology
-time changes. Yield AI weights, graphical-only flags, prose, hotkeys, and assets
-are excluded.
+time changes. The first contextual import represents improvement yield changes
+enabled by technologies with a typed technology context. Yield AI weights,
+graphical-only flags, prose, hotkeys, and assets are excluded.
 
 For reproducibility and safety it:
 
@@ -152,8 +153,9 @@ technology `requires_any` table is empty.
 The same tested database adds 45 civilizations, 44 leaders, 48 traits, 14
 religions, 69 beliefs, 7 specialists, 9 terrains, 25 ordinary features, 2 fake
 features, 29 improvements, 2 routes, 6 yields, and 35 build actions. The
-complete current import contains 1,298 entities and 2,336 references, including
-77 binary quantity-bearing references and
+complete current import contains 1,298 entities and 2,354 references, including
+77 binary quantity-bearing references, 18 technology-contextual improvement
+yield references, and
 45 civilization-to-leader, 43 leader-to-trait, 66 unique-unit, 20
 unique-building, 45 disabled-unit-class, and 121 disabled-building-class
 relationships. Two consecutive imports produced the same canonical bundle

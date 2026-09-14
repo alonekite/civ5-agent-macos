@@ -20,6 +20,7 @@ versioned releases. Development details belong in
 - Knowledge schema 2 reference attributes with schema 1 compatibility.
 - Knowledge schema 3 typed reference context with schema 1/2 compatibility.
 - Binary map/build quantity relations and explicit fake-feature knowledge.
+- Technology-contextual improvement yield relations.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

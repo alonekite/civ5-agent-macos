@@ -9,9 +9,9 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: import the first schema 3 contextual improvement,
-  building, policy, belief, specialist, or resource effect tables.
-- Functional test baseline: 116 tests locally; Python 3.11/3.13 CI last passed
+- Active next deliverable: extend schema 3 contextual imports to building,
+  policy, belief, specialist, and resource effect tables.
+- Functional test baseline: 117 tests locally; Python 3.11/3.13 CI last passed
   at documentation-governance commit `a053797` before the current knowledge
   batches.
 - Blocking issue: none for offline M3 work.
@@ -43,7 +43,7 @@ decisions, not raw chat transcripts.
   beliefs, specialists/great-person classes, terrains, features, improvements,
   routes, yields, build actions, and their currently supported relations from a
   local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,298 entities and 2,336
+- The real Campaign Edition database currently yields 1,298 entities and 2,354
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -55,9 +55,9 @@ decisions, not raw chat transcripts.
 - Knowledge schema 3 adds sorted, referentially validated context items to edge
   identity while retaining canonical schema 1 and schema 2 compatibility.
 - Binary terrain, feature, improvement, route, and build quantity tables add 77
-  attributed references. Contextual and ternary effects remain deferred until
-  their relation identity is modeled without ambiguity.
-- The test suite contains 111 tests locally. GitHub Actions on Python 3.11 and
+  attributed references. Improvement technology yield changes add 18 schema 3
+  contextual references; other contextual and ternary effects remain deferred.
+- The test suite contains 117 tests locally. GitHub Actions on Python 3.11 and
   3.13 last passed at commit `a053797`; the current batch must pass CI after it
   is pushed.
 

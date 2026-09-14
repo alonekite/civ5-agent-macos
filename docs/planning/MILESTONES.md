@@ -73,8 +73,9 @@ unique/disabled unit and building class overrides, religions, core beliefs, and
 specialists/great-person classes, terrains, ordinary and fake features,
 improvements, routes, yields, build actions, their direct relationships, and
 binary quantity-bearing map/build effects. Current next deliverable: contextual
-and ternary effect imports using the accepted schema 3 typed-context identity,
-then remaining scaling rules.
+and ternary effect imports using the accepted schema 3 typed-context identity.
+The first completed contextual slice covers technology-enabled improvement
+yield changes; remaining effect families and scaling rules follow.
 
 ## M4 — Ruleset resolver
 
