@@ -92,6 +92,9 @@ Hurry methods and their building/policy cost modifiers are first-class typed
 knowledge without importing descriptions.
 Great-work classes, slot types, and building slot capacity have typed
 relationships without importing individual work content or presentation assets.
+Great-work stable IDs, artifact classes, archaeology flags, and typed
+class/era/creator relationships are imported while names, quotes, images, and
+audio remain excluded.
 Current next deliverable: effects requiring multiple context items or new target
 entity families, followed by scaling rules.
 

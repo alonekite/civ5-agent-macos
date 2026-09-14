@@ -1111,6 +1111,12 @@ HURRY_FIELDS = {
     "GoldPerBeaker": ("gold_per_beaker", "integer"),
     "GoldPerCulture": ("gold_per_culture", "integer"),
 }
+GREAT_WORK_FIELDS = {
+    "ArchaeologyOnly": ("archaeology_only", "boolean"),
+}
+GREAT_WORK_ARTIFACT_CLASS_FIELDS = {
+    "Value": ("value", "integer"),
+}
 
 PLAIN_REFERENCE_TABLES = (
     (
@@ -1998,6 +2004,27 @@ def import_ruleset(
             )
             _require_columns(
                 connection,
+                "GreatWorkArtifactClasses",
+                {"Type", *GREAT_WORK_ARTIFACT_CLASS_FIELDS},
+            )
+            _require_columns(
+                connection,
+                "GreatWorks",
+                {
+                    "Type",
+                    "GreatWorkClassType",
+                    "ArtifactClassType",
+                    "EraType",
+                    *GREAT_WORK_FIELDS,
+                },
+            )
+            _require_columns(
+                connection,
+                "Unit_UniqueNames",
+                {"UnitType", "GreatWorkType"},
+            )
+            _require_columns(
+                connection,
                 "UnitPromotions_UnitCombats",
                 {"PromotionType", "UnitCombatType"},
             )
@@ -2378,6 +2405,30 @@ def import_ruleset(
                 _scalar_entity("great_work_class", row, {}, source_label)
                 for row in great_work_class_rows
             )
+            great_work_artifact_class_rows = _select_scalar_rows(
+                connection,
+                "GreatWorkArtifactClasses",
+                GREAT_WORK_ARTIFACT_CLASS_FIELDS,
+            )
+            great_work_artifact_class_entities = tuple(
+                _scalar_entity(
+                    "great_work_artifact_class",
+                    row,
+                    GREAT_WORK_ARTIFACT_CLASS_FIELDS,
+                    source_label,
+                )
+                for row in great_work_artifact_class_rows
+            )
+            great_work_rows = _select_scalar_rows(
+                connection,
+                "GreatWorks",
+                GREAT_WORK_FIELDS,
+                ("GreatWorkClassType", "ArtifactClassType", "EraType"),
+            )
+            great_work_entities = tuple(
+                _scalar_entity("great_work", row, GREAT_WORK_FIELDS, source_label)
+                for row in great_work_rows
+            )
             unit_columns = ["Type", "Class", *UNIT_FIELDS]
             unit_select = ", ".join(f'"{column}"' for column in unit_columns)
             unit_rows = connection.execute(
@@ -2704,7 +2755,11 @@ def import_ruleset(
                 + _unit_combat_references(connection, unit_rows, source_label)
                 + _hurry_references(hurry_rows, source_label)
                 + _great_work_references(
-                    great_work_class_rows, building_rows, source_label
+                    connection,
+                    great_work_class_rows,
+                    great_work_rows,
+                    building_rows,
+                    source_label,
                 )
                 + _policy_references(
                     connection, policy_rows, branch_rows, source_label
@@ -2765,6 +2820,8 @@ def import_ruleset(
                 + hurry_entities
                 + great_work_slot_entities
                 + great_work_class_entities
+                + great_work_artifact_class_entities
+                + great_work_entities
                 + promotion_entities
                 + policy_entities
                 + branch_entities
@@ -3062,7 +3119,9 @@ def _hurry_references(
 
 
 def _great_work_references(
+    connection: sqlite3.Connection,
     class_rows: list[sqlite3.Row],
+    work_rows: list[sqlite3.Row],
     building_rows: list[sqlite3.Row],
     source_label: str,
 ) -> list[Reference]:
@@ -3077,6 +3136,39 @@ def _great_work_references(
         )
         for row in class_rows
     ]
+    for row in work_rows:
+        references.append(
+            Reference(
+                "belongs_to_great_work_class",
+                "great_work",
+                row["Type"],
+                "great_work_class",
+                row["GreatWorkClassType"],
+                (source_label,),
+            )
+        )
+        if row["ArtifactClassType"] not in (None, "NONE"):
+            references.append(
+                Reference(
+                    "has_artifact_class",
+                    "great_work",
+                    row["Type"],
+                    "great_work_artifact_class",
+                    row["ArtifactClassType"],
+                    (source_label,),
+                )
+            )
+        if row["EraType"] not in (None, "NONE"):
+            references.append(
+                Reference(
+                    "associated_with_era",
+                    "great_work",
+                    row["Type"],
+                    "era",
+                    row["EraType"],
+                    (source_label,),
+                )
+            )
     references.extend(
         Reference(
             "contains_great_work_slot",
@@ -3088,6 +3180,34 @@ def _great_work_references(
         )
         for row in building_rows
         if row["GreatWorkSlotType"] not in (None, "NONE")
+    )
+    references.extend(
+        Reference(
+            "grants_free_great_work",
+            "building",
+            row["Type"],
+            "great_work",
+            row["FreeGreatWork"],
+            (source_label,),
+        )
+        for row in building_rows
+        if row["FreeGreatWork"] not in (None, "NONE")
+    )
+    rows = connection.execute(
+        'SELECT DISTINCT "UnitType", "GreatWorkType" FROM "Unit_UniqueNames" '
+        'WHERE "GreatWorkType" IS NOT NULL AND "GreatWorkType" <> \'NONE\' '
+        'ORDER BY "UnitType", "GreatWorkType"'
+    ).fetchall()
+    references.extend(
+        Reference(
+            "can_create_great_work",
+            "unit",
+            row["UnitType"],
+            "great_work",
+            row["GreatWorkType"],
+            (source_label,),
+        )
+        for row in rows
     )
     return references
 

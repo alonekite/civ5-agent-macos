@@ -27,6 +27,8 @@ from civ5_agent.knowledge.import_sqlite import (
     IMPROVEMENT_FIELDS,
     IMPROVEMENT_REFERENCE_COLUMNS,
     HURRY_FIELDS,
+    GREAT_WORK_ARTIFACT_CLASS_FIELDS,
+    GREAT_WORK_FIELDS,
     PROMOTION_FIELDS,
     PROMOTION_PREREQUISITE_COLUMNS,
     POLICY_BRANCH_FIELDS,
@@ -65,6 +67,8 @@ FIXTURE_TYPE_IDS = {
     "hurry": "HURRY_TEST",
     "great_work_class": "GREAT_WORK_CLASS_TEST",
     "great_work_slot": "GREAT_WORK_SLOT_TEST",
+    "great_work": "GREAT_WORK_TEST",
+    "great_work_artifact_class": "ARTIFACT_TEST",
     "policy": "POLICY_TRADITION",
     "process": "PROCESS_TEST",
     "project": "PROJECT_TEST",
@@ -172,6 +176,18 @@ def create_database(
         connection.execute(
             "CREATE TABLE GreatWorkClasses "
             "(Type TEXT NOT NULL PRIMARY KEY, SlotType TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE GreatWorkArtifactClasses "
+            "(Type TEXT NOT NULL PRIMARY KEY, Value INTEGER)"
+        )
+        connection.execute(
+            "CREATE TABLE GreatWorks "
+            "(Type TEXT NOT NULL PRIMARY KEY, GreatWorkClassType TEXT, "
+            "ArtifactClassType TEXT, EraType TEXT, ArchaeologyOnly INTEGER)"
+        )
+        connection.execute(
+            "CREATE TABLE Unit_UniqueNames (UnitType TEXT, GreatWorkType TEXT)"
         )
         connection.execute(
             "CREATE TABLE UnitPromotions_UnitCombats "
@@ -545,6 +561,24 @@ def create_database(
             "INSERT INTO GreatWorkClasses VALUES (?, ?)",
             ("GREAT_WORK_CLASS_TEST", "GREAT_WORK_SLOT_TEST"),
         )
+        connection.execute(
+            "INSERT INTO GreatWorkArtifactClasses VALUES (?, ?)",
+            ("ARTIFACT_TEST", 1),
+        )
+        connection.execute(
+            "INSERT INTO GreatWorks VALUES (?, ?, ?, ?, ?)",
+            (
+                "GREAT_WORK_TEST",
+                "GREAT_WORK_CLASS_TEST",
+                "ARTIFACT_TEST",
+                "ERA_ANCIENT",
+                1,
+            ),
+        )
+        connection.execute(
+            "INSERT INTO Unit_UniqueNames VALUES (?, ?)",
+            ("UNIT_WARRIOR", "GREAT_WORK_TEST"),
+        )
         unit_class_columns = ["Type", "DefaultUnit", *UNIT_CLASS_FIELDS]
         quoted_unit_class_columns = ", ".join(
             f'"{column}"' for column in unit_class_columns
@@ -706,6 +740,8 @@ def create_database(
                 value = 185
             elif column == "GreatWorkSlotType":
                 value = "GREAT_WORK_SLOT_TEST"
+            elif column == "FreeGreatWork":
+                value = "GREAT_WORK_TEST"
             elif value_type in {"integer", "boolean"}:
                 value = 0
             else:
@@ -1219,7 +1255,7 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 37)
+        self.assertEqual(len(bundle.entities), 39)
         self.assertEqual(
             len(bundle.references),
             58
@@ -1233,7 +1269,8 @@ class RulesetImportTest(unittest.TestCase):
             + 2
             + 1
             + 1
-            + 2,
+            + 2
+            + 5,
         )
         self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
@@ -1263,6 +1300,34 @@ class RulesetImportTest(unittest.TestCase):
             {
                 (item.kind, item.source_type_id, item.target_type_id)
                 for item in bundle.references
+            },
+        )
+        great_work = next(
+            item for item in bundle.entities if item.type_id == "GREAT_WORK_TEST"
+        )
+        self.assertTrue(great_work.attributes["archaeology_only"])
+        great_work_relations = {
+            (item.kind, item.source_type_id, item.target_type_id)
+            for item in bundle.references
+            if item.target_type_id == "GREAT_WORK_TEST"
+            or item.source_type_id == "GREAT_WORK_TEST"
+        }
+        self.assertEqual(
+            great_work_relations,
+            {
+                (
+                    "belongs_to_great_work_class",
+                    "GREAT_WORK_TEST",
+                    "GREAT_WORK_CLASS_TEST",
+                ),
+                ("has_artifact_class", "GREAT_WORK_TEST", "ARTIFACT_TEST"),
+                ("associated_with_era", "GREAT_WORK_TEST", "ERA_ANCIENT"),
+                (
+                    "grants_free_great_work",
+                    "BUILDING_PYRAMID",
+                    "GREAT_WORK_TEST",
+                ),
+                ("can_create_great_work", "UNIT_WARRIOR", "GREAT_WORK_TEST"),
             },
         )
         plain_relations = {

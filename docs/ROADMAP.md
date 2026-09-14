@@ -98,6 +98,8 @@ No application-bundle modification is required.
   cost modifiers
 - [x] Import great-work classes, slot types, and building slot relationships
   without individual work content or presentation assets
+- [x] Import great-work and artifact-class stable IDs, archaeology flags, and
+  typed class, era, creator-unit, and free-building relationships
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

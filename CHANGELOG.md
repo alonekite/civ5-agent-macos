@@ -42,6 +42,8 @@ versioned releases. Development details belong in
   cost modifiers.
 - Great-work class and slot entities with typed class/building slot relations,
   excluding individual work content and presentation assets.
+- Great-work and artifact-class stable IDs, archaeology flags, and typed class,
+  era, creator-unit, and free-building relationships without titles or assets.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

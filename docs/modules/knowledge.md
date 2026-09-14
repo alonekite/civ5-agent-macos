@@ -89,8 +89,9 @@ that context is absent.
 Hurry methods are first-class entities with conversion rates and optional policy
 requirements; building and policy cost modifiers target those stable IDs.
 Great-work classes and slot types are represented by stable identifiers and
-typed class/building slot relations; presentation fields and individual works
-remain outside this slice.
+typed class/building slot relations. Individual works retain only stable IDs,
+the archaeology-only flag, and typed class/era/artifact/creator relationships;
+titles and presentation content remain excluded.
 Effects that need multiple context items or new target entity families are
 deferred.
 
