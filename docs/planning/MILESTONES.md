@@ -85,7 +85,7 @@ project, and leader-promotion identifiers now have typed references. Resource
 placement, faith-purchase eligibility, local prerequisites, training
 restrictions, random promotions, and unit build capabilities are also typed.
 Additional building-class, domain, free-unit, trade-route, trait, and combat
-yield quantities are imported, including three typed trait contexts. Current
+yield quantities are imported, including three typed trait contexts.
 Improvement/resource multi-attribute rules and building yields derived from a
 validated enhanced-yield technology are also complete.
 Hurry methods and their building/policy cost modifiers are first-class typed

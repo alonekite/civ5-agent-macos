@@ -73,7 +73,7 @@ processes, victory conditions, and 51 single-value binary effect and
 resource-quantity table families. It also covers unit-combat categories,
 domains, special-unit categories, unit/promotion applicability, and seven
 category-specific quantified effect families, bringing the single-value binary
-total to 82. Promotion-to-domain, feature, terrain, and unit-class relations
+total to 84. Promotion-to-domain, feature, terrain, and unit-class relations
 also preserve their combined combat, movement, and impassability attributes.
 Schema 3 coverage includes 22 quantified and two promotion-grant contextual
 table families, plus technology-conditioned promotion passability.
