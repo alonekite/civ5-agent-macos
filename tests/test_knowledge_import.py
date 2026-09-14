@@ -12,6 +12,7 @@ from civ5_agent.knowledge.import_sqlite import (
     BELIEF_REFERENCE_COLUMNS,
     BUILD_FIELDS,
     BUILD_REFERENCE_COLUMNS,
+    CONTEXTUAL_REFERENCE_TABLES,
     CONTEXTUAL_QUANTITY_REFERENCE_TABLES,
     BUILDING_CLASS_FIELDS,
     BUILDING_FIELDS,
@@ -59,12 +60,15 @@ FIXTURE_TYPE_IDS = {
     "policy": "POLICY_TRADITION",
     "process": "PROCESS_TEST",
     "project": "PROJECT_TEST",
+    "promotion": "PROMOTION_SHOCK_1",
     "resource": "RESOURCE_IRON",
     "route": "ROUTE_TEST",
     "specialist": "SPECIALIST_TEST",
     "technology": "TECH_AGRICULTURE",
     "terrain": "TERRAIN_TEST",
+    "trait": "TRAIT_TEST",
     "unit": "UNIT_WARRIOR",
+    "unit_combat": "UNITCOMBAT_MELEE",
     "victory": "VICTORY_TEST",
     "yield": "YIELD_TEST",
 }
@@ -117,6 +121,13 @@ def create_database(
         )
         connection.execute(
             "CREATE TABLE Unit_FreePromotions (UnitType TEXT, PromotionType TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE UnitCombatInfos (Type TEXT NOT NULL PRIMARY KEY)"
+        )
+        connection.execute(
+            "CREATE TABLE UnitPromotions_UnitCombats "
+            "(PromotionType TEXT, UnitCombatType TEXT)"
         )
         policy_definitions = [
             "Type TEXT NOT NULL PRIMARY KEY",
@@ -379,6 +390,22 @@ def create_database(
                 f'"{source_column}" TEXT, "{target_column}" TEXT, '
                 f'"{context_column}" TEXT, "{value_column}" INTEGER)'
             )
+        for (
+            table,
+            source_column,
+            target_column,
+            _kind,
+            _source_kind,
+            _target_kind,
+            context_column,
+            _context_kind,
+            _context_role,
+        ) in CONTEXTUAL_REFERENCE_TABLES:
+            connection.execute(
+                f'CREATE TABLE "{table}" ('
+                f'"{source_column}" TEXT, "{target_column}" TEXT, '
+                f'"{context_column}" TEXT)'
+            )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
         )
@@ -417,6 +444,9 @@ def create_database(
             "INSERT INTO Technology_PrereqTechs VALUES (?, ?)",
             ("TECH_POTTERY", "TECH_AGRICULTURE"),
         )
+        connection.execute(
+            "INSERT INTO UnitCombatInfos VALUES (?)", ("UNITCOMBAT_MELEE",)
+        )
         unit_class_columns = ["Type", "DefaultUnit", *UNIT_CLASS_FIELDS]
         quoted_unit_class_columns = ", ".join(
             f'"{column}"' for column in unit_class_columns
@@ -440,6 +470,8 @@ def create_database(
                 value = 40
             elif column == "PrereqTech":
                 value = "TECH_AGRICULTURE"
+            elif column == "CombatClass":
+                value = "UNITCOMBAT_MELEE"
             elif value_type == "boolean":
                 value = 0
             elif value_type == "integer":
@@ -490,6 +522,10 @@ def create_database(
         connection.execute(
             "INSERT INTO Unit_FreePromotions VALUES (?, ?)",
             ("UNIT_WARRIOR", "PROMOTION_SHOCK_1"),
+        )
+        connection.execute(
+            "INSERT INTO UnitPromotions_UnitCombats VALUES (?, ?)",
+            ("PROMOTION_SHOCK_1", "UNITCOMBAT_MELEE"),
         )
         policy_columns = ["Type", "PolicyBranchType", "TechPrereq", *POLICY_FIELDS]
         quoted_policy_columns = ", ".join(f'"{column}"' for column in policy_columns)
@@ -987,6 +1023,25 @@ def create_database(
             "INSERT INTO Improvement_TechYieldChanges VALUES (?, ?, ?, ?)",
             ("IMPROVEMENT_TEST", "YIELD_TEST", "TECH_POTTERY", 2),
         )
+        for (
+            table,
+            _source_column,
+            _target_column,
+            _kind,
+            source_kind,
+            target_kind,
+            _context_column,
+            context_kind,
+            _context_role,
+        ) in CONTEXTUAL_REFERENCE_TABLES:
+            connection.execute(
+                f'INSERT INTO "{table}" VALUES (?, ?, ?)',
+                (
+                    FIXTURE_TYPE_IDS[source_kind],
+                    FIXTURE_TYPE_IDS[target_kind],
+                    FIXTURE_TYPE_IDS[context_kind],
+                ),
+            )
         connection.commit()
 
 
@@ -1000,10 +1055,10 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 31)
+        self.assertEqual(len(bundle.entities), 32)
         self.assertEqual(
             len(bundle.references),
-            51
+            55
             + len(QUANTITY_REFERENCE_TABLES)
             + 1
             + len(CONTEXTUAL_QUANTITY_REFERENCE_TABLES)
@@ -1144,6 +1199,8 @@ class RulesetImportTest(unittest.TestCase):
             for item in bundle.references
             if item.source_type_id
             in {"CIVILIZATION_TEST", "LEADER_TEST", "TRAIT_TEST"}
+            and not item.attributes
+            and not item.context
         }
         self.assertEqual(
             civilization_relations,
@@ -1436,6 +1493,32 @@ class RulesetImportTest(unittest.TestCase):
                     ),
                 ),
             )
+        )
+        expected_contextual_relations.update(
+            (
+                kind,
+                FIXTURE_TYPE_IDS[source_kind],
+                FIXTURE_TYPE_IDS[target_kind],
+                (),
+                (
+                    ReferenceContext(
+                        context_role,
+                        context_kind,
+                        FIXTURE_TYPE_IDS[context_kind],
+                    ),
+                ),
+            )
+            for (
+                _table,
+                _source_column,
+                _target_column,
+                kind,
+                source_kind,
+                target_kind,
+                _context_column,
+                context_kind,
+                context_role,
+            ) in CONTEXTUAL_REFERENCE_TABLES
         )
         self.assertEqual(contextual_relations, expected_contextual_relations)
         project = next(

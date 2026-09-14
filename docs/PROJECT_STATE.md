@@ -41,9 +41,10 @@ decisions, not raw chat transcripts.
   resources, resource classes, civilizations, leaders, deterministic trait
   effects, unique replacements, disabled class overrides, religions, core
   beliefs, specialists/great-person classes, terrains, features, improvements,
-  routes, yields, build actions, projects, processes, victories, and their
-  currently supported relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,314 entities and 2,781
+  routes, yields, build actions, projects, processes, victories, unit-combat
+  categories, and their currently supported relations from a local merged Civ V
+  SQLite database.
+- The real Campaign Edition database currently yields 1,328 entities and 3,262
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -54,11 +55,11 @@ decisions, not raw chat transcripts.
   modifiers while retaining canonical schema 1 read/write compatibility.
 - Knowledge schema 3 adds sorted, referentially validated context items to edge
   identity while retaining canonical schema 1 and schema 2 compatibility.
-- Fifty-one single-value binary table families plus project victory thresholds
-  add 354 attributed references. Nineteen single-context belief, building,
-  improvement, and policy table families add 159 schema 3 contextual
-  references; effects requiring multiple context items or new entity families
-  remain deferred.
+- Fifty-eight single-value binary table families plus project victory thresholds
+  add 386 attributed binary references. Nineteen contextual quantity families
+  and two contextual promotion families add 196 schema 3 contextual references;
+  effects requiring multiple context items or new entity families remain
+  deferred.
 - The test suite contains 118 tests locally. GitHub Actions on Python 3.11 and
   3.13 last passed at commit `a053797`; the current batch must pass CI after it
   is pushed.

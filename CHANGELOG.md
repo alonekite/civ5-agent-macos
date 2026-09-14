@@ -25,6 +25,8 @@ versioned releases. Development details belong in
   resource-requirement relations with validated quantities.
 - Project, process, and victory entities with prerequisites, thresholds,
   production conversion, and resource requirements.
+- Unit-combat categories with unit/promotion applicability, quantified category
+  modifiers, and contextual free-promotion grants.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

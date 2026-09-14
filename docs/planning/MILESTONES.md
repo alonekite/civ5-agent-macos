@@ -76,6 +76,8 @@ their direct relationships, and binary quantity-bearing effects and resource
 requirements across 51 single-value table families plus project victory
 thresholds. Schema 3 now covers 19
 single-context belief, building, improvement, and policy effect-table families.
+Unit-combat categories, unit and promotion applicability, category modifiers,
+and contextual trait promotion grants are also complete.
 Current next deliverable: effects requiring multiple context items or new
 target entity families, followed by scaling rules.
 

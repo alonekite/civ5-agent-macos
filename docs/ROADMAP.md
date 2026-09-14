@@ -80,6 +80,8 @@ No application-bundle modification is required.
   effects
 - [x] Import projects, processes, victory conditions, prerequisites, thresholds,
   production conversion, and resource requirements
+- [x] Import unit-combat categories, unit/promotion applicability, quantified
+  category modifiers, and contextual free promotions
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

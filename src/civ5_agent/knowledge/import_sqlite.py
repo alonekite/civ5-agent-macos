@@ -1300,6 +1300,36 @@ QUANTITY_REFERENCE_TABLES = (
         "Process_ProductionYields", "ProcessType", "YieldType",
         "converts_production_to", "process", "yield", "Yield", "percent",
     ),
+    (
+        "Building_UnitCombatFreeExperiences", "BuildingType", "UnitCombatType",
+        "grants_experience", "building", "unit_combat", "Experience", "amount",
+    ),
+    (
+        "Building_UnitCombatProductionModifiers", "BuildingType", "UnitCombatType",
+        "production_modifier", "building", "unit_combat", "Modifier", "percent",
+    ),
+    (
+        "Policy_UnitCombatFreeExperiences", "PolicyType", "UnitCombatType",
+        "grants_experience", "policy", "unit_combat", "FreeExperience", "amount",
+    ),
+    (
+        "Policy_UnitCombatProductionModifiers", "PolicyType", "UnitCombatType",
+        "production_modifier", "policy", "unit_combat", "ProductionModifier",
+        "percent",
+    ),
+    (
+        "Trait_MaintenanceModifierUnitCombats", "TraitType", "UnitCombatType",
+        "maintenance_modifier", "trait", "unit_combat", "MaintenanceModifier",
+        "percent",
+    ),
+    (
+        "Trait_MovesChangeUnitCombats", "TraitType", "UnitCombatType",
+        "movement_change", "trait", "unit_combat", "MovesChange", "amount",
+    ),
+    (
+        "UnitPromotions_UnitCombatMods", "PromotionType", "UnitCombatType",
+        "combat_modifier", "promotion", "unit_combat", "Modifier", "percent",
+    ),
 )
 
 CONTEXTUAL_QUANTITY_REFERENCE_TABLES = (
@@ -1552,6 +1582,31 @@ CONTEXTUAL_QUANTITY_REFERENCE_TABLES = (
     ),
 )
 
+CONTEXTUAL_REFERENCE_TABLES = (
+    (
+        "Policy_FreePromotionUnitCombats",
+        "PolicyType",
+        "PromotionType",
+        "grants_free_promotion",
+        "policy",
+        "promotion",
+        "UnitCombatType",
+        "unit_combat",
+        "for_unit_combat",
+    ),
+    (
+        "Trait_FreePromotionUnitCombats",
+        "TraitType",
+        "PromotionType",
+        "grants_free_promotion",
+        "trait",
+        "promotion",
+        "UnitCombatType",
+        "unit_combat",
+        "for_unit_combat",
+    ),
+)
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -1600,7 +1655,9 @@ def import_ruleset(
                 {"Type", "Era", *TECHNOLOGY_FIELDS},
             )
             _require_columns(connection, "Eras", {"Type", *ERA_FIELDS})
-            _require_columns(connection, "Units", {"Type", "Class", *UNIT_FIELDS})
+            _require_columns(
+                connection, "Units", {"Type", "Class", "CombatClass", *UNIT_FIELDS}
+            )
             _require_columns(
                 connection,
                 "UnitClasses",
@@ -1625,6 +1682,12 @@ def import_ruleset(
                 connection,
                 "Unit_FreePromotions",
                 {"UnitType", "PromotionType"},
+            )
+            _require_columns(connection, "UnitCombatInfos", {"Type"})
+            _require_columns(
+                connection,
+                "UnitPromotions_UnitCombats",
+                {"PromotionType", "UnitCombatType"},
             )
             _require_columns(
                 connection,
@@ -1689,6 +1752,22 @@ def import_ruleset(
                         context_column,
                         value_column,
                     },
+                )
+            for (
+                table,
+                source_column,
+                target_column,
+                _kind,
+                _source_kind,
+                _target_kind,
+                context_column,
+                _context_kind,
+                _context_role,
+            ) in CONTEXTUAL_REFERENCE_TABLES:
+                _require_columns(
+                    connection,
+                    table,
+                    {source_column, target_column, context_column},
                 )
             _require_columns(
                 connection,
@@ -1900,6 +1979,11 @@ def import_ruleset(
             unit_class_entities = tuple(
                 _scalar_entity("unit_class", row, UNIT_CLASS_FIELDS, source_label)
                 for row in unit_class_rows
+            )
+            unit_combat_rows = _select_scalar_rows(connection, "UnitCombatInfos", {})
+            unit_combat_entities = tuple(
+                _scalar_entity("unit_combat", row, {}, source_label)
+                for row in unit_combat_rows
             )
             unit_columns = ["Type", "Class", *UNIT_FIELDS]
             unit_select = ", ".join(f'"{column}"' for column in unit_columns)
@@ -2224,6 +2308,7 @@ def import_ruleset(
                 + _unit_class_references(
                     connection, unit_rows, unit_class_rows, source_label
                 )
+                + _unit_combat_references(connection, unit_rows, source_label)
                 + _policy_references(
                     connection, policy_rows, branch_rows, source_label
                 )
@@ -2253,6 +2338,7 @@ def import_ruleset(
                 )
                 + _quantity_references(connection, source_label)
                 + _contextual_quantity_references(connection, source_label)
+                + _contextual_references(connection, source_label)
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -2270,6 +2356,7 @@ def import_ruleset(
                 + technology_entities
                 + unit_entities
                 + unit_class_entities
+                + unit_combat_entities
                 + promotion_entities
                 + policy_entities
                 + branch_entities
@@ -2448,6 +2535,38 @@ def _free_promotion_references(
         )
         for row in rows
     ]
+
+
+def _unit_combat_references(
+    connection: sqlite3.Connection,
+    unit_rows: list[sqlite3.Row],
+    source_label: str,
+) -> list[Reference]:
+    references = [
+        Reference(
+            "belongs_to_unit_combat",
+            "unit",
+            row["Type"],
+            "unit_combat",
+            row["CombatClass"],
+            (source_label,),
+        )
+        for row in unit_rows
+        if row["CombatClass"] not in (None, "NONE")
+    ]
+    references.extend(
+        _two_column_references(
+            connection,
+            "UnitPromotions_UnitCombats",
+            "PromotionType",
+            "UnitCombatType",
+            "valid_for_unit_combat",
+            "promotion",
+            "unit_combat",
+            source_label,
+        )
+    )
+    return references
 
 
 def _unit_class_references(
@@ -2987,6 +3106,48 @@ def _contextual_quantity_references(
                     ),
                 )
             )
+    return references
+
+
+def _contextual_references(
+    connection: sqlite3.Connection, source_label: str
+) -> list[Reference]:
+    references: list[Reference] = []
+    for (
+        table,
+        source_column,
+        target_column,
+        kind,
+        source_kind,
+        target_kind,
+        context_column,
+        context_kind,
+        context_role,
+    ) in CONTEXTUAL_REFERENCE_TABLES:
+        rows = connection.execute(
+            f'SELECT "{source_column}", "{target_column}", "{context_column}" '
+            f'FROM "{table}" ORDER BY "{source_column}", "{target_column}", '
+            f'"{context_column}"'
+        ).fetchall()
+        references.extend(
+            Reference(
+                kind,
+                source_kind,
+                row[source_column],
+                target_kind,
+                row[target_column],
+                (source_label,),
+                {},
+                (
+                    ReferenceContext(
+                        context_role,
+                        context_kind,
+                        row[context_column],
+                    ),
+                ),
+            )
+            for row in rows
+        )
     return references
 
 

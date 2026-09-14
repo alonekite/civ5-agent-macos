@@ -86,7 +86,11 @@ their class, class defaults, and class-based upgrade targets. Duplicate merged
 database upgrade rows are collapsed deterministically.
 Promotion entities include an explicit gameplay-effect allowlist, AND/OR
 promotion prerequisites, technology prerequisites, and unit free-promotion
-relationships. Presentation and hotkey fields remain excluded.
+relationships. Unit-combat entities connect units and applicable promotions to
+their combat categories. Buildings, policies, traits, and promotions preserve
+category-specific experience, production, maintenance, movement, and combat
+modifiers; trait free promotions use typed unit-combat context. Presentation,
+Pedia grouping, and hotkey fields remain excluded.
 Policy and policy-branch entities include core numeric and boolean effects,
 branch membership, AND/OR prerequisites, disables, era gates, and opening and
 finishing policies. AI branch delay/mutual-exclusion fields and policy flavors
@@ -167,10 +171,10 @@ technology `requires_any` table is empty.
 The same tested database adds 45 civilizations, 44 leaders, 48 traits, 14
 religions, 69 beliefs, 7 specialists, 9 terrains, 25 ordinary features, 2 fake
 features, 29 improvements, 2 routes, 6 yields, 35 build actions, 6 projects, 5
-processes, and 5 victory types. The complete current import contains 1,314
-entities and 2,781 references, including 354 binary attributed references from
-51 single-value table families plus project victory thresholds and 159
-single-context quantity-bearing references across 19 table families, and
+processes, 5 victory types, and 14 unit-combat categories. The complete current
+import contains 1,328 entities and 3,262 references, including 386 binary
+attributed references from 58 single-value table families plus project victory
+thresholds and 196 contextual references across 21 table families, and
 45 civilization-to-leader, 43 leader-to-trait, 66 unique-unit, 20
 unique-building, 45 disabled-unit-class, and 121 disabled-building-class
 relationships. Two consecutive imports produced the same canonical bundle
