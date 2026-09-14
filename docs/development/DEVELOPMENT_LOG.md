@@ -179,6 +179,18 @@ Implementation commit: `a014fdc`.
 
 Implementation commit: `be1c293`.
 
+## 2026-09-14 — Unit domain and special classifications
+
+- Added domain and special-unit entities and typed unit relationships while
+  retaining the legacy scalar identifiers for compatibility.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,337 entities and 3,432 references, including 148 unit-domain and 22
+  special-unit links. No generated bundle or source database was committed.
+- Passed all 118 tests on Python 3.11 and the local default Python runtime, and
+  scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `3ae348b`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
