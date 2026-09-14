@@ -86,6 +86,8 @@ Improvement/resource rules preserve validity, trade access, discovery chance,
 and quantity requirements together. Building technology-enhanced yields derive
 their required technology from the validated building row and fail closed when
 that context is absent.
+Hurry methods are first-class entities with conversion rates and optional policy
+requirements; building and policy cost modifiers target those stable IDs.
 Effects that need multiple context items or new target entity families are
 deferred.
 

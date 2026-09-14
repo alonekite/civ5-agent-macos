@@ -1105,6 +1105,12 @@ SPECIAL_UNIT_FIELDS = {
     "Valid": ("valid", "boolean"),
     "CityLoad": ("city_load", "boolean"),
 }
+HURRY_FIELDS = {
+    "GoldPerProduction": ("gold_per_production", "integer"),
+    "ProductionPerPopulation": ("production_per_population", "integer"),
+    "GoldPerBeaker": ("gold_per_beaker", "integer"),
+    "GoldPerCulture": ("gold_per_culture", "integer"),
+}
 
 PLAIN_REFERENCE_TABLES = (
     (
@@ -1504,6 +1510,16 @@ QUANTITY_REFERENCE_TABLES = (
     (
         "Unit_YieldFromKills", "UnitType", "YieldType", "yield_from_kills",
         "unit", "yield", "Yield", "amount",
+    ),
+    (
+        "Building_HurryModifiers", "BuildingType", "HurryType",
+        "hurry_cost_modifier", "building", "hurry", "HurryCostModifier",
+        "percent",
+    ),
+    (
+        "Policy_HurryModifiers", "PolicyType", "HurryType",
+        "hurry_cost_modifier", "policy", "hurry", "HurryCostModifier",
+        "percent",
     ),
 )
 
@@ -1971,6 +1987,11 @@ def import_ruleset(
             )
             _require_columns(
                 connection,
+                "HurryInfos",
+                {"Type", "PolicyPrereq", *HURRY_FIELDS},
+            )
+            _require_columns(
+                connection,
                 "UnitPromotions_UnitCombats",
                 {"PromotionType", "UnitCombatType"},
             )
@@ -2327,6 +2348,16 @@ def import_ruleset(
                 _scalar_entity("special_unit", row, SPECIAL_UNIT_FIELDS, source_label)
                 for row in special_unit_rows
             )
+            hurry_rows = _select_scalar_rows(
+                connection,
+                "HurryInfos",
+                HURRY_FIELDS,
+                ("PolicyPrereq",),
+            )
+            hurry_entities = tuple(
+                _scalar_entity("hurry", row, HURRY_FIELDS, source_label)
+                for row in hurry_rows
+            )
             unit_columns = ["Type", "Class", *UNIT_FIELDS]
             unit_select = ", ".join(f'"{column}"' for column in unit_columns)
             unit_rows = connection.execute(
@@ -2651,6 +2682,7 @@ def import_ruleset(
                     connection, unit_rows, unit_class_rows, source_label
                 )
                 + _unit_combat_references(connection, unit_rows, source_label)
+                + _hurry_references(hurry_rows, source_label)
                 + _policy_references(
                     connection, policy_rows, branch_rows, source_label
                 )
@@ -2707,6 +2739,7 @@ def import_ruleset(
                 + unit_combat_entities
                 + domain_entities
                 + special_unit_entities
+                + hurry_entities
                 + promotion_entities
                 + policy_entities
                 + branch_entities
@@ -2984,6 +3017,23 @@ def _unit_class_references(
         for row in upgrade_rows
     )
     return references
+
+
+def _hurry_references(
+    rows: list[sqlite3.Row], source_label: str
+) -> list[Reference]:
+    return [
+        Reference(
+            "requires_policy",
+            "hurry",
+            row["Type"],
+            "policy",
+            row["PolicyPrereq"],
+            (source_label,),
+        )
+        for row in rows
+        if row["PolicyPrereq"] not in (None, "NONE")
+    ]
 
 
 def _policy_references(

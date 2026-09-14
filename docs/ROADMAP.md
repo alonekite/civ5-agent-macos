@@ -94,6 +94,8 @@ No application-bundle modification is required.
   trait, and combat-yield quantities with supported typed contexts
 - [x] Import multi-attribute improvement/resource rules and building yields
   conditioned by the building's enhanced-yield technology
+- [x] Import hurry methods, conversion rates, policy gates, and building/policy
+  cost modifiers
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

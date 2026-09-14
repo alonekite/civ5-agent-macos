@@ -26,6 +26,7 @@ from civ5_agent.knowledge.import_sqlite import (
     FEATURE_REFERENCE_COLUMNS,
     IMPROVEMENT_FIELDS,
     IMPROVEMENT_REFERENCE_COLUMNS,
+    HURRY_FIELDS,
     PROMOTION_FIELDS,
     PROMOTION_PREREQUISITE_COLUMNS,
     POLICY_BRANCH_FIELDS,
@@ -61,6 +62,7 @@ FIXTURE_TYPE_IDS = {
     "building_class": "BUILDINGCLASS_PYRAMID",
     "feature": "FEATURE_TEST",
     "improvement": "IMPROVEMENT_TEST",
+    "hurry": "HURRY_TEST",
     "policy": "POLICY_TRADITION",
     "process": "PROCESS_TEST",
     "project": "PROJECT_TEST",
@@ -153,6 +155,14 @@ def create_database(
         )
         connection.execute(
             f"CREATE TABLE SpecialUnits ({', '.join(special_unit_definitions)})"
+        )
+        hurry_definitions = [
+            "Type TEXT NOT NULL PRIMARY KEY",
+            "PolicyPrereq TEXT",
+            *(f'"{column}" INTEGER' for column in HURRY_FIELDS),
+        ]
+        connection.execute(
+            f"CREATE TABLE HurryInfos ({', '.join(hurry_definitions)})"
         )
         connection.execute(
             "CREATE TABLE UnitPromotions_UnitCombats "
@@ -512,6 +522,11 @@ def create_database(
         connection.execute(
             "INSERT INTO SpecialUnits VALUES (?, ?, ?)",
             ("SPECIALUNIT_TEST", 1, 0),
+        )
+        connection.execute(
+            f"INSERT INTO HurryInfos VALUES "
+            f"({', '.join('?' for _ in range(2 + len(HURRY_FIELDS)))})",
+            ("HURRY_TEST", "POLICY_TRADITION", *([1] * len(HURRY_FIELDS))),
         )
         unit_class_columns = ["Type", "DefaultUnit", *UNIT_CLASS_FIELDS]
         quoted_unit_class_columns = ", ".join(
@@ -1185,7 +1200,7 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 34)
+        self.assertEqual(len(bundle.entities), 35)
         self.assertEqual(
             len(bundle.references),
             58
@@ -1197,10 +1212,21 @@ class RulesetImportTest(unittest.TestCase):
             + 1
             + len(ATTRIBUTED_REFERENCE_TABLES)
             + 2
+            + 1
             + 1,
         )
         self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
+        hurry = next(item for item in bundle.entities if item.type_id == "HURRY_TEST")
+        self.assertEqual(hurry.attributes["gold_per_production"], 1)
+        self.assertIn(
+            ("requires_policy", "POLICY_TRADITION"),
+            {
+                (item.kind, item.target_type_id)
+                for item in bundle.references
+                if item.source_type_id == "HURRY_TEST"
+            },
+        )
         plain_relations = {
             (
                 item.kind,

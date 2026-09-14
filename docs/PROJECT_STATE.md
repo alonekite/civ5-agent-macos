@@ -43,7 +43,7 @@ decisions, not raw chat transcripts.
   routes, yields, build actions, projects, processes, victories, unit-combat
   categories, domains, special-unit categories, and their currently supported
   relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,337 entities and 4,283
+- The real Campaign Edition database currently yields 1,339 entities and 4,285
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -54,8 +54,8 @@ decisions, not raw chat transcripts.
   modifiers while retaining canonical schema 1 read/write compatibility.
 - Knowledge schema 3 adds sorted, referentially validated context items to edge
   identity while retaining canonical schema 1 and schema 2 compatibility.
-- Eighty-two single-value binary table families, four multi-attribute promotion
-  modifier families, and project victory thresholds add 644 attributed binary
+- Eighty-four single-value binary table families, four multi-attribute promotion
+  modifier families, and project victory thresholds add 646 attributed binary
   references. Twenty-two contextual quantity families, two contextual promotion
   grant families, promotion terrain/feature passability, and enhanced-building
   yields add 213 schema 3 contextual references; effects requiring multiple
@@ -67,6 +67,8 @@ decisions, not raw chat transcripts.
   faith purchasing, city/building prerequisites, local resources, free
   promotions, resource placement, trait training restrictions, post-combat
   promotions, and unit build capabilities.
+- Two hurry-method entities preserve deterministic conversion rates; building
+  and policy hurry-cost modifiers target them through validated references.
 - The test suite contains 120 tests locally. GitHub Actions on Python 3.11 and
   3.13 passed at the prior pushed commit `d96b693`; CI for this batch is pending.
 

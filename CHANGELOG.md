@@ -38,6 +38,8 @@ versioned releases. Development details belong in
   and combat-yield rules, including typed trait contexts.
 - Multi-attribute improvement/resource rules and fail-closed technology-
   enhanced building yields.
+- Hurry-method entities, conversion rates, policy gates, and building/policy
+  cost modifiers.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 
