@@ -104,6 +104,19 @@ Contract commit: `de60745`.
 
 Implementation commit: `2ee9f89`.
 
+## 2026-09-14 — Contextual knowledge relation identity
+
+- Added knowledge schema 3 typed reference context while preserving the exact
+  schema 1 and schema 2 serialized shapes.
+- Required context roles and entity identifiers to be valid, sorted, unique,
+  and referentially complete; included context in duplicate-edge identity.
+- Recorded the compatibility and modeling decision in ADR-0008 and added
+  round-trip, legacy-shape, ordering, missing-target, and identity tests.
+- Passed the complete 116-test Python 3.11 suite and the sensitive-information
+  scan before submission.
+
+Implementation commit: `a20bbe6`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
