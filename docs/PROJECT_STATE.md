@@ -12,7 +12,7 @@ decisions, not raw chat transcripts.
 - Active next deliverable: model copyright-safe theming constraints, then
   continue ruleset scaling.
 - Functional test baseline: 120 tests locally; Python 3.11/3.13 CI passed at
-  prior pushed head `d96b693`.
+  latest completed development head `d7a5f5c`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only the pending schema 3 and `skip_unit` bounded
   live verifications.
@@ -78,7 +78,7 @@ decisions, not raw chat transcripts.
   deterministic archaeology flag and artifact-class numeric value are retained;
   names and presentation content remain excluded.
 - The test suite contains 120 tests locally. GitHub Actions on Python 3.11 and
-  3.13 passed at the prior pushed commit `d96b693`; CI for this batch is pending.
+  3.13 passed at the latest completed development commit `d7a5f5c`.
 
 ## Implemented but awaiting bounded live verification
 
