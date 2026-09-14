@@ -67,8 +67,9 @@ No application-bundle modification is required.
   building class overrides.
 - [x] Import religions, core beliefs, specialists, and great-person unit-class
   relationships
-- [ ] Import terrain, features, improvements, routes, yields, dependent effect
-  tables, and remaining rules
+- [x] Import core terrains, features, improvements, routes, yields, build
+  actions, and direct validity/unlock relationships
+- [ ] Represent and import quantity-bearing effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context
 - [x] Expose a validated, deterministic entity/reference query API

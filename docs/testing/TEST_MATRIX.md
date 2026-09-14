@@ -25,6 +25,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | Local SQLite knowledge import | Yes | Yes, including local real source | N/A | Confirmed offline |
 | Civilization/trait/replacement knowledge | Real merged database imported; counts and class consistency checked | Synthetic schema, allowlist, relation, duplicate-slot, and mismatch tests | N/A | Implemented offline |
 | Religion/belief/specialist knowledge | Real merged database imported; counts and canonical repeatability checked | Synthetic scalar, reference, and invalid-number tests | N/A | Implemented offline |
+| Terrain/feature/improvement/route/yield/build knowledge | Real merged database imported; counts, references, and canonical repeatability checked | Synthetic allowlist, optional scalar, validity, unlock, and creation relations | N/A | Core slice implemented offline |
 | Ruleset resolver | No | No | N/A | Not implemented |
 | Turn journal | Proposed contract | No | N/A | Not implemented |
 | Expanded deterministic controller | Yes | Basic tests | Basic live path | In progress |

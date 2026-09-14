@@ -16,6 +16,7 @@ versioned releases. Development details belong in
 - Civilization, leader, deterministic trait, and unique/disabled class
   knowledge coverage without AI personality data.
 - Religion, core belief, specialist, and great-person class knowledge coverage.
+- Core terrain, feature, improvement, route, yield, and build-action knowledge.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

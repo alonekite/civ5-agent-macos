@@ -64,14 +64,13 @@ canonical counts and relations were checked without committing generated data.
 
 ## Current limitations
 
-Coverage currently stops after eras, technologies, units/classes, promotions,
-policies/branches, buildings/classes, resources/classes, civilizations, leaders,
-traits, religions, beliefs, and specialists/great-person classes plus supported
-relations. Trait references to improvements remain stable identifier attributes
-until improvement entities are imported.
+Coverage now includes core terrains, features, improvements, routes, yields,
+and build actions in addition to the earlier entity families. Numeric
+yield-change and other quantity-bearing relationship tables remain deferred
+because schema-1 references do not yet carry attributes.
 
 ## Planned extensions
 
-M3 next imports terrain, features, improvements, routes, yields, and dependent
-effect tables, followed by scaling families. M4 adds per-game resolution without
-mutating base facts.
+M3 next designs a provenance-preserving representation for quantity-bearing
+effect tables, then imports those tables and scaling families. M4 adds per-game
+resolution without mutating base facts.

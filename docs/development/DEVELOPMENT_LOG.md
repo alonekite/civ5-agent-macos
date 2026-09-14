@@ -68,6 +68,17 @@ Governance commit: `a053797`.
   future live sessions to update the ledger and verification matrix only after
   sanitized evidence is recorded.
 
+## 2026-09-14 — Core map and build knowledge
+
+- Added allowlisted terrain, feature, improvement, route, yield, and build
+  entities plus direct validity, unlock, creation, upgrade, and restriction
+  relationships.
+- Converted the trait improvement bonus identifier into a validated typed
+  reference now that improvement entities exist.
+- Excluded yield AI weights, graphical-only flags, prose, hotkeys, and assets.
+- Imported the real merged database twice with an identical canonical hash:
+  1,296 entities and 2,259 references; no generated bundle was committed.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.

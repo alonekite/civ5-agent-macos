@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-09-13.
+Last updated: 2026-09-14.
 
 This file is the durable handoff for continuing development without relying on
 a particular Codex conversation. It records project facts and accepted design
@@ -9,8 +9,8 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: terrain, features, improvements, routes, yields, and
-  dependent effect tables.
+- Active next deliverable: quantity-bearing terrain, feature, improvement,
+  route, yield, building, policy, belief, and resource effect tables.
 - Functional test baseline: 105 tests locally; Python 3.11/3.13 CI last passed
   at documentation-governance commit `a053797` before the current knowledge
   batch.
@@ -40,12 +40,13 @@ decisions, not raw chat transcripts.
   promotions, policy branches, policies, buildings, building classes,
   resources, resource classes, civilizations, leaders, deterministic trait
   effects, unique replacements, disabled class overrides, religions, core
-  beliefs, specialists/great-person classes, and their currently supported
-  relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,190 entities and 2,110
-  validated references, including 45 civilizations, 44 leaders, 48 traits, 14
-  religions, 69 beliefs, and 7 specialists. Generated bundles remain local and
-  uncommitted.
+  beliefs, specialists/great-person classes, terrains, features, improvements,
+  routes, yields, build actions, and their currently supported relations from a
+  local merged Civ V SQLite database.
+- The real Campaign Edition database currently yields 1,296 entities and 2,259
+  validated references. The new map slice includes 9 terrains, 25 features, 29
+  improvements, 2 routes, 6 yields, and 35 build actions. Generated bundles
+  remain local and uncommitted.
 - The knowledge importer records provenance, validates the active ruleset
   family, rejects broken references, and excludes AI flavor/personality data
   and copyrighted descriptive assets.
@@ -85,8 +86,9 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Continue the ruleset importer with terrain, features, improvements, routes,
-   yields, dependent effect tables, and remaining relation tables.
+1. Define schema support for quantity-bearing references, then import dependent
+   terrain, feature, improvement, route, building, policy, belief, specialist,
+   and resource effect tables.
 2. Add ruleset scaling and per-game modifier resolution without mutating base
    knowledge.
 3. Define the factual turn-journal schema, storage interface, canonical

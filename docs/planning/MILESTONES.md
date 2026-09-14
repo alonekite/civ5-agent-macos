@@ -70,8 +70,9 @@ Acceptance criteria:
 
 Completed coverage slices: civilizations, leaders, deterministic trait effects,
 unique/disabled unit and building class overrides, religions, core beliefs, and
-specialists/great-person classes. Current next deliverable: terrain, features,
-improvements, routes, yields, and their dependent effect tables.
+specialists/great-person classes, terrains, features, improvements, routes,
+yields, build actions, and their direct relationships. Current next deliverable:
+quantity-bearing effect tables and remaining scaling rules.
 
 ## M4 — Ruleset resolver
 

@@ -10,12 +10,18 @@ from civ5_agent.knowledge.import_sqlite import (
     BRAVE_NEW_WORLD_PACKAGE_ID,
     BELIEF_FIELDS,
     BELIEF_REFERENCE_COLUMNS,
+    BUILD_FIELDS,
+    BUILD_REFERENCE_COLUMNS,
     BUILDING_CLASS_FIELDS,
     BUILDING_FIELDS,
     BUILDING_REFERENCE_COLUMNS,
     CIVILIZATION_FIELDS,
     KnowledgeImportError,
     ERA_FIELDS,
+    FEATURE_FIELDS,
+    FEATURE_REFERENCE_COLUMNS,
+    IMPROVEMENT_FIELDS,
+    IMPROVEMENT_REFERENCE_COLUMNS,
     PROMOTION_FIELDS,
     PROMOTION_PREREQUISITE_COLUMNS,
     POLICY_BRANCH_FIELDS,
@@ -23,12 +29,15 @@ from civ5_agent.knowledge.import_sqlite import (
     RESOURCE_CLASS_FIELDS,
     RESOURCE_FIELDS,
     RESOURCE_REFERENCE_COLUMNS,
+    ROUTE_FIELDS,
     SPECIALIST_FIELDS,
     TECHNOLOGY_FIELDS,
     TRAIT_FIELDS,
     TRAIT_REFERENCE_COLUMNS,
+    TERRAIN_FIELDS,
     UNIT_FIELDS,
     UNIT_CLASS_FIELDS,
+    YIELD_FIELDS,
     import_ruleset,
 )
 
@@ -220,6 +229,58 @@ def create_database(
         connection.execute(
             "CREATE TABLE Unit_GreatPersons "
             "(UnitType TEXT, GreatPersonType TEXT)"
+        )
+        for table, fields in (
+            ("Terrains", TERRAIN_FIELDS),
+            ("Routes", ROUTE_FIELDS),
+            ("Yields", YIELD_FIELDS),
+        ):
+            table_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+            table_definitions.extend(f'"{column}" INTEGER' for column in fields)
+            if table == "Yields":
+                table_definitions.append('"AIWeightPercent" INTEGER')
+            connection.execute(
+                f"CREATE TABLE {table} ({', '.join(table_definitions)})"
+            )
+        feature_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        feature_definitions.extend(
+            f'"{column}" TEXT' for column, _, _ in FEATURE_REFERENCE_COLUMNS
+        )
+        feature_definitions.extend(f'"{column}" INTEGER' for column in FEATURE_FIELDS)
+        connection.execute(
+            f"CREATE TABLE Features ({', '.join(feature_definitions)})"
+        )
+        improvement_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        improvement_definitions.extend(
+            f'"{column}" TEXT' for column, _, _ in IMPROVEMENT_REFERENCE_COLUMNS
+        )
+        improvement_definitions.extend(
+            f'"{column}" INTEGER' for column in IMPROVEMENT_FIELDS
+        )
+        connection.execute(
+            f"CREATE TABLE Improvements ({', '.join(improvement_definitions)})"
+        )
+        build_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        build_definitions.extend(
+            f'"{column}" TEXT' for column, _, _ in BUILD_REFERENCE_COLUMNS
+        )
+        build_definitions.extend(f'"{column}" INTEGER' for column in BUILD_FIELDS)
+        connection.execute(f"CREATE TABLE Builds ({', '.join(build_definitions)})")
+        connection.execute(
+            "CREATE TABLE Feature_TerrainBooleans "
+            "(FeatureType TEXT, TerrainType TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE Improvement_ValidTerrains "
+            "(ImprovementType TEXT, TerrainType TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE Improvement_ValidFeatures "
+            "(ImprovementType TEXT, FeatureType TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE Improvement_ValidImprovements "
+            "(ImprovementType TEXT, PrereqImprovement TEXT)"
         )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
@@ -502,6 +563,7 @@ def create_database(
         trait_reference_values = {
             "FreeUnit": "UNITCLASS_WARRIOR",
             "FreeUnitPrereqTech": "TECH_AGRICULTURE",
+            "CombatBonusImprovement": "IMPROVEMENT_TEST",
             "FreeBuilding": "BUILDING_PYRAMID",
             "PrereqTech": "TECH_POTTERY",
         }
@@ -511,8 +573,6 @@ def create_database(
                 value = 20
             elif column == "MoveFriendlyWoodsAsRoad":
                 value = 1
-            elif column == "CombatBonusImprovement":
-                value = "IMPROVEMENT_MOAI"
             elif value_type in {"integer", "boolean"}:
                 value = 0
             else:
@@ -618,6 +678,111 @@ def create_database(
             "INSERT INTO Unit_GreatPersons VALUES (?, ?)",
             ("UNIT_WARRIOR", "SPECIALIST_TEST"),
         )
+        for table, type_id, fields, overrides in (
+            ("Terrains", "TERRAIN_TEST", TERRAIN_FIELDS, {"Movement": 1}),
+            ("Routes", "ROUTE_TEST", ROUTE_FIELDS, {"Movement": 60}),
+            ("Yields", "YIELD_TEST", YIELD_FIELDS, {"CityChange": 1}),
+        ):
+            scalar_columns = ["Type", *fields]
+            scalar_values = [
+                overrides.get(column, 0) for column in fields
+            ]
+            connection.execute(
+                f"INSERT INTO {table} ({', '.join(scalar_columns)}) VALUES "
+                f"({', '.join('?' for _ in scalar_columns)})",
+                [type_id, *scalar_values],
+            )
+        connection.execute(
+            "UPDATE Yields SET AIWeightPercent = 999 WHERE Type = ?",
+            ("YIELD_TEST",),
+        )
+        feature_columns = [
+            "Type",
+            *(column for column, _, _ in FEATURE_REFERENCE_COLUMNS),
+            *FEATURE_FIELDS,
+        ]
+        feature_references = {
+            "GrowthTerrainType": "TERRAIN_TEST",
+            "AdjacentUnitFreePromotion": "PROMOTION_SHOCK_1",
+        }
+        feature_values = [
+            1 if column == "NaturalWonder" else 0 for column in FEATURE_FIELDS
+        ]
+        connection.execute(
+            f"INSERT INTO Features ({', '.join(feature_columns)}) VALUES "
+            f"({', '.join('?' for _ in feature_columns)})",
+            [
+                "FEATURE_TEST",
+                *(
+                    feature_references.get(column)
+                    for column, _, _ in FEATURE_REFERENCE_COLUMNS
+                ),
+                *feature_values,
+            ],
+        )
+        improvement_columns = [
+            "Type",
+            *(column for column, _, _ in IMPROVEMENT_REFERENCE_COLUMNS),
+            *IMPROVEMENT_FIELDS,
+        ]
+        improvement_references = {"CivilizationType": "CIVILIZATION_TEST"}
+        improvement_values = [
+            1 if column == "CreatedByGreatPerson" else 0
+            for column in IMPROVEMENT_FIELDS
+        ]
+        connection.execute(
+            f"INSERT INTO Improvements ({', '.join(improvement_columns)}) VALUES "
+            f"({', '.join('?' for _ in improvement_columns)})",
+            [
+                "IMPROVEMENT_TEST",
+                *(
+                    improvement_references.get(column)
+                    for column, _, _ in IMPROVEMENT_REFERENCE_COLUMNS
+                ),
+                *improvement_values,
+            ],
+        )
+        build_columns = [
+            "Type",
+            *(column for column, _, _ in BUILD_REFERENCE_COLUMNS),
+            *BUILD_FIELDS,
+        ]
+        build_references = {
+            "PrereqTech": "TECH_AGRICULTURE",
+            "ImprovementType": "IMPROVEMENT_TEST",
+            "RouteType": "ROUTE_TEST",
+        }
+        build_values = [
+            None if column == "Time" else 0 for column in BUILD_FIELDS
+        ]
+        connection.execute(
+            f"INSERT INTO Builds ({', '.join(build_columns)}) VALUES "
+            f"({', '.join('?' for _ in build_columns)})",
+            [
+                "BUILD_TEST",
+                *(
+                    build_references.get(column)
+                    for column, _, _ in BUILD_REFERENCE_COLUMNS
+                ),
+                *build_values,
+            ],
+        )
+        connection.execute(
+            "INSERT INTO Feature_TerrainBooleans VALUES (?, ?)",
+            ("FEATURE_TEST", "TERRAIN_TEST"),
+        )
+        connection.execute(
+            "INSERT INTO Improvement_ValidTerrains VALUES (?, ?)",
+            ("IMPROVEMENT_TEST", "TERRAIN_TEST"),
+        )
+        connection.execute(
+            "INSERT INTO Improvement_ValidFeatures VALUES (?, ?)",
+            ("IMPROVEMENT_TEST", "FEATURE_TEST"),
+        )
+        connection.execute(
+            "INSERT INTO Improvement_ValidImprovements VALUES (?, ?)",
+            ("IMPROVEMENT_TEST", "IMPROVEMENT_TEST"),
+        )
         connection.commit()
 
 
@@ -631,8 +796,8 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 21)
-        self.assertEqual(len(bundle.references), 35)
+        self.assertEqual(len(bundle.entities), 27)
+        self.assertEqual(len(bundle.references), 46)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)
@@ -756,9 +921,6 @@ class RulesetImportTest(unittest.TestCase):
         trait = next(item for item in bundle.entities if item.type_id == "TRAIT_TEST")
         self.assertEqual(trait.attributes["wonder_production_modifier"], 20)
         self.assertTrue(trait.attributes["move_friendly_woods_as_road"])
-        self.assertEqual(
-            trait.attributes["combat_bonus_improvement"], "IMPROVEMENT_MOAI"
-        )
         civilization_relations = {
             (
                 item.kind,
@@ -844,6 +1006,13 @@ class RulesetImportTest(unittest.TestCase):
                     "technology",
                     "TECH_POTTERY",
                 ),
+                (
+                    "combat_bonus_near_improvement",
+                    "trait",
+                    "TRAIT_TEST",
+                    "improvement",
+                    "IMPROVEMENT_TEST",
+                ),
             },
         )
         belief = next(item for item in bundle.entities if item.type_id == "BELIEF_TEST")
@@ -896,6 +1065,58 @@ class RulesetImportTest(unittest.TestCase):
             {
                 (item.kind, item.source_type_id, item.target_type_id)
                 for item in bundle.references
+            },
+        )
+        terrain = next(
+            item for item in bundle.entities if item.type_id == "TERRAIN_TEST"
+        )
+        self.assertEqual(terrain.attributes["movement"], 1)
+        feature = next(
+            item for item in bundle.entities if item.type_id == "FEATURE_TEST"
+        )
+        self.assertTrue(feature.attributes["natural_wonder"])
+        improvement = next(
+            item for item in bundle.entities if item.type_id == "IMPROVEMENT_TEST"
+        )
+        self.assertTrue(improvement.attributes["created_by_great_person"])
+        build = next(item for item in bundle.entities if item.type_id == "BUILD_TEST")
+        self.assertIsNone(build.attributes["time"])
+        yield_entity = next(
+            item for item in bundle.entities if item.type_id == "YIELD_TEST"
+        )
+        self.assertEqual(yield_entity.attributes["city_change"], 1)
+        self.assertNotIn("ai_weight_percent", yield_entity.attributes)
+        map_relations = {
+            (item.kind, item.source_type_id, item.target_type_id)
+            for item in bundle.references
+            if item.source_type_id
+            in {"FEATURE_TEST", "IMPROVEMENT_TEST", "BUILD_TEST"}
+        }
+        self.assertEqual(
+            map_relations,
+            {
+                ("grows_on_terrain", "FEATURE_TEST", "TERRAIN_TEST"),
+                (
+                    "grants_adjacent_unit_promotion",
+                    "FEATURE_TEST",
+                    "PROMOTION_SHOCK_1",
+                ),
+                ("valid_on_terrain", "FEATURE_TEST", "TERRAIN_TEST"),
+                (
+                    "restricted_to_civilization",
+                    "IMPROVEMENT_TEST",
+                    "CIVILIZATION_TEST",
+                ),
+                ("valid_on_terrain", "IMPROVEMENT_TEST", "TERRAIN_TEST"),
+                ("valid_on_feature", "IMPROVEMENT_TEST", "FEATURE_TEST"),
+                (
+                    "valid_on_improvement",
+                    "IMPROVEMENT_TEST",
+                    "IMPROVEMENT_TEST",
+                ),
+                ("unlocked_by_technology", "BUILD_TEST", "TECH_AGRICULTURE"),
+                ("creates_improvement", "BUILD_TEST", "IMPROVEMENT_TEST"),
+                ("creates_route", "BUILD_TEST", "ROUTE_TEST"),
             },
         )
 

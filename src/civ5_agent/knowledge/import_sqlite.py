@@ -733,9 +733,6 @@ TRAIT_BOOLEAN_COLUMNS = (
 TRAIT_FIELDS = {
     **{column: (_snake_case(column), "integer") for column in TRAIT_INTEGER_COLUMNS},
     **{column: (_snake_case(column), "boolean") for column in TRAIT_BOOLEAN_COLUMNS},
-    # Improvements are imported in a later M3 slice. Preserve the stable ID now;
-    # convert it to a typed reference when improvement entities exist.
-    "CombatBonusImprovement": ("combat_bonus_improvement", "identifier"),
 }
 
 TRAIT_REFERENCE_COLUMNS = (
@@ -747,6 +744,7 @@ TRAIT_REFERENCE_COLUMNS = (
     ),
     ("FreeBuilding", "grants_free_building", "building"),
     ("FreeBuildingOnConquest", "grants_building_on_conquest", "building"),
+    ("CombatBonusImprovement", "combat_bonus_near_improvement", "improvement"),
     ("ObsoleteTech", "obsoleted_by_technology", "technology"),
     ("PrereqTech", "unlocked_by_technology", "technology"),
 )
@@ -825,6 +823,190 @@ SPECIALIST_FIELDS = {
     "GreatPeopleRateChange": ("great_people_rate_change", "integer"),
     "CulturePerTurn": ("culture_per_turn", "integer"),
 }
+
+TERRAIN_FIELDS = {
+    **{
+        column: (_snake_case(column), "boolean")
+        for column in (
+            "Water",
+            "Impassable",
+            "Found",
+            "FoundCoast",
+            "FoundFreshWater",
+        )
+    },
+    **{
+        column: (_snake_case(column), "integer")
+        for column in (
+            "Movement",
+            "SeeFrom",
+            "SeeThrough",
+            "BuildModifier",
+            "Defense",
+            "InfluenceCost",
+        )
+    },
+}
+
+FEATURE_BOOLEAN_COLUMNS = (
+    "YieldNotAdditive",
+    "NoCoast",
+    "NoRiver",
+    "NoAdjacent",
+    "RequiresFlatlands",
+    "RequiresRiver",
+    "AddsFreshWater",
+    "Impassable",
+    "NoCity",
+    "NoImprovement",
+    "VisibleAlways",
+    "NukeImmune",
+    "NaturalWonder",
+    "Rough",
+)
+FEATURE_INTEGER_COLUMNS = (
+    "StartingLocationWeight",
+    "Movement",
+    "SeeThrough",
+    "Defense",
+    "InfluenceCost",
+    "AppearanceProbability",
+    "DisappearanceProbability",
+    "Growth",
+    "TurnDamage",
+    "FirstFinderGold",
+    "InBorderHappiness",
+    "OccurrenceFrequency",
+    "AdvancedStartRemoveCost",
+)
+FEATURE_FIELDS = {
+    **{
+        column: (_snake_case(column), "boolean")
+        for column in FEATURE_BOOLEAN_COLUMNS
+    },
+    **{
+        column: (_snake_case(column), "integer")
+        for column in FEATURE_INTEGER_COLUMNS
+    },
+}
+FEATURE_REFERENCE_COLUMNS = (
+    ("GrowthTerrainType", "grows_on_terrain", "terrain"),
+    (
+        "AdjacentUnitFreePromotion",
+        "grants_adjacent_unit_promotion",
+        "promotion",
+    ),
+)
+
+IMPROVEMENT_BOOLEAN_COLUMNS = (
+    "SpecificCivRequired",
+    "HillsMakesValid",
+    "FreshWaterMakesValid",
+    "RiverSideMakesValid",
+    "NoFreshWater",
+    "RequiresFlatlands",
+    "RequiresFlatlandsOrFreshWater",
+    "RequiresFeature",
+    "RequiresImprovement",
+    "RemovesResource",
+    "PromptWhenComplete",
+    "Coastal",
+    "Water",
+    "DestroyedWhenPillaged",
+    "DisplacePillager",
+    "BuildableOnResources",
+    "BarbarianCamp",
+    "Goody",
+    "Permanent",
+    "OutsideBorders",
+    "InAdjacentFriendly",
+    "IgnoreOwnership",
+    "OnlyCityStateTerritory",
+    "CreatedByGreatPerson",
+    "NoTwoAdjacent",
+    "AdjacentLuxury",
+    "AllowsWalkWater",
+)
+IMPROVEMENT_INTEGER_COLUMNS = (
+    "CultureAdjacentSameType",
+    "TilesPerGoody",
+    "GoodyRange",
+    "FeatureGrowth",
+    "UpgradeTime",
+    "RiverSideUpgradeMod",
+    "CoastalLandUpgradeMod",
+    "HillsUpgradeMod",
+    "FreshWaterUpgradeMod",
+    "DefenseModifier",
+    "NearbyEnemyDamage",
+    "PillageGold",
+    "ResourceExtractionMod",
+    "LuxuryCopiesSiphonedFromMinor",
+    "GoldMaintenance",
+    "CultureBombRadius",
+    "RequiresXAdjacentLand",
+)
+IMPROVEMENT_FIELDS = {
+    **{
+        column: (_snake_case(column), "boolean")
+        for column in IMPROVEMENT_BOOLEAN_COLUMNS
+    },
+    **{
+        column: (_snake_case(column), "integer")
+        for column in IMPROVEMENT_INTEGER_COLUMNS
+    },
+}
+IMPROVEMENT_REFERENCE_COLUMNS = (
+    ("ImprovementPillage", "pillaged_form", "improvement"),
+    ("ImprovementUpgrade", "upgrades_to_improvement", "improvement"),
+    ("CivilizationType", "restricted_to_civilization", "civilization"),
+)
+
+ROUTE_FIELDS = {
+    **{
+        column: (_snake_case(column), "integer")
+        for column in (
+            "AdvancedStartCost",
+            "Value",
+            "Movement",
+            "FlatMovement",
+            "GoldMaintenance",
+        )
+    },
+    "Industrial": ("industrial", "boolean"),
+}
+
+YIELD_FIELDS = {
+    column: (_snake_case(column), "integer")
+    for column in (
+        "HillsChange",
+        "MountainChange",
+        "LakeChange",
+        "CityChange",
+        "PopulationChangeOffset",
+        "PopulationChangeDivisor",
+        "MinCity",
+        "GoldenAgeYield",
+        "GoldenAgeYieldThreshold",
+        "GoldenAgeYieldMod",
+    )
+}
+
+BUILD_FIELDS = {
+    "Time": ("time", "optional_integer"),
+    "Cost": ("cost", "integer"),
+    "CostIncreasePerImprovement": ("cost_increase_per_improvement", "integer"),
+    "Kill": ("kill", "boolean"),
+    "Repair": ("repair", "boolean"),
+    "RemoveRoute": ("remove_route", "boolean"),
+    "Water": ("water", "boolean"),
+    "CanBeEmbarked": ("can_be_embarked", "boolean"),
+}
+BUILD_REFERENCE_COLUMNS = (
+    ("PrereqTech", "unlocked_by_technology", "technology"),
+    ("ImprovementType", "creates_improvement", "improvement"),
+    ("RouteType", "creates_route", "route"),
+)
 
 
 class KnowledgeImportError(ValueError):
@@ -1025,6 +1207,55 @@ def import_ruleset(
                 "Unit_GreatPersons",
                 {"UnitType", "GreatPersonType"},
             )
+            _require_columns(connection, "Terrains", {"Type", *TERRAIN_FIELDS})
+            _require_columns(
+                connection,
+                "Features",
+                {
+                    "Type",
+                    *(column for column, _, _ in FEATURE_REFERENCE_COLUMNS),
+                    *FEATURE_FIELDS,
+                },
+            )
+            _require_columns(
+                connection,
+                "Improvements",
+                {
+                    "Type",
+                    *(column for column, _, _ in IMPROVEMENT_REFERENCE_COLUMNS),
+                    *IMPROVEMENT_FIELDS,
+                },
+            )
+            _require_columns(connection, "Routes", {"Type", *ROUTE_FIELDS})
+            _require_columns(connection, "Yields", {"Type", *YIELD_FIELDS})
+            _require_columns(
+                connection,
+                "Builds",
+                {
+                    "Type",
+                    *(column for column, _, _ in BUILD_REFERENCE_COLUMNS),
+                    *BUILD_FIELDS,
+                },
+            )
+            for table, columns in (
+                (
+                    "Feature_TerrainBooleans",
+                    {"FeatureType", "TerrainType"},
+                ),
+                (
+                    "Improvement_ValidTerrains",
+                    {"ImprovementType", "TerrainType"},
+                ),
+                (
+                    "Improvement_ValidFeatures",
+                    {"ImprovementType", "FeatureType"},
+                ),
+                (
+                    "Improvement_ValidImprovements",
+                    {"ImprovementType", "PrereqImprovement"},
+                ),
+            ):
+                _require_columns(connection, table, columns)
             era_columns = ["Type", *ERA_FIELDS]
             era_select = ", ".join(f'"{column}"' for column in era_columns)
             era_rows = connection.execute(
@@ -1268,6 +1499,55 @@ def import_ruleset(
                 _scalar_entity("specialist", row, SPECIALIST_FIELDS, source_label)
                 for row in specialist_rows
             )
+            terrain_rows = _select_scalar_rows(
+                connection, "Terrains", TERRAIN_FIELDS
+            )
+            terrain_entities = tuple(
+                _scalar_entity("terrain", row, TERRAIN_FIELDS, source_label)
+                for row in terrain_rows
+            )
+            feature_rows = _select_scalar_rows(
+                connection,
+                "Features",
+                FEATURE_FIELDS,
+                tuple(column for column, _, _ in FEATURE_REFERENCE_COLUMNS),
+            )
+            feature_entities = tuple(
+                _scalar_entity("feature", row, FEATURE_FIELDS, source_label)
+                for row in feature_rows
+            )
+            improvement_rows = _select_scalar_rows(
+                connection,
+                "Improvements",
+                IMPROVEMENT_FIELDS,
+                tuple(column for column, _, _ in IMPROVEMENT_REFERENCE_COLUMNS),
+            )
+            improvement_entities = tuple(
+                _scalar_entity(
+                    "improvement", row, IMPROVEMENT_FIELDS, source_label
+                )
+                for row in improvement_rows
+            )
+            route_rows = _select_scalar_rows(connection, "Routes", ROUTE_FIELDS)
+            route_entities = tuple(
+                _scalar_entity("route", row, ROUTE_FIELDS, source_label)
+                for row in route_rows
+            )
+            yield_rows = _select_scalar_rows(connection, "Yields", YIELD_FIELDS)
+            yield_entities = tuple(
+                _scalar_entity("yield", row, YIELD_FIELDS, source_label)
+                for row in yield_rows
+            )
+            build_rows = _select_scalar_rows(
+                connection,
+                "Builds",
+                BUILD_FIELDS,
+                tuple(column for column, _, _ in BUILD_REFERENCE_COLUMNS),
+            )
+            build_entities = tuple(
+                _scalar_entity("build", row, BUILD_FIELDS, source_label)
+                for row in build_rows
+            )
             era_references = [
                 Reference(
                     "belongs_to",
@@ -1315,6 +1595,13 @@ def import_ruleset(
                 + _religion_references(
                     connection, belief_rows, specialist_rows, source_label
                 )
+                + _map_references(
+                    connection,
+                    feature_rows,
+                    improvement_rows,
+                    build_rows,
+                    source_label,
+                )
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -1345,6 +1632,12 @@ def import_ruleset(
                 + religion_entities
                 + belief_entities
                 + specialist_entities
+                + terrain_entities
+                + feature_entities
+                + improvement_entities
+                + route_entities
+                + yield_entities
+                + build_entities
             ),
             references=references,
         )
@@ -1358,6 +1651,22 @@ def import_technologies(
 ) -> KnowledgeBundle:
     """Backward-compatible name for the ruleset importer."""
     return import_ruleset(database_path, source_label, ruleset)
+
+
+def _select_scalar_rows(
+    connection: sqlite3.Connection,
+    table: str,
+    fields: dict[str, tuple[str, str]],
+    extra_columns: tuple[str, ...] = (),
+) -> list[sqlite3.Row]:
+    columns = ["Type", *extra_columns, *fields]
+    select = ", ".join(f'"{column}"' for column in columns)
+    rows = connection.execute(
+        f'SELECT {select} FROM "{table}" ORDER BY "Type"'
+    ).fetchall()
+    if not rows:
+        raise KnowledgeImportError(f"{table} table is empty")
+    return rows
 
 
 def _scalar_entity(
@@ -1375,7 +1684,10 @@ def _scalar_entity(
                     f"{kind} {row['Type']} has invalid boolean {column}: {value}"
                 )
             value = bool(value)
-        elif value_type == "integer":
+        elif value_type in {"integer", "optional_integer"}:
+            if value_type == "optional_integer" and value is None:
+                attributes[attribute] = value
+                continue
             if not isinstance(value, int) or isinstance(value, bool):
                 raise KnowledgeImportError(
                     f"{kind} {row['Type']} has invalid integer {column}: {value}"
@@ -1799,6 +2111,74 @@ def _religion_references(
             source_label,
         )
     )
+    return references
+
+
+def _map_references(
+    connection: sqlite3.Connection,
+    feature_rows: list[sqlite3.Row],
+    improvement_rows: list[sqlite3.Row],
+    build_rows: list[sqlite3.Row],
+    source_label: str,
+) -> list[Reference]:
+    references: list[Reference] = []
+    for source_kind, rows, columns in (
+        ("feature", feature_rows, FEATURE_REFERENCE_COLUMNS),
+        ("improvement", improvement_rows, IMPROVEMENT_REFERENCE_COLUMNS),
+        ("build", build_rows, BUILD_REFERENCE_COLUMNS),
+    ):
+        for row in rows:
+            for column, kind, target_kind in columns:
+                target = row[column]
+                if target in (None, "NONE"):
+                    continue
+                references.append(
+                    Reference(
+                        kind,
+                        source_kind,
+                        row["Type"],
+                        target_kind,
+                        target,
+                        (source_label,),
+                    )
+                )
+    for arguments in (
+        (
+            "Feature_TerrainBooleans",
+            "FeatureType",
+            "TerrainType",
+            "valid_on_terrain",
+            "feature",
+            "terrain",
+        ),
+        (
+            "Improvement_ValidTerrains",
+            "ImprovementType",
+            "TerrainType",
+            "valid_on_terrain",
+            "improvement",
+            "terrain",
+        ),
+        (
+            "Improvement_ValidFeatures",
+            "ImprovementType",
+            "FeatureType",
+            "valid_on_feature",
+            "improvement",
+            "feature",
+        ),
+        (
+            "Improvement_ValidImprovements",
+            "ImprovementType",
+            "PrereqImprovement",
+            "valid_on_improvement",
+            "improvement",
+            "improvement",
+        ),
+    ):
+        references.extend(
+            _two_column_references(connection, *arguments, source_label)
+        )
     return references
 
 
