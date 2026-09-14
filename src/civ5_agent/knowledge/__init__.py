@@ -6,6 +6,7 @@ from .models import (
     Entity,
     KnowledgeBundle,
     Reference,
+    ReferenceContext,
     Ruleset,
     Source,
 )
@@ -17,6 +18,7 @@ __all__ = [
     "KnowledgeIndex",
     "KnowledgeValidationError",
     "Reference",
+    "ReferenceContext",
     "Ruleset",
     "Source",
     "bundle_sha256",

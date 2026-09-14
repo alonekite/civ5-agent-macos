@@ -7,6 +7,7 @@ from civ5_agent.knowledge import (
     KnowledgeIndex,
     KnowledgeValidationError,
     Reference,
+    ReferenceContext,
     Ruleset,
     Source,
     bundle_sha256,
@@ -55,6 +56,22 @@ def schema_two_bundle(**changes):
         {"amount": 2},
     )
     values = {"schema_version": 2, "references": (reference,)}
+    values.update(changes)
+    return valid_bundle(**values)
+
+
+def schema_three_bundle(**changes):
+    reference = Reference(
+        "yield_change",
+        "technology",
+        "TECH_POTTERY",
+        "technology",
+        "TECH_AGRICULTURE",
+        (SOURCE_PATH,),
+        {"amount": 2},
+        (ReferenceContext("during_technology", "technology", "TECH_POTTERY"),),
+    )
+    values = {"schema_version": 3, "references": (reference,)}
     values.update(changes)
     return valid_bundle(**values)
 
@@ -128,6 +145,77 @@ class KnowledgeValidationTest(unittest.TestCase):
         ):
             validate_bundle(valid_bundle(references=(reference,)))
 
+    def test_schema_two_rejects_reference_context(self):
+        reference = Reference(
+            "yield_change",
+            "technology",
+            "TECH_POTTERY",
+            "technology",
+            "TECH_AGRICULTURE",
+            (SOURCE_PATH,),
+            {"amount": 1},
+            (ReferenceContext("during_technology", "technology", "TECH_POTTERY"),),
+        )
+        with self.assertRaisesRegex(
+            KnowledgeValidationError, "schema_version 2 references"
+        ):
+            validate_bundle(schema_two_bundle(references=(reference,)))
+
+    def test_schema_three_rejects_missing_context_entity(self):
+        reference = schema_three_bundle().references[0]
+        missing = Reference(
+            reference.kind,
+            reference.source_kind,
+            reference.source_type_id,
+            reference.target_kind,
+            reference.target_type_id,
+            reference.source_paths,
+            reference.attributes,
+            (ReferenceContext("during_technology", "technology", "TECH_MISSING"),),
+        )
+        with self.assertRaisesRegex(KnowledgeValidationError, "context does not exist"):
+            validate_bundle(schema_three_bundle(references=(missing,)))
+
+    def test_schema_three_requires_sorted_unique_context(self):
+        reference = schema_three_bundle().references[0]
+        context = (
+            ReferenceContext("second", "technology", "TECH_POTTERY"),
+            ReferenceContext("first", "technology", "TECH_AGRICULTURE"),
+        )
+        unsorted = Reference(
+            reference.kind,
+            reference.source_kind,
+            reference.source_type_id,
+            reference.target_kind,
+            reference.target_type_id,
+            reference.source_paths,
+            reference.attributes,
+            context,
+        )
+        with self.assertRaisesRegex(KnowledgeValidationError, "sorted and unique"):
+            validate_bundle(schema_three_bundle(references=(unsorted,)))
+
+    def test_schema_three_allows_same_edge_with_different_context(self):
+        reference = schema_three_bundle().references[0]
+        other = Reference(
+            reference.kind,
+            reference.source_kind,
+            reference.source_type_id,
+            reference.target_kind,
+            reference.target_type_id,
+            reference.source_paths,
+            {"amount": 3},
+            (
+                ReferenceContext(
+                    "during_technology", "technology", "TECH_AGRICULTURE"
+                ),
+            ),
+        )
+        bundle = schema_three_bundle(references=(reference, other))
+        self.assertIs(validate_bundle(bundle), bundle)
+        with self.assertRaisesRegex(KnowledgeValidationError, "duplicate reference"):
+            validate_bundle(schema_three_bundle(references=(reference, reference)))
+
     def test_rejects_non_string_game_version(self):
         ruleset = Ruleset("bnw", None)  # type: ignore[arg-type]
         with self.assertRaisesRegex(KnowledgeValidationError, "game_version"):
@@ -156,6 +244,14 @@ class KnowledgeCodecTest(unittest.TestCase):
         encoded = dumps(bundle)
         decoded = loads(encoded)
         self.assertEqual(decoded.references[0].attributes, {"amount": 2})
+        self.assertNotIn("context", json.loads(encoded)["references"][0])
+        self.assertEqual(dumps(decoded), encoded)
+
+    def test_schema_three_reference_context_round_trip(self):
+        bundle = schema_three_bundle()
+        encoded = dumps(bundle)
+        decoded = loads(encoded)
+        self.assertEqual(decoded.references[0].context, bundle.references[0].context)
         self.assertEqual(dumps(decoded), encoded)
 
     def test_schema_one_encoding_remains_compatible(self):

@@ -4,7 +4,14 @@ import hashlib
 import json
 from typing import Any
 
-from .models import Entity, KnowledgeBundle, Reference, Ruleset, Source
+from .models import (
+    Entity,
+    KnowledgeBundle,
+    Reference,
+    ReferenceContext,
+    Ruleset,
+    Source,
+)
 from .validation import KnowledgeValidationError, validate_bundle
 
 
@@ -39,7 +46,7 @@ def loads(payload: str) -> KnowledgeBundle:
     if (
         not isinstance(schema_version, int)
         or isinstance(schema_version, bool)
-        or schema_version not in {1, 2}
+        or schema_version not in {1, 2, 3}
     ):
         raise KnowledgeValidationError(
             f"unsupported knowledge schema_version: {schema_version}"
@@ -104,6 +111,20 @@ def _to_dict(bundle: KnowledgeBundle) -> dict[str, Any]:
                     if bundle.schema_version >= 2
                     else {}
                 ),
+                **(
+                    {
+                        "context": [
+                            {
+                                "role": context.role,
+                                "kind": context.kind,
+                                "type_id": context.type_id,
+                            }
+                            for context in item.context
+                        ]
+                    }
+                    if bundle.schema_version >= 3
+                    else {}
+                ),
             }
             for item in sorted(
                 bundle.references,
@@ -113,6 +134,10 @@ def _to_dict(bundle: KnowledgeBundle) -> dict[str, Any]:
                     item.source_type_id,
                     item.target_kind,
                     item.target_type_id,
+                    tuple(
+                        (context.role, context.kind, context.type_id)
+                        for context in item.context
+                    ),
                 ),
             )
         ],
@@ -155,6 +180,8 @@ def _reference(value: Any, index: int, schema_version: int) -> Reference:
     }
     if schema_version >= 2:
         keys.add("attributes")
+    if schema_version >= 3:
+        keys.add("context")
     _require_keys(item, keys, f"references[{index}]")
     return Reference(
         kind=item["kind"],
@@ -170,7 +197,24 @@ def _reference(value: Any, index: int, schema_version: int) -> Reference:
             if schema_version >= 2
             else {}
         ),
+        context=(
+            tuple(
+                _reference_context(context, index, context_index)
+                for context_index, context in enumerate(
+                    _require_list(item["context"], f"references[{index}].context")
+                )
+            )
+            if schema_version >= 3
+            else ()
+        ),
     )
+
+
+def _reference_context(value: Any, reference_index: int, index: int) -> ReferenceContext:
+    label = f"references[{reference_index}].context[{index}]"
+    item = _require_object(value, label)
+    _require_keys(item, {"role", "kind", "type_id"}, label)
+    return ReferenceContext(item["role"], item["kind"], item["type_id"])
 
 
 def _require_object(value: Any, label: str) -> dict[str, Any]:

@@ -71,7 +71,8 @@ No application-bundle modification is required.
   actions, and direct validity/unlock relationships
 - [x] Import binary terrain, feature, improvement, route, and build quantity
   relations with schema 2 reference attributes
-- [ ] Represent and import contextual/ternary effect tables and remaining rules
+- [x] Define schema 3 typed context for contextual/ternary relation identity
+- [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context
 - [x] Expose a validated, deterministic entity/reference query API

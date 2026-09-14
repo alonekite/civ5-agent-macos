@@ -5,7 +5,7 @@ import re
 from pathlib import PurePosixPath
 from typing import Any
 
-from .models import KnowledgeBundle
+from .models import KnowledgeBundle, ReferenceContext
 
 
 TYPE_ID_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]*$")
@@ -23,7 +23,7 @@ def validate_bundle(bundle: KnowledgeBundle) -> KnowledgeBundle:
     if (
         not isinstance(bundle.schema_version, int)
         or isinstance(bundle.schema_version, bool)
-        or bundle.schema_version not in {1, 2}
+        or bundle.schema_version not in {1, 2, 3}
     ):
         raise KnowledgeValidationError(
             f"unsupported knowledge schema_version: {bundle.schema_version}"
@@ -75,7 +75,7 @@ def validate_bundle(bundle: KnowledgeBundle) -> KnowledgeBundle:
         _validate_source_links(entity.source_paths, source_paths, str(key))
         _validate_json_value(entity.attributes, f"attributes for {entity.type_id}")
 
-    reference_keys: set[tuple[str, str, str, str, str]] = set()
+    reference_keys: set[tuple[Any, ...]] = set()
     for reference in bundle.references:
         _validate_kind(reference.kind, "reference kind")
         _validate_kind(reference.source_kind, "reference source_kind")
@@ -92,22 +92,59 @@ def validate_bundle(bundle: KnowledgeBundle) -> KnowledgeBundle:
             raise KnowledgeValidationError(
                 f"reference target does not exist: {target_key[0]}/{target_key[1]}"
             )
+        for item in reference.context:
+            if not isinstance(item, ReferenceContext):
+                raise KnowledgeValidationError(
+                    f"context for {reference.kind}/{reference.source_type_id} "
+                    "contains an invalid item"
+                )
+            _validate_kind(item.role, "reference context role")
+            _validate_kind(item.kind, "reference context kind")
+            _validate_type_id(item.type_id, "reference context type_id")
+            if (item.kind, item.type_id) not in entity_keys:
+                raise KnowledgeValidationError(
+                    "reference context does not exist: "
+                    f"{item.kind}/{item.type_id}"
+                )
+        if tuple(sorted(set(reference.context))) != reference.context:
+            raise KnowledgeValidationError(
+                f"context for {reference.kind}/{reference.source_type_id} "
+                "must be sorted and unique"
+            )
+        context_key = tuple(
+            (item.role, item.kind, item.type_id) for item in reference.context
+        )
         key = (
             reference.kind,
             reference.source_kind,
             reference.source_type_id,
             reference.target_kind,
             reference.target_type_id,
+            context_key,
         )
         if key in reference_keys:
             raise KnowledgeValidationError(
-                "duplicate reference: " + "/".join(key)
+                "duplicate reference: "
+                + "/".join(
+                    (
+                        reference.kind,
+                        reference.source_kind,
+                        reference.source_type_id,
+                        reference.target_kind,
+                        reference.target_type_id,
+                    )
+                )
             )
         reference_keys.add(key)
         _validate_source_links(reference.source_paths, source_paths, str(key))
         if bundle.schema_version == 1 and reference.attributes:
             raise KnowledgeValidationError(
                 "schema_version 1 references cannot contain attributes"
+            )
+        if bundle.schema_version < 3 and reference.context:
+            raise KnowledgeValidationError(
+                f"schema_version {bundle.schema_version} references cannot "
+                "contain context"
             )
         _validate_json_value(
             reference.attributes,

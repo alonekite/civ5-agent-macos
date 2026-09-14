@@ -42,6 +42,15 @@ emits schema 2; its reference attributes use the same strict JSON and
 finite-number rules as entity attributes. See
 [ADR-0007](architecture/decisions/ADR-0007-reference-attributes.md).
 
+Schema 3 adds a sorted `context` array to references. Each context item has a
+semantic role and a typed entity identifier; context entities must exist and
+the complete context participates in reference identity. This permits multiple
+otherwise-identical edges whose effects apply under different technologies,
+policies, terrain, features, resources, or other typed conditions. Schema 1 and
+2 cannot contain context and retain their existing canonical JSON shapes. The
+importer will move to schema 3 with its first contextual table. See
+[ADR-0008](architecture/decisions/ADR-0008-contextual-reference-identity.md).
+
 `KnowledgeIndex` validates a bundle before indexing it, then provides stable
 lookups for entities, entity kinds, typed incoming and outgoing references, and
 resolved reference targets. Unknown entities fail closed instead of returning

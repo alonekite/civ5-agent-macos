@@ -14,6 +14,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0005](ADR-0005-exclude-ai-personality-data.md) | Exclude AI flavor and personality data | Accepted |
 | [ADR-0006](ADR-0006-separate-journal-from-llm-memory.md) | Separate the factual journal from future LLM-facing memory | Accepted |
 | [ADR-0007](ADR-0007-reference-attributes.md) | Add attributes to knowledge references | Accepted |
+| [ADR-0008](ADR-0008-contextual-reference-identity.md) | Add typed context to knowledge references | Accepted |
 
 ## Template
 

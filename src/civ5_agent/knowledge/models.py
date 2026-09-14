@@ -30,6 +30,13 @@ class Entity:
     source_paths: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True, order=True)
+class ReferenceContext:
+    role: str
+    kind: str
+    type_id: str
+
+
 @dataclass(frozen=True)
 class Reference:
     kind: str
@@ -39,6 +46,7 @@ class Reference:
     target_type_id: str
     source_paths: tuple[str, ...] = ()
     attributes: dict[str, Any] = field(default_factory=dict)
+    context: tuple[ReferenceContext, ...] = ()
 
 
 @dataclass(frozen=True)

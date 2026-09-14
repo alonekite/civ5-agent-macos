@@ -9,9 +9,9 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: contextual and ternary building, policy, belief,
-  specialist, improvement, and resource effect tables.
-- Functional test baseline: 111 tests locally; Python 3.11/3.13 CI last passed
+- Active next deliverable: import the first schema 3 contextual improvement,
+  building, policy, belief, specialist, or resource effect tables.
+- Functional test baseline: 116 tests locally; Python 3.11/3.13 CI last passed
   at documentation-governance commit `a053797` before the current knowledge
   batches.
 - Blocking issue: none for offline M3 work.
@@ -52,6 +52,8 @@ decisions, not raw chat transcripts.
   and copyrighted descriptive assets.
 - Knowledge schema 2 adds validated attributes to references for quantities and
   modifiers while retaining canonical schema 1 read/write compatibility.
+- Knowledge schema 3 adds sorted, referentially validated context items to edge
+  identity while retaining canonical schema 1 and schema 2 compatibility.
 - Binary terrain, feature, improvement, route, and build quantity tables add 77
   attributed references. Contextual and ternary effects remain deferred until
   their relation identity is modeled without ambiguity.
@@ -91,9 +93,8 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Define relation identity for contextual and ternary effect tables, then
-   import dependent building, policy, belief, specialist, improvement, and
-   resource effects.
+1. Import contextual building, policy, belief, specialist, improvement, and
+   resource effects using schema 3 typed context.
 2. Add ruleset scaling and per-game modifier resolution without mutating base
    knowledge.
 3. Define the factual turn-journal schema, storage interface, canonical
@@ -114,6 +115,7 @@ remain out of scope.
 - ADR-0005: exclude AI flavor and personality data.
 - ADR-0006: keep the factual journal in the core and defer working/strategic
   memory to a future LLM-facing project.
+- ADR-0008: include sorted typed context in schema 3 reference identity.
 
 See `docs/architecture/decisions/README.md`. Development history belongs in
 `docs/development/DEVELOPMENT_LOG.md`, not in this dashboard.

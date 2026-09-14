@@ -5,9 +5,9 @@ Status: Implemented, coverage in progress
 ## Responsibility
 
 The knowledge module represents versioned Civ V ruleset facts as entities,
-typed references with optional scalar attributes, source provenance, canonical
-JSON, deterministic hashes, and validated query indexes. Its importer reads the
-user's local merged SQLite data without modifying it.
+typed references with optional scalar attributes and typed context, source
+provenance, canonical JSON, deterministic hashes, and validated query indexes.
+Its importer reads the user's local merged SQLite data without modifying it.
 
 ## Non-responsibilities
 
@@ -41,8 +41,8 @@ controller.
 - Unchanged inputs produce byte-identical canonical output.
 - Every entity and reference has valid source provenance.
 - Every reference target exists.
-- Schema 1 remains canonically readable; new imports use schema 2 reference
-  attributes without reinterpreting schema 1.
+- Schema 1 and schema 2 remain canonically readable; schema 3 adds typed context
+  without reinterpreting the earlier schemas.
 - Declared family matches detected active expansion packages.
 - Unknown and forbidden fields are not copied opportunistically.
 

@@ -18,6 +18,7 @@ versioned releases. Development details belong in
 - Religion, core belief, specialist, and great-person class knowledge coverage.
 - Core terrain, feature, improvement, route, yield, and build-action knowledge.
 - Knowledge schema 2 reference attributes with schema 1 compatibility.
+- Knowledge schema 3 typed reference context with schema 1/2 compatibility.
 - Binary map/build quantity relations and explicit fake-feature knowledge.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
