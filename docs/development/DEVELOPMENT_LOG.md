@@ -117,6 +117,20 @@ Implementation commit: `2ee9f89`.
 
 Implementation commit: `a20bbe6`.
 
+## 2026-09-14 — First contextual knowledge import
+
+- Moved new SQLite imports to schema 3 and imported
+  `Improvement_TechYieldChanges` with typed technology context.
+- Preserved 18 technology-specific improvement yield rows, including two
+  distinct technology contexts for the academy science edge.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,298 entities, 2,354 references, 95 attributed references, and 18 contextual
+  references. No generated bundle or source database was committed.
+- Passed the complete 117-test Python 3.11 suite and the sensitive-information
+  scan before submission.
+
+Implementation commit: `fb80fa5`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
