@@ -206,6 +206,22 @@ Implementation commit: `3ae348b`.
 
 Implementation commit: `332595e`.
 
+## 2026-09-14 — Promotion environment modifiers
+
+- Imported promotion modifiers against domains, features, terrains, and unit
+  classes as multi-attribute typed references while excluding Pedia metadata.
+- Represented technology-conditioned feature and terrain passability as a
+  separate typed context instead of incorrectly conditioning the other modifier
+  attributes.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,337 entities and 3,789 references, including 33 new multi-attribute
+  modifiers and one passability context. No generated bundle or source database
+  was committed.
+- Passed all 119 tests on Python 3.11 and the local default Python runtime, and
+  scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `a1f68c5`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
