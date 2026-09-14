@@ -464,6 +464,10 @@ def create_database(
                 f'CREATE TABLE "{table}" ({", ".join(definitions)})'
             )
         connection.execute(
+            "CREATE TABLE Building_TechEnhancedYieldChanges "
+            "(BuildingType TEXT, YieldType TEXT, Yield INTEGER)"
+        )
+        connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
         )
         connection.execute(
@@ -674,6 +678,7 @@ def create_database(
                 value = None
             building_values.append(value)
         reference_values = {
+            "EnhancedYieldTech": "TECH_POTTERY",
             "PrereqTech": "TECH_AGRICULTURE",
         }
         connection.execute(
@@ -686,6 +691,10 @@ def create_database(
                 *(reference_values.get(column) for column, _, _ in BUILDING_REFERENCE_COLUMNS),
                 *building_values,
             ],
+        )
+        connection.execute(
+            "INSERT INTO Building_TechEnhancedYieldChanges VALUES (?, ?, ?)",
+            ("BUILDING_PYRAMID", "YIELD_TEST", 2),
         )
         building_class_columns = [
             "Type",
@@ -1179,7 +1188,7 @@ class RulesetImportTest(unittest.TestCase):
         self.assertEqual(len(bundle.entities), 34)
         self.assertEqual(
             len(bundle.references),
-            57
+            58
             + len(UNIT_REFERENCE_COLUMNS)
             + len(PLAIN_REFERENCE_TABLES)
             + len(QUANTITY_REFERENCE_TABLES)
@@ -1187,7 +1196,8 @@ class RulesetImportTest(unittest.TestCase):
             + len(CONTEXTUAL_QUANTITY_REFERENCE_TABLES)
             + 1
             + len(ATTRIBUTED_REFERENCE_TABLES)
-            + 2,
+            + 2
+            + 1,
         )
         self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
@@ -1717,6 +1727,21 @@ class RulesetImportTest(unittest.TestCase):
             )
             for target_kind in ("feature", "terrain")
         )
+        expected_contextual_relations.add(
+            (
+                "enhanced_yield_change",
+                "BUILDING_PYRAMID",
+                "YIELD_TEST",
+                (("amount", 2),),
+                (
+                    ReferenceContext(
+                        "enabled_by_technology",
+                        "technology",
+                        "TECH_POTTERY",
+                    ),
+                ),
+            )
+        )
         self.assertEqual(contextual_relations, expected_contextual_relations)
         project = next(
             item for item in bundle.entities if item.type_id == "PROJECT_TEST"
@@ -1847,6 +1872,25 @@ class RulesetImportTest(unittest.TestCase):
                 import_ruleset(
                     database,
                     "cache/bad-attributed-reference.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_tech_enhanced_yield_without_technology(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "missing-enhanced-yield-tech.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Buildings SET EnhancedYieldTech = NULL"
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "requires Buildings.EnhancedYieldTech for BUILDING_PYRAMID",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/missing-enhanced-yield-tech.db",
                     Ruleset("bnw", "test"),
                 )
 

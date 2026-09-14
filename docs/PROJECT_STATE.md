@@ -11,7 +11,7 @@ decisions, not raw chat transcripts.
 - Current milestone: M3 — ruleset knowledge coverage.
 - Active next deliverable: inventory effect tables that need multiple context
   items, derived context, or new knowledge entities.
-- Functional test baseline: 119 tests locally; Python 3.11/3.13 CI passed at
+- Functional test baseline: 120 tests locally; Python 3.11/3.13 CI passed at
   prior pushed head `d96b693`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only the pending schema 3 and `skip_unit` bounded
@@ -43,7 +43,7 @@ decisions, not raw chat transcripts.
   routes, yields, build actions, projects, processes, victories, unit-combat
   categories, domains, special-unit categories, and their currently supported
   relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,337 entities and 4,214
+- The real Campaign Edition database currently yields 1,337 entities and 4,283
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -55,11 +55,11 @@ decisions, not raw chat transcripts.
 - Knowledge schema 3 adds sorted, referentially validated context items to edge
   identity while retaining canonical schema 1 and schema 2 compatibility.
 - Eighty-two single-value binary table families, four multi-attribute promotion
-  modifier families, and project victory thresholds add 576 attributed binary
+  modifier families, and project victory thresholds add 644 attributed binary
   references. Twenty-two contextual quantity families, two contextual promotion
-  grant families, and promotion terrain/feature passability add 212 schema 3
-  contextual references; effects requiring multiple context items or new entity
-  families remain deferred.
+  grant families, promotion terrain/feature passability, and enhanced-building
+  yields add 213 schema 3 contextual references; effects requiring multiple
+  context items or new entity families remain deferred.
 - Eleven unit identifier columns emit 323 typed, referentially checked
   relationships for technology gates, obsolescence, capture classes, ancient-
   ruin upgrades, policies, cargo categories, projects, and promotions.
@@ -67,7 +67,7 @@ decisions, not raw chat transcripts.
   faith purchasing, city/building prerequisites, local resources, free
   promotions, resource placement, trait training restrictions, post-combat
   promotions, and unit build capabilities.
-- The test suite contains 119 tests locally. GitHub Actions on Python 3.11 and
+- The test suite contains 120 tests locally. GitHub Actions on Python 3.11 and
   3.13 passed at the prior pushed commit `d96b693`; CI for this batch is pending.
 
 ## Implemented but awaiting bounded live verification

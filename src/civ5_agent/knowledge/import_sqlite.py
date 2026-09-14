@@ -1823,6 +1823,20 @@ CONTEXTUAL_REFERENCE_TABLES = (
 
 ATTRIBUTED_REFERENCE_TABLES = (
     (
+        "Improvement_ResourceTypes",
+        "ImprovementType",
+        "ResourceType",
+        "resource_rule",
+        "improvement",
+        "resource",
+        (
+            ("ResourceMakesValid", "makes_valid", "boolean"),
+            ("ResourceTrade", "enables_trade", "boolean"),
+            ("DiscoveryRand", "discovery_random", "integer"),
+            ("QuantityRequirement", "quantity_requirement", "integer"),
+        ),
+    ),
+    (
         "UnitPromotions_Domains",
         "PromotionType",
         "DomainType",
@@ -2080,6 +2094,11 @@ def import_ruleset(
                         ),
                     },
                 )
+            _require_columns(
+                connection,
+                "Building_TechEnhancedYieldChanges",
+                {"BuildingType", "YieldType", "Yield"},
+            )
             _require_columns(
                 connection,
                 "Buildings",
@@ -2665,6 +2684,9 @@ def import_ruleset(
                 + _contextual_references(connection, source_label)
                 + _attributed_references(connection, source_label)
                 + _promotion_passable_references(connection, source_label)
+                + _building_tech_enhanced_yield_references(
+                    connection, source_label
+                )
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -3613,6 +3635,51 @@ def _promotion_passable_references(
                 ),
             )
             for row in rows
+        )
+    return references
+
+
+def _building_tech_enhanced_yield_references(
+    connection: sqlite3.Connection, source_label: str
+) -> list[Reference]:
+    rows = connection.execute(
+        'SELECT effects."BuildingType", effects."YieldType", effects."Yield", '
+        'buildings."EnhancedYieldTech" '
+        'FROM "Building_TechEnhancedYieldChanges" AS effects '
+        'JOIN "Buildings" AS buildings ON buildings."Type" = effects."BuildingType" '
+        'ORDER BY effects."BuildingType", effects."YieldType", effects."Yield"'
+    ).fetchall()
+    references: list[Reference] = []
+    for row in rows:
+        technology = row["EnhancedYieldTech"]
+        if technology in (None, "NONE"):
+            raise KnowledgeImportError(
+                "Building_TechEnhancedYieldChanges requires Buildings."
+                f"EnhancedYieldTech for {row['BuildingType']}"
+            )
+        amount = row["Yield"]
+        if not isinstance(amount, int) or isinstance(amount, bool):
+            raise KnowledgeImportError(
+                "Building_TechEnhancedYieldChanges has invalid integer "
+                f"Yield: {amount}"
+            )
+        references.append(
+            Reference(
+                "enhanced_yield_change",
+                "building",
+                row["BuildingType"],
+                "yield",
+                row["YieldType"],
+                (source_label,),
+                {"amount": amount},
+                (
+                    ReferenceContext(
+                        "enabled_by_technology",
+                        "technology",
+                        technology,
+                    ),
+                ),
+            )
         )
     return references
 

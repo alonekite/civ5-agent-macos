@@ -36,6 +36,8 @@ versioned releases. Development details belong in
   training-restriction, and unit build-capability relationships.
 - Expanded quantified building-class, domain, free-unit, trade-route, trait,
   and combat-yield rules, including typed trait contexts.
+- Multi-attribute improvement/resource rules and fail-closed technology-
+  enhanced building yields.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

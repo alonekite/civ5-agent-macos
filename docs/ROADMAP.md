@@ -92,6 +92,8 @@ No application-bundle modification is required.
   training-restriction, and unit build-capability relations
 - [x] Import remaining direct building-class, domain, free-unit, trade-route,
   trait, and combat-yield quantities with supported typed contexts
+- [x] Import multi-attribute improvement/resource rules and building yields
+  conditioned by the building's enhanced-yield technology
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

@@ -73,8 +73,8 @@ unique/disabled unit and building class overrides, religions, core beliefs, and
 specialists/great-person classes, terrains, ordinary and fake features,
 improvements, routes, yields, build actions, projects, processes, victory rules,
 their direct relationships, and binary quantity-bearing effects and resource
-requirements across 51 single-value table families plus project victory
-thresholds. Schema 3 now covers 19
+requirements across 82 single-value table families plus project victory
+thresholds. Schema 3 now covers 22
 single-context belief, building, improvement, and policy effect-table families.
 Unit-combat categories, domains, special-unit categories, unit and promotion
 applicability, category modifiers, and contextual trait promotion grants are
@@ -86,8 +86,10 @@ placement, faith-purchase eligibility, local prerequisites, training
 restrictions, random promotions, and unit build capabilities are also typed.
 Additional building-class, domain, free-unit, trade-route, trait, and combat
 yield quantities are imported, including three typed trait contexts. Current
-next deliverable: effects requiring multiple context items or new target entity
-families, followed by scaling rules.
+Improvement/resource multi-attribute rules and building yields derived from a
+validated enhanced-yield technology are also complete.
+Current next deliverable: effects requiring multiple context items or new target
+entity families, followed by scaling rules.
 
 ## M4 — Ruleset resolver
 

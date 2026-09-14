@@ -178,11 +178,11 @@ The same tested database adds 45 civilizations, 44 leaders, 48 traits, 14
 religions, 69 beliefs, 7 specialists, 9 terrains, 25 ordinary features, 2 fake
 features, 29 improvements, 2 routes, 6 yields, 35 build actions, 6 projects, 5
 processes, 5 victory types, 14 unit-combat categories, 5 domains, and 4 special
-unit categories. The complete current import contains 1,337 entities and 4,214
+unit categories. The complete current import contains 1,337 entities and 4,283
 references, including 148 unit-domain, 22 special-unit, and 323 additional typed
-unit-identifier relationships; 576 binary attributed references from 82
+unit-identifier relationships; 644 binary attributed references from 82
 single-value table families, four multi-attribute promotion families, and
-project victory thresholds; 212 contextual references, including typed
+project victory thresholds; 213 contextual references, including typed
 technology-conditioned promotion passability; and
 45 civilization-to-leader, 43 leader-to-trait, 66 unique-unit, 20
 unique-building, 45 disabled-unit-class, and 121 disabled-building-class
@@ -202,6 +202,10 @@ building prerequisite counts; adjacent-mountain yields; technology trade-route
 range; trait yield and resource modifiers; and yields from unit kills. Trait
 yield changes conditioned on an improvement, specialist, or unimproved feature
 use typed context.
+Sixty-eight improvement/resource rules retain their four related validity,
+trade, discovery, and quantity attributes on one edge. The observed technology-
+enhanced building yield is joined to `Buildings.EnhancedYieldTech`; an effect
+without that declared technology is rejected instead of treated as unconditional.
 
 ## Third-party research
 

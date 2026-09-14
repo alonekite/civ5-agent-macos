@@ -82,6 +82,10 @@ upgrade, policy, cargo, project, and leader promotion also have validated typed
 relationships. Further plain relationships cover faith-purchase eligibility,
 building and local-resource prerequisites, resource placement, free and random
 promotions, training restrictions, and unit build capabilities.
+Improvement/resource rules preserve validity, trade access, discovery chance,
+and quantity requirements together. Building technology-enhanced yields derive
+their required technology from the validated building row and fail closed when
+that context is absent.
 Effects that need multiple context items or new target entity families are
 deferred.
 
