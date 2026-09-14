@@ -45,6 +45,24 @@ from civ5_agent.knowledge.import_sqlite import (
 )
 
 
+FIXTURE_TYPE_IDS = {
+    "belief": "BELIEF_TEST",
+    "build": "BUILD_TEST",
+    "building": "BUILDING_PYRAMID",
+    "building_class": "BUILDINGCLASS_PYRAMID",
+    "feature": "FEATURE_TEST",
+    "improvement": "IMPROVEMENT_TEST",
+    "policy": "POLICY_TRADITION",
+    "resource": "RESOURCE_IRON",
+    "route": "ROUTE_TEST",
+    "specialist": "SPECIALIST_TEST",
+    "technology": "TECH_AGRICULTURE",
+    "terrain": "TERRAIN_TEST",
+    "unit": "UNIT_WARRIOR",
+    "yield": "YIELD_TEST",
+}
+
+
 def create_database(
     path: Path, *, invalid_boolean: bool = False, invalid_number: bool = False
 ) -> None:
@@ -836,37 +854,53 @@ def create_database(
             "INSERT INTO Improvement_ValidImprovements VALUES (?, ?)",
             ("IMPROVEMENT_TEST", "IMPROVEMENT_TEST"),
         )
-        quantity_rows = {
-            "Terrain_Yields": ("TERRAIN_TEST", "YIELD_TEST", 2),
-            "Terrain_HillsYieldChanges": ("TERRAIN_TEST", "YIELD_TEST", 1),
-            "Feature_YieldChanges": ("FEATURE_TEST", "YIELD_TEST", 3),
-            "Improvement_Yields": ("IMPROVEMENT_TEST", "YIELD_TEST", 4),
-            "Improvement_HillsYields": ("IMPROVEMENT_TEST", "YIELD_TEST", 5),
-            "Improvement_YieldPerEra": ("IMPROVEMENT_TEST", "YIELD_TEST", 1),
-            "Route_Yields": ("ROUTE_TEST", "YIELD_TEST", 6),
-            "Route_TechMovementChanges": (
-                "ROUTE_TEST",
-                "TECH_AGRICULTURE",
-                -10,
-            ),
-        }
-        for table, values in quantity_rows.items():
-            connection.execute(f'INSERT INTO "{table}" VALUES (?, ?, ?)', values)
+        for (
+            table,
+            _source_column,
+            _target_column,
+            _kind,
+            source_kind,
+            target_kind,
+            _value_column,
+            _attribute,
+        ) in QUANTITY_REFERENCE_TABLES:
+            connection.execute(
+                f'INSERT INTO "{table}" VALUES (?, ?, ?)',
+                (
+                    FIXTURE_TYPE_IDS[source_kind],
+                    FIXTURE_TYPE_IDS[target_kind],
+                    1,
+                ),
+            )
         connection.execute(
             "INSERT INTO Feature_YieldChanges VALUES (?, ?, ?)",
             ("FEATURE_LAKE", "YIELD_TEST", 2),
         )
-        connection.executemany(
-            "INSERT INTO Improvement_TechYieldChanges VALUES (?, ?, ?, ?)",
-            (
+        for (
+            table,
+            _source_column,
+            _target_column,
+            _kind,
+            source_kind,
+            target_kind,
+            _context_column,
+            context_kind,
+            _context_role,
+            _value_column,
+            _attribute,
+        ) in CONTEXTUAL_QUANTITY_REFERENCE_TABLES:
+            connection.execute(
+                f'INSERT INTO "{table}" VALUES (?, ?, ?, ?)',
                 (
-                    "IMPROVEMENT_TEST",
-                    "YIELD_TEST",
-                    "TECH_AGRICULTURE",
+                    FIXTURE_TYPE_IDS[source_kind],
+                    FIXTURE_TYPE_IDS[target_kind],
+                    FIXTURE_TYPE_IDS[context_kind],
                     1,
                 ),
-                ("IMPROVEMENT_TEST", "YIELD_TEST", "TECH_POTTERY", 2),
-            ),
+            )
+        connection.execute(
+            "INSERT INTO Improvement_TechYieldChanges VALUES (?, ?, ?, ?)",
+            ("IMPROVEMENT_TEST", "YIELD_TEST", "TECH_POTTERY", 2),
         )
         connection.commit()
 
@@ -882,7 +916,14 @@ class RulesetImportTest(unittest.TestCase):
                 Ruleset("bnw", "1.0.3.279"),
             )
         self.assertEqual(len(bundle.entities), 28)
-        self.assertEqual(len(bundle.references), 57)
+        self.assertEqual(
+            len(bundle.references),
+            46
+            + len(QUANTITY_REFERENCE_TABLES)
+            + 1
+            + len(CONTEXTUAL_QUANTITY_REFERENCE_TABLES)
+            + 1,
+        )
         self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
@@ -971,7 +1012,7 @@ class RulesetImportTest(unittest.TestCase):
         resource_relations = {
             (item.kind, item.target_type_id)
             for item in bundle.references
-            if item.source_type_id == "RESOURCE_IRON"
+            if item.source_type_id == "RESOURCE_IRON" and not item.attributes
         }
         self.assertEqual(
             resource_relations,
@@ -1216,60 +1257,33 @@ class RulesetImportTest(unittest.TestCase):
             for item in bundle.references
             if item.attributes and not item.context
         }
-        self.assertEqual(
-            quantity_relations,
-            {
-                ("yield", "TERRAIN_TEST", "YIELD_TEST", (("amount", 2),)),
-                (
-                    "hills_yield_change",
-                    "TERRAIN_TEST",
-                    "YIELD_TEST",
-                    (("amount", 1),),
-                ),
-                (
-                    "yield_change",
-                    "FEATURE_LAKE",
-                    "YIELD_TEST",
-                    (("amount", 2),),
-                ),
-                (
-                    "yield_change",
-                    "FEATURE_TEST",
-                    "YIELD_TEST",
-                    (("amount", 3),),
-                ),
-                (
-                    "yield_change",
-                    "IMPROVEMENT_TEST",
-                    "YIELD_TEST",
-                    (("amount", 4),),
-                ),
-                (
-                    "hills_yield_change",
-                    "IMPROVEMENT_TEST",
-                    "YIELD_TEST",
-                    (("amount", 5),),
-                ),
-                (
-                    "yield_change_per_era",
-                    "IMPROVEMENT_TEST",
-                    "YIELD_TEST",
-                    (("amount", 1),),
-                ),
-                (
-                    "yield_change",
-                    "ROUTE_TEST",
-                    "YIELD_TEST",
-                    (("amount", 6),),
-                ),
-                (
-                    "movement_changed_by_technology",
-                    "ROUTE_TEST",
-                    "TECH_AGRICULTURE",
-                    (("movement_change", -10),),
-                ),
-            },
+        expected_quantity_relations = {
+            (
+                kind,
+                FIXTURE_TYPE_IDS[source_kind],
+                FIXTURE_TYPE_IDS[target_kind],
+                ((attribute, 1),),
+            )
+            for (
+                _table,
+                _source_column,
+                _target_column,
+                kind,
+                source_kind,
+                target_kind,
+                _value_column,
+                attribute,
+            ) in QUANTITY_REFERENCE_TABLES
+        }
+        expected_quantity_relations.add(
+            (
+                "yield_change",
+                "FEATURE_LAKE",
+                "YIELD_TEST",
+                (("amount", 2),),
+            )
         )
+        self.assertEqual(quantity_relations, expected_quantity_relations)
         lake = next(
             item for item in bundle.entities if item.type_id == "FEATURE_LAKE"
         )
@@ -1287,37 +1301,50 @@ class RulesetImportTest(unittest.TestCase):
             for item in bundle.references
             if item.context
         }
-        self.assertEqual(
-            contextual_relations,
-            {
+        expected_contextual_relations = {
+            (
+                kind,
+                FIXTURE_TYPE_IDS[source_kind],
+                FIXTURE_TYPE_IDS[target_kind],
+                ((attribute, 1),),
                 (
-                    "yield_change",
-                    "IMPROVEMENT_TEST",
-                    "YIELD_TEST",
-                    (("amount", 1),),
-                    (
-                        ReferenceContext(
-                            "enabled_by_technology",
-                            "technology",
-                            "TECH_AGRICULTURE",
-                        ),
+                    ReferenceContext(
+                        context_role,
+                        context_kind,
+                        FIXTURE_TYPE_IDS[context_kind],
                     ),
                 ),
+            )
+            for (
+                _table,
+                _source_column,
+                _target_column,
+                kind,
+                source_kind,
+                target_kind,
+                _context_column,
+                context_kind,
+                context_role,
+                _value_column,
+                attribute,
+            ) in CONTEXTUAL_QUANTITY_REFERENCE_TABLES
+        }
+        expected_contextual_relations.add(
+            (
+                "yield_change",
+                "IMPROVEMENT_TEST",
+                "YIELD_TEST",
+                (("amount", 2),),
                 (
-                    "yield_change",
-                    "IMPROVEMENT_TEST",
-                    "YIELD_TEST",
-                    (("amount", 2),),
-                    (
-                        ReferenceContext(
-                            "enabled_by_technology",
-                            "technology",
-                            "TECH_POTTERY",
-                        ),
+                    ReferenceContext(
+                        "enabled_by_technology",
+                        "technology",
+                        "TECH_POTTERY",
                     ),
                 ),
-            },
+            )
         )
+        self.assertEqual(contextual_relations, expected_contextual_relations)
 
     def test_records_source_hash_without_absolute_path(self):
         with tempfile.TemporaryDirectory() as directory:

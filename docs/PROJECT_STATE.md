@@ -9,8 +9,8 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: extend schema 3 contextual imports to building,
-  policy, belief, specialist, and resource effect tables.
+- Active next deliverable: inventory and model effect tables that need multiple
+  context items or targets not yet represented as knowledge entities.
 - Functional test baseline: 117 tests locally; Python 3.11/3.13 CI last passed
   at documentation-governance commit `a053797` before the current knowledge
   batches.
@@ -43,7 +43,7 @@ decisions, not raw chat transcripts.
   beliefs, specialists/great-person classes, terrains, features, improvements,
   routes, yields, build actions, and their currently supported relations from a
   local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,298 entities and 2,354
+- The real Campaign Edition database currently yields 1,298 entities and 2,762
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -54,9 +54,10 @@ decisions, not raw chat transcripts.
   modifiers while retaining canonical schema 1 read/write compatibility.
 - Knowledge schema 3 adds sorted, referentially validated context items to edge
   identity while retaining canonical schema 1 and schema 2 compatibility.
-- Binary terrain, feature, improvement, route, and build quantity tables add 77
-  attributed references. Improvement technology yield changes add 18 schema 3
-  contextual references; other contextual and ternary effects remain deferred.
+- Forty-eight binary effect and resource-quantity table families add 344
+  attributed references. Nineteen single-context belief, building, improvement,
+  and policy table families add 159 schema 3 contextual references; effects
+  requiring multiple context items or new entity families remain deferred.
 - The test suite contains 117 tests locally. GitHub Actions on Python 3.11 and
   3.13 last passed at commit `a053797`; the current batch must pass CI after it
   is pushed.
@@ -93,8 +94,8 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Import contextual building, policy, belief, specialist, improvement, and
-   resource effects using schema 3 typed context.
+1. Inventory and import multi-context effects and effects whose targets require
+   new knowledge entity families.
 2. Add ruleset scaling and per-game modifier resolution without mutating base
    knowledge.
 3. Define the factual turn-journal schema, storage interface, canonical

@@ -88,20 +88,24 @@ relationships. Presentation and hotkey fields remain excluded.
 Policy and policy-branch entities include core numeric and boolean effects,
 branch membership, AND/OR prerequisites, disables, era gates, and opening and
 finishing policies. AI branch delay/mutual-exclusion fields and policy flavors
-are excluded. Contextual effect tables that reference buildings, improvements,
-yields, specialists, or unit-combat classes remain deferred until their
-multi-part relation identity is represented without ambiguity.
+are excluded. Single-context policy effects preserve building-class or
+improvement conditions as typed context; effects requiring more than one
+condition remain deferred.
 Building and building-class entities include core costs, maintenance, placement
 constraints, instance limits, default buildings, and references to known
 technology, era, policy-branch, promotion, and replacement-class targets.
 Instance limits preserve the distinction among ordinary buildings, national
 wonders, team wonders, and world wonders without relying on localized names.
-Detailed contextual yield/resource/specialist effect tables remain deferred.
+Single-context building effects preserve building-class, feature, resource,
+specialist, or terrain conditions. Binary building effects include local,
+area, and global yield changes and modifiers, population/religion scaling, and
+resource quantities and requirements. Multi-context building effects and
+effects needing new target entity families are deferred.
 Resource and resource-class entities include happiness, usage, initial
 quantity, map-placement rules, class membership, reveal/trade/obsolete
 technologies, policy reveal, and wonder-bonus obsolescence. AI trade/objective
 columns and resource flavors are excluded. Quantity-bearing unit and building
-requirements remain a later coverage slice.
+requirements are represented as attributed references.
 Civilization entities retain only deterministic playability facts; leader
 entities retain stable IDs but no personality, competitiveness, diplomacy, or
 presentation attributes. Traits include an explicit allowlist of numeric and
@@ -114,9 +118,9 @@ non-null replacement must belong to its declared unit or building class.
 Religion entities preserve stable identifiers without prose or art. Beliefs
 include category flags, scalar gameplay effects, and references to known eras,
 resources, and technologies. Specialists include gameplay rates and link to the
-unit class they generate as a great person. Yield-, terrain-, feature-, and
-improvement-dependent belief/specialist effects remain deferred until their
-contextual relation identity is defined.
+unit class they generate as a great person. Belief yield effects conditioned by
+building class, feature, improvement, resource, or terrain use typed context.
+Remaining specialist and more complex belief effects are deferred.
 Terrain, feature, improvement, route, yield, and build entities contain explicit
 gameplay allowlists. `FakeFeatures` supplies stable lake and river identifiers;
 they are represented as feature entities with `fake: true`. The importer does
@@ -127,8 +131,11 @@ upgrades, build unlocks and outputs, valid terrains/features/improvements, and
 the trait improvement combat bonus. Attributed binary relations cover base and
 conditional terrain, feature, improvement, and route yields, improvement
 yield-per-era values, route technology movement changes, and build technology
-time changes. The first contextual import represents improvement yield changes
-enabled by technologies with a typed technology context. Yield AI weights,
+time changes. Contextual imports cover improvement yield changes conditioned by
+resource or route and technology-enabled base, fresh-water, and no-fresh-water
+changes, as well as the single-context belief, building, and policy effects
+described above. Binary effects also cover beliefs, policies, buildings,
+resources, specialists, and unit/building resource quantities. Yield AI weights,
 graphical-only flags, prose, hotkeys, and assets are excluded.
 
 For reproducibility and safety it:
@@ -153,9 +160,9 @@ technology `requires_any` table is empty.
 The same tested database adds 45 civilizations, 44 leaders, 48 traits, 14
 religions, 69 beliefs, 7 specialists, 9 terrains, 25 ordinary features, 2 fake
 features, 29 improvements, 2 routes, 6 yields, and 35 build actions. The
-complete current import contains 1,298 entities and 2,354 references, including
-77 binary quantity-bearing references, 18 technology-contextual improvement
-yield references, and
+complete current import contains 1,298 entities and 2,762 references, including
+344 binary quantity-bearing references across 48 table families and 159
+single-context quantity-bearing references across 19 table families, and
 45 civilization-to-leader, 43 leader-to-trait, 66 unique-unit, 20
 unique-building, 45 disabled-unit-class, and 121 disabled-building-class
 relationships. Two consecutive imports produced the same canonical bundle

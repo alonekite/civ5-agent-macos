@@ -58,11 +58,13 @@ No application-bundle modification is required.
 - [x] Import unit classes, default units, and class-based upgrade routes
 - [x] Import promotion effects, prerequisites, and unit free promotions
 - [x] Import policy branches, core policy effects, and prerequisites
-- [ ] Import policy effect relation tables after their target entities exist
+- [ ] Import remaining policy effect relation tables (single-context yield
+  tables complete)
 - [x] Import building classes, core building facts, and known prerequisites
 - [x] Import resource classes, resource placement facts, and unlock relations
-- [ ] Import unit/building resource quantities after reference attributes exist
-- [ ] Import building effect relation tables after their target entities exist
+- [x] Import unit/building resource quantities as attributed references
+- [ ] Import remaining building effect relation tables (single-context yield
+  tables complete)
 - [x] Import civilizations, leaders, traits, and unique/disabled unit and
   building class overrides.
 - [x] Import religions, core beliefs, specialists, and great-person unit-class
@@ -72,7 +74,10 @@ No application-bundle modification is required.
 - [x] Import binary terrain, feature, improvement, route, and build quantity
   relations with schema 2 reference attributes
 - [x] Define schema 3 typed context for contextual/ternary relation identity
-- [x] Import technology-enabled improvement yield changes with schema 3 context
+- [x] Import single-context belief, building, improvement, and policy yield
+  effects with schema 3 context
+- [x] Import binary belief, building, policy, resource, and specialist yield
+  effects
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context
