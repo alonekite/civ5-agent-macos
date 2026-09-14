@@ -293,6 +293,20 @@ Implementation commit: `e11357a`.
 
 Implementation commit: `571ad96`.
 
+## 2026-09-14 — Copyright-safe great-work knowledge
+
+- Added 279 great-work stable IDs and six artifact classes, retaining only the
+  archaeology flag and artifact-class numeric value as scalar facts.
+- Added typed class, era, artifact, creator-unit, and free-building relations;
+  `UniqueName`, titles, descriptions, quotes, images, and audio are not read.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,631 entities and 4,876 references, including 567 new typed links. No
+  generated bundle or source database was committed.
+- Passed all 120 tests on Python 3.11 and the local default Python runtime, and
+  scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `097542f`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
