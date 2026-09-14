@@ -191,6 +191,21 @@ Implementation commit: `be1c293`.
 
 Implementation commit: `3ae348b`.
 
+## 2026-09-14 — Typed unit identifier relationships
+
+- Converted 11 allowlisted unit identifier columns into typed relationships for
+  capture class, technology gates and obsolescence, ancient-ruin upgrades,
+  policy requirements, cargo categories, projects, and leader promotions.
+- Corrected `Units.Capture` to target a unit class after strict validation of
+  the real database rejected the initial unit-type interpretation.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,337 entities and 3,755 references, including 323 new unit relationships. No
+  generated bundle or source database was committed.
+- Passed all 118 tests on Python 3.11 and the local default Python runtime, and
+  scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `332595e`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
