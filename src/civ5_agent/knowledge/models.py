@@ -38,6 +38,7 @@ class Reference:
     target_kind: str
     target_type_id: str
     source_paths: tuple[str, ...] = ()
+    attributes: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

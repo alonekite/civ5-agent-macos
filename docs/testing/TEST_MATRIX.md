@@ -22,6 +22,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | Local IPC bounds and permissions | Yes | Yes | Indirectly | Confirmed offline |
 | Command UUID/audit/idempotency | Yes | Yes | Partial | Confirmed offline; live core path observed |
 | Knowledge canonical codec/index | Yes | Yes | N/A | Confirmed offline |
+| Knowledge schema 1 compatibility / schema 2 reference attributes | ADR and contract reviewed | Round-trip, canonical shape, invalid schema, and non-finite attribute tests | N/A | Implemented offline |
 | Local SQLite knowledge import | Yes | Yes, including local real source | N/A | Confirmed offline |
 | Civilization/trait/replacement knowledge | Real merged database imported; counts and class consistency checked | Synthetic schema, allowlist, relation, duplicate-slot, and mismatch tests | N/A | Implemented offline |
 | Religion/belief/specialist knowledge | Real merged database imported; counts and canonical repeatability checked | Synthetic scalar, reference, and invalid-number tests | N/A | Implemented offline |

@@ -19,20 +19,28 @@ other nonessential game assets.
 
 ## Data contract
 
-A schema-1 bundle contains:
+A knowledge bundle contains:
 
 - `ruleset`: vanilla, Gods & Kings, or Brave New World; exact game version; and
   sorted DLC and mod identifiers.
 - `sources`: canonical relative paths, byte sizes, and lowercase SHA-256 hashes.
 - `entities`: a lower-snake-case kind, stable uppercase game `Type` identifier,
   gameplay attributes, and one or more source paths.
-- `references`: typed, source-backed edges between entities.
+- `references`: typed, source-backed edges between entities. Schema 2 references
+  additionally contain an `attributes` object for deterministic quantities and
+  modifiers attached to the edge.
 
 Serialization sorts sources, entities, references, and JSON object keys. The
 bundle hash is therefore independent of importer query order. Loading is strict:
 unknown fields, duplicate entities or references, dangling references, invalid
 paths, invalid identifiers, unsupported value types, non-finite numbers, and AI
 parameter fields are rejected.
+
+Schema 1 remains readable and serializes references without `attributes`.
+Schema 1 in-memory references must have empty attributes. The current importer
+emits schema 2; its reference attributes use the same strict JSON and
+finite-number rules as entity attributes. See
+[ADR-0007](architecture/decisions/ADR-0007-reference-attributes.md).
 
 `KnowledgeIndex` validates a bundle before indexing it, then provides stable
 lookups for entities, entity kinds, typed incoming and outgoing references, and

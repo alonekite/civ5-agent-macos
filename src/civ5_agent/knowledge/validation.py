@@ -23,7 +23,7 @@ def validate_bundle(bundle: KnowledgeBundle) -> KnowledgeBundle:
     if (
         not isinstance(bundle.schema_version, int)
         or isinstance(bundle.schema_version, bool)
-        or bundle.schema_version != 1
+        or bundle.schema_version not in {1, 2}
     ):
         raise KnowledgeValidationError(
             f"unsupported knowledge schema_version: {bundle.schema_version}"
@@ -105,6 +105,14 @@ def validate_bundle(bundle: KnowledgeBundle) -> KnowledgeBundle:
             )
         reference_keys.add(key)
         _validate_source_links(reference.source_paths, source_paths, str(key))
+        if bundle.schema_version == 1 and reference.attributes:
+            raise KnowledgeValidationError(
+                "schema_version 1 references cannot contain attributes"
+            )
+        _validate_json_value(
+            reference.attributes,
+            f"attributes for {reference.kind}/{reference.source_type_id}",
+        )
     return bundle
 
 

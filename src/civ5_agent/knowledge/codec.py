@@ -35,9 +35,18 @@ def loads(payload: str) -> KnowledgeBundle:
     sources_value = _require_list(value["sources"], "sources")
     entities_value = _require_list(value["entities"], "entities")
     references_value = _require_list(value["references"], "references")
+    schema_version = value["schema_version"]
+    if (
+        not isinstance(schema_version, int)
+        or isinstance(schema_version, bool)
+        or schema_version not in {1, 2}
+    ):
+        raise KnowledgeValidationError(
+            f"unsupported knowledge schema_version: {schema_version}"
+        )
     try:
         bundle = KnowledgeBundle(
-            schema_version=value["schema_version"],
+            schema_version=schema_version,
             ruleset=Ruleset(
                 family=ruleset_value["family"],
                 game_version=ruleset_value["game_version"],
@@ -47,7 +56,8 @@ def loads(payload: str) -> KnowledgeBundle:
             sources=tuple(_source(item, index) for index, item in enumerate(sources_value)),
             entities=tuple(_entity(item, index) for index, item in enumerate(entities_value)),
             references=tuple(
-                _reference(item, index) for index, item in enumerate(references_value)
+                _reference(item, index, schema_version)
+                for index, item in enumerate(references_value)
             ),
         )
     except (KeyError, TypeError) as error:
@@ -89,6 +99,11 @@ def _to_dict(bundle: KnowledgeBundle) -> dict[str, Any]:
                 "target_kind": item.target_kind,
                 "target_type_id": item.target_type_id,
                 "source_paths": list(item.source_paths),
+                **(
+                    {"attributes": item.attributes}
+                    if bundle.schema_version >= 2
+                    else {}
+                ),
             }
             for item in sorted(
                 bundle.references,
@@ -128,7 +143,7 @@ def _entity(value: Any, index: int) -> Entity:
     )
 
 
-def _reference(value: Any, index: int) -> Reference:
+def _reference(value: Any, index: int, schema_version: int) -> Reference:
     item = _require_object(value, f"references[{index}]")
     keys = {
         "kind",
@@ -138,6 +153,8 @@ def _reference(value: Any, index: int) -> Reference:
         "target_type_id",
         "source_paths",
     }
+    if schema_version >= 2:
+        keys.add("attributes")
     _require_keys(item, keys, f"references[{index}]")
     return Reference(
         kind=item["kind"],
@@ -147,6 +164,11 @@ def _reference(value: Any, index: int) -> Reference:
         target_type_id=item["target_type_id"],
         source_paths=tuple(
             _require_list(item["source_paths"], f"references[{index}].source_paths")
+        ),
+        attributes=(
+            _require_object(item["attributes"], f"references[{index}].attributes")
+            if schema_version >= 2
+            else {}
         ),
     )
 

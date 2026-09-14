@@ -17,6 +17,7 @@ versioned releases. Development details belong in
   knowledge coverage without AI personality data.
 - Religion, core belief, specialist, and great-person class knowledge coverage.
 - Core terrain, feature, improvement, route, yield, and build-action knowledge.
+- Knowledge schema 2 reference attributes with schema 1 compatibility.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

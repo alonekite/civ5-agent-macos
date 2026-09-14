@@ -79,6 +79,14 @@ Governance commit: `a053797`.
 - Imported the real merged database twice with an identical canonical hash:
   1,296 entities and 2,259 references; no generated bundle was committed.
 
+## 2026-09-14 — Quantity-bearing knowledge contract
+
+- Added schema 2 reference attributes for deterministic quantities and
+  modifiers while preserving canonical schema 1 read/write behavior.
+- Added strict validation for reference attributes, including forbidden AI
+  fields and non-finite values, and documented the compatibility decision in
+  ADR-0007.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.

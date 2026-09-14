@@ -1611,7 +1611,7 @@ def import_ruleset(
         raise KnowledgeImportError("database changed during import; close Civ V and retry")
     return validate_bundle(
         KnowledgeBundle(
-            schema_version=1,
+            schema_version=2,
             ruleset=ruleset,
             sources=(source,),
             entities=(

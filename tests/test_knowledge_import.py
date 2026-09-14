@@ -798,6 +798,7 @@ class RulesetImportTest(unittest.TestCase):
             )
         self.assertEqual(len(bundle.entities), 27)
         self.assertEqual(len(bundle.references), 46)
+        self.assertEqual(bundle.schema_version, 2)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
         pottery = next(item for item in bundle.entities if item.type_id == "TECH_POTTERY")
         self.assertEqual(pottery.attributes["cost"], 35)

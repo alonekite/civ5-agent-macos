@@ -44,6 +44,21 @@ def valid_bundle(**changes):
     return KnowledgeBundle(**values)
 
 
+def schema_two_bundle(**changes):
+    reference = Reference(
+        "yield_change",
+        "technology",
+        "TECH_POTTERY",
+        "technology",
+        "TECH_AGRICULTURE",
+        (SOURCE_PATH,),
+        {"amount": 2},
+    )
+    values = {"schema_version": 2, "references": (reference,)}
+    values.update(changes)
+    return valid_bundle(**values)
+
+
 class KnowledgeValidationTest(unittest.TestCase):
     def test_accepts_versioned_bundle_with_provenance(self):
         bundle = valid_bundle()
@@ -98,6 +113,21 @@ class KnowledgeValidationTest(unittest.TestCase):
         with self.assertRaisesRegex(KnowledgeValidationError, "schema_version"):
             validate_bundle(valid_bundle(schema_version=True))
 
+    def test_schema_one_rejects_reference_attributes(self):
+        reference = Reference(
+            "requires_all",
+            "technology",
+            "TECH_POTTERY",
+            "technology",
+            "TECH_AGRICULTURE",
+            (SOURCE_PATH,),
+            {"amount": 1},
+        )
+        with self.assertRaisesRegex(
+            KnowledgeValidationError, "schema_version 1 references"
+        ):
+            validate_bundle(valid_bundle(references=(reference,)))
+
     def test_rejects_non_string_game_version(self):
         ruleset = Ruleset("bnw", None)  # type: ignore[arg-type]
         with self.assertRaisesRegex(KnowledgeValidationError, "game_version"):
@@ -121,6 +151,17 @@ class KnowledgeCodecTest(unittest.TestCase):
         reordered = valid_bundle(entities=tuple(reversed(bundle.entities)))
         self.assertEqual(bundle_sha256(bundle), bundle_sha256(reordered))
 
+    def test_schema_two_reference_attributes_round_trip(self):
+        bundle = schema_two_bundle()
+        encoded = dumps(bundle)
+        decoded = loads(encoded)
+        self.assertEqual(decoded.references[0].attributes, {"amount": 2})
+        self.assertEqual(dumps(decoded), encoded)
+
+    def test_schema_one_encoding_remains_compatible(self):
+        value = json.loads(dumps(valid_bundle()))
+        self.assertNotIn("attributes", value["references"][0])
+
     def test_rejects_unknown_json_fields(self):
         value = json.loads(dumps(valid_bundle()))
         value["invented"] = True
@@ -131,6 +172,20 @@ class KnowledgeCodecTest(unittest.TestCase):
         entity = Entity("technology", "TECH_POTTERY", {"cost": float("nan")}, (SOURCE_PATH,))
         with self.assertRaisesRegex(KnowledgeValidationError, "non-finite"):
             dumps(valid_bundle(entities=(entity,), references=()))
+
+    def test_rejects_non_finite_reference_attributes(self):
+        reference = schema_two_bundle().references[0]
+        invalid = Reference(
+            reference.kind,
+            reference.source_kind,
+            reference.source_type_id,
+            reference.target_kind,
+            reference.target_type_id,
+            reference.source_paths,
+            {"amount": float("inf")},
+        )
+        with self.assertRaisesRegex(KnowledgeValidationError, "non-finite"):
+            dumps(schema_two_bundle(references=(invalid,)))
 
 
 class KnowledgeIndexTest(unittest.TestCase):

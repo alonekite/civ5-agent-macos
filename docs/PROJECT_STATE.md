@@ -11,7 +11,7 @@ decisions, not raw chat transcripts.
 - Current milestone: M3 — ruleset knowledge coverage.
 - Active next deliverable: quantity-bearing terrain, feature, improvement,
   route, yield, building, policy, belief, and resource effect tables.
-- Functional test baseline: 105 tests locally; Python 3.11/3.13 CI last passed
+- Functional test baseline: 109 tests locally; Python 3.11/3.13 CI last passed
   at documentation-governance commit `a053797` before the current knowledge
   batch.
 - Blocking issue: none for offline M3 work.
@@ -50,7 +50,9 @@ decisions, not raw chat transcripts.
 - The knowledge importer records provenance, validates the active ruleset
   family, rejects broken references, and excludes AI flavor/personality data
   and copyrighted descriptive assets.
-- The test suite contains 105 tests locally. GitHub Actions on Python 3.11 and
+- Knowledge schema 2 adds validated attributes to references for quantities and
+  modifiers while retaining canonical schema 1 read/write compatibility.
+- The test suite contains 109 tests locally. GitHub Actions on Python 3.11 and
   3.13 last passed at commit `a053797`; the current batch must pass CI after it
   is pushed.
 
