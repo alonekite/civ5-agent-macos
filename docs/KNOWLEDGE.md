@@ -92,7 +92,11 @@ unvalidated unit classification strings with typed relationships while the
 legacy scalar attributes remain available. Buildings, policies, traits, and
 promotions preserve category-specific experience, production, maintenance,
 movement, and combat modifiers; trait free promotions use typed unit-combat
-context. Presentation, Pedia grouping, and hotkey fields remain excluded.
+context. Promotion relations also preserve combined domain, feature, terrain,
+and unit-class attack, defense, movement, impassability, and general combat
+modifiers. A separate typed technology context records when an otherwise
+impassable feature or terrain becomes passable. Presentation, Pedia grouping,
+and hotkey fields remain excluded.
 Policy and policy-branch entities include core numeric and boolean effects,
 branch membership, AND/OR prerequisites, disables, era gates, and opening and
 finishing policies. AI branch delay/mutual-exclusion fields and policy flavors
@@ -174,11 +178,12 @@ The same tested database adds 45 civilizations, 44 leaders, 48 traits, 14
 religions, 69 beliefs, 7 specialists, 9 terrains, 25 ordinary features, 2 fake
 features, 29 improvements, 2 routes, 6 yields, 35 build actions, 6 projects, 5
 processes, 5 victory types, 14 unit-combat categories, 5 domains, and 4 special
-unit categories. The complete current import contains 1,337 entities and 3,755
+unit categories. The complete current import contains 1,337 entities and 3,789
 references, including 148 unit-domain, 22 special-unit, and 323 additional typed
-unit-identifier relationships; 386 binary attributed references from 58
-single-value table families plus project victory thresholds; 196 contextual
-references across 21 table families; and
+unit-identifier relationships; 419 binary attributed references from 58
+single-value table families, four multi-attribute promotion families, and
+project victory thresholds; 197 contextual references, including typed
+technology-conditioned promotion passability; and
 45 civilization-to-leader, 43 leader-to-trait, 66 unique-unit, 20
 unique-building, 45 disabled-unit-class, and 121 disabled-building-class
 relationships. Two consecutive imports produced the same canonical bundle

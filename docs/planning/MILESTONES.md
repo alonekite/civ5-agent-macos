@@ -78,7 +78,9 @@ thresholds. Schema 3 now covers 19
 single-context belief, building, improvement, and policy effect-table families.
 Unit-combat categories, domains, special-unit categories, unit and promotion
 applicability, category modifiers, and contextual trait promotion grants are
-also complete. Unit capture, technology, ancient-ruin upgrade, policy, cargo,
+also complete. Promotion modifiers against domains, features, terrains, and unit
+classes, including technology-conditioned passability, are imported without
+Pedia metadata. Unit capture, technology, ancient-ruin upgrade, policy, cargo,
 project, and leader-promotion identifiers now have typed references.
 Current next deliverable: effects requiring multiple context items or new
 target entity families, followed by scaling rules.

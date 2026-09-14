@@ -1624,6 +1624,59 @@ CONTEXTUAL_REFERENCE_TABLES = (
     ),
 )
 
+ATTRIBUTED_REFERENCE_TABLES = (
+    (
+        "UnitPromotions_Domains",
+        "PromotionType",
+        "DomainType",
+        "domain_combat_modifier",
+        "promotion",
+        "domain",
+        (("Modifier", "percent", "integer"),),
+    ),
+    (
+        "UnitPromotions_Features",
+        "PromotionType",
+        "FeatureType",
+        "feature_modifier",
+        "promotion",
+        "feature",
+        (
+            ("Attack", "attack_percent", "integer"),
+            ("Defense", "defense_percent", "integer"),
+            ("DoubleMove", "double_move", "boolean"),
+            ("Impassable", "impassable", "boolean"),
+        ),
+    ),
+    (
+        "UnitPromotions_Terrains",
+        "PromotionType",
+        "TerrainType",
+        "terrain_modifier",
+        "promotion",
+        "terrain",
+        (
+            ("Attack", "attack_percent", "integer"),
+            ("Defense", "defense_percent", "integer"),
+            ("DoubleMove", "double_move", "boolean"),
+            ("Impassable", "impassable", "boolean"),
+        ),
+    ),
+    (
+        "UnitPromotions_UnitClasses",
+        "PromotionType",
+        "UnitClassType",
+        "unit_class_modifier",
+        "promotion",
+        "unit_class",
+        (
+            ("Modifier", "percent", "optional_integer"),
+            ("Attack", "attack_percent", "optional_integer"),
+            ("Defense", "defense_percent", "optional_integer"),
+        ),
+    ),
+)
+
 
 class KnowledgeImportError(ValueError):
     pass
@@ -1789,6 +1842,33 @@ def import_ruleset(
                     connection,
                     table,
                     {source_column, target_column, context_column},
+                )
+            for (
+                table,
+                source_column,
+                target_column,
+                _kind,
+                _source_kind,
+                _target_kind,
+                fields,
+            ) in ATTRIBUTED_REFERENCE_TABLES:
+                _require_columns(
+                    connection,
+                    table,
+                    {
+                        source_column,
+                        target_column,
+                        *(column for column, _attribute, _value_type in fields),
+                        *(
+                            {"PassableTech"}
+                            if table
+                            in {
+                                "UnitPromotions_Features",
+                                "UnitPromotions_Terrains",
+                            }
+                            else set()
+                        ),
+                    },
                 )
             _require_columns(
                 connection,
@@ -2372,6 +2452,8 @@ def import_ruleset(
                 + _quantity_references(connection, source_label)
                 + _contextual_quantity_references(connection, source_label)
                 + _contextual_references(connection, source_label)
+                + _attributed_references(connection, source_label)
+                + _promotion_passable_references(connection, source_label)
             )
     except sqlite3.DatabaseError as error:
         raise KnowledgeImportError(f"cannot read Civ V database: {error}") from error
@@ -3197,6 +3279,98 @@ def _contextual_references(
                         context_role,
                         context_kind,
                         row[context_column],
+                    ),
+                ),
+            )
+            for row in rows
+        )
+    return references
+
+
+def _attributed_references(
+    connection: sqlite3.Connection, source_label: str
+) -> list[Reference]:
+    references: list[Reference] = []
+    for (
+        table,
+        source_column,
+        target_column,
+        kind,
+        source_kind,
+        target_kind,
+        fields,
+    ) in ATTRIBUTED_REFERENCE_TABLES:
+        value_columns = tuple(column for column, _attribute, _value_type in fields)
+        select_columns = (source_column, target_column, *value_columns)
+        select = ", ".join(f'"{column}"' for column in select_columns)
+        order = ", ".join(f'"{column}"' for column in select_columns)
+        rows = connection.execute(
+            f'SELECT {select} FROM "{table}" ORDER BY {order}'
+        ).fetchall()
+        for row in rows:
+            attributes: dict[str, int | bool] = {}
+            for column, attribute, value_type in fields:
+                value = row[column]
+                if value_type == "optional_integer" and value is None:
+                    continue
+                if value_type in {"integer", "optional_integer"}:
+                    if not isinstance(value, int) or isinstance(value, bool):
+                        raise KnowledgeImportError(
+                            f"{table} has invalid integer {column}: {value}"
+                        )
+                    attributes[attribute] = value
+                elif value_type == "boolean":
+                    if not isinstance(value, int) or value not in (0, 1):
+                        raise KnowledgeImportError(
+                            f"{table} has invalid boolean {column}: {value}"
+                        )
+                    attributes[attribute] = bool(value)
+                else:
+                    raise AssertionError(
+                        f"unsupported attributed reference type: {value_type}"
+                    )
+            references.append(
+                Reference(
+                    kind,
+                    source_kind,
+                    row[source_column],
+                    target_kind,
+                    row[target_column],
+                    (source_label,),
+                    attributes,
+                )
+            )
+    return references
+
+
+def _promotion_passable_references(
+    connection: sqlite3.Connection, source_label: str
+) -> list[Reference]:
+    references: list[Reference] = []
+    for table, target_column, target_kind in (
+        ("UnitPromotions_Features", "FeatureType", "feature"),
+        ("UnitPromotions_Terrains", "TerrainType", "terrain"),
+    ):
+        rows = connection.execute(
+            f'SELECT "PromotionType", "{target_column}", "PassableTech" '
+            f'FROM "{table}" WHERE "PassableTech" IS NOT NULL '
+            'AND "PassableTech" <> \'NONE\' '
+            f'ORDER BY "PromotionType", "{target_column}", "PassableTech"'
+        ).fetchall()
+        references.extend(
+            Reference(
+                "passable_with_technology",
+                "promotion",
+                row["PromotionType"],
+                target_kind,
+                row[target_column],
+                (source_label,),
+                {},
+                (
+                    ReferenceContext(
+                        "enabled_by_technology",
+                        "technology",
+                        row["PassableTech"],
                     ),
                 ),
             )

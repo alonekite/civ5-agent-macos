@@ -30,6 +30,8 @@ versioned releases. Development details belong in
 - Typed unit-domain and special-unit classifications.
 - Typed unit technology, capture-class, ancient-ruin, policy, cargo, project,
   and promotion relationships.
+- Multi-attribute promotion modifiers for domains, features, terrains, and unit
+  classes, including typed technology-conditioned passability.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
 

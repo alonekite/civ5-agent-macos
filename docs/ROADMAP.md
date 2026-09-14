@@ -86,6 +86,8 @@ No application-bundle modification is required.
   relationships
 - [x] Convert supported unit technology, capture, ancient-ruin, policy, cargo,
   project, and promotion identifiers into validated typed relationships
+- [x] Import multi-attribute promotion modifiers for domains, features,
+  terrains, and unit classes, including technology-conditioned passability
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

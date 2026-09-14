@@ -7,6 +7,7 @@ from pathlib import Path
 
 from civ5_agent.knowledge import KnowledgeValidationError, ReferenceContext, Ruleset
 from civ5_agent.knowledge.import_sqlite import (
+    ATTRIBUTED_REFERENCE_TABLES,
     BRAVE_NEW_WORLD_PACKAGE_ID,
     BELIEF_FIELDS,
     BELIEF_REFERENCE_COLUMNS,
@@ -71,11 +72,25 @@ FIXTURE_TYPE_IDS = {
     "terrain": "TERRAIN_TEST",
     "trait": "TRAIT_TEST",
     "unit": "UNIT_WARRIOR",
+    "unit_class": "UNITCLASS_WARRIOR",
     "unit_combat": "UNITCOMBAT_MELEE",
     "victory": "VICTORY_TEST",
     "yield": "YIELD_TEST",
     "domain": "DOMAIN_LAND",
 }
+
+
+def fixture_reference_attributes(fields):
+    values = []
+    attributes = {}
+    for index, (_column, attribute, value_type) in enumerate(fields):
+        if value_type == "optional_integer" and index == 0:
+            values.append(None)
+            continue
+        value = 1 if value_type == "boolean" else index + 1
+        values.append(value)
+        attributes[attribute] = bool(value) if value_type == "boolean" else value
+    return values, tuple(sorted(attributes.items()))
 
 
 def create_database(
@@ -417,6 +432,22 @@ def create_database(
                 f'CREATE TABLE "{table}" ('
                 f'"{source_column}" TEXT, "{target_column}" TEXT, '
                 f'"{context_column}" TEXT)'
+            )
+        for (
+            table,
+            source_column,
+            target_column,
+            _kind,
+            _source_kind,
+            _target_kind,
+            fields,
+        ) in ATTRIBUTED_REFERENCE_TABLES:
+            definitions = [f'"{source_column}" TEXT', f'"{target_column}" TEXT']
+            definitions.extend(f'"{column}" INTEGER' for column, _, _ in fields)
+            if table in {"UnitPromotions_Features", "UnitPromotions_Terrains"}:
+                definitions.append('"PassableTech" TEXT')
+            connection.execute(
+                f'CREATE TABLE "{table}" ({", ".join(definitions)})'
             )
         connection.execute(
             "CREATE TABLE Technology_PrereqTechs (TechType TEXT, PrereqTech TEXT)"
@@ -1030,6 +1061,30 @@ def create_database(
                     1,
                 ),
             )
+        for (
+            table,
+            source_column,
+            target_column,
+            _kind,
+            source_kind,
+            target_kind,
+            fields,
+        ) in ATTRIBUTED_REFERENCE_TABLES:
+            values, _attributes = fixture_reference_attributes(fields)
+            columns = [source_column, target_column, *(column for column, _, _ in fields)]
+            row = [
+                FIXTURE_TYPE_IDS[source_kind],
+                FIXTURE_TYPE_IDS[target_kind],
+                *values,
+            ]
+            if table in {"UnitPromotions_Features", "UnitPromotions_Terrains"}:
+                columns.append("PassableTech")
+                row.append("TECH_AGRICULTURE")
+            connection.execute(
+                f'INSERT INTO "{table}" '
+                f'({", ".join(columns)}) VALUES ({", ".join("?" for _ in row)})',
+                row,
+            )
         connection.execute(
             "INSERT INTO Feature_YieldChanges VALUES (?, ?, ?)",
             ("FEATURE_LAKE", "YIELD_TEST", 2),
@@ -1100,7 +1155,9 @@ class RulesetImportTest(unittest.TestCase):
             + len(QUANTITY_REFERENCE_TABLES)
             + 1
             + len(CONTEXTUAL_QUANTITY_REFERENCE_TABLES)
-            + 1,
+            + 1
+            + len(ATTRIBUTED_REFERENCE_TABLES)
+            + 2,
         )
         self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
@@ -1455,6 +1512,23 @@ class RulesetImportTest(unittest.TestCase):
                 attribute,
             ) in QUANTITY_REFERENCE_TABLES
         }
+        expected_quantity_relations.update(
+            (
+                kind,
+                FIXTURE_TYPE_IDS[source_kind],
+                FIXTURE_TYPE_IDS[target_kind],
+                fixture_reference_attributes(fields)[1],
+            )
+            for (
+                _table,
+                _source_column,
+                _target_column,
+                kind,
+                source_kind,
+                target_kind,
+                fields,
+            ) in ATTRIBUTED_REFERENCE_TABLES
+        )
         expected_quantity_relations.add(
             (
                 "yield_change",
@@ -1557,6 +1631,22 @@ class RulesetImportTest(unittest.TestCase):
                 context_kind,
                 context_role,
             ) in CONTEXTUAL_REFERENCE_TABLES
+        )
+        expected_contextual_relations.update(
+            (
+                "passable_with_technology",
+                "PROMOTION_SHOCK_1",
+                FIXTURE_TYPE_IDS[target_kind],
+                (),
+                (
+                    ReferenceContext(
+                        "enabled_by_technology",
+                        "technology",
+                        "TECH_AGRICULTURE",
+                    ),
+                ),
+            )
+            for target_kind in ("feature", "terrain")
         )
         self.assertEqual(contextual_relations, expected_contextual_relations)
         project = next(
@@ -1669,6 +1759,25 @@ class RulesetImportTest(unittest.TestCase):
                 import_ruleset(
                     database,
                     "cache/bad-contextual-quantity.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_invalid_attributed_reference_boolean(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-attributed-reference.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE UnitPromotions_Terrains SET DoubleMove = 2"
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "UnitPromotions_Terrains has invalid boolean DoubleMove",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-attributed-reference.db",
                     Ruleset("bnw", "test"),
                 )
 
