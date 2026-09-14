@@ -251,6 +251,21 @@ Implementation commit: `cdac7e5`.
 
 Implementation commit: `f467161`.
 
+## 2026-09-14 — Improvement resources and derived building yields
+
+- Preserved improvement/resource validity, trade, discovery, and quantity values
+  together on 68 typed multi-attribute references.
+- Joined technology-enhanced building yields to the building's declared
+  `EnhancedYieldTech` and made missing context a hard import error.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,337 entities and 4,283 references, including the 68 resource rules and one
+  technology-conditioned building yield. No generated bundle or source database
+  was committed.
+- Passed all 120 tests on Python 3.11 and the local default Python runtime, and
+  scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `d7255db`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
