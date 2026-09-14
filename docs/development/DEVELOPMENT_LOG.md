@@ -163,6 +163,22 @@ Implementation commit: `18bba03`.
 
 Implementation commit: `a014fdc`.
 
+## 2026-09-14 — Unit-combat knowledge
+
+- Added 14 unit-combat category entities plus typed unit membership and
+  promotion applicability relationships.
+- Imported category-specific building, policy, trait, and promotion quantities,
+  and modeled trait/policy free promotions with typed unit-combat context while
+  excluding Pedia grouping fields.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,328 entities and 3,262 references, including 444 unit-combat targets and 37
+  contextual promotion grants. No generated bundle or source database was
+  committed.
+- Passed all 118 tests on Python 3.11 and the local default Python runtime, and
+  scanned the submitted diff for secrets and local identifiers.
+
+Implementation commit: `be1c293`.
+
 ## 2026-09-13 — Civilization knowledge coverage
 
 - Added allowlisted civilization, leader, and deterministic trait entities.
