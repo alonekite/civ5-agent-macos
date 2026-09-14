@@ -6,10 +6,21 @@ Operational procedures must be safe to follow without remembering a prior chat.
   boundaries.
 - [Bounded live-test checklist](../LIVE_TEST_CHECKLIST.md): ordered target-Mac
   procedure and restoration steps.
+- `python -m civ5_agent.live_session prepare`: record the private baseline,
+  establish the Civ V firewall guard, enable FireTuner, and verify readiness.
+- `python -m civ5_agent.live_session restore`: restore the recorded game config,
+  Civ V rule, and global firewall state after the game and watcher stop.
 - `python -m civ5_agent.preflight ready`: read-only check before starting Civ V.
 - `python -m civ5_agent.preflight live`: read-only check before live access.
 - `python -m civ5_agent.preflight shutdown`: read-only proof that the transport
   and local broker are closed.
+
+The live-session commands must run against the host system. A sandboxed process
+can receive a false empty/disabled view from `socketfilterfw`; do not weaken the
+checks in response. Recovery files live under the current user's Application
+Support directory with private permissions and are never repository artifacts.
+The Python process remains unprivileged and invokes `sudo` only for the narrow
+firewall mutations; macOS may request an administrator password in the terminal.
 
 ## Project continuity and recovery
 

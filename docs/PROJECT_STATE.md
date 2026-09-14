@@ -35,6 +35,9 @@ decisions, not raw chat transcripts.
   execution paths.
 - Command identifiers, duplicate suppression, bounded IPC, private audit logs,
   preflight checks, and write-after-read verification are implemented.
+- Recoverable live-session preparation/restoration records the private starting
+  firewall state, guards FireTuner, rolls back failed preparation, and verifies
+  restoration without committing machine-specific state.
 - The versioned knowledge core imports eras, technologies, units, unit classes,
   promotions, policy branches, policies, buildings, building classes,
   resources, resource classes, civilizations, leaders, deterministic trait
@@ -86,8 +89,8 @@ decisions, not raw chat transcripts.
 - The allowlisted `skip_unit` action.
 
 Future live tests require the user to start the game and explicitly authorize
-the documented temporary firewall and FireTuner procedure. Automated work must
-not enable FireTuner, launch Civ V, or change the macOS firewall.
+the documented `live_session prepare`/`restore` procedure. No background or
+implicit operation may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Planned per-game data in this repository
 
@@ -135,6 +138,7 @@ remain out of scope.
 - ADR-0006: keep the factual journal in the core and defer working/strategic
   memory to a future LLM-facing project.
 - ADR-0008: include sorted typed context in schema 3 reference identity.
+- ADR-0009: manage live tests as explicit, recoverable bounded sessions.
 
 See `docs/architecture/decisions/README.md`. Development history belongs in
 `docs/development/DEVELOPMENT_LOG.md`, not in this dashboard.

@@ -13,6 +13,7 @@ Current commands:
 - `civ5-command`
 - `civ5-controller`
 - `civ5-preflight`
+- `civ5-live-session`
 - `civ5-knowledge`
 
 ## Non-responsibilities
@@ -33,6 +34,11 @@ failure machine-readable.
 Inputs are bounded command-line arguments and local paths. Outputs are JSON
 state/results or concise diagnostics. Exit status must distinguish success from
 invalid input, unsafe session, and failed action.
+
+`civ5-live-session prepare` and `restore` are the only CLI operations that
+deliberately modify the macOS firewall. They persist a private baseline outside
+the repository, verify every boundary after mutation, and roll back failed
+preparation.
 
 ## Dependencies
 

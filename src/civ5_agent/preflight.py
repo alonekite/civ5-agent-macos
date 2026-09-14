@@ -13,9 +13,9 @@ from .ipc import default_socket_path
 
 FIREWALL_TOOL = Path("/usr/libexec/ApplicationFirewall/socketfilterfw")
 LSOF_TOOL = Path("/usr/sbin/lsof")
-CIV_EXECUTABLE = Path(
-    "/Applications/Civilization V Campaign Edition.app/Contents/MacOS/"
-    "Civilization V Campaign Edition"
+CIV_APP_BUNDLE = Path("/Applications/Civilization V Campaign Edition.app")
+CIV_EXECUTABLE = (
+    CIV_APP_BUNDLE / "Contents/MacOS/Civilization V Campaign Edition"
 )
 VERIFIED_TUNER_HOST = "127.0.0.1"
 VERIFIED_TUNER_PORT = 4318
@@ -156,9 +156,13 @@ def _parse_firewall_enabled(output: str) -> bool:
 
 def _parse_civ_rule(output: str, executable: Path) -> tuple[bool, bool]:
     lines = output.splitlines()
-    expected = str(executable)
+    expected_paths = {str(executable)}
+    expected_paths.update(
+        str(parent) for parent in executable.parents if parent.suffix == ".app"
+    )
     for index, line in enumerate(lines):
-        if line.strip().endswith(expected):
+        listed_path = line.strip().partition(":")[2].strip()
+        if listed_path in expected_paths:
             following = lines[index + 1].strip() if index + 1 < len(lines) else ""
             if following == "(Block incoming connections)":
                 return True, True

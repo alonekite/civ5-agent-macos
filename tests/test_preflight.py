@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from civ5_agent.preflight import (
+    CIV_APP_BUNDLE,
     CIV_EXECUTABLE,
     SafetyStatus,
     UnsafeSessionError,
@@ -35,6 +36,14 @@ class PreflightParsingTest(unittest.TestCase):
         allowed = f"1 : {CIV_EXECUTABLE}\n             (Allow incoming connections)\n"
         self.assertEqual(_parse_civ_rule(blocked, CIV_EXECUTABLE), (True, True))
         self.assertEqual(_parse_civ_rule(allowed, CIV_EXECUTABLE), (True, False))
+        canonicalized = (
+            f"1 : {CIV_APP_BUNDLE}\n"
+            "             (Block incoming connections)\n"
+        )
+        self.assertEqual(
+            _parse_civ_rule(canonicalized, CIV_EXECUTABLE),
+            (True, True),
+        )
         self.assertEqual(
             _parse_civ_rule("Total number of apps = 0\n", CIV_EXECUTABLE),
             (False, False),

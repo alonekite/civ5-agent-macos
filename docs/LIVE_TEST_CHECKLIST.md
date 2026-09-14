@@ -8,35 +8,26 @@ Civilization V: Campaign Edition. The next session has two goals:
 
 Do not enable FireTuner until the firewall guard is in place.
 
-## 1. Record the starting state
+## 1. Prepare the bounded session
 
 - Quit Civilization V and stop any watcher.
-- Record whether the macOS application firewall was originally on or off.
-- Confirm the previous transport is closed:
+- Run the recoverable preparation command from the host environment:
 
 ```bash
-PYTHONPATH=src python3 -m civ5_agent.preflight shutdown
+PYTHONPATH=src python3 -m civ5_agent.live_session prepare
 ```
 
-Expected: `ok` is `true`, FireTuner is disabled, TCP 4318 is not listening,
-and the agent socket is absent.
+Expected: `result` is `prepared` or `already_prepared`, `ok` is `true`, and the
+embedded safety result proves FireTuner enabled, firewall enabled, and Civ V
+blocked. The command records the original settings and rolls back if readiness
+cannot be proved. On macOS, enter the administrator password in the terminal if
+`sudo` requests it; only the firewall subcommand is elevated.
 
-## 2. Establish the firewall guard
+Do not run this through a sandbox that hides the host firewall state. The
+manual firewall plus `configure_firetuner.sh` sequence is an emergency fallback,
+not the normal path.
 
-- In System Settings, turn on the macOS application firewall.
-- Add Civilization V: Campaign Edition to Firewall Options if needed.
-- Set the Civ V entry to **Block incoming connections**.
-- Enable FireTuner only after those two settings are visible:
-
-```bash
-bash scripts/configure_firetuner.sh enable
-PYTHONPATH=src python3 -m civ5_agent.preflight ready
-```
-
-Both commands fail closed if the firewall or explicit Civ V rule cannot be
-proved.
-
-## 3. Start the bounded game session
+## 2. Start the bounded game session
 
 - Start Civilization V manually.
 - Load or create a normal single-player match.
@@ -50,7 +41,7 @@ PYTHONPATH=src python3 -m civ5_agent.preflight live
 
 Do not continue unless `ok` is `true`.
 
-## 4. Verify schema 3
+## 3. Verify schema 3
 
 Start the persistent watcher and leave it running:
 
@@ -73,7 +64,7 @@ Any missing marker, malformed value, duplicate record, or Lua error is a failed
 schema 3 test. Preserve the exact watcher output in the experiment log, but do
 not commit player names or save-specific data.
 
-## 5. Verify `skip_unit`
+## 4. Verify `skip_unit`
 
 Choose one ready unit from the snapshot and record its ID, coordinates, and
 movement points. In a second terminal run:
@@ -93,20 +84,19 @@ Success requires all of the following in the returned JSON:
 If the game rejects the action or read-back cannot prove every condition, keep
 the command marked failed. Do not retry automatically.
 
-## 6. Restore the machine
+## 5. Restore the machine
 
 1. Quit Civilization V.
 2. Stop the watcher with Ctrl-C.
-3. Restore the original game configuration:
+3. Restore every recorded setting:
 
 ```bash
-bash scripts/configure_firetuner.sh restore
-PYTHONPATH=src python3 -m civ5_agent.preflight shutdown
+PYTHONPATH=src python3 -m civ5_agent.live_session restore
 ```
 
-4. Remove the temporary Civ V firewall rule if it did not exist originally.
-5. Restore the firewall to the recorded starting state.
-6. Re-run `preflight shutdown`; it must remain successful.
+4. Confirm `result` is `restored` or `already_restored`, `ok` is `true`, and
+   the shutdown proof is clean. The command removes its private recovery files
+   only after the original firewall and Civ V rule states are verified.
 
 Record the command UUID, before/after proof, schema fields observed, and every
 restored shutdown condition in `docs/EXPERIMENT_LOG.md`. Then update

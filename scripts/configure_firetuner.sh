@@ -10,6 +10,7 @@ config_path="${user_data_dir}/config.ini"
 backup_path="${user_data_dir}/config.ini.civ5-agent-backup"
 firewall_tool="/usr/libexec/ApplicationFirewall/socketfilterfw"
 civ_executable="/Applications/Civilization V Campaign Edition.app/Contents/MacOS/Civilization V Campaign Edition"
+civ_app_bundle="/Applications/Civilization V Campaign Edition.app"
 
 show_status() {
   grep -E '^(EnableTuner|SendRemarksToTuner|LoggingEnabled)[[:space:]]*=' "$config_path"
@@ -28,7 +29,7 @@ require_guarded_firewall() {
   apps_output="$($firewall_tool --listapps)"
   found_civ=0
   while IFS= read -r line; do
-    if [[ "$line" == *"$civ_executable" ]]; then
+    if [[ "$line" == *"$civ_executable"* || "$line" == *"$civ_app_bundle"* ]]; then
       found_civ=1
       continue
     fi
