@@ -28,7 +28,8 @@ must state the actual level instead of using “verified” without qualificatio
 - CLI/contracts: exit status, structured errors, stable schemas, and supported
   Python versions.
 - Journal (M5): permissions, append semantics, crash/truncation recovery,
-  concurrency, integrity, one-game isolation, bounds, and replay safety.
+  concurrency, integrity, match/session isolation, explicit session binding,
+  bounds, command-audit independence, and replay safety.
 
 ## CI baseline
 

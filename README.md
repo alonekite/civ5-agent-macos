@@ -5,7 +5,7 @@ running on Apple Silicon macOS** and external Python, backed by versioned
 ruleset knowledge, a factual journal, and deterministic turn execution.
 
 ## Core question
-Can a Lua mod running inside Civ V on an M4 Mac:
+Can the stock Civ V `InGame` Lua runtime on an M4 Mac:
 1. read game state,
 2. export that state to an external Python process,
 3. receive commands from Python,
@@ -47,7 +47,7 @@ Civilization V binaries or assets.
 ## Target architecture
 ```text
 Civilization V
-   │ Lua mod
+   │ stock InGame Lua state / FireTuner
    ▼
 Bridge storage / IPC
    ├── state: Civ V → Python
@@ -55,7 +55,7 @@ Bridge storage / IPC
    ▼
 Explicit TurnPlan → deterministic turn executor → verified bridge actions
 
-Versioned ruleset knowledge → future strategy/tactics/vertical skills
+Versioned ruleset knowledge → future strategy/tactics/vertical skills → TurnPlan
 ```
 
 Verified transport on the target App Store build: bundled FireTuner over
@@ -219,6 +219,11 @@ local bridge rejects caller-supplied IDs that are not UUIDv4. Use `--audit-log
 PATH` to choose another location. An audit write failure is reported separately
 and never causes an already-run game action to be retried.
 
+This command audit is M2 safety evidence and is separate from the planned M5
+match journal. M5 will receive validated command results directly from
+watcher/CLI composition code and correlate them by command UUID; it will not
+parse the audit file or make either store's failure change the game result.
+
 To restore the original configuration later:
 
 ```bash
@@ -255,7 +260,7 @@ No source files from either project are vendored here.
 ## Continuing development
 
 The durable implementation status and next safe tasks are recorded in
-[docs/PROJECT_STATE.md](docs/PROJECT_STATE.md). The factual per-game journal and
+[docs/PROJECT_STATE.md](docs/PROJECT_STATE.md). The factual per-match journal and
 the boundary around future LLM-facing memory are specified in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md); raw Codex conversations are not
 part of the repository.

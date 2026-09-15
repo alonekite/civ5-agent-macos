@@ -4,11 +4,13 @@ Status: Planned (M5)
 
 ## Responsibility
 
-The journal will preserve the complete factual history of exactly one game:
-validated snapshots, observed turn transitions, submitted command envelopes,
-command results, before/after states, verification errors, and optional factual
-plan/execution events. Its intended uses include future tactical/strategic
-history selection, replay, comparison, debugging, and audit.
+The journal will preserve every supported fact actually captured and validated
+while recording one declared match: validated snapshots, observed turn
+transitions, submitted command envelopes, command results, before/after states,
+verification errors, and optional factual plan/execution events. It does not
+claim hidden state, disconnected intervals, or unsupported fields. Its intended
+uses include future tactical/strategic history selection, replay, comparison,
+debugging, and audit.
 
 ## Non-responsibilities
 
@@ -27,8 +29,9 @@ export a verified sequence. See the proposed [journal contract](../contracts/jou
 
 Inputs are already validated bridge observations, action lifecycle results, and
 optional bounded execution events delivered by application orchestration.
-Records must carry game identity, turn, capture time, schema/ruleset identity,
-monotonic sequence, canonical payload, and integrity evidence.
+Records must carry the journal `match_id`, a bound `bridge_session_id` where
+applicable, turn, capture time, schema/ruleset identity, monotonic sequence,
+canonical payload, and integrity evidence.
 
 ## Dependencies
 
@@ -36,11 +39,14 @@ The journal may depend on shared validated models and canonical serialization.
 Application orchestration appends records. It must not depend on plan production
 or executor policy, and the executor must not import, query, or require the
 journal. M6 events may be recorded through an optional orchestration adapter.
+Here orchestration is watcher/CLI composition code, not a decision module.
 
 ## Invariants
 
 - Append only; corrections supersede rather than rewrite.
-- One journal never mixes multiple games.
+- One journal never mixes multiple declared matches.
+- Cross-session continuation is explicit and append-only; M5 never infers it
+  from mutable snapshot fields.
 - Record ordering and integrity are checkable offline.
 - Private data is never committed by default.
 - Replaying records does not execute game actions.
@@ -60,7 +66,9 @@ and export policy. No automatic Git inclusion is permitted.
 ## Verification
 
 M5 will require codec, corruption, concurrency, permission, recovery, and replay
-tests before integration with watcher output.
+tests before integration with watcher output. Tests must also cover unbound
+session rejection and prove that journal input comes from validated in-memory
+events rather than the independent M2 command-audit file.
 
 ## Current limitations
 

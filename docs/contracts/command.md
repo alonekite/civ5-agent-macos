@@ -13,6 +13,11 @@ A command contains:
 Malformed identifiers, unknown actions, extra/invalid arguments, and unsafe
 sessions are rejected before a game write.
 
+At the application boundary, a live command is associated with the current
+bridge-owned `bridge_session_id`. This session metadata is distinct from the
+command UUID and from any journal `match_id`; exact envelope versioning is
+pending implementation under ADR-0017.
+
 ## Current allowlist
 
 | Action | Arguments | Postcondition | Evidence |

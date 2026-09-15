@@ -11,7 +11,7 @@ GitHub Issues and should link back to one milestone ID.
 | M3 | Ruleset knowledge coverage | Complete | M1 |
 | M4 | Ruleset knowledge view | Complete | M3 |
 | M5 | Factual turn journal | In progress | M1, M2 |
-| M6 | Deterministic turn executor | Replanned | M2 |
+| M6 | Deterministic turn executor | Planned | M2 |
 | M7 | Public API stabilization | Planned | M4, M5, M6 |
 | M8 | 1.0 release readiness | Planned | M7 |
 
@@ -57,9 +57,9 @@ unchanged identity, location, and remaining movement.
 
 Acceptance criteria:
 
-- Import the stable identifiers, numeric facts, prerequisites, replacements,
-  unlocks, upgrade paths, constraints, and provenance needed by controller
-  policies.
+- Import stable identifiers, numeric facts, prerequisites, replacements,
+  unlocks, upgrade paths, constraints, and provenance for structural queries
+  and future decision-support consumers.
 - Cover technologies, eras, policies, ideologies, units, promotions, buildings,
   wonders, resources, civilizations, leaders, traits, religions, beliefs, great
   people, specialists, terrain, features, improvements, routes, projects,
@@ -147,8 +147,11 @@ skills rather than the current execution core.
 
 Acceptance criteria:
 
-- Append validated snapshots, turn transitions, command envelopes, command
-  results, before/after states, and verification errors for exactly one game.
+- Append every supported snapshot, turn transition, command envelope, command
+  result, before/after state, and verification error actually captured and
+  validated while recording one declared match.
+- Give the journal an explicit `match_id`; reject unbound
+  `bridge_session_id` values and require append-only bindings for later sessions.
 - Use versioned canonical records, private permissions, bounded record sizes,
   monotonically increasing sequence numbers, and integrity checks.
 - Detect truncation, tampering, broken ordering, and cross-game mixing.
@@ -156,6 +159,8 @@ Acceptance criteria:
 - Define an extensible record-kind boundary so optional application orchestration
   can later record M6 plan/execution events without weakening append-only
   integrity or making M5 an execution dependency.
+- Consume validated in-memory command results; correlate the independent M2
+  audit by command UUID without parsing it as journal input.
 - Do not implement working memory or strategic memory.
 
 ## M6 — Deterministic turn executor
@@ -163,8 +168,8 @@ Acceptance criteria:
 Acceptance criteria:
 
 - Consume a versioned explicit `TurnPlan`; never invent missing plan content.
-- Validate target game, turn, active player, state basis, action ordering, and
-  every declared precondition before writing.
+- Validate target bridge session, turn, active player, state basis, action
+  ordering, and every declared precondition before writing.
 - Execute only plan-listed allowlisted actions through bridge verification and
   advance only after each write-after-read postcondition succeeds.
 - Report factual unresolved turn requirements without selecting how to satisfy
@@ -178,8 +183,9 @@ Acceptance criteria:
 
 The existing `civ5_agent.controller` remains an MVP readiness proof and
 provisional compatibility surface. M6 will not expand it into game strategy and
-does not depend on M5. The current choice to implement M5 first is project
-scheduling only. See ADR-0015, ADR-0016, and the proposed turn-plan contract.
+depends only on bridge state/session/action contracts, not M4 knowledge or M5.
+The current choice to implement M5 first is project scheduling only. See
+ADR-0015 through ADR-0017 and the proposed turn-plan contract.
 
 ## M7 — Public API stabilization
 

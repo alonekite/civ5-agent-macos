@@ -20,9 +20,12 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0011](ADR-0011-embed-non-addressable-rules.md) | Embed non-addressable rules under stable parent entities | Accepted |
 | [ADR-0012](ADR-0012-allowlisted-global-define-entities.md) | Model allowlisted global defines as entities | Accepted |
 | [ADR-0013](ADR-0013-explicit-ruleset-resolution-context.md) | Require explicit ruleset resolution context | Accepted |
-| [ADR-0014](ADR-0014-separate-ruleset-view-from-decision-support.md) | Separate structural ruleset views from future decision support | Accepted |
-| [ADR-0015](ADR-0015-separate-turn-planning-from-execution.md) | Separate turn planning from deterministic execution | Accepted; journal-dependency portion superseded by ADR-0016 |
+| [ADR-0014](ADR-0014-separate-ruleset-view-from-decision-support.md) | Separate structural ruleset views from future decision support | Accepted; executor-query allowance superseded by ADR-0018 |
+| [ADR-0015](ADR-0015-separate-turn-planning-from-execution.md) | Separate turn planning from deterministic execution | Accepted; journal dependency superseded by ADR-0016 and identity wording by ADR-0017 |
 | [ADR-0016](ADR-0016-decouple-execution-from-journal.md) | Decouple execution state from the factual journal | Accepted |
+| [ADR-0017](ADR-0017-separate-session-and-match-identity.md) | Separate bridge-session identity from match identity | Accepted |
+| [ADR-0018](ADR-0018-keep-executor-independent-of-knowledge.md) | Keep deterministic execution independent of ruleset knowledge | Accepted |
+| [ADR-0019](ADR-0019-separate-command-audit-from-match-journal.md) | Separate the command audit from the match journal | Accepted |
 
 ## Template
 

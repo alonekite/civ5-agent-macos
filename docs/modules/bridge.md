@@ -38,6 +38,8 @@ or ruleset knowledge.
 - Only `127.0.0.1:4318` is accepted for the verified FireTuner adapter.
 - Live use fails closed unless the safety preflight passes.
 - One watcher owns the game connection and serializes requests.
+- The connection owner will issue one `bridge_session_id` per connection epoch;
+  it never presents that value as a permanent save or match identifier.
 - Schema 5 is collected as bounded header/city/unit/diplomacy/victory/technology
   programs; every part must identify the same turn and active player. Schemas
   2–4 remain readable.
@@ -74,4 +76,6 @@ yet the only path used by CLI code.
 ## Planned extensions
 
 Complete pending live checks, add only narrowly specified actions, and hide
-transport details behind the M7 public API.
+transport details behind the M7 public API. Before M5/M6 identity isolation is
+implemented, add the versioned observation/command envelope defined by the
+session-identity contract.

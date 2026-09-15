@@ -4,7 +4,7 @@ Target: Civilization V on Apple Silicon macOS.
 
 ## Primary objective
 Prove a reliable bidirectional bridge:
-`Civ V Lua mod ↔ external Python`
+`Civ V InGame Lua runtime ↔ external Python`
 
 Build the project as a reusable Civilization V read/write core. The core consists
 of a game bridge, verified actions, ruleset knowledge, a factual turn journal,
@@ -31,8 +31,9 @@ of scope for this project.
   write-after-read verification.
 - `knowledge`: versioned ruleset facts that do not belong to a particular saved
   game.
-- `journal`: append-only, integrity-checked per-game facts, including full turn
-  snapshots and verified action lifecycles. It is an audit/replay source and is
+- `journal`: append-only, integrity-checked per-match captured facts, including
+  supported validated snapshots and verified action lifecycles. It is an
+  audit/replay source and is
   intended for future tactical/strategic history, replay, comparison, and audit.
   It is not an executor control plane.
 - `controller`: provisional package name for current-turn requirement inspection
@@ -41,12 +42,17 @@ of scope for this project.
   production, movement, or other plan content.
 - `cli`: thin commands over the modules above.
 
-Dependencies flow inward: `controller -> bridge` with only narrowly required
-structural knowledge queries. Application
-orchestration may append bridge observations and verified action results to the
-journal. Knowledge must not depend on a live game, journal must not choose
-actions, M6 must not require or query journal state, and bridge must not depend
-on executor orchestration.
+Dependencies flow inward: `controller -> bridge`. M6 does not query knowledge;
+stable identifier and action legality checks remain in bridge command contracts.
+Future plan producers may query knowledge before producing a TurnPlan. Watcher
+and CLI composition code is the application orchestration layer and may append
+bridge observations and verified action results to the journal. Knowledge must
+not depend on a live game, journal must not choose actions, M6 must not require
+or query journal state, and bridge must not depend on executor orchestration.
+
+Do not use one ambiguous “game identity.” Bridge-owned session identity targets
+live execution; journal-owned match identity groups declared history. Never
+infer cross-session continuity from mutable snapshot fields.
 
 ## Ruleset knowledge scope
 The knowledge module may cover technologies; policies and ideologies; units and

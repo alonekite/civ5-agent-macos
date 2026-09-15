@@ -7,6 +7,10 @@ Status: Implemented
 CLI entry points translate arguments into calls to core modules and render
 structured results for operators and scripts.
 
+Together with the watcher process, CLI composition is the application layer
+that may fan validated observations and command results out to optional audit
+and journal sinks. This wiring is not a policy or planning module.
+
 Current commands:
 
 - `civ5-watch`
@@ -19,6 +23,7 @@ Current commands:
 ## Non-responsibilities
 
 - Defining rules that exist nowhere in a core module.
+- Choosing plan content or interpreting journal history.
 - Bypassing validation, preflight, audit, or write verification.
 - Providing a remote unauthenticated service.
 - LLM or MCP integration.
@@ -78,4 +83,5 @@ M6 tactical planner. M7 may rename it when the TurnPlan executor is public.
 
 Add thin journal operations only after its core contract exists, then add an
 explicit TurnPlan execution entry point and stabilize names/error behavior in
-M7.
+M7. Journal integration consumes validated in-memory results and never parses
+the independent M2 audit file.

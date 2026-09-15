@@ -31,6 +31,7 @@ do not belong in the repository.
 - [Contract index](contracts/README.md)
 - [Live-state contract](contracts/live-state.md)
 - [Command contract](contracts/command.md)
+- [Session and match identity contract](contracts/session-identity.md)
 - [Knowledge contract](KNOWLEDGE.md)
 - [Ruleset knowledge-view contract](contracts/resolver.md)
 - [Remaining rules inventory](knowledge/REMAINING_RULES_INVENTORY.md): reviewed

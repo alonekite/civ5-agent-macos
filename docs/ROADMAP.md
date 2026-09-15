@@ -48,7 +48,7 @@ No application-bundle modification is required.
 - [x] city production (live-verified with `UNIT_SCOUT`)
 - [x] unit skip (live-verified through readiness with unchanged movement and location)
 - [ ] coordinate-based unit movement
-- [x] deterministic policy (live-verified refusal and successful execution paths)
+- [x] legacy readiness/refusal and explicit end-turn proof (live-verified)
 
 ## M3 — Versioned ruleset knowledge
 - [x] Define canonical entities, references, ruleset metadata, and provenance
@@ -133,18 +133,23 @@ No application-bundle modification is required.
 - [x] Resolve civilization replacements and disabled class defaults with base
   and override provenance
 - [x] Expose a validated, deterministic entity/reference query API
-- [ ] Add structural knowledge queries only when a concrete core validation or
+- [ ] Add structural knowledge queries only when a knowledge-facing API or
   future decision-support consumer requires them
 
 ## M5 — Per-game factual journal
 
 - [ ] Define an append-only turn-journal schema and storage interface
-- [ ] Record full validated turn snapshots and verified command lifecycles
+- [ ] Implement bridge-session and journal-match identity envelopes under
+  ADR-0017, including explicit cross-session binding
+- [ ] Record supported validated snapshots and verified command lifecycles
 - [ ] Add canonical serialization, integrity hashes, and recovery tests
+- [ ] Correlate M2 audit and M5 journal by command UUID without parsing the audit
+  file or coupling their failure behavior
 
-The complete journal supports future tactical/strategic history selection,
-replay, comparison, debugging, and audit. It is not a wholesale executor input
-or execution-state store.
+The supported captured journal sequence supports future tactical/strategic
+history selection, replay, comparison, debugging, and audit. It is not a claim
+of hidden or disconnected facts, a wholesale executor input, or an
+execution-state store.
 
 ## M6 — Deterministic turn executor
 
@@ -162,8 +167,9 @@ or execution-state store.
   tests
 
 M6 reports requirements but never chooses how to satisfy them. Tactical and
-strategic layers are future plan producers, not executor internals. M6 depends
-on M2, not M5; implementing M5 first is scheduling rather than architecture.
+strategic layers are future plan producers and knowledge consumers, not
+executor internals. M6 depends on M2 bridge state/session/action contracts, not
+M4 or M5; implementing M5 first is scheduling rather than architecture.
 
 Working memory and strategic memory will be designed together with a future LLM
 interaction layer outside this repository. They are not tasks on this roadmap.

@@ -64,6 +64,15 @@ Readers retain schema 2, 3, and 4 support. A future
 breaking shape change increments `schema_version`; it does not reinterpret an
 existing field silently.
 
+## Session metadata
+
+Schemas 2–5 do not expose a stable save or match identifier. They also do not
+contain the bridge connection epoch. Per ADR-0017, the bridge will attach a
+separate `bridge_session_id` in a versioned observation/command envelope rather
+than pretending that mutable state fields identify a match. M6 targets that
+session identity; M5 separately owns its `match_id`. See the
+[session and match identity contract](session-identity.md).
+
 ## Privacy
 
 Live state can contain player, civilization, city, opponent, and match-specific

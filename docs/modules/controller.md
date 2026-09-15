@@ -1,6 +1,6 @@
 # Module: deterministic turn executor
 
-Status: M6 replanned; legacy `controller` proof implemented
+Status: M6 planned; legacy `controller` proof implemented
 
 ## Responsibility
 
@@ -36,10 +36,10 @@ requirement is not an action choice.
 
 ## Dependencies
 
-The executor depends inward on bridge action/state contracts. It may use a
-narrow structural knowledge query only to validate an explicit stable
-identifier. It does not import, query, or require M5. Bridge, knowledge, and
-journal must not depend on execution policy.
+The executor depends inward only on bridge action/state/session and command
+contracts. Stable identifier shape, live capability, and action legality remain
+bridge responsibilities. M6 does not query ruleset knowledge or M5. Knowledge
+and journal must not depend on execution policy.
 
 ## Invariants
 
@@ -48,7 +48,8 @@ journal must not depend on execution policy.
 - Missing or invalid evidence pauses/refuses; it never creates plan content.
 - Every action is explicit, opt-in, and uses the verified bridge command path.
 - The executor cannot expand the bridge allowlist.
-- `end_turn` executes only when listed as the final action and still legal.
+- A complete-turn plan lists `end_turn` as its final action; `completed` is
+  impossible until that action is verified.
 
 ## Failure modes
 
@@ -60,8 +61,8 @@ ambiguous recovery produces a structured pause/refusal/error.
 
 No prompt, model, remote decision service, or arbitrary code is used. Only a
 bridge postcondition is proof of successful execution. Plans and reports are
-private per-game data. M6 may emit factual events for optional recording, but a
-journal failure cannot make a verified game action retryable.
+private bridge-session/match data. M6 may emit factual events for optional
+recording, but a journal failure cannot make a verified game action retryable.
 
 ## Verification
 

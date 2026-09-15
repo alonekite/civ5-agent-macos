@@ -1,20 +1,20 @@
 # Architecture
 
 ```text
-[ Civilization V ] ↔ [ Lua Bridge ] ↔ [ IPC / Storage Adapter ]
-                                             │
-                                       [ Live State ]
-                                          │     │
-                       ┌──────────────────┘     └──────────────┐
-                       ▼                                     ▼
-                [ Turn Journal ]              [ Deterministic Turn Executor ]
-                       ▲                                     ▲
-                       │                                     │
-            verified action results        [ Structural Knowledge View ]
-                                                             ▲
-                                              [ Ruleset Knowledge ]
+[ Civilization V ] ↔ [ Lua Bridge ] ──► [ Live State ]
+                           ▲                    │
+                           │                    ▼
+                    verified action   [ Deterministic Turn Executor ]
+                           ▲                    ▲
+                           └────────────────────┤
+                                        [ explicit TurnPlan ]
+                                                ▲
+[ Ruleset Knowledge ] ─► [ Structural View ] ─► [ future plan producer ]
 
-[ TurnPlan ] ──► [ Deterministic Turn Executor ] ──► [ Lua Bridge ]
+[ bridge observations / verified results / executor facts ]
+                           │
+                           ▼
+             [ watcher/CLI application composition ] ─► [ Turn Journal ]
 ```
 
 The verified Phase 1 transport is the game's bundled FireTuner server on
@@ -74,11 +74,17 @@ research, production, movement, targets, or strategy.
 
 M6 introduces a deterministic turn executor around an explicit versioned
 `TurnPlan`. A human or future tactical layer supplies every ordered action. The
-executor validates the plan's game/turn/player and state basis, sends only the
-next allowlisted action, advances only after write-after-read proof, emits
-bounded factual events, and pauses rather than replans on drift or missing
-decisions. It operates without M5; optional application orchestration may record
-its events. `end_turn` must be explicitly listed last.
+executor validates the plan's bridge session, turn, player, and state basis,
+sends only the next allowlisted action, advances only after write-after-read
+proof, emits bounded factual events, and pauses rather than replans on drift or
+missing decisions. It operates without M5; optional application orchestration
+may record its events. A complete-turn plan must list `end_turn` last and is not
+`completed` until that action is verified.
+
+M6 does not query the structural knowledge view. Stable identifier shape, live
+capability, and action legality are bridge command responsibilities. Knowledge
+is available to the human or future plan producer that chooses explicit plan
+content, not to the executor applying it.
 
 Initial allowlist:
 - end_turn
@@ -98,6 +104,12 @@ UTC timestamp, operation, canonical UUIDv4, validated arguments, and
 before/after snapshots. The watcher owns logging for brokered commands; the CLI
 logs direct commands. Audit failure is reported without changing a verified
 command into a retryable failure.
+
+This M2 command audit is local safety evidence, not the M5 match journal. M5
+receives the same validated in-memory command result through application
+composition; it never reconstructs history by parsing the audit file. Command
+UUIDs correlate the two records. Either store may fail independently, and
+neither logging failure changes a bridge-verified game result.
 
 For one watcher lifetime, completed command UUIDs are cached together with
 their operation, arguments, and response. An identical retry returns that
@@ -146,12 +158,28 @@ authoritative.
 Do not expose arbitrary Lua execution to any executor or external decision
 system.
 
-## Per-game factual history
+## Session and match identity
 
-Ruleset knowledge and per-game history are different kinds of data. Knowledge
-describes stable facts for a versioned ruleset. Per-game history describes one
-particular match and must always carry a game identifier, turn number, snapshot
-schema version, and ruleset identity.
+The current game APIs used by this project do not provide a target-verified ID
+that is known to remain stable across saving, loading, reconnecting, and process
+restart. The architecture therefore does not use one ambiguous “game ID”:
+
+- the bridge creates a `bridge_session_id` for one connection-owner epoch;
+- M6 targets that session plus turn, active player, and state basis;
+- M5 creates a separate `match_id` for one declared journal history;
+- a later bridge session joins that journal only through an explicit append-only
+  binding; automatic cross-session inference is prohibited for now.
+
+This fail-closed split is defined by ADR-0017 and the session-identity contract.
+Live-state schemas 2–5 predate the envelope, so implementation remains a
+prerequisite for M5/M6 identity-isolation claims.
+
+## Per-match factual history
+
+Ruleset knowledge and per-match history are different kinds of data. Knowledge
+describes stable facts for a versioned ruleset. Per-match history describes one
+declared match and carries `match_id`, the bound bridge-session identity, turn
+number, snapshot schema version, and ruleset identity where applicable.
 
 The current core separates live state from one durable history layer:
 
@@ -163,16 +191,20 @@ contradicting live observation.
 
 ### Turn journal
 
-The turn journal is the complete, append-only record. It stores full validated
+The turn journal is the append-only sequence of all supported facts actually
+captured and validated while recording is active. It stores validated
 snapshots, observed turn transitions, submitted command envelopes, command
-results, before/after states, and verification errors. Journal records are for
+results, before/after states, and verification errors. It does not claim hidden
+game facts, events missed while disconnected, or fields outside the supported
+schema. Journal records are for
 future tactical/strategic history selection, replay, comparison, auditing,
 debugging, and later analysis. The journal is not an executor control plane and
 is not passed wholesale into the executor loop.
 
 Records should be committed transactionally and include a monotonically
-increasing sequence, capture timestamp, game and turn identifiers, schema and
-ruleset versions, canonical payload, and integrity hash. Corrections append a
+increasing sequence, capture timestamp, match/session and turn identifiers,
+schema and ruleset versions where applicable, canonical payload, and integrity
+hash. Corrections append a
 new record that supersedes an earlier record rather than rewriting history.
 
 The intended dependency direction is:
@@ -184,6 +216,10 @@ explicit TurnPlan + live state                 -> deterministic turn executor
 deterministic turn executor                    -> plan-listed bridge action
 deterministic turn executor factual events     -> application -> turn journal
 ```
+
+“Application” here means composition code in the watcher and CLI entry points.
+It wires modules together and handles optional sinks; it is not a core policy,
+planning, or decision module.
 
 The journal does not infer intentions, summarize opponents, select context, or
 choose actions. It preserves the facts needed to reproduce those operations
