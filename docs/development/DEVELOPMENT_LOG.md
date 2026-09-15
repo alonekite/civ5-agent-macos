@@ -482,6 +482,11 @@ GitHub Actions on Python 3.11 and 3.13.
 
 Implementation commit: `5669973`. Live schema 5 verification remains pending.
 
+Follow-up commit `4d802b2` converted the next live check into a bounded,
+read-only procedure: compare ordinary researched/researchable technology state
+before and after one manual UI selection, then restore the recorded machine
+baseline. Free and stolen technology modes are not manufactured or auto-run.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
