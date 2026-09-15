@@ -7,6 +7,10 @@ procedure for two goals:
 1. verify snapshot schema 4 against a live match;
 2. verify one `skip_unit` action without moving the unit.
 
+The next bounded session adds a third read-only goal: verify schema 5 ordinary
+technology state. Free and steal-technology modes are outside that session
+unless they occur naturally; do not alter a save to manufacture them.
+
 Do not enable FireTuner until the firewall guard is in place.
 
 ## 1. Prepare the bounded session
@@ -44,7 +48,7 @@ PYTHONPATH=src python3 -m civ5_agent.preflight live
 
 Do not continue unless `ok` is `true`.
 
-## 3. Verify schema 4
+## 3. Verify schema 5 ordinary technology state
 
 Start the persistent watcher and leave it running:
 
@@ -52,7 +56,24 @@ Start the persistent watcher and leave it running:
 PYTHONPATH=src python3 -m civ5_agent.watch
 ```
 
-The first validated JSON snapshot must have `schema_version: 4`. Check:
+The first validated JSON snapshot must have `schema_version: 5`. First use a
+normal game state in which the stock UI requires an ordinary research choice
+and no free or stolen technology is pending. Check:
+
+- `researched_technologies` is sorted, contains only `TECH_*` identifiers, has
+  no duplicates, and agrees with at least one known researched technology in
+  the stock technology tree;
+- `researchable_technologies` is sorted, contains only `TECH_*` identifiers,
+  has no duplicates, and agrees with the ordinary choices shown by the stock
+  technology popup;
+- no identifier appears in both technology lists;
+- `research_choice` is `{"required": true, "mode": "normal"}` while the
+  ordinary choice is pending;
+- after manually selecting one ordinary technology in the game UI, a later
+  snapshot reports `required: false`, retains `mode: normal`, and exposes that
+  technology through the existing `research` record.
+
+Then check the inherited schema 4 fields:
 
 - `score` and `current_era` are non-negative integers;
 - every city has the six `food_*` / `production_*` economy fields;
@@ -64,13 +85,18 @@ The first validated JSON snapshot must have `schema_version: 4`. Check:
   integers at least `-1`.
 
 Any missing marker, malformed value, duplicate record, inconsistent part
-turn/player identity, or Lua error is a failed schema 4 test. Record only a
+turn/player identity, or Lua error is a failed schema 5 test. Record only a
 sanitized conclusion in the experiment log; do not commit exact watcher output,
 player names, or save-specific data.
 
-## 4. Verify `skip_unit`
+Do not invoke `choose_research` in this read-only verification. The existing
+write path has separate live evidence; this session verifies authoritative
+state and choice-mode reads.
 
-Choose one ready unit from the snapshot and record its ID, coordinates, and
+## 4. Optional regression: verify `skip_unit`
+
+Run this only when explicitly included in the session. Choose one ready unit
+from the snapshot and record its ID, coordinates, and
 movement points. In a second terminal run:
 
 ```bash
@@ -103,7 +129,8 @@ PYTHONPATH=src python3 -m civ5_agent.live_session restore
    the shutdown proof is clean. The command removes its private recovery files
    only after the original firewall and Civ V rule states are verified.
 
-Record the command UUID, before/after proof, schema fields observed, and every
-restored shutdown condition in `docs/EXPERIMENT_LOG.md`. Then update
+Record the schema fields observed and every restored shutdown condition in
+`docs/EXPERIMENT_LOG.md`; record a command UUID and before/after proof only if
+the optional write regression ran. Then update
 `docs/testing/LIVE_VERIFICATION_STATUS.zh-CN.md` and
 `docs/testing/TEST_MATRIX.md` with the sanitized result.
