@@ -151,8 +151,20 @@ yield-per-era values, route technology movement changes, and build technology
 time changes. Contextual imports cover improvement yield changes conditioned by
 resource or route and technology-enabled base, fresh-water, and no-fresh-water
 changes, as well as the single-context belief, building, and policy effects
-described above. Binary effects also cover beliefs, policies, buildings,
-resources, specialists, and unit/building resource quantities. Projects retain
+described above. Build/feature rules preserve time, production, cost, removal,
+and an optional technology context. Region entities support civilization
+start-region preferences, and typed relations preserve civilization free
+building classes and technologies. Game-speed, handicap, and world-size
+entities preserve static scaling facts without applying them to a match.
+Ancient-ruin outcome entities retain deterministic rewards, penalties, unit
+class results, and handicap availability without descriptions or sounds.
+World Congress entities preserve resolutions, decisions, special sessions,
+league projects and rewards, and legacy votes with typed prerequisites and
+rewards but no descriptions, help text, or art.
+Minor-civilization and minor-trait entities retain stable IDs and typed trait
+membership without localized names, Civilopedia prose, art, colors, or flavor.
+Binary effects also cover beliefs, policies, buildings, resources, specialists,
+and unit/building resource quantities. Projects retain
 instance limits, cost, deterministic flags, technology and victory gates,
 project prerequisites, resource requirements, and victory thresholds. Processes
 retain technology gates and production-conversion percentages. Victory entities
@@ -184,12 +196,14 @@ religions, 69 beliefs, 7 specialists, 9 terrains, 25 ordinary features, 2 fake
 features, 29 improvements, 2 routes, 6 yields, 35 build actions, 6 projects, 5
 processes, 5 victory types, 14 unit-combat categories, 5 domains, 4 special
 unit categories, 2 hurry methods, 4 great-work classes, 3 great-work slot types,
-279 great works, and 6 artifact classes. The complete current import contains
-1,631 entities and 4,876
+279 great works, 6 artifact classes, 9 regions, 4 game speeds, 9 handicaps, 6
+world sizes, and 20 ancient-ruin outcomes, plus 47 World Congress entities, 58
+minor civilizations, and 5 minor traits. The complete current import contains
+1,789 entities and 5,275
 references, including 148 unit-domain, 22 special-unit, and 323 additional typed
 unit-identifier relationships; 646 binary attributed references from 84
 single-value table families, four multi-attribute promotion families, and
-project victory thresholds; 213 contextual references, including typed
+project victory thresholds; 271 contextual references, including typed
 technology-conditioned promotion passability; and
 45 civilization-to-leader, 43 leader-to-trait, 66 unique-unit, 20
 unique-building, 45 disabled-unit-class, and 121 disabled-building-class
@@ -198,11 +212,21 @@ hash. Six specialist types reference a great-person unit class; the installed
 database's optional `Unit_GreatPersons` mapping is empty and therefore produces
 no invented relationships. No generated bundle or local database is committed.
 
-Fourteen additional plain table families contribute 253 of those relationships:
+Twenty additional plain table families contribute 461 of those relationships:
 belief faith-purchase eligibility; building class and local-resource
 prerequisites; policy free promotions; resource feature and terrain placement;
 trait training restrictions; promotion civilian-unit applicability and random
-post-combat upgrades; and unit building-class prerequisites and build actions.
+post-combat upgrades; unit building-class prerequisites and build actions; and
+civilization free building classes, free technologies, and start-region
+preferences; handicap AI starting technologies; and handicap ancient-ruin
+availability. The AI starting technologies are deterministic difficulty facts,
+not decision roles or personality parameters.
+World Congress knowledge contributes 68 typed relations among resolutions,
+decision types, technologies, projects, rewards, processes, sessions, eras,
+buildings, unit classes, specialists, policies, votes, and vote sources.
+Minor civilizations contribute 58 typed trait memberships. All non-empty
+policy and building relation tables are now covered except the flavor tables,
+which remain prohibited by ADR-0005.
 Quantified coverage additionally preserves building-class happiness, culture,
 tourism, and production effects; domain experience and production; free units;
 building prerequisite counts; adjacent-mountain yields; technology trade-route
@@ -226,6 +250,10 @@ mapping is imported.
 Ten buildings own 21 validated theming alternatives in the tested database.
 They change entity attributes rather than entity/reference counts, and two
 consecutive imports remain byte-identical.
+The remaining-rule inventory found no unimported controller-facing effect that
+needs more than one typed context. Built-in AI formation roles remain excluded
+by ADR-0005, and natural-wonder placement fields that resemble type identifiers
+are booleans. See `knowledge/REMAINING_RULES_INVENTORY.md`.
 
 ## Third-party research
 

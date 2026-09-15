@@ -97,8 +97,16 @@ class/era/creator relationships are imported while names, quotes, images, and
 audio remain excluded.
 Building theming bonuses preserve all 21 deterministic matching alternatives
 across 10 buildings without descriptions, AI priorities, or synthetic IDs.
-Current next deliverable: effects requiring multiple context items or new target
-entity families, followed by scaling rules.
+The remaining-rule inventory found no controller-facing effect requiring more
+than one context item; AI role/formation data remains excluded. Region entities,
+civilization start facts, and technology-conditioned build/feature rules are
+complete. Game-speed, handicap, world-size, and ancient-ruin facts are also
+complete without AI decision heuristics or presentation fields. World Congress
+resolutions, decisions, sessions, projects, rewards, and votes are complete with
+typed relations. Minor-civilization identities and deterministic trait
+membership are complete. The policy/building remainder audit found only
+prohibited flavor tables outside the importer. Current next deliverable: close
+the broader remaining-family audit before M4.
 
 ## M4 — Ruleset resolver
 

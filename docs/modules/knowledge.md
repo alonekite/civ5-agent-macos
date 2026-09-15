@@ -95,11 +95,29 @@ titles and presentation content remain excluded.
 Ten buildings preserve 21 canonically ordered theming alternatives as owned
 structured rules. Only deterministic bonus and matching constraints are kept;
 localized descriptions and AI priorities are excluded.
-Effects that need multiple context items or new target entity families are
-deferred.
+The remaining-table inventory found no unimported controller-facing gameplay
+effect that needs more than one context item. AI formation slots are excluded
+under ADR-0005, while natural-wonder placement columns that end in `Type` are
+boolean flags rather than identifiers. Nine region entities now support typed
+civilization start-region preferences. Build/feature rules preserve time,
+production, cost, removal, and optional technology context, and civilizations
+also retain free building-class and technology relationships.
+Game-speed, handicap, and world-size entities preserve static scaling values;
+handicap AI cost and production modifiers are deterministic difficulty effects,
+while decision heuristics remain excluded. Ancient-ruin outcome entities retain
+numeric and boolean results, typed unit-class results, and handicap availability
+without descriptions or sounds.
+World Congress entities cover resolutions, decisions, special sessions, league
+projects and rewards, and legacy votes. Typed relations preserve decision kinds,
+technology gates, enabled projects, reward tiers, processes, eras, buildings,
+unit classes, specialists, and policies without presentation fields.
+Minor-civilization and minor-trait entities preserve stable IDs and typed trait
+membership. Localized names, Civilopedia prose, art, colors, and flavor tables
+remain excluded.
 
 ## Planned extensions
 
-M3 next inventories effects requiring multiple context items or new target
-entity families, extends schema 3 coverage, and then imports scaling families.
-M4 adds per-game resolution without mutating base facts.
+Policy and building table coverage is closed; the only remaining non-empty
+families are their prohibited flavor tables. M3 next completes the broader
+remaining-family audit. M4 then adds per-game resolution without mutating base
+facts.

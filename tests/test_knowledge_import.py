@@ -8,11 +8,14 @@ from pathlib import Path
 
 from civ5_agent.knowledge import KnowledgeValidationError, ReferenceContext, Ruleset
 from civ5_agent.knowledge.import_sqlite import (
+    ANCIENT_RUIN_FIELDS,
+    ANCIENT_RUIN_REFERENCE_COLUMNS,
     ATTRIBUTED_REFERENCE_TABLES,
     BRAVE_NEW_WORLD_PACKAGE_ID,
     BELIEF_FIELDS,
     BELIEF_REFERENCE_COLUMNS,
     BUILD_FIELDS,
+    BUILD_FEATURE_FIELDS,
     BUILD_REFERENCE_COLUMNS,
     CONTEXTUAL_REFERENCE_TABLES,
     CONTEXTUAL_QUANTITY_REFERENCE_TABLES,
@@ -27,9 +30,17 @@ from civ5_agent.knowledge.import_sqlite import (
     FEATURE_REFERENCE_COLUMNS,
     IMPROVEMENT_FIELDS,
     IMPROVEMENT_REFERENCE_COLUMNS,
+    LEAGUE_PROJECT_FIELDS,
+    LEAGUE_PROJECT_REFERENCE_COLUMNS,
+    LEAGUE_PROJECT_REWARD_FIELDS,
+    LEAGUE_PROJECT_REWARD_REFERENCE_COLUMNS,
+    LEAGUE_SPECIAL_SESSION_FIELDS,
+    LEAGUE_SPECIAL_SESSION_REFERENCE_COLUMNS,
     HURRY_FIELDS,
+    GAME_SPEED_FIELDS,
     GREAT_WORK_ARTIFACT_CLASS_FIELDS,
     GREAT_WORK_FIELDS,
+    HANDICAP_FIELDS,
     PROMOTION_FIELDS,
     PROMOTION_PREREQUISITE_COLUMNS,
     POLICY_BRANCH_FIELDS,
@@ -42,6 +53,8 @@ from civ5_agent.knowledge.import_sqlite import (
     RESOURCE_CLASS_FIELDS,
     RESOURCE_FIELDS,
     RESOURCE_REFERENCE_COLUMNS,
+    RESOLUTION_FIELDS,
+    RESOLUTION_REFERENCE_COLUMNS,
     ROUTE_FIELDS,
     SPECIAL_UNIT_FIELDS,
     SPECIALIST_FIELDS,
@@ -54,6 +67,10 @@ from civ5_agent.knowledge.import_sqlite import (
     UNIT_CLASS_FIELDS,
     UNIT_REFERENCE_COLUMNS,
     VICTORY_FIELDS,
+    VOTE_FIELDS,
+    VOTE_SOURCE_FIELDS,
+    VOTE_SOURCE_REFERENCE_COLUMNS,
+    WORLD_SIZE_FIELDS,
     YIELD_FIELDS,
     import_ruleset,
 )
@@ -64,6 +81,7 @@ FIXTURE_TYPE_IDS = {
     "build": "BUILD_TEST",
     "building": "BUILDING_PYRAMID",
     "building_class": "BUILDINGCLASS_PYRAMID",
+    "civilization": "CIVILIZATION_TEST",
     "feature": "FEATURE_TEST",
     "improvement": "IMPROVEMENT_TEST",
     "hurry": "HURRY_TEST",
@@ -71,11 +89,19 @@ FIXTURE_TYPE_IDS = {
     "great_work_slot": "GREAT_WORK_SLOT_TEST",
     "great_work": "GREAT_WORK_TEST",
     "great_work_artifact_class": "ARTIFACT_TEST",
+    "handicap": "HANDICAP_PRINCE",
+    "ancient_ruin_outcome": "GOODY_TEST",
+    "league_project": "LEAGUE_PROJECT_TEST",
+    "league_project_reward": "LEAGUE_PROJECT_REWARD_TEST",
+    "league_special_session": "LEAGUE_SPECIAL_SESSION_TEST",
     "policy": "POLICY_TRADITION",
     "process": "PROCESS_TEST",
     "project": "PROJECT_TEST",
     "promotion": "PROMOTION_SHOCK_1",
     "resource": "RESOURCE_IRON",
+    "resolution": "RESOLUTION_TEST",
+    "resolution_decision": "RESOLUTION_DECISION_TEST",
+    "region": "REGION_TEST",
     "route": "ROUTE_TEST",
     "special_unit": "SPECIALUNIT_TEST",
     "specialist": "SPECIALIST_TEST",
@@ -86,6 +112,8 @@ FIXTURE_TYPE_IDS = {
     "unit_class": "UNITCLASS_WARRIOR",
     "unit_combat": "UNITCOMBAT_MELEE",
     "victory": "VICTORY_TEST",
+    "vote": "VOTE_TEST",
+    "vote_source": "DIPLOVOTE_TEST",
     "yield": "YIELD_TEST",
     "domain": "DOMAIN_LAND",
     "era": "ERA_ANCIENT",
@@ -386,6 +414,11 @@ def create_database(
         )
         build_definitions.extend(f'"{column}" INTEGER' for column in BUILD_FIELDS)
         connection.execute(f"CREATE TABLE Builds ({', '.join(build_definitions)})")
+        connection.execute(
+            "CREATE TABLE BuildFeatures ("
+            "BuildType TEXT, FeatureType TEXT, PrereqTech TEXT, "
+            "Time INTEGER, Production INTEGER, Cost INTEGER, Remove INTEGER)"
+        )
         project_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
         project_definitions.extend(
             f'"{column}" TEXT' for column, _, _ in PROJECT_REFERENCE_COLUMNS
@@ -409,6 +442,88 @@ def create_database(
         )
         connection.execute(
             f"CREATE TABLE Victories ({', '.join(victory_definitions)})"
+        )
+        for table, fields, excluded_columns in (
+            ("GameSpeeds", GAME_SPEED_FIELDS, ("Description", "PortraitIndex")),
+            (
+                "HandicapInfos",
+                HANDICAP_FIELDS,
+                (
+                    "Description",
+                    "CityProductionNumOptionsConsidered",
+                    "AIDeclareWarProb",
+                ),
+            ),
+            ("Worlds", WORLD_SIZE_FIELDS, ("Description", "PortraitIndex")),
+        ):
+            definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+            definitions.extend(f'"{column}" INTEGER' for column in fields)
+            definitions.extend(
+                f'"{column}" {"TEXT" if column == "Description" else "INTEGER"}'
+                for column in excluded_columns
+            )
+            connection.execute(
+                f'CREATE TABLE "{table}" ({", ".join(definitions)})'
+            )
+        goody_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        goody_definitions.extend(
+            f'"{column}" TEXT'
+            for column, _kind, _target_kind in ANCIENT_RUIN_REFERENCE_COLUMNS
+        )
+        goody_definitions.extend(
+            f'"{column}" INTEGER' for column in ANCIENT_RUIN_FIELDS
+        )
+        goody_definitions.extend(("Description TEXT", "Sound TEXT"))
+        connection.execute(
+            f'CREATE TABLE GoodyHuts ({", ".join(goody_definitions)})'
+        )
+        for table, fields, references in (
+            (
+                "LeagueProjectRewards",
+                LEAGUE_PROJECT_REWARD_FIELDS,
+                LEAGUE_PROJECT_REWARD_REFERENCE_COLUMNS,
+            ),
+            (
+                "LeagueProjects",
+                LEAGUE_PROJECT_FIELDS,
+                LEAGUE_PROJECT_REFERENCE_COLUMNS,
+            ),
+            (
+                "LeagueSpecialSessions",
+                LEAGUE_SPECIAL_SESSION_FIELDS,
+                LEAGUE_SPECIAL_SESSION_REFERENCE_COLUMNS,
+            ),
+            ("Resolutions", RESOLUTION_FIELDS, RESOLUTION_REFERENCE_COLUMNS),
+            ("VoteSources", VOTE_SOURCE_FIELDS, VOTE_SOURCE_REFERENCE_COLUMNS),
+        ):
+            definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+            definitions.extend(
+                f'"{column}" TEXT'
+                for column, _kind, _target_kind in references
+            )
+            definitions.extend(f'"{column}" INTEGER' for column in fields)
+            definitions.extend(("Description TEXT", "Help TEXT"))
+            connection.execute(
+                f'CREATE TABLE "{table}" ({", ".join(definitions)})'
+            )
+        connection.execute(
+            "CREATE TABLE ResolutionDecisions ("
+            "Type TEXT NOT NULL PRIMARY KEY, Description TEXT)"
+        )
+        vote_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+        vote_definitions.extend(f'"{column}" INTEGER' for column in VOTE_FIELDS)
+        vote_definitions.append("Description TEXT")
+        connection.execute(
+            f'CREATE TABLE Votes ({", ".join(vote_definitions)})'
+        )
+        connection.execute(
+            "CREATE TABLE MinorCivTraits ("
+            "Type TEXT NOT NULL PRIMARY KEY, Description TEXT, TraitIcon TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE MinorCivilizations ("
+            "Type TEXT NOT NULL PRIMARY KEY, MinorCivTrait TEXT NOT NULL, "
+            "Description TEXT, Civilopedia TEXT, ArtDefineTag TEXT)"
         )
         connection.execute(
             "CREATE TABLE Project_VictoryThresholds "
@@ -961,6 +1076,8 @@ def create_database(
                 "BUILDING_PYRAMID",
             ),
         )
+        connection.execute("CREATE TABLE Regions (Type TEXT NOT NULL PRIMARY KEY)")
+        connection.execute("INSERT INTO Regions VALUES (?)", ("REGION_TEST",))
         connection.execute(
             "INSERT INTO Religions VALUES (?)", ("RELIGION_TEST",)
         )
@@ -1123,6 +1240,21 @@ def create_database(
                 *build_values,
             ],
         )
+        connection.executemany(
+            "INSERT INTO BuildFeatures VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                (
+                    "BUILD_TEST",
+                    "FEATURE_TEST",
+                    "TECH_AGRICULTURE",
+                    None,
+                    20,
+                    0,
+                    1,
+                ),
+                ("BUILD_TEST", "FEATURE_LAKE", None, 300, 0, 0, 1),
+            ),
+        )
         project_columns = [
             "Type",
             *(column for column, _, _ in PROJECT_REFERENCE_COLUMNS),
@@ -1167,6 +1299,169 @@ def create_database(
             f"INSERT INTO Victories ({', '.join(victory_columns)}) VALUES "
             f"({', '.join('?' for _ in victory_columns)})",
             ["VICTORY_TEST", *victory_values],
+        )
+        for table, type_id, fields, excluded in (
+            (
+                "GameSpeeds",
+                "GAMESPEED_STANDARD",
+                GAME_SPEED_FIELDS,
+                ("TXT_KEY_SPEED", 999),
+            ),
+            (
+                "HandicapInfos",
+                "HANDICAP_PRINCE",
+                HANDICAP_FIELDS,
+                ("TXT_KEY_HANDICAP", 999, 999),
+            ),
+            (
+                "Worlds",
+                "WORLDSIZE_STANDARD",
+                WORLD_SIZE_FIELDS,
+                ("TXT_KEY_WORLD", 999),
+            ),
+        ):
+            columns = ["Type", *fields]
+            if table == "HandicapInfos":
+                columns.extend(
+                    (
+                        "Description",
+                        "CityProductionNumOptionsConsidered",
+                        "AIDeclareWarProb",
+                    )
+                )
+            else:
+                columns.extend(("Description", "PortraitIndex"))
+            scalar_values = [
+                2.5 if value_type == "number" else 100
+                for _attribute, value_type in fields.values()
+            ]
+            values = [type_id, *scalar_values, *excluded]
+            connection.execute(
+                f'INSERT INTO "{table}" ({", ".join(columns)}) VALUES '
+                f'({", ".join("?" for _ in values)})',
+                values,
+            )
+        goody_columns = [
+            "Type",
+            *(column for column, _kind, _target_kind in ANCIENT_RUIN_REFERENCE_COLUMNS),
+            *ANCIENT_RUIN_FIELDS,
+            "Description",
+            "Sound",
+        ]
+        goody_values = [
+            1 if value_type == "boolean" else 10
+            for _attribute, value_type in ANCIENT_RUIN_FIELDS.values()
+        ]
+        connection.execute(
+            f'INSERT INTO GoodyHuts ({", ".join(goody_columns)}) VALUES '
+            f'({", ".join("?" for _ in goody_columns)})',
+            [
+                "GOODY_TEST",
+                "UNITCLASS_WARRIOR",
+                "UNITCLASS_WARRIOR",
+                *goody_values,
+                "TXT_KEY_GOODY",
+                "AS2D_GOODY",
+            ],
+        )
+        connection.execute(
+            "INSERT INTO ResolutionDecisions VALUES (?, ?)",
+            ("RESOLUTION_DECISION_TEST", "TXT_KEY_DECISION"),
+        )
+        world_congress_rows = (
+            (
+                "LeagueProjectRewards",
+                "LEAGUE_PROJECT_REWARD_TEST",
+                LEAGUE_PROJECT_REWARD_FIELDS,
+                LEAGUE_PROJECT_REWARD_REFERENCE_COLUMNS,
+                ("BUILDING_PYRAMID", "UNITCLASS_WARRIOR"),
+            ),
+            (
+                "LeagueProjects",
+                "LEAGUE_PROJECT_TEST",
+                LEAGUE_PROJECT_FIELDS,
+                LEAGUE_PROJECT_REFERENCE_COLUMNS,
+                (
+                    "PROCESS_TEST",
+                    "LEAGUE_PROJECT_REWARD_TEST",
+                    "LEAGUE_PROJECT_REWARD_TEST",
+                    "LEAGUE_PROJECT_REWARD_TEST",
+                ),
+            ),
+            (
+                "Resolutions",
+                "RESOLUTION_TEST",
+                RESOLUTION_FIELDS,
+                RESOLUTION_REFERENCE_COLUMNS,
+                (
+                    "RESOLUTION_DECISION_TEST",
+                    "RESOLUTION_DECISION_TEST",
+                    "TECH_AGRICULTURE",
+                    "LEAGUE_PROJECT_TEST",
+                ),
+            ),
+            (
+                "LeagueSpecialSessions",
+                "LEAGUE_SPECIAL_SESSION_TEST",
+                LEAGUE_SPECIAL_SESSION_FIELDS,
+                LEAGUE_SPECIAL_SESSION_REFERENCE_COLUMNS,
+                ("ERA_ANCIENT", "RESOLUTION_TEST", "RESOLUTION_TEST"),
+            ),
+            (
+                "VoteSources",
+                "DIPLOVOTE_TEST",
+                VOTE_SOURCE_FIELDS,
+                VOTE_SOURCE_REFERENCE_COLUMNS,
+                ("SPECIALIST_TEST", "POLICY_TRADITION"),
+            ),
+        )
+        for table, type_id, fields, references, targets in world_congress_rows:
+            columns = [
+                "Type",
+                *(column for column, _kind, _target_kind in references),
+                *fields,
+                "Description",
+                "Help",
+            ]
+            scalar_values = [
+                1 if value_type == "boolean" else 10
+                for _attribute, value_type in fields.values()
+            ]
+            values = [
+                type_id,
+                *targets,
+                *scalar_values,
+                "TXT_KEY_DESCRIPTION",
+                "TXT_KEY_HELP",
+            ]
+            connection.execute(
+                f'INSERT INTO "{table}" ({", ".join(columns)}) VALUES '
+                f'({", ".join("?" for _ in values)})',
+                values,
+            )
+        vote_columns = ["Type", *VOTE_FIELDS, "Description"]
+        vote_values = [
+            1 if value_type == "boolean" else 10
+            for _attribute, value_type in VOTE_FIELDS.values()
+        ]
+        connection.execute(
+            f'INSERT INTO Votes ({", ".join(vote_columns)}) VALUES '
+            f'({", ".join("?" for _ in vote_columns)})',
+            ["VOTE_TEST", *vote_values, "TXT_KEY_VOTE"],
+        )
+        connection.execute(
+            "INSERT INTO MinorCivTraits VALUES (?, ?, ?)",
+            ("MINOR_TRAIT_TEST", "TXT_KEY_MINOR_TRAIT", "MINOR_TRAIT.dds"),
+        )
+        connection.execute(
+            "INSERT INTO MinorCivilizations VALUES (?, ?, ?, ?, ?)",
+            (
+                "MINOR_CIV_TEST",
+                "MINOR_TRAIT_TEST",
+                "TXT_KEY_MINOR_CIV",
+                "TXT_KEY_MINOR_CIV_PEDIA",
+                "ART_DEF_MINOR_CIV",
+            ),
         )
         connection.execute(
             "INSERT INTO Project_VictoryThresholds VALUES (?, ?, ?, ?)",
@@ -1307,7 +1602,7 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 39)
+        self.assertEqual(len(bundle.entities), 53)
         self.assertEqual(
             len(bundle.references),
             58
@@ -1322,7 +1617,11 @@ class RulesetImportTest(unittest.TestCase):
             + 1
             + 1
             + 2
-            + 5,
+            + 5
+            + 2
+            + 2
+            + 15
+            + 1,
         )
         self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
@@ -1605,6 +1904,34 @@ class RulesetImportTest(unittest.TestCase):
                     "RELIGION_TEST",
                 ),
                 (
+                    "starts_with_building_class",
+                    "civilization",
+                    "CIVILIZATION_TEST",
+                    "building_class",
+                    "BUILDINGCLASS_PYRAMID",
+                ),
+                (
+                    "starts_with_technology",
+                    "civilization",
+                    "CIVILIZATION_TEST",
+                    "technology",
+                    "TECH_AGRICULTURE",
+                ),
+                (
+                    "avoids_start_region",
+                    "civilization",
+                    "CIVILIZATION_TEST",
+                    "region",
+                    "REGION_TEST",
+                ),
+                (
+                    "prefers_start_region",
+                    "civilization",
+                    "CIVILIZATION_TEST",
+                    "region",
+                    "REGION_TEST",
+                ),
+                (
                     "grants_unit_class",
                     "trait",
                     "TRAIT_TEST",
@@ -1814,6 +2141,19 @@ class RulesetImportTest(unittest.TestCase):
                 (("minimum_threshold", 1), ("threshold", 3)),
             )
         )
+        expected_quantity_relations.add(
+            (
+                "feature_build_rule",
+                "BUILD_TEST",
+                "FEATURE_LAKE",
+                (
+                    ("cost", 0),
+                    ("production", 0),
+                    ("removes_feature", True),
+                    ("time", 300),
+                ),
+            )
+        )
         self.assertEqual(quantity_relations, expected_quantity_relations)
         lake = next(
             item for item in bundle.entities if item.type_id == "FEATURE_LAKE"
@@ -1932,6 +2272,25 @@ class RulesetImportTest(unittest.TestCase):
                 ),
             )
         )
+        expected_contextual_relations.add(
+            (
+                "feature_build_rule",
+                "BUILD_TEST",
+                "FEATURE_TEST",
+                (
+                    ("cost", 0),
+                    ("production", 20),
+                    ("removes_feature", True),
+                ),
+                (
+                    ReferenceContext(
+                        "enabled_by_technology",
+                        "technology",
+                        "TECH_AGRICULTURE",
+                    ),
+                ),
+            )
+        )
         self.assertEqual(contextual_relations, expected_contextual_relations)
         project = next(
             item for item in bundle.entities if item.type_id == "PROJECT_TEST"
@@ -1945,6 +2304,131 @@ class RulesetImportTest(unittest.TestCase):
             item for item in bundle.entities if item.type_id == "VICTORY_TEST"
         )
         self.assertTrue(victory.attributes["wins_game"])
+        game_speed = next(
+            item for item in bundle.entities
+            if item.type_id == "GAMESPEED_STANDARD"
+        )
+        self.assertEqual(game_speed.attributes["research_percent"], 100)
+        self.assertNotIn("description", game_speed.attributes)
+        self.assertNotIn("portrait_index", game_speed.attributes)
+        handicap = next(
+            item for item in bundle.entities if item.type_id == "HANDICAP_PRINCE"
+        )
+        self.assertEqual(handicap.attributes["ai_growth_percent"], 100)
+        self.assertNotIn("city_production_num_options_considered", handicap.attributes)
+        self.assertNotIn("ai_declare_war_prob", handicap.attributes)
+        world_size = next(
+            item for item in bundle.entities
+            if item.type_id == "WORLDSIZE_STANDARD"
+        )
+        self.assertEqual(world_size.attributes["grid_width"], 100)
+        self.assertEqual(world_size.attributes["num_cities_tech_cost_mod"], 2.5)
+        self.assertNotIn("description", world_size.attributes)
+        ancient_ruin = next(
+            item for item in bundle.entities if item.type_id == "GOODY_TEST"
+        )
+        self.assertTrue(ancient_ruin.attributes["tech"])
+        self.assertEqual(ancient_ruin.attributes["gold"], 10)
+        self.assertNotIn("description", ancient_ruin.attributes)
+        self.assertNotIn("sound", ancient_ruin.attributes)
+        self.assertEqual(
+            {
+                (item.kind, item.target_kind, item.target_type_id)
+                for item in bundle.references
+                if item.source_type_id == "GOODY_TEST"
+            },
+            {
+                ("grants_unit_class", "unit_class", "UNITCLASS_WARRIOR"),
+                (
+                    "spawns_barbarian_unit_class",
+                    "unit_class",
+                    "UNITCLASS_WARRIOR",
+                ),
+            },
+        )
+        resolution = next(
+            item for item in bundle.entities if item.type_id == "RESOLUTION_TEST"
+        )
+        self.assertTrue(resolution.attributes["automatic_proposal"])
+        self.assertEqual(resolution.attributes["quorum_percent"], 10)
+        self.assertNotIn("description", resolution.attributes)
+        self.assertNotIn("help", resolution.attributes)
+        world_congress_kinds = {
+            "league_project_reward",
+            "league_project",
+            "league_special_session",
+            "resolution",
+            "vote_source",
+            "vote",
+        }
+        self.assertEqual(
+            {
+                (item.kind, item.source_kind, item.target_kind)
+                for item in bundle.references
+                if item.source_kind in world_congress_kinds
+            },
+            {
+                ("grants_building", "league_project_reward", "building"),
+                ("grants_unit_class", "league_project_reward", "unit_class"),
+                ("uses_process", "league_project", "process"),
+                (
+                    "grants_tier_1_reward",
+                    "league_project",
+                    "league_project_reward",
+                ),
+                (
+                    "grants_tier_2_reward",
+                    "league_project",
+                    "league_project_reward",
+                ),
+                (
+                    "grants_tier_3_reward",
+                    "league_project",
+                    "league_project_reward",
+                ),
+                ("triggered_by_era", "league_special_session", "era"),
+                (
+                    "immediately_proposes",
+                    "league_special_session",
+                    "resolution",
+                ),
+                (
+                    "recurringly_proposes",
+                    "league_special_session",
+                    "resolution",
+                ),
+                ("uses_voter_decision", "resolution", "resolution_decision"),
+                (
+                    "uses_proposer_decision",
+                    "resolution",
+                    "resolution_decision",
+                ),
+                ("requires_member_technology", "resolution", "technology"),
+                ("enables_league_project", "resolution", "league_project"),
+                ("grants_specialist", "vote_source", "specialist"),
+                ("grants_policy", "vote_source", "policy"),
+                ("uses_vote_source", "vote", "vote_source"),
+            },
+        )
+        minor_civ = next(
+            item for item in bundle.entities if item.type_id == "MINOR_CIV_TEST"
+        )
+        self.assertEqual(minor_civ.attributes, {})
+        minor_trait = next(
+            item for item in bundle.entities if item.type_id == "MINOR_TRAIT_TEST"
+        )
+        self.assertEqual(minor_trait.attributes, {})
+        self.assertIn(
+            (
+                "has_minor_civ_trait",
+                "MINOR_CIV_TEST",
+                "MINOR_TRAIT_TEST",
+            ),
+            {
+                (item.kind, item.source_type_id, item.target_type_id)
+                for item in bundle.references
+            },
+        )
         project_relations = {
             (item.kind, item.source_type_id, item.target_type_id)
             for item in bundle.references
@@ -1989,6 +2473,82 @@ class RulesetImportTest(unittest.TestCase):
             ):
                 import_ruleset(
                     database, "cache/bad-number.db", Ruleset("bnw", "test")
+                )
+
+    def test_rejects_invalid_game_speed_integer(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-game-speed.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE GameSpeeds SET ResearchPercent = ?",
+                    ("invalid",),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "game_speed GAMESPEED_STANDARD has invalid integer ResearchPercent",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-game-speed.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_invalid_ancient_ruin_boolean(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-goody.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute("UPDATE GoodyHuts SET Tech = 2")
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "ancient_ruin_outcome GOODY_TEST has invalid boolean Tech",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-goody.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_invalid_resolution_boolean(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-resolution.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Resolutions SET AutomaticProposal = 2"
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "resolution RESOLUTION_TEST has invalid boolean AutomaticProposal",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-resolution.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_minor_civilization_with_missing_trait(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "missing-minor-trait.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE MinorCivilizations SET MinorCivTrait = ?",
+                    ("MINOR_TRAIT_MISSING",),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeValidationError,
+                "reference target does not exist",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/missing-minor-trait.db",
+                    Ruleset("bnw", "test"),
                 )
 
     def test_rejects_invalid_theming_boolean(self):
@@ -2142,6 +2702,43 @@ class RulesetImportTest(unittest.TestCase):
                 import_ruleset(
                     database,
                     "cache/bad-attributed-reference.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_invalid_build_feature_boolean(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-build-feature.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute("UPDATE BuildFeatures SET Remove = 2")
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "BuildFeatures has invalid boolean Remove",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-build-feature.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_build_feature_with_missing_technology(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "missing-build-feature-tech.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE BuildFeatures SET PrereqTech = ?",
+                    ("TECH_MISSING",),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeValidationError,
+                "context does not exist",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/missing-build-feature-tech.db",
                     Ruleset("bnw", "test"),
                 )
 

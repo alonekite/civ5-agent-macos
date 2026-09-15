@@ -1054,6 +1054,12 @@ BUILD_FIELDS = {
     "Water": ("water", "boolean"),
     "CanBeEmbarked": ("can_be_embarked", "boolean"),
 }
+BUILD_FEATURE_FIELDS = (
+    ("Time", "time", "optional_integer"),
+    ("Production", "production", "integer"),
+    ("Cost", "cost", "integer"),
+    ("Remove", "removes_feature", "boolean"),
+)
 BUILD_REFERENCE_COLUMNS = (
     ("PrereqTech", "unlocked_by_technology", "technology"),
     ("ImprovementType", "creates_improvement", "improvement"),
@@ -1113,6 +1119,282 @@ VICTORY_FIELDS = {
         )
     },
 }
+GAME_SPEED_FIELDS = {
+    column: (_snake_case(column), "integer")
+    for column in (
+        "DealDuration",
+        "GrowthPercent",
+        "TrainPercent",
+        "ConstructPercent",
+        "CreatePercent",
+        "ResearchPercent",
+        "GoldPercent",
+        "GoldGiftMod",
+        "BuildPercent",
+        "ImprovementPercent",
+        "GreatPeoplePercent",
+        "CulturePercent",
+        "FaithPercent",
+        "BarbPercent",
+        "FeatureProductionPercent",
+        "UnitDiscoverPercent",
+        "UnitHurryPercent",
+        "UnitTradePercent",
+        "GoldenAgePercent",
+        "HurryPercent",
+        "InflationPercent",
+        "InflationOffset",
+        "ReligiousPressureAdjacentCity",
+        "VictoryDelayPercent",
+        "MinorCivElectionFreqMod",
+        "OpinionDurationPercent",
+        "SpyRatePercent",
+        "PeaceDealDuration",
+        "RelationshipDuration",
+        "LeaguePercent",
+    )
+}
+HANDICAP_FIELDS = {
+    column: (_snake_case(column), "integer")
+    for column in (
+        "StartingLocPercent",
+        "AdvancedStartPointsMod",
+        "StartingPolicyPoints",
+        "HappinessDefault",
+        "ExtraHappinessPerLuxury",
+        "NumCitiesUnhappinessMod",
+        "PopulationUnhappinessMod",
+        "Gold",
+        "GoldFreeUnits",
+        "ProductionFreeUnits",
+        "ProductionFreeUnitsPerCity",
+        "ProductionFreeUnitsPopulationPercent",
+        "RouteCostPercent",
+        "UnitCostPercent",
+        "BuildingCostPercent",
+        "ResearchPercent",
+        "PolicyPercent",
+        "ImprovementCostPercent",
+        "InflationPercent",
+        "FreeCulturePerTurn",
+        "BarbCampGold",
+        "BarbSpawnMod",
+        "BarbarianBonus",
+        "AIBarbarianBonus",
+        "EarliestBarbarianReleaseTurn",
+        "StartingDefenseUnits",
+        "StartingWorkerUnits",
+        "StartingExploreUnits",
+        "AIStartingUnitMultiplier",
+        "AIStartingDefenseUnits",
+        "AIStartingWorkerUnits",
+        "AIStartingExploreUnits",
+        "AIWorkRateModifier",
+        "AIUnhappinessPercent",
+        "AIGrowthPercent",
+        "AITrainPercent",
+        "AIWorldTrainPercent",
+        "AIConstructPercent",
+        "AIWorldConstructPercent",
+        "AICreatePercent",
+        "AIWorldCreatePercent",
+        "AIBuildingCostPercent",
+        "AIUnitCostPercent",
+        "AIUnitSupplyPercent",
+        "AIUnitUpgradePercent",
+        "AIInflationPercent",
+        "AIPerEraModifier",
+        "AIAdvancedStartPercent",
+        "AIFreeXP",
+        "AIFreeXPPercent",
+    )
+}
+WORLD_SIZE_FIELDS = {
+    column: (_snake_case(column), "integer")
+    for column in (
+        "DefaultPlayers",
+        "DefaultMinorCivs",
+        "FogTilesPerBarbarianCamp",
+        "NumNaturalWonders",
+        "UnitNameModifier",
+        "TargetNumCities",
+        "NumFreeBuildingResources",
+        "BuildingClassPrereqModifier",
+        "MaxConscriptModifier",
+        "GridWidth",
+        "GridHeight",
+        "MaxActiveReligions",
+        "TerrainGrainChange",
+        "FeatureGrainChange",
+        "ResearchPercent",
+        "NumCitiesUnhappinessPercent",
+        "AdvancedStartPointsMod",
+        "EstimatedNumCities",
+    )
+} | {
+    "NumCitiesPolicyCostMod": ("num_cities_policy_cost_mod", "number"),
+    "NumCitiesTechCostMod": ("num_cities_tech_cost_mod", "number"),
+}
+ANCIENT_RUIN_BOOLEAN_COLUMNS = (
+    "Tech",
+    "RevealUnknownResource",
+    "UpgradeUnit",
+    "PantheonFaith",
+    "Bad",
+)
+ANCIENT_RUIN_INTEGER_COLUMNS = (
+    "Gold",
+    "NumGoldRandRolls",
+    "GoldRandAmount",
+    "MapOffset",
+    "MapRange",
+    "MapProb",
+    "Experience",
+    "Healing",
+    "DamagePrereq",
+    "Population",
+    "Culture",
+    "Faith",
+    "ProphetPercent",
+    "RevealNearbyBarbariansRange",
+    "BarbarianUnitProb",
+    "MinBarbarians",
+)
+ANCIENT_RUIN_FIELDS = {
+    **{
+        column: (_snake_case(column), "boolean")
+        for column in ANCIENT_RUIN_BOOLEAN_COLUMNS
+    },
+    **{
+        column: (_snake_case(column), "integer")
+        for column in ANCIENT_RUIN_INTEGER_COLUMNS
+    },
+}
+ANCIENT_RUIN_REFERENCE_COLUMNS = (
+    ("UnitClass", "grants_unit_class", "unit_class"),
+    ("BarbarianUnitClass", "spawns_barbarian_unit_class", "unit_class"),
+)
+LEAGUE_PROJECT_REWARD_FIELDS = {
+    column: (_snake_case(column), "integer")
+    for column in (
+        "Happiness",
+        "FreeSocialPolicies",
+        "CultureBonusTurns",
+        "TourismBonusTurns",
+        "GoldenAgePoints",
+        "CityStateInfluenceBoost",
+        "BaseBeakersTurnsToCount",
+    )
+}
+LEAGUE_PROJECT_REWARD_REFERENCE_COLUMNS = (
+    ("Building", "grants_building", "building"),
+    ("FreeUnitClass", "grants_unit_class", "unit_class"),
+)
+LEAGUE_PROJECT_FIELDS = {
+    "CostPerPlayer": ("cost_per_player", "integer"),
+}
+LEAGUE_PROJECT_REFERENCE_COLUMNS = (
+    ("Process", "uses_process", "process"),
+    ("RewardTier1", "grants_tier_1_reward", "league_project_reward"),
+    ("RewardTier2", "grants_tier_2_reward", "league_project_reward"),
+    ("RewardTier3", "grants_tier_3_reward", "league_project_reward"),
+)
+LEAGUE_SPECIAL_SESSION_FIELDS = {
+    **{
+        column: (_snake_case(column), "integer")
+        for column in (
+            "TurnsBetweenSessions",
+            "CivDelegates",
+            "HostDelegates",
+            "CityStateDelegates",
+        )
+    },
+    "UnitedNations": ("united_nations", "boolean"),
+}
+LEAGUE_SPECIAL_SESSION_REFERENCE_COLUMNS = (
+    ("EraTrigger", "triggered_by_era", "era"),
+    ("ImmediateProposal", "immediately_proposes", "resolution"),
+    ("RecurringProposal", "recurringly_proposes", "resolution"),
+)
+RESOLUTION_BOOLEAN_COLUMNS = (
+    "AutomaticProposal",
+    "UniqueType",
+    "NoProposalByPlayer",
+    "DiplomaticVictory",
+    "ChangeLeagueHost",
+    "RaiseCityStateInfluenceToNeutral",
+    "EmbargoCityStates",
+    "EmbargoPlayer",
+    "NoResourceHappiness",
+    "NoTrainingNuclearWeapons",
+)
+RESOLUTION_INTEGER_COLUMNS = (
+    "QuorumPercent",
+    "LeadersVoteBonusOnFail",
+    "OneTimeGold",
+    "OneTimeGoldPercent",
+    "GoldPerTurn",
+    "ResourceQuantity",
+    "UnitMaintenanceGoldPercent",
+    "MemberDiscoveredTechMod",
+    "CulturePerWonder",
+    "CulturePerNaturalWonder",
+    "VotesForFollowingReligion",
+    "HolyCityTourism",
+    "ReligionSpreadStrengthMod",
+    "VotesForFollowingIdeology",
+    "OtherIdeologyRebellionMod",
+    "ArtsyGreatPersonRateMod",
+    "ScienceyGreatPersonRateMod",
+    "GreatPersonTileImprovementCulture",
+    "LandmarkCulture",
+)
+RESOLUTION_FIELDS = {
+    **{
+        column: (_snake_case(column), "boolean")
+        for column in RESOLUTION_BOOLEAN_COLUMNS
+    },
+    **{
+        column: (_snake_case(column), "integer")
+        for column in RESOLUTION_INTEGER_COLUMNS
+    },
+}
+RESOLUTION_REFERENCE_COLUMNS = (
+    ("VoterDecision", "uses_voter_decision", "resolution_decision"),
+    ("ProposerDecision", "uses_proposer_decision", "resolution_decision"),
+    ("TechPrereqAnyMember", "requires_member_technology", "technology"),
+    ("LeagueProjectEnabled", "enables_league_project", "league_project"),
+)
+VOTE_SOURCE_FIELDS = {
+    "VoteInterval": ("vote_interval", "integer"),
+}
+VOTE_SOURCE_REFERENCE_COLUMNS = (
+    ("FreeSpecialist", "grants_specialist", "specialist"),
+    ("Policy", "grants_policy", "policy"),
+)
+VOTE_FIELDS = {
+    **{
+        column: (_snake_case(column), "integer")
+        for column in ("PopulationThreshold", "MinVoters")
+    },
+    **{
+        column: (_snake_case(column), "boolean")
+        for column in (
+            "CityVoting",
+            "CivVoting",
+            "SecretaryGeneral",
+            "Victory",
+            "FreeTrade",
+            "NoNukes",
+            "DefensivePact",
+            "OpenBorders",
+            "ForcePeace",
+            "ForceNoTrade",
+            "ForceWar",
+            "AssignCity",
+        )
+    },
+}
 SPECIAL_UNIT_FIELDS = {
     "Valid": ("valid", "boolean"),
     "CityLoad": ("city_load", "boolean"),
@@ -1150,6 +1432,35 @@ PLAIN_REFERENCE_TABLES = (
     (
         "Building_LocalResourceOrs", "BuildingType", "ResourceType",
         "requires_any_local_resource", "building", "resource",
+    ),
+    (
+        "Civilization_FreeBuildingClasses", "CivilizationType",
+        "BuildingClassType", "starts_with_building_class", "civilization",
+        "building_class",
+    ),
+    (
+        "Civilization_FreeTechs", "CivilizationType", "TechType",
+        "starts_with_technology", "civilization", "technology",
+    ),
+    (
+        "Civilization_Start_Region_Avoid", "CivilizationType", "RegionType",
+        "avoids_start_region", "civilization", "region",
+    ),
+    (
+        "Civilization_Start_Region_Priority", "CivilizationType", "RegionType",
+        "prefers_start_region", "civilization", "region",
+    ),
+    (
+        "HandicapInfo_AIFreeTechs", "HandicapType", "TechType",
+        "starts_ai_with_technology", "handicap", "technology",
+    ),
+    (
+        "HandicapInfo_Goodies", "HandicapType", "GoodyType",
+        "allows_ancient_ruin_outcome", "handicap", "ancient_ruin_outcome",
+    ),
+    (
+        "Vote_DiploVotes", "VoteType", "DiploVoteType",
+        "uses_vote_source", "vote", "vote_source",
     ),
     (
         "Policy_FreePromotions", "PolicyType", "PromotionType",
@@ -2270,6 +2581,7 @@ def import_ruleset(
                 {"UnitType", "GreatPersonType"},
             )
             _require_columns(connection, "Terrains", {"Type", *TERRAIN_FIELDS})
+            _require_columns(connection, "Regions", {"Type"})
             _require_columns(
                 connection,
                 "Features",
@@ -2306,6 +2618,16 @@ def import_ruleset(
             )
             _require_columns(
                 connection,
+                "BuildFeatures",
+                {
+                    "BuildType",
+                    "FeatureType",
+                    "PrereqTech",
+                    *(column for column, _attribute, _value_type in BUILD_FEATURE_FIELDS),
+                },
+            )
+            _require_columns(
+                connection,
                 "Projects",
                 {
                     "Type",
@@ -2322,6 +2644,56 @@ def import_ruleset(
                 },
             )
             _require_columns(connection, "Victories", {"Type", *VICTORY_FIELDS})
+            _require_columns(
+                connection, "GameSpeeds", {"Type", *GAME_SPEED_FIELDS}
+            )
+            _require_columns(
+                connection, "HandicapInfos", {"Type", *HANDICAP_FIELDS}
+            )
+            _require_columns(connection, "Worlds", {"Type", *WORLD_SIZE_FIELDS})
+            _require_columns(
+                connection,
+                "GoodyHuts",
+                {
+                    "Type",
+                    *(column for column, _kind, _target in ANCIENT_RUIN_REFERENCE_COLUMNS),
+                    *ANCIENT_RUIN_FIELDS,
+                },
+            )
+            for table, fields, references in (
+                (
+                    "LeagueProjectRewards",
+                    LEAGUE_PROJECT_REWARD_FIELDS,
+                    LEAGUE_PROJECT_REWARD_REFERENCE_COLUMNS,
+                ),
+                (
+                    "LeagueProjects",
+                    LEAGUE_PROJECT_FIELDS,
+                    LEAGUE_PROJECT_REFERENCE_COLUMNS,
+                ),
+                (
+                    "LeagueSpecialSessions",
+                    LEAGUE_SPECIAL_SESSION_FIELDS,
+                    LEAGUE_SPECIAL_SESSION_REFERENCE_COLUMNS,
+                ),
+                ("Resolutions", RESOLUTION_FIELDS, RESOLUTION_REFERENCE_COLUMNS),
+                ("VoteSources", VOTE_SOURCE_FIELDS, VOTE_SOURCE_REFERENCE_COLUMNS),
+            ):
+                _require_columns(
+                    connection,
+                    table,
+                    {
+                        "Type",
+                        *fields,
+                        *(column for column, _kind, _target_kind in references),
+                    },
+                )
+            _require_columns(connection, "ResolutionDecisions", {"Type"})
+            _require_columns(connection, "Votes", {"Type", *VOTE_FIELDS})
+            _require_columns(connection, "MinorCivTraits", {"Type"})
+            _require_columns(
+                connection, "MinorCivilizations", {"Type", "MinorCivTrait"}
+            )
             _require_columns(
                 connection,
                 "Project_VictoryThresholds",
@@ -2653,6 +3025,11 @@ def import_ruleset(
                 _scalar_entity("specialist", row, SPECIALIST_FIELDS, source_label)
                 for row in specialist_rows
             )
+            region_rows = _select_scalar_rows(connection, "Regions", {})
+            region_entities = tuple(
+                _scalar_entity("region", row, {}, source_label)
+                for row in region_rows
+            )
             terrain_rows = _select_scalar_rows(
                 connection, "Terrains", TERRAIN_FIELDS
             )
@@ -2738,6 +3115,154 @@ def import_ruleset(
                 _scalar_entity("victory", row, VICTORY_FIELDS, source_label)
                 for row in victory_rows
             )
+            game_speed_rows = _select_scalar_rows(
+                connection, "GameSpeeds", GAME_SPEED_FIELDS
+            )
+            game_speed_entities = tuple(
+                _scalar_entity("game_speed", row, GAME_SPEED_FIELDS, source_label)
+                for row in game_speed_rows
+            )
+            handicap_rows = _select_scalar_rows(
+                connection, "HandicapInfos", HANDICAP_FIELDS
+            )
+            handicap_entities = tuple(
+                _scalar_entity("handicap", row, HANDICAP_FIELDS, source_label)
+                for row in handicap_rows
+            )
+            world_size_rows = _select_scalar_rows(
+                connection, "Worlds", WORLD_SIZE_FIELDS
+            )
+            world_size_entities = tuple(
+                _scalar_entity("world_size", row, WORLD_SIZE_FIELDS, source_label)
+                for row in world_size_rows
+            )
+            ancient_ruin_rows = _select_scalar_rows(
+                connection,
+                "GoodyHuts",
+                ANCIENT_RUIN_FIELDS,
+                tuple(
+                    column
+                    for column, _kind, _target_kind
+                    in ANCIENT_RUIN_REFERENCE_COLUMNS
+                ),
+            )
+            ancient_ruin_entities = tuple(
+                _scalar_entity(
+                    "ancient_ruin_outcome",
+                    row,
+                    ANCIENT_RUIN_FIELDS,
+                    source_label,
+                )
+                for row in ancient_ruin_rows
+            )
+            league_project_reward_rows = _select_scalar_rows(
+                connection,
+                "LeagueProjectRewards",
+                LEAGUE_PROJECT_REWARD_FIELDS,
+                tuple(
+                    column
+                    for column, _kind, _target_kind
+                    in LEAGUE_PROJECT_REWARD_REFERENCE_COLUMNS
+                ),
+            )
+            league_project_reward_entities = tuple(
+                _scalar_entity(
+                    "league_project_reward",
+                    row,
+                    LEAGUE_PROJECT_REWARD_FIELDS,
+                    source_label,
+                )
+                for row in league_project_reward_rows
+            )
+            league_project_rows = _select_scalar_rows(
+                connection,
+                "LeagueProjects",
+                LEAGUE_PROJECT_FIELDS,
+                tuple(
+                    column
+                    for column, _kind, _target_kind
+                    in LEAGUE_PROJECT_REFERENCE_COLUMNS
+                ),
+            )
+            league_project_entities = tuple(
+                _scalar_entity(
+                    "league_project", row, LEAGUE_PROJECT_FIELDS, source_label
+                )
+                for row in league_project_rows
+            )
+            resolution_decision_rows = _select_scalar_rows(
+                connection, "ResolutionDecisions", {}
+            )
+            resolution_decision_entities = tuple(
+                _scalar_entity("resolution_decision", row, {}, source_label)
+                for row in resolution_decision_rows
+            )
+            resolution_rows = _select_scalar_rows(
+                connection,
+                "Resolutions",
+                RESOLUTION_FIELDS,
+                tuple(
+                    column
+                    for column, _kind, _target_kind
+                    in RESOLUTION_REFERENCE_COLUMNS
+                ),
+            )
+            resolution_entities = tuple(
+                _scalar_entity("resolution", row, RESOLUTION_FIELDS, source_label)
+                for row in resolution_rows
+            )
+            league_special_session_rows = _select_scalar_rows(
+                connection,
+                "LeagueSpecialSessions",
+                LEAGUE_SPECIAL_SESSION_FIELDS,
+                tuple(
+                    column
+                    for column, _kind, _target_kind
+                    in LEAGUE_SPECIAL_SESSION_REFERENCE_COLUMNS
+                ),
+            )
+            league_special_session_entities = tuple(
+                _scalar_entity(
+                    "league_special_session",
+                    row,
+                    LEAGUE_SPECIAL_SESSION_FIELDS,
+                    source_label,
+                )
+                for row in league_special_session_rows
+            )
+            vote_source_rows = _select_scalar_rows(
+                connection,
+                "VoteSources",
+                VOTE_SOURCE_FIELDS,
+                tuple(
+                    column
+                    for column, _kind, _target_kind
+                    in VOTE_SOURCE_REFERENCE_COLUMNS
+                ),
+            )
+            vote_source_entities = tuple(
+                _scalar_entity("vote_source", row, VOTE_SOURCE_FIELDS, source_label)
+                for row in vote_source_rows
+            )
+            vote_rows = _select_scalar_rows(connection, "Votes", VOTE_FIELDS)
+            vote_entities = tuple(
+                _scalar_entity("vote", row, VOTE_FIELDS, source_label)
+                for row in vote_rows
+            )
+            minor_civ_trait_rows = _select_scalar_rows(
+                connection, "MinorCivTraits", {}
+            )
+            minor_civ_trait_entities = tuple(
+                _scalar_entity("minor_civ_trait", row, {}, source_label)
+                for row in minor_civ_trait_rows
+            )
+            minor_civilization_rows = _select_scalar_rows(
+                connection, "MinorCivilizations", {}, ("MinorCivTrait",)
+            )
+            minor_civilization_entities = tuple(
+                _scalar_entity("minor_civilization", row, {}, source_label)
+                for row in minor_civilization_rows
+            )
             era_references = [
                 Reference(
                     "belongs_to",
@@ -2801,6 +3326,19 @@ def import_ruleset(
                     build_rows,
                     source_label,
                 )
+                + _build_feature_references(connection, source_label)
+                + _ancient_ruin_references(ancient_ruin_rows, source_label)
+                + _world_congress_references(
+                    league_project_reward_rows,
+                    league_project_rows,
+                    league_special_session_rows,
+                    resolution_rows,
+                    vote_source_rows,
+                    source_label,
+                )
+                + _minor_civilization_references(
+                    minor_civilization_rows, source_label
+                )
                 + _project_references(
                     connection, project_rows, process_rows, source_label
                 )
@@ -2851,6 +3389,7 @@ def import_ruleset(
                 + religion_entities
                 + belief_entities
                 + specialist_entities
+                + region_entities
                 + terrain_entities
                 + feature_entities
                 + fake_feature_entities
@@ -2861,6 +3400,19 @@ def import_ruleset(
                 + project_entities
                 + process_entities
                 + victory_entities
+                + game_speed_entities
+                + handicap_entities
+                + world_size_entities
+                + ancient_ruin_entities
+                + league_project_reward_entities
+                + league_project_entities
+                + resolution_decision_entities
+                + resolution_entities
+                + league_special_session_entities
+                + vote_source_entities
+                + vote_entities
+                + minor_civ_trait_entities
+                + minor_civilization_entities
             ),
             references=references,
         )
@@ -3642,6 +4194,149 @@ def _map_references(
             _two_column_references(connection, *arguments, source_label)
         )
     return references
+
+
+def _build_feature_references(
+    connection: sqlite3.Connection, source_label: str
+) -> list[Reference]:
+    columns = (
+        "BuildType",
+        "FeatureType",
+        "PrereqTech",
+        *(column for column, _attribute, _value_type in BUILD_FEATURE_FIELDS),
+    )
+    select = ", ".join(f'"{column}"' for column in columns)
+    order = ", ".join(f'"{column}"' for column in columns)
+    rows = connection.execute(
+        f'SELECT {select} FROM "BuildFeatures" ORDER BY {order}'
+    ).fetchall()
+    references: list[Reference] = []
+    for row in rows:
+        attributes: dict[str, int | bool] = {}
+        for column, attribute, value_type in BUILD_FEATURE_FIELDS:
+            value = row[column]
+            if value_type == "optional_integer" and value is None:
+                continue
+            if value_type in {"integer", "optional_integer"}:
+                if not isinstance(value, int) or isinstance(value, bool):
+                    raise KnowledgeImportError(
+                        f"BuildFeatures has invalid integer {column}: {value}"
+                    )
+                attributes[attribute] = value
+            elif value_type == "boolean":
+                if not isinstance(value, int) or value not in (0, 1):
+                    raise KnowledgeImportError(
+                        f"BuildFeatures has invalid boolean {column}: {value}"
+                    )
+                attributes[attribute] = bool(value)
+            else:
+                raise AssertionError(
+                    f"unsupported BuildFeatures value type: {value_type}"
+                )
+        technology = row["PrereqTech"]
+        context = ()
+        if technology not in (None, "NONE"):
+            context = (
+                ReferenceContext(
+                    "enabled_by_technology",
+                    "technology",
+                    technology,
+                ),
+            )
+        references.append(
+            Reference(
+                "feature_build_rule",
+                "build",
+                row["BuildType"],
+                "feature",
+                row["FeatureType"],
+                (source_label,),
+                attributes,
+                context,
+            )
+        )
+    return references
+
+
+def _ancient_ruin_references(
+    rows: list[sqlite3.Row], source_label: str
+) -> list[Reference]:
+    references: list[Reference] = []
+    for row in rows:
+        for column, kind, target_kind in ANCIENT_RUIN_REFERENCE_COLUMNS:
+            target = row[column]
+            if target in (None, "NONE"):
+                continue
+            references.append(
+                Reference(
+                    kind,
+                    "ancient_ruin_outcome",
+                    row["Type"],
+                    target_kind,
+                    target,
+                    (source_label,),
+                )
+            )
+    return references
+
+
+def _world_congress_references(
+    league_project_reward_rows: list[sqlite3.Row],
+    league_project_rows: list[sqlite3.Row],
+    league_special_session_rows: list[sqlite3.Row],
+    resolution_rows: list[sqlite3.Row],
+    vote_source_rows: list[sqlite3.Row],
+    source_label: str,
+) -> list[Reference]:
+    references: list[Reference] = []
+    families = (
+        (
+            "league_project_reward",
+            league_project_reward_rows,
+            LEAGUE_PROJECT_REWARD_REFERENCE_COLUMNS,
+        ),
+        ("league_project", league_project_rows, LEAGUE_PROJECT_REFERENCE_COLUMNS),
+        (
+            "league_special_session",
+            league_special_session_rows,
+            LEAGUE_SPECIAL_SESSION_REFERENCE_COLUMNS,
+        ),
+        ("resolution", resolution_rows, RESOLUTION_REFERENCE_COLUMNS),
+        ("vote_source", vote_source_rows, VOTE_SOURCE_REFERENCE_COLUMNS),
+    )
+    for source_kind, rows, columns in families:
+        for row in rows:
+            for column, kind, target_kind in columns:
+                target = row[column]
+                if target in (None, "NONE"):
+                    continue
+                references.append(
+                    Reference(
+                        kind,
+                        source_kind,
+                        row["Type"],
+                        target_kind,
+                        target,
+                        (source_label,),
+                    )
+                )
+    return references
+
+
+def _minor_civilization_references(
+    rows: list[sqlite3.Row], source_label: str
+) -> list[Reference]:
+    return [
+        Reference(
+            "has_minor_civ_trait",
+            "minor_civilization",
+            row["Type"],
+            "minor_civ_trait",
+            row["MinorCivTrait"],
+            (source_label,),
+        )
+        for row in rows
+    ]
 
 
 def _project_references(

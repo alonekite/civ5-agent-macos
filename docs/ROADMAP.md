@@ -59,12 +59,12 @@ No application-bundle modification is required.
 - [x] Import unit classes, default units, and class-based upgrade routes
 - [x] Import promotion effects, prerequisites, and unit free promotions
 - [x] Import policy branches, core policy effects, and prerequisites
-- [ ] Import remaining policy effect relation tables (single-context yield
+- [x] Import remaining policy effect relation tables (single-context yield
   tables complete)
 - [x] Import building classes, core building facts, and known prerequisites
 - [x] Import resource classes, resource placement facts, and unlock relations
 - [x] Import unit/building resource quantities as attributed references
-- [ ] Import remaining building effect relation tables (single-context yield
+- [x] Import remaining building effect relation tables (single-context yield
   tables complete)
 - [x] Import civilizations, leaders, traits, and unique/disabled unit and
   building class overrides.
@@ -103,6 +103,18 @@ No application-bundle modification is required.
   typed class, era, creator-unit, and free-building relationships
 - [x] Import building theming bonuses and matching constraints without
   localized descriptions, AI priorities, or synthetic identifiers
+- [x] Inventory remaining multi-context tables and exclude AI role/formation
+  data under ADR-0005
+- [x] Import region identities, civilization starting facts, and build/feature
+  rules with optional technology context
+- [x] Import immutable game-speed, handicap, and world-size scaling facts while
+  excluding AI decision heuristics
+- [x] Import ancient-ruin outcomes, unit-class results, and handicap availability
+  without descriptions or sounds
+- [x] Import World Congress resolutions, decisions, sessions, projects, rewards,
+  and votes with typed prerequisites and rewards
+- [x] Import minor-civilization and minor-trait identities with deterministic
+  trait membership
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

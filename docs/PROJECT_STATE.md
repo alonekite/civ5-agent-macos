@@ -9,9 +9,9 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: inventory multi-context effects and new target entity
-  families, then continue ruleset scaling.
-- Functional test baseline: 141 tests locally on Python 3.11 and the default
+- Active next deliverable: close the broader remaining-family M3 audit, then
+  begin per-game modifier resolution.
+- Functional test baseline: 147 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
   head `6b4e1ef`.
 - Blocking issue: none for offline M3 work.
@@ -53,7 +53,7 @@ decisions, not raw chat transcripts.
   categories, domains, special-unit categories, hurry methods, great-work
   classes, slots, works, and artifact classes, and their currently supported
   relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,631 entities and 4,876
+- The real Campaign Edition database currently yields 1,789 entities and 5,275
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -89,7 +89,27 @@ decisions, not raw chat transcripts.
 - Ten buildings preserve 21 canonically ordered theming alternatives with
   deterministic bonus, era, work-kind, owner, and player constraints. Localized
   descriptions and AI priorities are never selected.
-- The test suite contains 141 tests locally on Python 3.11 and the default
+- The remaining-table inventory found no unimported controller-facing gameplay
+  effect requiring more than one typed context. Built-in AI formation slots are
+  excluded by ADR-0005; apparent natural-wonder `Type` columns are booleans.
+- Nine region entities, 59 build/feature rules, and 112 distinct civilization
+  starting-fact references now preserve start-region preferences, free building
+  classes and technologies, feature removal, costs, production, timing, and
+  optional technology context.
+- Four game speeds, nine handicaps, and six world sizes preserve static scaling
+  facts. Thirteen handicap AI free-technology relationships retain deterministic
+  difficulty effects without decision heuristics or personality data.
+- Twenty ancient-ruin outcomes preserve numeric and boolean results, six typed
+  unit-class results, and 83 handicap-availability relationships without prose
+  or sounds.
+- Forty-seven World Congress entities and 68 typed relationships preserve
+  resolutions, decisions, sessions, projects, rewards, and votes without
+  descriptions, help text, or art.
+- Fifty-eight minor civilizations and five minor traits preserve stable IDs and
+  58 typed memberships without localized prose, art, colors, or flavor data.
+- The policy/building remainder audit found only their prohibited flavor tables
+  outside the importer; all non-flavor non-empty relation tables are covered.
+- The test suite contains 147 tests locally on Python 3.11 and the default
   runtime; the published batch passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
@@ -126,10 +146,8 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Inventory and import multi-context effects and effects whose targets require
-   new knowledge entity families.
-2. Add ruleset scaling and per-game modifier resolution without mutating base
-   knowledge.
+1. Close the broader remaining-family M3 audit.
+2. Add per-game modifier resolution without mutating base knowledge.
 3. Define the factual turn-journal schema, storage interface, canonical
    serialization, retention expectations, and integrity tests.
 4. Connect watcher observations and command results to the journal without
