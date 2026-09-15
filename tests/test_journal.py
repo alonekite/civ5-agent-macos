@@ -220,6 +220,12 @@ class JournalCaptureTest(unittest.TestCase):
                     end_turn_blocking_type=0,
                 )
             )
+            capture.record_command_submitted(
+                "end_turn",
+                {},
+                "123e4567-e89b-42d3-a456-426614174020",
+                4,
+            )
             recorded = capture.record_command_result(
                 "end_turn",
                 {},
@@ -235,11 +241,60 @@ class JournalCaptureTest(unittest.TestCase):
             records = capture.store.read_all()
             self.assertEqual(
                 [record.kind for record in records],
-                ["journal_started", "snapshot", "command_result"],
+                [
+                    "journal_started",
+                    "snapshot",
+                    "command_submitted",
+                    "command_result",
+                ],
             )
             self.assertEqual(
-                records[2].payload["result"]["id"],
+                records[3].payload["result"]["id"],
                 "123e4567-e89b-42d3-a456-426614174020",
+            )
+
+    def test_records_observed_turn_transition_and_failed_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "match.jsonl"
+            capture = JournalCapture.start(path, SESSION_ONE, "new")
+            capture.record_snapshot(
+                GameState(
+                    schema_version=2,
+                    turn=5,
+                    active_player=0,
+                    gold=7,
+                    turn_active=True,
+                    can_end_turn=False,
+                    end_turn_blocking_type=1,
+                ),
+                previous_turn=4,
+            )
+            capture.record_command_result(
+                "end_turn",
+                {},
+                {
+                    "id": "123e4567-e89b-42d3-a456-426614174021",
+                    "status": "error",
+                    "message": "turn did not advance",
+                    "before": {"turn": 5},
+                    "after": {"turn": 5},
+                },
+            )
+
+            records = capture.store.read_all()
+            self.assertEqual(
+                [record.kind for record in records],
+                [
+                    "journal_started",
+                    "turn_transition",
+                    "snapshot",
+                    "command_result",
+                    "verification_error",
+                ],
+            )
+            self.assertEqual(records[1].payload["from_turn"], 4)
+            self.assertEqual(
+                records[-1].payload["stage"], "execution_or_postcondition"
             )
 
     def test_rejects_unvalidated_snapshot(self):

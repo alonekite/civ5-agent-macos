@@ -145,7 +145,7 @@ No application-bundle modification is required.
 - [x] Implement journal `match_id` and explicit cross-session binding
 - [x] Add opt-in watcher capture for changed validated snapshots and grounded
   in-memory command results
-- [ ] Record remaining command-submission, verification-error, and explicit
+- [x] Record command-submission, unsuccessful-result, and explicit observed
   turn-transition lifecycle events
 - [x] Add canonical serialization, hash-chain, truncation, tampering,
   concurrency, permission, and reopen tests

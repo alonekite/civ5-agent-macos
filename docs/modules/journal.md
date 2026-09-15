@@ -1,6 +1,6 @@
 # Module: journal
 
-Status: Core store and initial opt-in capture implemented offline (M5 in progress)
+Status: Core store and factual watcher capture implemented offline (M5 in progress)
 
 ## Responsibility
 
@@ -79,14 +79,12 @@ M2 command-audit file.
 
 ## Current limitations
 
-Submitted-command and verification-error lifecycle records, explicit turn-
-transition records, export, retention, compaction, and selective queries are not
-implemented. The hash chain detects modification but is not a digital signature
-and does not defend against complete authorized rewriting of the private file.
+Replay/export, retention, compaction, and selective queries are not implemented.
+The hash chain detects modification but is not a digital signature and does not
+defend against complete authorized rewriting of the private file.
 
 ## Planned extensions
 
-Complete the remaining factual lifecycle adapters, add deterministic
-replay/export, then expose selective read APIs during M7. M5 and M6 may be
-implemented in either order; the current M5 priority is a schedule choice, not
-a dependency.
+Add deterministic verification/replay and privacy-preserving export, then expose
+selective read APIs during M7. M5 and M6 may be implemented in either order; the
+current M5 priority is a schedule choice, not a dependency.

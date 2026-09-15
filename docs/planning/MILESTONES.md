@@ -169,9 +169,10 @@ explicit session binding, locking, fsync, permissions, bounds, corruption,
 truncation, concurrency, correction, and reopen behavior have unit coverage.
 Opt-in watcher composition records changed validated snapshots and grounded
 in-memory command results, with explicit new/resume semantics and independent
-audit/journal failure handling. It rejects partial database-fallback state and
-unvalidated snapshots. Remaining lifecycle kinds, replay/export, retention
-guidance, and selective queries remain incomplete, so M5 remains in progress.
+audit/journal failure handling. Pre-execution submissions, unsuccessful results,
+and observed turn transitions are included. It rejects partial database-fallback
+state and unvalidated snapshots. Replay/export, retention guidance, and selective
+queries remain incomplete, so M5 remains in progress.
 
 ## M6 — Deterministic turn executor
 

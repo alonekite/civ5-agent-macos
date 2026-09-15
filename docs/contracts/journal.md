@@ -76,9 +76,10 @@ interpret plan content or supply M6 execution state.
 These remaining choices require later benchmarks and compatibility design.
 Identity semantics are implemented in the codec/store under ADR-0017. Opt-in
 watcher composition records changed snapshots and grounded command results from
-memory. This adapter accepts only validated FireTuner live state; the partial,
-unversioned database fallback is rejected as journal input. Remaining command
-lifecycle families and replay/export remain pending.
+memory. It records pre-execution submissions, unsuccessful results, and observed
+turn transitions without making persistence an execution precondition. This
+adapter accepts only validated FireTuner live state; the partial, unversioned
+database fallback is rejected as journal input. Replay/export remain pending.
 
 ## Out of scope
 

@@ -141,6 +141,25 @@ def make_control_handler(
                             ),
                         }
                     return {**previous_response, "replayed": True}
+                journal_errors: list[str] = []
+                if journal_capture is not None:
+                    try:
+                        submission_state = validate_live_state(
+                            client.read_game_state(state_id)
+                        )
+                        journal_capture.record_command_submitted(
+                            str(operation),
+                            command.args,
+                            command.id,
+                            submission_state.turn,
+                        )
+                    except (JournalError, OSError, ValueError) as error:
+                        journal_errors.append(str(error))
+                        print(
+                            f"Turn journal warning: {error}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
                 if operation == "end_turn":
                     result = execute_end_turn(
                         client,
@@ -198,12 +217,14 @@ def make_control_handler(
                             result_data,
                         )
                     except (JournalError, OSError, ValueError) as error:
-                        response["journal_error"] = str(error)
+                        journal_errors.append(str(error))
                         print(
                             f"Turn journal warning: {error}",
                             file=sys.stderr,
                             flush=True,
                         )
+                if journal_errors:
+                    response["journal_error"] = "; ".join(journal_errors)
                 completed_commands[command.id] = (
                     command.action,
                     dict(command.args),
@@ -309,7 +330,12 @@ def _watch_tuner(args: argparse.Namespace) -> int:
                         if state != previous:
                             if journal_capture is not None:
                                 try:
-                                    journal_capture.record_snapshot(state)
+                                    journal_capture.record_snapshot(
+                                        state,
+                                        previous_turn=(
+                                            previous.turn if previous is not None else None
+                                        ),
+                                    )
                                 except (JournalError, OSError, ValueError) as error:
                                     print(
                                         f"Turn journal unavailable: {error}",

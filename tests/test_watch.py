@@ -137,6 +137,9 @@ class WatchControlHandlerTest(unittest.TestCase):
 
     def test_journal_failure_does_not_retry_or_change_verified_result(self):
         class FailingJournal:
+            def record_command_submitted(self, operation, arguments, command_id, turn):
+                raise ValueError("journal unavailable")
+
             def record_command_result(self, operation, arguments, result):
                 raise ValueError("journal unavailable")
 

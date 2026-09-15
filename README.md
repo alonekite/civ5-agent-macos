@@ -134,11 +134,12 @@ PYTHONPATH=src python3 -m civ5_agent.watch \
 
 After a watcher restart or reconnect, automatic continuation is prohibited.
 Explicitly resume the existing declared match with `--journal-mode resume`, or
-use `new` with a different nonexistent path. The initial integration records
-changed validated snapshots and grounded in-memory command results; it never
-parses the M2 audit file. A snapshot persistence failure stops requested
-recording, while a command-result persistence failure is reported separately
-and never retries the already executed game action.
+use `new` with a different nonexistent path. Capture records changed validated
+snapshots, observed turn transitions, pre-execution command submissions,
+grounded in-memory command results, and unsuccessful execution/postcondition
+results; it never parses the M2 audit file. A snapshot persistence failure stops
+requested recording, while command-lifecycle persistence failures are reported
+separately and never block or retry a game action.
 
 The legacy `--transport database` fallback emits a deliberately partial,
 unversioned state and therefore rejects `--journal`; it is not admissible as a

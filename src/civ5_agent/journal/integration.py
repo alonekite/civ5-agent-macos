@@ -30,13 +30,55 @@ class JournalCapture:
             raise ValueError(f"unsupported journal mode: {mode!r}")
         return cls(store, bridge_session_id)
 
-    def record_snapshot(self, state: GameState) -> None:
+    def record_snapshot(
+        self,
+        state: GameState,
+        *,
+        previous_turn: int | None = None,
+    ) -> None:
         validated = validate_live_state(state)
+        if previous_turn is not None and (
+            isinstance(previous_turn, bool)
+            or not isinstance(previous_turn, int)
+            or previous_turn < 0
+        ):
+            raise ValueError("previous_turn must be a non-negative integer")
+        if previous_turn is not None and validated.turn < previous_turn:
+            raise ValueError("observed turn cannot move backwards")
+        if previous_turn is not None and validated.turn > previous_turn:
+            self.store.append(
+                "turn_transition",
+                {
+                    "from_turn": previous_turn,
+                    "to_turn": validated.turn,
+                    "cause": "observed_state",
+                },
+                bridge_session_id=self.bridge_session_id,
+                turn=validated.turn,
+            )
         self.store.append(
             "snapshot",
             {"state": asdict(validated)},
             bridge_session_id=self.bridge_session_id,
             turn=validated.turn,
+        )
+
+    def record_command_submitted(
+        self,
+        operation: str,
+        arguments: dict[str, Any],
+        command_id: str,
+        turn: int,
+    ) -> None:
+        self.store.append(
+            "command_submitted",
+            {
+                "id": command_id,
+                "operation": operation,
+                "arguments": arguments,
+            },
+            bridge_session_id=self.bridge_session_id,
+            turn=turn,
         )
 
     def record_command_result(
@@ -58,15 +100,28 @@ class JournalCapture:
             bridge_session_id=self.bridge_session_id,
             turn=turn,
         )
+        if result.get("status") == "error":
+            self.store.append(
+                "verification_error",
+                {
+                    "id": result.get("id"),
+                    "operation": operation,
+                    "stage": "execution_or_postcondition",
+                    "message": result.get("message"),
+                },
+                bridge_session_id=self.bridge_session_id,
+                turn=turn,
+            )
         return True
 
 
 def _result_turn(result: dict[str, Any]) -> int | None:
+    turns = []
     for field in ("before", "after"):
         state = result.get(field)
         if not isinstance(state, dict):
             continue
         turn = state.get("turn")
         if isinstance(turn, int) and not isinstance(turn, bool) and turn >= 0:
-            return turn
-    return None
+            turns.append(turn)
+    return max(turns, default=None)
