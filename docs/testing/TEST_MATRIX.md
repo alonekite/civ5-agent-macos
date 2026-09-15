@@ -54,7 +54,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | Ruleset resolver | Real local America context selected its Minuteman replacement and ordinary defaults with base/override provenance; effective scalar integration pending | Exact-ruleset match, canonical selection, unknown/duplicate rejection, provenance, base isolation, unique/default/disabled class selection | N/A | Context and class resolution implemented offline |
 | Turn journal | Proposed contract | No | N/A | Not implemented |
 | Expanded deterministic controller | Yes | Basic tests | Basic live path | In progress |
-| Schema 5 live technology state | Bundled BNW UI uses team `IsHasTech`, player `CanResearch`, `CanResearchForFree`, and distinct end-turn blockers | Stable ordering, identifier/duplicate/overlap rejection, malformed/missing-part rejection, legacy schema compatibility, and controller fail-closed modes | Pending | Implemented offline |
+| Schema 5 live technology state | Bundled BNW UI uses team `IsHasTech`, player `CanResearch`, `CanResearchForFree`, current research, and special end-turn blockers | Stable ordering, identifier/duplicate/overlap rejection, normal-choice/current-research consistency, malformed/missing-part rejection, legacy schema compatibility, and controller fail-closed modes | Yes for ordinary mode | Ordinary candidates and selection transition confirmed; free/steal modes remain pending |
 
 Update this file whenever an experiment changes the target-machine column or a
 milestone adds/removes a capability row.

@@ -9,15 +9,13 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M4 — ruleset resolver.
-- Active next deliverable: live-verify schema 5 ordinary technology state, then
-  return to effective scalar resolution.
+- Active next deliverable: effective scalar resolution for M4.
 - Functional test baseline: 170 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
   implementation head `5669973`.
-- Blocking issue: schema 5 live evidence requires a user-started game and an
-  explicitly authorized bounded live session.
-- User presence required next: ordinary technology-state live verification;
-  non-empty diplomacy and late-game science-victory checks remain optional.
+- Blocking issue: none.
+- User presence required next: none. Free/steal technology modes, non-empty
+  diplomacy, and late-game science-victory checks remain optional live evidence.
 - Planning source: `docs/planning/MILESTONES.md`.
 - Verification source: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -37,6 +35,10 @@ decisions, not raw chat transcripts.
   execution paths.
 - Schema 4's bounded segmented reader and the corrected `skip_unit` readiness
   postcondition were verified in a live early-game match.
+- Schema 5 ordinary researched/researchable technology state and the transition
+  from a required choice to selected current research were verified live. The
+  session also proved that other end-turn tasks can mask an unselected research
+  blocker, so ordinary choice detection now uses current-research presence.
 - Command identifiers, duplicate suppression, bounded IPC, private audit logs,
   preflight checks, and write-after-read verification are implemented.
 - Recoverable live-session preparation/restoration records the private starting

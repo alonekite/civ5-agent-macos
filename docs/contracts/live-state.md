@@ -16,7 +16,7 @@ and the deterministic controller. The implementation in `models.py`,
 | 2 | Live-verified | Economy, culture, research, cities, units, turn readiness |
 | 3 | Compatibility-tested | Score, era, exact city progress, unit condition, met-major diplomacy, science-victory progress |
 | 4 | Live-verified for early-game branches | Schema 3 fields plus unit readiness and coherent segmented collection |
-| 5 | Implemented offline; live verification pending | Schema 4 plus researched/researchable technology sets and observed research-choice mode |
+| 5 | Live-verified for ordinary research | Schema 4 plus researched/researchable technology sets and research-choice mode; free/steal modes remain offline-only |
 
 ## Stable requirements
 
@@ -43,11 +43,17 @@ and the deterministic controller. The implementation in `models.py`,
   choice it is additionally filtered by `CanResearchForFree`.
 - A technology cannot appear in both lists, and the current research cannot
   already be researched.
-- `research_choice.required` comes from the live end-turn blocking type; absence
-  of current research is not used as a substitute.
-- `research_choice.mode` is `normal` for ordinary research,
-  `free_technology` for the game's free-tech blocker, and `unsupported` for the
-  observed steal-tech blocker. A non-required choice must use `normal`.
+- For `normal` mode, `research_choice.required` is true exactly when the active
+  player has no current research and at least one researchable technology. It
+  is deliberately independent of the single end-turn blocking type because
+  production or unit orders can temporarily take precedence over an unselected
+  ordinary technology.
+- `research_choice.mode` is `free_technology` for the game's free-tech blocker
+  and `unsupported` for the steal-tech blocker; those special blockers override
+  the ordinary current-research rule. Otherwise the mode is `normal`. A
+  non-required choice must use `normal`.
+- Validation rejects a normal choice whose `required` value disagrees with the
+  presence or absence of the current `research` record.
 - The deterministic controller never auto-executes `free_technology` or
   `unsupported`; both produce `manual_required`.
 

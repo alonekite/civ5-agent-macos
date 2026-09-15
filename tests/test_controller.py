@@ -259,6 +259,33 @@ class StateValidationTest(unittest.TestCase):
                     }
                 )
             )
+        with self.assertRaisesRegex(
+            StateValidationError, "ordinary research availability"
+        ):
+            validate_live_state(
+                schema_five_state(
+                    research=None,
+                    research_choice={"required": False, "mode": "normal"},
+                )
+            )
+        with self.assertRaisesRegex(
+            StateValidationError, "ordinary research availability"
+        ):
+            validate_live_state(
+                schema_five_state(
+                    research_choice={"required": True, "mode": "normal"},
+                )
+            )
+        self.assertIsInstance(
+            validate_live_state(
+                schema_five_state(
+                    research=None,
+                    researchable_technologies=[],
+                    research_choice={"required": False, "mode": "normal"},
+                )
+            ),
+            GameState,
+        )
 
 
 class DeterministicPolicyTest(unittest.TestCase):
@@ -268,19 +295,20 @@ class DeterministicPolicyTest(unittest.TestCase):
             Decision("manual_required", "choose research"),
         )
 
-    def test_schema_five_uses_observed_research_choice(self):
-        self.assertEqual(
+    def test_schema_five_rejects_masked_ordinary_research_choice(self):
+        with self.assertRaisesRegex(
+            StateValidationError, "ordinary research availability"
+        ):
             decide(
                 schema_five_state(
                     research=None,
                     research_choice={"required": False, "mode": "normal"},
                 )
-            ).action,
-            "end_turn",
-        )
+            )
         self.assertEqual(
             decide(
                 schema_five_state(
+                    research=None,
                     research_choice={"required": True, "mode": "normal"}
                 )
             ).reason,

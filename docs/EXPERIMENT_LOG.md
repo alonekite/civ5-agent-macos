@@ -844,3 +844,64 @@ confirmed by bundled-source inspection and offline tests only. Schema 5 must be
 read in a real ordinary choice before its researched list, candidate list, and
 normal choice branch are marked live-verified. Free and steal technology modes
 remain unverified until reproducible target-game situations exist.
+
+### 2026-09-15 — Schema 5 ordinary technology-state live proof
+
+**Hypothesis**
+
+The bounded segmented reader can report authoritative ordinary technology
+state in a real match, including the transition from an unselected technology
+to a manually selected current research target.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the target Apple
+  Silicon Mac.
+- Ordinary single-player early-game match; no free or stolen technology choice.
+- Recoverable live-session guard with FireTuner enabled only while the macOS
+  firewall was enabled and Civ V had an explicit block-incoming rule.
+
+**Procedure**
+
+1. Prepared the guarded session and required a successful live preflight.
+2. Read schema 5 through a single external read-only connection; no game action
+   command was sent.
+3. Compared the researched set and four ordinary candidates with the stock
+   technology UI.
+4. Observed the state first while another mandatory task had blocker priority,
+   then after all tasks except ordinary research were resolved.
+5. Selected one ordinary technology manually in the stock UI and read the same
+   connection again.
+6. Quit the game and restored the recorded firewall and FireTuner baseline.
+
+**Observed result**
+
+- The snapshot parsed as schema 5. Its known researched technology and all four
+  researchable candidates agreed with the game UI, used stable `TECH_*`
+  identifiers, and had no overlap or duplicates.
+- With another mandatory task taking priority, current research was empty but
+  the single end-turn blocker did not report research. Once research was the
+  only remaining task, normal mode reported `required: true`.
+- After the manual selection, the current research matched the selected stable
+  identifier, normal mode reported `required: false`, and the game allowed the
+  turn to end.
+- A persistent connection remained reliable across the state change; immediate
+  reconnect attempts after an earlier one-shot connection were unreliable,
+  consistent with the established single-connection-owner design.
+- Restoration returned FireTuner, its listener, firewall enablement, and the Civ
+  V application-rule presence to their recorded pre-test states.
+
+**Conclusion**
+
+confirmed for schema 5 researched/researchable sets and ordinary research-choice
+transitions. The test rejected using the single end-turn blocker alone as the
+ordinary `required` signal; ordinary detection must also remain correct when a
+higher-priority task masks that blocker. Free and steal technology modes remain
+offline-only and manual-required.
+
+**Next step**
+
+Keep a persistent single connection, derive ordinary required state from an
+empty current research plus at least one legal candidate while retaining
+special blocker overrides, enforce the consistency invariant, and return to M4
+effective scalar resolution.

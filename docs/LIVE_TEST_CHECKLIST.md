@@ -7,9 +7,10 @@ procedure for two goals:
 1. verify snapshot schema 4 against a live match;
 2. verify one `skip_unit` action without moving the unit.
 
-The next bounded session adds a third read-only goal: verify schema 5 ordinary
-technology state. Free and steal-technology modes are outside that session
-unless they occur naturally; do not alter a save to manufacture them.
+The completed 2026-09-15 bounded session added a third read-only goal: verify
+schema 5 ordinary technology state. Keep the procedure below as a regression
+check. Free and steal-technology modes remain outside it unless they occur
+naturally; do not alter a save to manufacture them.
 
 Do not enable FireTuner until the firewall guard is in place.
 
@@ -69,6 +70,8 @@ and no free or stolen technology is pending. Check:
 - no identifier appears in both technology lists;
 - `research_choice` is `{"required": true, "mode": "normal"}` while the
   ordinary choice is pending;
+- the same required choice remains observable when production or unit orders
+  temporarily take precedence in the game's single end-turn blocker;
 - after manually selecting one ordinary technology in the game UI, a later
   snapshot reports `required: false`, retains `mode: normal`, and exposes that
   technology through the existing `research` record.

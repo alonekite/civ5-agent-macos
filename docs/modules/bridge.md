@@ -58,17 +58,15 @@ API. Local broker and audit files use private permissions.
 ## Verification
 
 Read, end turn, research selection, city production, schema 4 early-game state,
-and the game-side effect of unit skip have target-machine evidence. The offline
-suite covers framing, segmented-snapshot consistency, validation, IPC bounds,
-generated action code, retries, and postconditions. See the verification
-matrix.
-Schema 5 technology-state collection is offline-tested but not yet
-live-verified.
+schema 5 ordinary technology state, and the game-side effect of unit skip have
+target-machine evidence. The offline suite covers framing, segmented-snapshot
+consistency, validation, IPC bounds, generated action code, retries, and
+postconditions. See the verification matrix.
 
 ## Current limitations
 
-Schema 5 technology fields and choice-mode detection await live verification.
-Schema 4's non-empty diplomacy and late-game victory branches remain unverified.
+Schema 5 free-technology and steal-technology modes remain offline-only. Schema
+4's non-empty diplomacy and late-game victory branches remain unverified.
 Coordinate movement is not implemented. The abstract public interface is not
 yet the only path used by CLI code.
 

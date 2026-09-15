@@ -304,19 +304,20 @@ def snapshot_lua_programs() -> tuple[str, ...]:
     )
     technologies = (
         'local i=Game.GetActivePlayer();local p=Players[i];local team=Teams[p:GetTeam()];'
-        'local b=p:GetEndTurnBlockingType();local required=false;local mode="normal";'
-        'if b==EndTurnBlockingTypes.ENDTURN_BLOCKING_RESEARCH then required=true;'
-        'elseif b==EndTurnBlockingTypes.ENDTURN_BLOCKING_FREE_TECH then '
-        'required=true;mode="free_technology";'
+        'local b=p:GetEndTurnBlockingType();local r=p:GetCurrentResearch();'
+        'local q=false;local m="normal";local a=false;'
+        'if b==EndTurnBlockingTypes.ENDTURN_BLOCKING_FREE_TECH then '
+        'q=true;m="free_technology";'
         'elseif b==EndTurnBlockingTypes.ENDTURN_BLOCKING_STEAL_TECH then '
-        'required=true;mode="unsupported" end;'
+        'q=true;m="unsupported" end;'
         f'print("{PART_MARKER}technologies|"..Game.GetGameTurn().."|"..i);'
-        f'print("{RESEARCH_CHOICE_MARKER}"..tostring(required).."|"..mode);'
         'for tech in GameInfo.Technologies() do if team:IsHasTech(tech.ID) then '
         f'print("{TECHNOLOGY_MARKER}researched|"..tech.Type);'
-        'elseif mode~="unsupported" and p:CanResearch(tech.ID) and '
-        '(mode~="free_technology" or p:CanResearchForFree(tech.ID)) then '
-        f'print("{TECHNOLOGY_MARKER}researchable|"..tech.Type) end end'
+        'elseif m~="unsupported" and p:CanResearch(tech.ID) and '
+        '(m~="free_technology" or p:CanResearchForFree(tech.ID)) then a=true;'
+        f'print("{TECHNOLOGY_MARKER}researchable|"..tech.Type) end end;'
+        'if m=="normal" then q=(r==nil or r<0)and a end;'
+        f'print("{RESEARCH_CHOICE_MARKER}"..tostring(q).."|"..m)'
     )
     return header, cities, units, diplomacy, victory, technologies
 

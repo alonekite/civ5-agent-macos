@@ -422,7 +422,7 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertIn("team:IsHasTech(tech.ID)", lua)
         self.assertIn("p:CanResearch(tech.ID)", lua)
         self.assertIn("p:CanResearchForFree(tech.ID)", lua)
-        self.assertIn("ENDTURN_BLOCKING_RESEARCH", lua)
+        self.assertIn("p:GetCurrentResearch()", lua)
         self.assertIn("ENDTURN_BLOCKING_FREE_TECH", lua)
         self.assertIn("ENDTURN_BLOCKING_STEAL_TECH", lua)
         self.assertIn('projectCount("PROJECT_APOLLO_PROGRAM")', lua)

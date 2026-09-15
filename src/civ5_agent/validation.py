@@ -239,6 +239,13 @@ def validate_live_state(state: GameState) -> GameState:
             raise StateValidationError(
                 "non-required research_choice must use normal mode"
             )
+        ordinary_required = state.research is None and bool(
+            state.researchable_technologies
+        )
+        if mode == "normal" and required != ordinary_required:
+            raise StateValidationError(
+                "normal research_choice must match ordinary research availability"
+            )
     return state
 
 
