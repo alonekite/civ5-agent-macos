@@ -127,12 +127,14 @@ and game-option entities retain default and single-/multiplayer support flags.
 An invisibility category is connected to promotions through typed invisibility
 and detection references. Localized text, UI visibility, and calendar display
 tables are not imported.
+Strategic resources embed their canonically ordered map quantity alternatives;
+these source rows have no stable identity independent of the owning resource.
 
 ## Planned extensions
 
-Policy and building table coverage is closed; the only remaining non-empty
-families are their prohibited flavor tables. The map/calendar audit accepted
-climates, sea levels, game options, and invisibility semantics while excluding
-presentation-only calendars and city-size soundscape categories. M3 next
-reviews resource-quantity distributions and closes the remaining
-classification. M4 then adds per-game resolution without mutating base facts.
+M3 coverage is complete under the reviewed positive-allowlist boundary. Policy
+and building remainders are prohibited flavor tables; presentation-only
+calendars and city-size soundscape categories are excluded; natural-wonder
+placement remains explicitly deferred until a controller use case requires it.
+M4 adds per-game resolution without mutating base facts. New knowledge families
+remain possible, but require the same provenance and semantic review.

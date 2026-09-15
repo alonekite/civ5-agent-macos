@@ -121,7 +121,8 @@ No application-bundle modification is required.
   ADR-0012 without bulk-reading AI behavior parameters
 - [x] Import climates, sea levels, game options, and typed promotion
   invisibility/detection facts; exclude presentation-only calendar families
-- [ ] Import contextual/ternary effect tables and remaining rules
+- [x] Classify all reviewed remaining rules and import every accepted
+  controller-facing family, including resource map-quantity alternatives
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context
 - [x] Expose a validated, deterministic entity/reference query API

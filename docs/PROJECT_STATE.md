@@ -8,10 +8,10 @@ decisions, not raw chat transcripts.
 
 ## Dashboard
 
-- Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: review resource-quantity distributions and finish
-  the remaining M3 classification.
-- Functional test baseline: 152 tests locally on Python 3.11 and the default
+- Current milestone: M4 — ruleset resolver.
+- Active next deliverable: define immutable per-game resolution context and its
+  fail-closed public contract.
+- Functional test baseline: 155 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
   implementation head `0274324`.
 - Blocking issue: none for offline M3 work.
@@ -119,7 +119,13 @@ decisions, not raw chat transcripts.
   map-generation and stable ruleset-switch facts. One invisibility category and
   two promotion links preserve invisibility and detection semantics. UI text,
   option visibility, and calendar presentation data remain excluded.
-- The test suite contains 152 tests locally on Python 3.11 and the default
+- Six strategic resources preserve nine canonically ordered map quantity
+  alternatives as owned numeric rules; invalid, duplicate, and orphaned values
+  fail closed.
+- M3 is complete: every reviewed non-empty candidate family is imported,
+  explicitly deferred with a semantic reason, or excluded by an accepted
+  boundary. Further knowledge growth is demand-driven and positive-allowlist.
+- The test suite contains 155 tests locally on Python 3.11 and the default
   runtime; implementation head `0274324` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
@@ -156,8 +162,7 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Review resource-quantity distributions and finish the remaining M3
-   classification.
+1. Define immutable per-game modifier-resolution context and result contracts.
 2. Add per-game modifier resolution without mutating base knowledge.
 3. Define the factual turn-journal schema, storage interface, canonical
    serialization, retention expectations, and integrity tests.

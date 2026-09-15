@@ -8,7 +8,7 @@ GitHub Issues and should link back to one milestone ID.
 | M0 | Environment reconnaissance | Complete | — |
 | M1 | Bidirectional bridge MVP | Complete | M0 |
 | M2 | Verified action layer | Complete | M1 |
-| M3 | Ruleset knowledge coverage | In progress | M1 |
+| M3 | Ruleset knowledge coverage | Complete | M1 |
 | M4 | Ruleset resolver | Planned | M3 |
 | M5 | Factual turn journal | Planned | M1 |
 | M6 | Deterministic controller expansion | In progress | M2, M3, M4 |
@@ -113,8 +113,13 @@ movement, health, growth, purchase, and upgrades are allowlisted under ADR-0012.
 Climates, sea levels, and game options now preserve map-generation and stable
 ruleset-switch facts, while promotion invisibility/detection targets are typed.
 Calendar/date presentation families and city-size soundscape categories are
-explicitly outside M3. The next slice reviews resource-quantity distributions
-and completes the remaining-family classification.
+explicitly outside M3. Nine resource map-quantity alternatives are embedded in
+their six owning resources with canonical ordering and strict validation.
+
+M3 completed on 2026-09-15. Every reviewed non-empty candidate family is now
+imported, explicitly deferred with a semantic reason, or excluded under an
+accepted boundary. New families remain positive-allowlist extensions rather
+than reopening the milestone.
 
 ## M4 — Ruleset resolver
 

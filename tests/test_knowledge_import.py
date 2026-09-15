@@ -315,6 +315,10 @@ def create_database(
         connection.execute(
             f"CREATE TABLE Resources ({', '.join(resource_definitions)})"
         )
+        connection.execute(
+            "CREATE TABLE Resource_QuantityTypes "
+            "(ResourceType TEXT, Quantity INTEGER NOT NULL)"
+        )
         resource_class_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
         for column, (_, value_type) in RESOURCE_CLASS_FIELDS.items():
             sql_type = "TEXT" if value_type == "identifier" else "INTEGER"
@@ -1053,6 +1057,10 @@ def create_database(
                 ),
                 *resource_values,
             ],
+        )
+        connection.executemany(
+            "INSERT INTO Resource_QuantityTypes VALUES (?, ?)",
+            (("RESOURCE_IRON", 6), ("RESOURCE_IRON", 2)),
         )
         civilization_columns = ["Type", *CIVILIZATION_FIELDS, "AIPlayable"]
         connection.execute(
@@ -1910,6 +1918,7 @@ class RulesetImportTest(unittest.TestCase):
         )
         iron = next(item for item in bundle.entities if item.type_id == "RESOURCE_IRON")
         self.assertEqual(iron.attributes["starting_resource_quantity"], 2)
+        self.assertEqual(iron.attributes["map_quantities"], [2, 6])
         resource_relations = {
             (item.kind, item.target_type_id)
             for item in bundle.references
@@ -2663,6 +2672,65 @@ class RulesetImportTest(unittest.TestCase):
                 import_ruleset(
                     database,
                     "cache/bad-climate.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_invalid_resource_map_quantity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-resource-quantity.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Resource_QuantityTypes SET Quantity = 0"
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "resource RESOURCE_IRON has invalid map quantity: 0",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-resource-quantity.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_resource_map_quantity_for_missing_resource(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "missing-resource-quantity.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "INSERT INTO Resource_QuantityTypes VALUES (?, ?)",
+                    ("RESOURCE_MISSING", 1),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "resource quantity references missing resource: RESOURCE_MISSING",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/missing-resource-quantity.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_duplicate_resource_map_quantity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "duplicate-resource-quantity.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "INSERT INTO Resource_QuantityTypes VALUES (?, ?)",
+                    ("RESOURCE_IRON", 2),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "resource RESOURCE_IRON has duplicate map quantity: 2",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/duplicate-resource-quantity.db",
                     Ruleset("bnw", "test"),
                 )
 

@@ -35,6 +35,7 @@ implemented.
 | Global defines | 15 allowlisted keys | movement, hit points, city growth, food consumption, purchase, and unit-upgrade constants under ADR-0012 |
 | `Climates`, `SeaLevels`, `GameOptions` | 5 / 3 / 29 | stable map-generation and ruleset-switch entities with explicit gameplay-field allowlists |
 | `InvisibleInfos` and promotion fields | 1 category / 2 links | typed promotion invisibility and detection semantics |
+| `Resource_QuantityTypes` | 9 rows across 6 resources | canonically ordered positive map-quantity alternatives embedded in the owning resource |
 
 ## Multi-context result
 
@@ -92,17 +93,12 @@ The following families remain outside the knowledge module:
 - art definitions, animations, sounds, UI modes, cursors, and controls;
 - Civilopedia concepts and all localized descriptions/help text.
 
-## Next implementation slice
+## Review conclusion
 
-Audit the remaining policy and building tables still marked incomplete on the
-roadmap. That audit found only `Policy_Flavors` and `Building_Flavors` outside
-the allowlist; both are prohibited by ADR-0005, so policy/building table coverage
-is closed. Continue the broader M3 audit until every non-empty candidate is
-imported, explicitly deferred with a reason, or excluded under an accepted
-boundary. Per-game selection and modifier application remain an M4 resolver
-responsibility.
+M3 is complete: every reviewed non-empty candidate is imported, explicitly
+deferred with a semantic reason, or excluded by an accepted boundary. Policy
+and building remainders are prohibited flavor tables. New rules are added only
+when a controller or resolver use case establishes their relevance, and each
+field must pass the same provenance, copyright, and AI-boundary review.
 
-The next audit targets `Resource_QuantityTypes` and its nine map-generation
-distribution rows, followed by final classification of the remaining non-empty
-candidate tables. Large tables are not imported wholesale: each field must be
-controller-relevant and pass the same copyright and AI-boundary review.
+Per-game selection and modifier application now belong to the M4 resolver.

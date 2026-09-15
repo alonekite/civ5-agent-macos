@@ -180,6 +180,9 @@ Five climates, three sea levels, and 29 game options preserve deterministic
 map-generation parameters and stable option defaults/support. One invisibility
 category anchors two typed promotion relations. Descriptions, help text, option
 UI visibility, and calendar/date presentation tables are excluded.
+Nine positive map-quantity alternatives are embedded in their six owning
+strategic resources with canonical numeric ordering; the source rows do not
+have independent stable identifiers.
 Binary effects also cover beliefs, policies, buildings, resources, specialists,
 and unit/building resource quantities. Projects retain
 instance limits, cost, deterministic flags, technology and victory gates,
@@ -270,6 +273,8 @@ mapping is imported.
 Ten buildings own 21 validated theming alternatives in the tested database.
 They change entity attributes rather than entity/reference counts, and two
 consecutive imports remain byte-identical.
+Six resources similarly own nine validated, canonically ordered map-quantity
+alternatives without changing entity/reference counts.
 The remaining-rule inventory found no unimported controller-facing effect that
 needs more than one typed context. Built-in AI formation roles remain excluded
 by ADR-0005, and natural-wonder placement fields that resemble type identifiers

@@ -2731,6 +2731,11 @@ def import_ruleset(
             _require_columns(connection, "InvisibleInfos", {"Type"})
             _require_columns(
                 connection,
+                "Resource_QuantityTypes",
+                {"ResourceType", "Quantity"},
+            )
+            _require_columns(
+                connection,
                 "GoodyHuts",
                 {
                     "Type",
@@ -3002,9 +3007,10 @@ def import_ruleset(
             ).fetchall()
             if not resource_rows:
                 raise KnowledgeImportError("Resources table is empty")
-            resource_entities = tuple(
-                _scalar_entity("resource", row, RESOURCE_FIELDS, source_label)
-                for row in resource_rows
+            resource_entities = _resource_entities(
+                connection,
+                resource_rows,
+                source_label,
             )
             resource_class_columns = ["Type", *RESOURCE_CLASS_FIELDS]
             resource_class_select = ", ".join(
@@ -3692,6 +3698,63 @@ def _building_entities(
                 rules,
                 key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")),
             )
+            entity = Entity(
+                entity.kind,
+                entity.type_id,
+                attributes,
+                entity.source_paths,
+            )
+        entities.append(entity)
+    return tuple(entities)
+
+
+def _resource_entities(
+    connection: sqlite3.Connection,
+    rows: list[sqlite3.Row],
+    source_label: str,
+) -> tuple[Entity, ...]:
+    quantity_rows = connection.execute(
+        'SELECT "ResourceType", "Quantity" FROM "Resource_QuantityTypes" '
+        'ORDER BY "ResourceType", "Quantity"'
+    ).fetchall()
+    quantities_by_resource: dict[str, list[int]] = {}
+    for row in quantity_rows:
+        resource_type = row["ResourceType"]
+        quantity = row["Quantity"]
+        if not isinstance(resource_type, str):
+            raise KnowledgeImportError(
+                "Resource_QuantityTypes has invalid ResourceType"
+            )
+        if (
+            not isinstance(quantity, int)
+            or isinstance(quantity, bool)
+            or quantity <= 0
+        ):
+            raise KnowledgeImportError(
+                f"resource {resource_type} has invalid map quantity: {quantity}"
+            )
+        quantities = quantities_by_resource.setdefault(resource_type, [])
+        if quantity in quantities:
+            raise KnowledgeImportError(
+                f"resource {resource_type} has duplicate map quantity: {quantity}"
+            )
+        quantities.append(quantity)
+
+    known_resources = {row["Type"] for row in rows}
+    unknown_resources = sorted(set(quantities_by_resource) - known_resources)
+    if unknown_resources:
+        raise KnowledgeImportError(
+            "resource quantity references missing resource: "
+            + ", ".join(unknown_resources)
+        )
+
+    entities: list[Entity] = []
+    for row in rows:
+        entity = _scalar_entity("resource", row, RESOURCE_FIELDS, source_label)
+        quantities = quantities_by_resource.get(row["Type"])
+        if quantities:
+            attributes = dict(entity.attributes)
+            attributes["map_quantities"] = quantities
             entity = Entity(
                 entity.kind,
                 entity.type_id,
