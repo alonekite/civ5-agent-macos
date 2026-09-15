@@ -11,8 +11,8 @@ decisions, not raw chat transcripts.
 - Current milestone: M3 — ruleset knowledge coverage.
 - Active next deliverable: inventory multi-context effects and new target entity
   families, then continue ruleset scaling.
-- Functional test baseline: 141 tests locally on Python 3.11; GitHub Actions
-  passed for published head `1e1e4c5` before the current batch.
+- Functional test baseline: 141 tests locally on Python 3.11 and the default
+  Python runtime; CI confirmation is pending for development head `a86078e`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only optional non-empty diplomacy or late-game
   science-victory enhancement tests.

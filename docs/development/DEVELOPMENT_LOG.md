@@ -390,7 +390,7 @@ preflight.
 - Passed all 141 tests on Python 3.11 and scanned the submitted diff for
   secrets, local identifiers, generated data, and forbidden AI fields.
 
-Implementation commit: pending.
+Implementation commit: `a86078e`.
 
 ## Archive policy
 
