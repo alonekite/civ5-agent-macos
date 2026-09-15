@@ -413,6 +413,13 @@ Implementation commit: `a86078e`.
 
 Implementation commit: `1a0a784`.
 
+Follow-up commit `172db99` added 44 typed civilization initial-unit quantities
+and coastal-start flags. The importer deliberately does not select the source
+`UnitAIType` field and fails on duplicate civilization/unit-class identity
+instead of conflating excluded roles. The real database now imports as 1,789
+entities and 5,319 references with repeatable output; all 148 tests pass on
+Python 3.11 and the default runtime.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
