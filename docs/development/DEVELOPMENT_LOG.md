@@ -467,6 +467,21 @@ Offline use against the real local database selected America's Minuteman over
 the Musketman and retained ordinary defaults. All 163 tests pass locally and in
 GitHub Actions on Python 3.11 and 3.13.
 
+## 2026-09-15 — Live technology-state schema foundation
+
+- Inspected the installed BNW technology popup, tree, and end-turn panel to
+  identify stock read APIs and blocker semantics.
+- Added schema 5 researched and researchable `TECH_*` sets plus an observed
+  normal, free-technology, or unsupported choice mode in a sixth 874-byte
+  read-only segment.
+- Preserved schema 2–4 parsing, enforced stable ordering, identifier uniqueness,
+  cross-set consistency, mandatory part identity, and malformed-input rejection.
+- Kept free and steal technology choices manual-only in the controller.
+- Passed all 170 tests locally and in GitHub Actions on Python 3.11 and 3.13;
+  sensitive-data scanning found no local paths, addresses, or credentials.
+
+Implementation commit: `5669973`. Live schema 5 verification remains pending.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

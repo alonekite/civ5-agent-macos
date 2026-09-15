@@ -13,7 +13,7 @@ decisions, not raw chat transcripts.
   return to effective scalar resolution.
 - Functional test baseline: 170 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
-  implementation head `3649c05`.
+  implementation head `5669973`.
 - Blocking issue: schema 5 live evidence requires a user-started game and an
   explicitly authorized bounded live session.
 - User presence required next: ordinary technology-state live verification;
@@ -138,7 +138,7 @@ decisions, not raw chat transcripts.
   technologies plus an observed research-choice mode. Special choices fail
   closed, and schemas 2–4 remain compatible. This is offline-verified only.
 - The test suite contains 170 tests locally on Python 3.11 and the default
-  runtime; implementation head `3649c05` passed CI on Python 3.11 and 3.13.
+  runtime; implementation head `5669973` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
 
