@@ -460,6 +460,13 @@ both local runtimes and GitHub Actions on Python 3.11 and 3.13.
 
 Implementation commit: `e33e358`.
 
+Follow-up commit `3649c05` resolves unit and building classes through the
+selected civilization. Each result identifies the base default, effective
+member or explicit disabled state, and civilization override provenance.
+Offline use against the real local database selected America's Minuteman over
+the Musketman and retained ordinary defaults. All 163 tests pass locally and in
+GitHub Actions on Python 3.11 and 3.13.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

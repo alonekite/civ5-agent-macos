@@ -13,7 +13,7 @@ decisions, not raw chat transcripts.
   and modifier provenance.
 - Functional test baseline: 163 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
-  implementation head `e33e358`.
+  implementation head `3649c05`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only optional non-empty diplomacy or late-game
   science-victory enhancement tests.
@@ -134,7 +134,7 @@ decisions, not raw chat transcripts.
   and override references; a real local America check selected the Minuteman
   over the Musketman and left ordinary defaults unchanged.
 - The test suite contains 163 tests locally on Python 3.11 and the default
-  runtime; implementation head `e33e358` passed CI on Python 3.11 and 3.13.
+  runtime; implementation head `3649c05` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
 
