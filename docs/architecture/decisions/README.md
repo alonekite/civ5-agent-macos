@@ -26,6 +26,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0017](ADR-0017-separate-session-and-match-identity.md) | Separate bridge-session identity from match identity | Accepted |
 | [ADR-0018](ADR-0018-keep-executor-independent-of-knowledge.md) | Keep deterministic execution independent of ruleset knowledge | Accepted |
 | [ADR-0019](ADR-0019-separate-command-audit-from-match-journal.md) | Separate the command audit from the match journal | Accepted |
+| [ADR-0020](ADR-0020-use-private-hash-chained-jsonl-journal.md) | Use a private hash-chained JSONL journal | Accepted |
 
 ## Template
 

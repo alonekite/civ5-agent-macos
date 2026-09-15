@@ -1,6 +1,6 @@
 # Module: journal
 
-Status: Planned (M5)
+Status: Core codec/store implemented offline (M5 in progress)
 
 ## Responsibility
 
@@ -22,8 +22,9 @@ debugging, and audit.
 
 ## Public interface
 
-Not implemented. The future interface will append versioned records and read or
-export a verified sequence. See the proposed [journal contract](../contracts/journal.md).
+`JournalStore.create`, `open`, `read_all`, `append`, and `bind_session` implement
+the private schema 1 core. Runtime capture and public M7 compatibility are not
+yet implemented. See the [journal contract](../contracts/journal.md).
 
 ## Inputs and outputs
 
@@ -65,20 +66,22 @@ and export policy. No automatic Git inclusion is permitted.
 
 ## Verification
 
-M5 will require codec, corruption, concurrency, permission, recovery, and replay
-tests before integration with watcher output. Tests must also cover unbound
-session rejection and prove that journal input comes from validated in-memory
-events rather than the independent M2 command-audit file.
+Offline tests cover codec round trips, canonical UUID identities, private
+permissions, append/reopen, hash chaining, tampering, truncation, size bounds,
+concurrent appends, symlink refusal, correction targets, and unbound/duplicate
+session rejection. Runtime integration must prove that journal input comes from
+validated in-memory events rather than the independent M2 command-audit file.
 
 ## Current limitations
 
-No journal implementation is committed. An accidentally early prototype was
-removed from the working tree and preserved privately outside the repository;
-it is not an accepted design or release artifact.
+Watcher/CLI capture, command lifecycle adapters, export, retention, compaction,
+and selective queries are not implemented. The hash chain detects modification
+but is not a digital signature and does not defend against complete authorized
+rewriting of the private file.
 
 ## Planned extensions
 
-Implement M5 for historical capture and later tactical/strategic selection,
-replay, and comparison, then expose selective read/export capabilities during
-M7. M5 and M6 may be implemented in either order; the current M5 priority is a
-schedule choice, not a dependency.
+Connect validated watcher observations and command results through application
+composition, add deterministic replay/export, then expose selective read APIs
+during M7. M5 and M6 may be implemented in either order; the current M5 priority
+is a schedule choice, not a dependency.

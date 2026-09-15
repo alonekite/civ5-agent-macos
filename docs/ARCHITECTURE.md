@@ -201,11 +201,14 @@ future tactical/strategic history selection, replay, comparison, auditing,
 debugging, and later analysis. The journal is not an executor control plane and
 is not passed wholesale into the executor loop.
 
-Records should be committed transactionally and include a monotonically
+Schema 1 records are appended under an exclusive lock and fsynced before
+success. They include a monotonically
 increasing sequence, capture timestamp, match/session and turn identifiers,
 schema and ruleset versions where applicable, canonical payload, and integrity
 hash. Corrections append a
 new record that supersedes an earlier record rather than rewriting history.
+Each record hashes its canonical content and the previous record hash; reads
+fail closed on truncation, tampering, sequence gaps, or invalid bindings.
 
 The intended dependency direction is:
 

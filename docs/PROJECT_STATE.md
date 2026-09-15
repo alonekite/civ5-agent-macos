@@ -9,9 +9,9 @@ development log.
 ## Dashboard
 
 - Current milestone: M5 — factual turn journal.
-- Active next deliverable: implement the M5 journal `match_id`, explicit session
-  bindings, versioned append-only codec, and private store.
-- Functional baseline: 175 tests pass locally on Python 3.11 and the default
+- Active next deliverable: connect validated watcher observations and command
+  results to the implemented M5 store through optional application composition.
+- Functional baseline: 184 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -38,6 +38,10 @@ development log.
 - The bridge-session envelope is implemented offline: watcher/direct connection
   epochs receive canonical UUIDv4 identities, reads expose them, writes must
   echo them, and stale or missing values fail before execution.
+- M5 schema 1 is implemented offline as a mode-0600 JSONL store with canonical
+  records, contiguous sequence numbers, explicit session bindings, SHA-256 hash
+  chaining, file locking, `fsync`, bounded records, and fail-closed corruption
+  detection.
 - M3 ruleset knowledge coverage and the M4 structural knowledge view are
   complete offline. Generated bundles remain local; AI flavor/personality and
   copyrighted presentation assets remain excluded.
@@ -75,10 +79,10 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended offline order
 
-1. Define M5 journal header/record models, explicit session binding, canonical
-   serialization, integrity chain, bounds, and private storage.
-2. Connect watcher/CLI composition to M5 using validated in-memory events and
+1. Connect watcher/CLI composition to M5 using validated in-memory events and
    command UUID correlation; test audit/journal failure independence.
+2. Add deterministic journal replay/export plus retention guidance without
+   weakening append-only integrity.
 3. Separately finalize M6 TurnPlan and execution-report schemas against the
    bridge-session, live-state, and command contracts.
 4. Implement ordered execution, factual requirements, drift pauses, and
@@ -100,6 +104,8 @@ each other.
 - ADR-0018: M6 does not query M4 knowledge; plan producers do.
 - ADR-0019: M2 command audit and M5 journal are independent sinks correlated by
   command UUID.
+- ADR-0020: M5 uses private hash-chained JSONL with locked, fsynced appends and
+  fail-closed corruption detection.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

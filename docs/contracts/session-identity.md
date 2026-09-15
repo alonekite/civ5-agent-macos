@@ -1,6 +1,6 @@
 # Session and Match Identity Contract
 
-Status: Bridge-session envelope implemented offline; match identity pending M5
+Status: Bridge-session and journal-match identities implemented offline
 
 ## Purpose
 
@@ -30,7 +30,7 @@ history from another.
 Each journal begins with its initial bridge-session binding. A later connection
 may join the same journal only through an explicit append-only
 `session_binding` record containing the new `bridge_session_id`, capture time,
-and binding authority. Automatic binding is prohibited until a stable
+and `operator` binding authority. No automatic authority is accepted until a stable
 target-verified match fingerprint has its own versioned contract.
 
 ## Failure behavior
@@ -47,5 +47,6 @@ Live-state schemas 2–5 do not contain this metadata. The watcher now emits and
 brokers it beside the unchanged state payload, rejects missing or stale session
 IDs before writes, rotates it for each connection epoch, and records it in the
 M2 command audit. Direct commands create an identity for their one connection.
-The journal `match_id` and `session_binding` records remain M5 work. Public
-naming and compatibility are finalized in M7.
+The M5 schema 1 store now creates `match_id` and enforces explicit
+`session_binding` records. Runtime watcher/CLI journal capture remains pending;
+public naming and compatibility are finalized in M7.

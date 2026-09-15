@@ -1,6 +1,6 @@
 # Turn-Journal Contract
 
-Status: Proposed for M5; no implementation is committed
+Status: Schema 1 codec/store implemented offline; runtime capture pending
 
 ## Purpose
 
@@ -58,20 +58,23 @@ interpret plan content or supply M6 execution state.
   audit file as its input or source of truth.
 - Export is explicit and warns that records may contain private match data.
 
+## Implemented storage decisions
+
+- Private mode-0600 JSONL, one file per declared match.
+- Contiguous sequence plus SHA-256 previous-record chain.
+- Exclusive-lock append, full-chain validation, and `fsync` before success.
+- Newline and size bounds that reject partial/truncated records without
+  automatic repair.
+- Explicit initial and later bridge-session bindings.
+
 ## Decisions intentionally deferred
 
-- JSONL versus SQLite or a hybrid storage/index format.
-- Integrity chain and checkpoint details.
-- Flush/durability policy and crash recovery.
 - Retention, compaction, and large-snapshot deduplication.
 - Public selective-query API.
 
-These choices must be resolved in M5 with benchmarks and corruption/concurrency
-tests. An earlier uncommitted JSONL prototype is not an accepted contract.
-
-Identity semantics are not deferred: ADR-0017 and the session-identity contract
-separate bridge connection epochs from journal match grouping. Only their exact
-implementation envelope remains pending.
+These remaining choices require later benchmarks and compatibility design.
+Identity semantics are implemented in the codec/store under ADR-0017. Runtime
+watcher/CLI fan-out remains pending.
 
 ## Out of scope
 

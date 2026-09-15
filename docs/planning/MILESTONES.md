@@ -163,6 +163,13 @@ Acceptance criteria:
   audit by command UUID without parsing it as journal input.
 - Do not implement working memory or strategic memory.
 
+Current progress: the schema 1 codec and private hash-chained JSONL store are
+implemented offline under ADR-0017, ADR-0019, and ADR-0020. Identity validation,
+explicit session binding, locking, fsync, permissions, bounds, corruption,
+truncation, concurrency, correction, and reopen behavior have unit coverage.
+Watcher/CLI capture, replay/export, retention guidance, and selective queries
+remain incomplete, so M5 remains in progress.
+
 ## M6 — Deterministic turn executor
 
 Acceptance criteria:

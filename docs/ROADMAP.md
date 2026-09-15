@@ -138,12 +138,14 @@ No application-bundle modification is required.
 
 ## M5 — Per-game factual journal
 
-- [ ] Define an append-only turn-journal schema and storage interface
+- [x] Define and implement the append-only schema 1 journal codec and private
+  storage interface under ADR-0020
 - [x] Implement the bridge-session envelope under ADR-0017 with strict UUIDv4
   validation and stale/missing-session write rejection
-- [ ] Implement journal `match_id` and explicit cross-session binding
+- [x] Implement journal `match_id` and explicit cross-session binding
 - [ ] Record supported validated snapshots and verified command lifecycles
-- [ ] Add canonical serialization, integrity hashes, and recovery tests
+- [x] Add canonical serialization, hash-chain, truncation, tampering,
+  concurrency, permission, and reopen tests
 - [ ] Correlate M2 audit and M5 journal by command UUID without parsing the audit
   file or coupling their failure behavior
 
