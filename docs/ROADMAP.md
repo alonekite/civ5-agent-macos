@@ -125,6 +125,10 @@ No application-bundle modification is required.
   controller-facing family, including resource map-quantity alternatives
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context
+- [x] Define and validate explicit canonical resolution context without
+  mutating base knowledge
+- [ ] Compose effective scalar values with base and modifier provenance
+- [ ] Resolve civilization replacements and disabled class defaults
 - [x] Expose a validated, deterministic entity/reference query API
 - [ ] Integrate ruleset queries into controller decisions
 

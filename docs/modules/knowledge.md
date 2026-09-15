@@ -19,9 +19,10 @@ Its importer reads the user's local merged SQLite data without modifying it.
 
 ## Public interface
 
-`KnowledgeBundle`, `KnowledgeIndex`, canonical codec functions, validation, and
-the SQLite importer. See [KNOWLEDGE.md](../KNOWLEDGE.md) for the current
-executable contract.
+`KnowledgeBundle`, `KnowledgeIndex`, canonical codec functions, validation, the
+SQLite importer, and the explicit per-game `RulesetResolver`. See
+[KNOWLEDGE.md](../KNOWLEDGE.md) and the
+[resolver contract](../contracts/resolver.md) for executable behavior.
 
 ## Inputs and outputs
 
@@ -138,3 +139,7 @@ calendars and city-size soundscape categories are excluded; natural-wonder
 placement remains explicitly deferred until a controller use case requires it.
 M4 adds per-game resolution without mutating base facts. New knowledge families
 remain possible, but require the same provenance and semantic review.
+
+The first M4 slice validates and canonicalizes explicit match context and
+returns detached selected entities with source provenance. It does not yet
+compose effective scalar values or replacements.

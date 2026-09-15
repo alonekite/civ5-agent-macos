@@ -10,6 +10,12 @@ from .models import (
     Ruleset,
     Source,
 )
+from .resolver import (
+    ResolutionContext,
+    ResolvedRuleset,
+    RulesetResolutionError,
+    RulesetResolver,
+)
 from .validation import KnowledgeValidationError, validate_bundle
 
 __all__ = [
@@ -19,7 +25,11 @@ __all__ = [
     "KnowledgeValidationError",
     "Reference",
     "ReferenceContext",
+    "ResolutionContext",
+    "ResolvedRuleset",
     "Ruleset",
+    "RulesetResolutionError",
+    "RulesetResolver",
     "Source",
     "bundle_sha256",
     "dumps",

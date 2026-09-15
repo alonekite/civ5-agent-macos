@@ -9,9 +9,9 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M4 — ruleset resolver.
-- Active next deliverable: define immutable per-game resolution context and its
-  fail-closed public contract.
-- Functional test baseline: 155 tests locally on Python 3.11 and the default
+- Active next deliverable: resolve effective scalar values with explicit base
+  and modifier provenance.
+- Functional test baseline: 160 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
   implementation head `12427c1`.
 - Blocking issue: none for offline M3 work.
@@ -125,7 +125,11 @@ decisions, not raw chat transcripts.
 - M3 is complete: every reviewed non-empty candidate family is imported,
   explicitly deferred with a semantic reason, or excluded by an accepted
   boundary. Further knowledge growth is demand-driven and positive-allowlist.
-- The test suite contains 155 tests locally on Python 3.11 and the default
+- M4 now has an initial explicit context contract covering exact ruleset,
+  game-speed, handicap, world-size, civilization, policy, and belief selection.
+  Unknown, duplicate, and incompatible selections fail closed; resolved entity
+  values are detached from the base bundle.
+- The test suite contains 160 tests locally on Python 3.11 and the default
   runtime; implementation head `12427c1` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
@@ -162,8 +166,8 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Define immutable per-game modifier-resolution context and result contracts.
-2. Add per-game modifier resolution without mutating base knowledge.
+1. Resolve effective scalar values with explicit base and modifier provenance.
+2. Resolve civilization class replacements and disabled defaults.
 3. Define the factual turn-journal schema, storage interface, canonical
    serialization, retention expectations, and integrity tests.
 4. Connect watcher observations and command results to the journal without
@@ -190,6 +194,8 @@ remain out of scope.
   than inventing identifiers or importing localized descriptions.
 - ADR-0012: represent explicitly allowlisted stable global define names as
   ordinary sourced knowledge entities.
+- ADR-0013: require explicit, canonically ordered per-game resolution context
+  and detach selected result entities from immutable base knowledge.
 
 See `docs/architecture/decisions/README.md`. Development history belongs in
 `docs/development/DEVELOPMENT_LOG.md`, not in this dashboard.

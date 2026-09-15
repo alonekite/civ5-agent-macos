@@ -31,8 +31,9 @@ do not belong in the repository.
 - [Live-state contract](contracts/live-state.md)
 - [Command contract](contracts/command.md)
 - [Knowledge contract](KNOWLEDGE.md)
+- [Ruleset resolver contract](contracts/resolver.md)
 - [Remaining rules inventory](knowledge/REMAINING_RULES_INVENTORY.md): reviewed
-  SQLite families, exclusions, and the next knowledge-import slices.
+  SQLite families, exclusions, and the completed M3 classification.
 - [Journal contract](contracts/journal.md)
 
 The Python implementation and tests remain authoritative for exact executable

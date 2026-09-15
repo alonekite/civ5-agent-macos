@@ -9,7 +9,7 @@ GitHub Issues and should link back to one milestone ID.
 | M1 | Bidirectional bridge MVP | Complete | M0 |
 | M2 | Verified action layer | Complete | M1 |
 | M3 | Ruleset knowledge coverage | Complete | M1 |
-| M4 | Ruleset resolver | Planned | M3 |
+| M4 | Ruleset resolver | In progress | M3 |
 | M5 | Factual turn journal | Planned | M1 |
 | M6 | Deterministic controller expansion | In progress | M2, M3, M4 |
 | M7 | Public API stabilization | Planned | M4, M5, M6 |
@@ -131,6 +131,12 @@ Acceptance criteria:
   policies, and beliefs where source rules require them.
 - Return provenance for both base facts and applied modifiers.
 - Reject incomplete or incompatible context instead of guessing.
+
+The initial context-resolution slice is implemented. It requires exact ruleset,
+game-speed, handicap, world-size, civilization, adopted-policy, and active-
+belief identifiers; canonicalizes set-like selections; rejects unknown and
+duplicate values; and returns detached selected entities plus source
+provenance. Effective modifier composition remains next.
 
 ## M5 — Factual turn journal
 

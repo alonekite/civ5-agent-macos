@@ -10,7 +10,9 @@
                 [ Turn Journal ]              [ Deterministic Controller ]
                        ▲                                     ▲
                        │                                     │
-            verified action results              [ Ruleset Knowledge ]
+            verified action results        [ Resolved Ruleset Context ]
+                                                             ▲
+                                              [ Ruleset Knowledge ]
                                                              │
                                                              ▼
                                              whitelisted action via bridge
@@ -118,6 +120,13 @@ against the declared vanilla/G&K/BNW family.
 The knowledge module is deterministic and never requires an LLM. A local model
 may help draft code or mappings during development, but model output is accepted
 only after schema, integrity, fixture, and test validation.
+
+The M4 resolver validates an explicit per-game selection against the immutable
+ruleset bundle. Its initial contract covers exact ruleset identity, game speed,
+difficulty, map size, civilization, adopted policies, and active beliefs. It
+fails closed on missing or incompatible identifiers and returns detached entity
+values plus source provenance. Effective modifier composition is the next M4
+slice.
 
 Do not expose arbitrary Lua execution to any controller or external decision
 system.

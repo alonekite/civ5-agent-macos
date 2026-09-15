@@ -19,6 +19,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0010](ADR-0010-segment-live-snapshots.md) | Segment live snapshots below the FireTuner command limit | Accepted |
 | [ADR-0011](ADR-0011-embed-non-addressable-rules.md) | Embed non-addressable rules under stable parent entities | Accepted |
 | [ADR-0012](ADR-0012-allowlisted-global-define-entities.md) | Model allowlisted global defines as entities | Accepted |
+| [ADR-0013](ADR-0013-explicit-ruleset-resolution-context.md) | Require explicit ruleset resolution context | Accepted |
 
 ## Template
 
