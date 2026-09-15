@@ -13,7 +13,7 @@ decisions, not raw chat transcripts.
   the remaining M3 classification.
 - Functional test baseline: 152 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
-  implementation head `15d3fa0`.
+  implementation head `0274324`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only optional non-empty diplomacy or late-game
   science-victory enhancement tests.
@@ -120,7 +120,7 @@ decisions, not raw chat transcripts.
   two promotion links preserve invisibility and detection semantics. UI text,
   option visibility, and calendar presentation data remain excluded.
 - The test suite contains 152 tests locally on Python 3.11 and the default
-  runtime; implementation head `15d3fa0` passed CI on Python 3.11 and 3.13.
+  runtime; implementation head `0274324` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
 

@@ -428,6 +428,14 @@ bulk-imported, preventing AI behavior parameters from crossing the knowledge
 boundary. The real import is byte-repeatable at 1,804 entities and 5,319
 references; all 150 tests pass on both supported local runtimes.
 
+Follow-up commit `0274324` completed the main map/calendar classification and
+imported five climates, three sea levels, 29 game options, one invisibility
+category, and two typed promotion invisibility/detection links. Descriptions,
+help text, option UI visibility, calendar/date presentation data, and city-size
+soundscape categories remain outside the knowledge boundary. The real import is
+byte-repeatable at 1,842 entities and 5,321 references; all 152 tests pass on
+Python 3.11, the default runtime, and GitHub Actions on Python 3.11 and 3.13.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
