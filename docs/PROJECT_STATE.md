@@ -13,7 +13,7 @@ decisions, not raw chat transcripts.
   map/calendar families, then close M3.
 - Functional test baseline: 148 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
-  head `6b4e1ef`.
+  implementation head `15d3fa0`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only optional non-empty diplomacy or late-game
   science-victory enhancement tests.
@@ -113,7 +113,7 @@ decisions, not raw chat transcripts.
   coastal-start preferences, and one first-placement preference. The source AI
   role column is never selected.
 - The test suite contains 148 tests locally on Python 3.11 and the default
-  runtime; the published batch passed CI on Python 3.11 and 3.13.
+  runtime; implementation head `15d3fa0` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
 
