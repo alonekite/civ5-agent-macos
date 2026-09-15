@@ -11,8 +11,8 @@ decisions, not raw chat transcripts.
 - Current milestone: M4 — ruleset resolver.
 - Active next deliverable: effective scalar resolution for M4.
 - Functional test baseline: 170 tests locally on Python 3.11 and the default
-  Python runtime at implementation head `6848b0b`; GitHub Actions last passed
-  on Python 3.11 and 3.13 for earlier published head `5669973`.
+  Python runtime; implementation commit `6848b0b` passed GitHub Actions on
+  Python 3.11 and 3.13.
 - Blocking issue: none.
 - User presence required next: none. Free/steal technology modes, non-empty
   diplomacy, and late-game science-victory checks remain optional live evidence.
