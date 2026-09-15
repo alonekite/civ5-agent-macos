@@ -13,7 +13,7 @@ decisions, not raw chat transcripts.
   and modifier provenance.
 - Functional test baseline: 160 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
-  implementation head `12427c1`.
+  implementation head `e33e358`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only optional non-empty diplomacy or late-game
   science-victory enhancement tests.
@@ -130,7 +130,7 @@ decisions, not raw chat transcripts.
   Unknown, duplicate, and incompatible selections fail closed; resolved entity
   values are detached from the base bundle.
 - The test suite contains 160 tests locally on Python 3.11 and the default
-  runtime; implementation head `12427c1` passed CI on Python 3.11 and 3.13.
+  runtime; implementation head `e33e358` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
 

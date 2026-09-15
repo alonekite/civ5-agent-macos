@@ -444,6 +444,22 @@ classifying every reviewed non-empty candidate as imported, deferred with a
 semantic reason, or excluded by an accepted boundary. All 155 tests pass on
 both local runtimes and GitHub Actions on Python 3.11 and 3.13.
 
+## 2026-09-15 — Explicit ruleset resolution context
+
+- Added immutable input and result contracts for exact ruleset, game-speed,
+  handicap, world-size, civilization, adopted-policy, and active-belief
+  selection.
+- Canonicalized set-like selections and rejected mismatched rulesets, unknown
+  entities, duplicate identifiers, and malformed collections instead of
+  substituting defaults.
+- Returned detached selected entities and source provenance so resolver clients
+  cannot mutate indexed base facts through a result.
+- Documented the boundary in ADR-0013 and a dedicated resolver contract.
+- Passed all 160 tests locally and in GitHub Actions on Python 3.11 and 3.13;
+  the sensitive-data scan remained clean.
+
+Implementation commit: `e33e358`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
