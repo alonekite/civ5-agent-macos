@@ -16,14 +16,21 @@ entity kind, rejects duplicates, and sorts policy and belief identifiers.
 
 `ResolvedRuleset` contains the canonical context, selected entities, and source
 provenance. Its entity values are detached from the indexed base bundle. This
-initial contract validates context only; it does not yet calculate effective
-costs, yields, replacements, unlocks, or other composed modifiers.
+initial contract also resolves unit and building classes through the selected
+civilization. A `ResolvedClassMember` reports the class, effective member (or
+`None` for an explicitly disabled class), base default reference, and optional
+civilization override reference. It therefore preserves why a default,
+replacement, or disabled result was selected.
+
+The resolver does not yet calculate effective costs, yields, unlocks, or other
+composed scalar modifiers.
 
 ## Failure behavior
 
 Resolution raises `RulesetResolutionError` for a mismatched ruleset, unknown
 selected entity, duplicate set member, or malformed policy/belief collection.
-It never substitutes a default or ignores an unsupported selection.
+It also rejects ambiguous, conflicting, or default-less class resolution. It
+never substitutes an inferred default or ignores an unsupported selection.
 
 ## Compatibility
 

@@ -4,7 +4,7 @@ import copy
 from dataclasses import dataclass
 
 from .index import KnowledgeIndex
-from .models import Entity, KnowledgeBundle, Ruleset, Source
+from .models import Entity, KnowledgeBundle, Reference, Ruleset, Source
 
 
 class RulesetResolutionError(ValueError):
@@ -34,6 +34,14 @@ class ResolvedRuleset:
     adopted_policies: tuple[Entity, ...]
     active_beliefs: tuple[Entity, ...]
     sources: tuple[Source, ...]
+
+
+@dataclass(frozen=True)
+class ResolvedClassMember:
+    class_entity: Entity
+    selected_entity: Entity | None
+    base_reference: Reference | None
+    civilization_reference: Reference | None
 
 
 class RulesetResolver:
@@ -88,6 +96,117 @@ class RulesetResolver:
         except KeyError as error:
             raise RulesetResolutionError(str(error)) from error
 
+    def resolve_unit_class(
+        self, resolved: ResolvedRuleset, unit_class_type_id: str
+    ) -> ResolvedClassMember:
+        return self._resolve_class_member(
+            resolved,
+            class_kind="unit_class",
+            class_type_id=unit_class_type_id,
+            member_kind="unit",
+            default_kind="default_unit",
+            unique_kind="unique_unit",
+            disabled_kind="disables_unit_class",
+            membership_kind="belongs_to_unit_class",
+        )
+
+    def resolve_building_class(
+        self, resolved: ResolvedRuleset, building_class_type_id: str
+    ) -> ResolvedClassMember:
+        return self._resolve_class_member(
+            resolved,
+            class_kind="building_class",
+            class_type_id=building_class_type_id,
+            member_kind="building",
+            default_kind="default_building",
+            unique_kind="unique_building",
+            disabled_kind="disables_building_class",
+            membership_kind="belongs_to_building_class",
+        )
+
+    def _resolve_class_member(
+        self,
+        resolved: ResolvedRuleset,
+        *,
+        class_kind: str,
+        class_type_id: str,
+        member_kind: str,
+        default_kind: str,
+        unique_kind: str,
+        disabled_kind: str,
+        membership_kind: str,
+    ) -> ResolvedClassMember:
+        if resolved.context.ruleset != self.index.bundle.ruleset:
+            raise RulesetResolutionError(
+                "resolved context ruleset does not match knowledge bundle"
+            )
+        try:
+            class_entity = self.index.entity(class_kind, class_type_id)
+            defaults = self.index.outgoing(class_kind, class_type_id, default_kind)
+            civilization_refs = self.index.outgoing(
+                "civilization", resolved.context.civilization_type_id
+            )
+            disabled = tuple(
+                reference
+                for reference in civilization_refs
+                if reference.kind == disabled_kind
+                and reference.target_kind == class_kind
+                and reference.target_type_id == class_type_id
+            )
+            unique: list[Reference] = []
+            for reference in civilization_refs:
+                if reference.kind != unique_kind or reference.target_kind != member_kind:
+                    continue
+                memberships = self.index.outgoing(
+                    member_kind,
+                    reference.target_type_id,
+                    membership_kind,
+                )
+                if any(
+                    membership.target_kind == class_kind
+                    and membership.target_type_id == class_type_id
+                    for membership in memberships
+                ):
+                    unique.append(reference)
+        except KeyError as error:
+            raise RulesetResolutionError(str(error)) from error
+
+        if len(defaults) > 1 or len(disabled) > 1 or len(unique) > 1:
+            raise RulesetResolutionError(
+                f"ambiguous {class_kind} resolution: {class_type_id}"
+            )
+        if disabled and unique:
+            raise RulesetResolutionError(
+                f"conflicting civilization override for {class_kind}: "
+                f"{class_type_id}"
+            )
+        base_reference = _detached_reference(defaults[0]) if defaults else None
+        if disabled:
+            return ResolvedClassMember(
+                _detached_entity(class_entity),
+                None,
+                base_reference,
+                _detached_reference(disabled[0]),
+            )
+        selected_reference = unique[0] if unique else (defaults[0] if defaults else None)
+        if selected_reference is None:
+            raise RulesetResolutionError(
+                f"no effective member for {class_kind}: {class_type_id}"
+            )
+        try:
+            selected = self.index.entity(
+                selected_reference.target_kind,
+                selected_reference.target_type_id,
+            )
+        except KeyError as error:
+            raise RulesetResolutionError(str(error)) from error
+        return ResolvedClassMember(
+            _detached_entity(class_entity),
+            _detached_entity(selected),
+            base_reference,
+            _detached_reference(unique[0]) if unique else None,
+        )
+
 
 def _canonical_unique(label: str, type_ids: tuple[str, ...]) -> tuple[str, ...]:
     if not isinstance(type_ids, tuple) or any(
@@ -105,4 +224,17 @@ def _detached_entity(entity: Entity) -> Entity:
         entity.type_id,
         copy.deepcopy(entity.attributes),
         entity.source_paths,
+    )
+
+
+def _detached_reference(reference: Reference) -> Reference:
+    return Reference(
+        reference.kind,
+        reference.source_kind,
+        reference.source_type_id,
+        reference.target_kind,
+        reference.target_type_id,
+        reference.source_paths,
+        copy.deepcopy(reference.attributes),
+        reference.context,
     )

@@ -128,7 +128,8 @@ No application-bundle modification is required.
 - [x] Define and validate explicit canonical resolution context without
   mutating base knowledge
 - [ ] Compose effective scalar values with base and modifier provenance
-- [ ] Resolve civilization replacements and disabled class defaults
+- [x] Resolve civilization replacements and disabled class defaults with base
+  and override provenance
 - [x] Expose a validated, deterministic entity/reference query API
 - [ ] Integrate ruleset queries into controller decisions
 

@@ -136,7 +136,9 @@ The initial context-resolution slice is implemented. It requires exact ruleset,
 game-speed, handicap, world-size, civilization, adopted-policy, and active-
 belief identifiers; canonicalizes set-like selections; rejects unknown and
 duplicate values; and returns detached selected entities plus source
-provenance. Effective modifier composition remains next.
+provenance. Unit and building classes now resolve to a default, civilization
+replacement, or explicit disabled result while retaining base and override
+references. Effective scalar modifier composition remains next.
 
 ## M5 — Factual turn journal
 

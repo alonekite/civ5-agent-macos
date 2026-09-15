@@ -4,6 +4,7 @@ from civ5_agent.knowledge import (
     Entity,
     KnowledgeBundle,
     ResolutionContext,
+    Reference,
     Ruleset,
     RulesetResolutionError,
     RulesetResolver,
@@ -25,8 +26,26 @@ def resolver_bundle() -> KnowledgeBundle:
         Entity("policy", "POLICY_B", {}, (source.path,)),
         Entity("belief", "BELIEF_A", {}, (source.path,)),
         Entity("belief", "BELIEF_B", {}, (source.path,)),
+        Entity("unit_class", "UNITCLASS_A", {}, (source.path,)),
+        Entity("unit_class", "UNITCLASS_DISABLED", {}, (source.path,)),
+        Entity("unit", "UNIT_DEFAULT", {}, (source.path,)),
+        Entity("unit", "UNIT_UNIQUE", {}, (source.path,)),
+        Entity("unit", "UNIT_DISABLED_DEFAULT", {}, (source.path,)),
+        Entity("building_class", "BUILDINGCLASS_A", {}, (source.path,)),
+        Entity("building", "BUILDING_DEFAULT", {}, (source.path,)),
     )
-    return KnowledgeBundle(3, RULESET, (source,), entities)
+    references = (
+        Reference("default_unit", "unit_class", "UNITCLASS_A", "unit", "UNIT_DEFAULT", (source.path,)),
+        Reference("belongs_to_unit_class", "unit", "UNIT_DEFAULT", "unit_class", "UNITCLASS_A", (source.path,)),
+        Reference("belongs_to_unit_class", "unit", "UNIT_UNIQUE", "unit_class", "UNITCLASS_A", (source.path,)),
+        Reference("unique_unit", "civilization", "CIVILIZATION_TEST", "unit", "UNIT_UNIQUE", (source.path,)),
+        Reference("default_unit", "unit_class", "UNITCLASS_DISABLED", "unit", "UNIT_DISABLED_DEFAULT", (source.path,)),
+        Reference("belongs_to_unit_class", "unit", "UNIT_DISABLED_DEFAULT", "unit_class", "UNITCLASS_DISABLED", (source.path,)),
+        Reference("disables_unit_class", "civilization", "CIVILIZATION_TEST", "unit_class", "UNITCLASS_DISABLED", (source.path,)),
+        Reference("default_building", "building_class", "BUILDINGCLASS_A", "building", "BUILDING_DEFAULT", (source.path,)),
+        Reference("belongs_to_building_class", "building", "BUILDING_DEFAULT", "building_class", "BUILDINGCLASS_A", (source.path,)),
+    )
+    return KnowledgeBundle(3, RULESET, (source,), entities, references)
 
 
 def context(**changes) -> ResolutionContext:
@@ -92,6 +111,32 @@ class RulesetResolverTest(unittest.TestCase):
             ).attributes["research_percent"],
             100,
         )
+
+    def test_resolves_civilization_unique_unit_with_provenance(self):
+        resolver = RulesetResolver(resolver_bundle())
+        resolved = resolver.resolve(context())
+        selection = resolver.resolve_unit_class(resolved, "UNITCLASS_A")
+        self.assertEqual(selection.selected_entity.type_id, "UNIT_UNIQUE")
+        self.assertEqual(selection.base_reference.kind, "default_unit")
+        self.assertEqual(selection.civilization_reference.kind, "unique_unit")
+
+    def test_resolves_disabled_unit_class(self):
+        resolver = RulesetResolver(resolver_bundle())
+        resolved = resolver.resolve(context())
+        selection = resolver.resolve_unit_class(resolved, "UNITCLASS_DISABLED")
+        self.assertIsNone(selection.selected_entity)
+        self.assertEqual(
+            selection.civilization_reference.kind,
+            "disables_unit_class",
+        )
+
+    def test_resolves_default_building_without_override(self):
+        resolver = RulesetResolver(resolver_bundle())
+        resolved = resolver.resolve(context())
+        selection = resolver.resolve_building_class(resolved, "BUILDINGCLASS_A")
+        self.assertEqual(selection.selected_entity.type_id, "BUILDING_DEFAULT")
+        self.assertEqual(selection.base_reference.kind, "default_building")
+        self.assertIsNone(selection.civilization_reference)
 
 
 if __name__ == "__main__":

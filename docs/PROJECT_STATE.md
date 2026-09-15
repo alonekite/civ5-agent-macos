@@ -11,7 +11,7 @@ decisions, not raw chat transcripts.
 - Current milestone: M4 — ruleset resolver.
 - Active next deliverable: resolve effective scalar values with explicit base
   and modifier provenance.
-- Functional test baseline: 160 tests locally on Python 3.11 and the default
+- Functional test baseline: 163 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
   implementation head `e33e358`.
 - Blocking issue: none for offline M3 work.
@@ -129,7 +129,11 @@ decisions, not raw chat transcripts.
   game-speed, handicap, world-size, civilization, policy, and belief selection.
   Unknown, duplicate, and incompatible selections fail closed; resolved entity
   values are detached from the base bundle.
-- The test suite contains 160 tests locally on Python 3.11 and the default
+- Unit and building classes resolve through the selected civilization to their
+  default, unique replacement, or explicit disabled state. Results retain base
+  and override references; a real local America check selected the Minuteman
+  over the Musketman and left ordinary defaults unchanged.
+- The test suite contains 163 tests locally on Python 3.11 and the default
   runtime; implementation head `e33e358` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
@@ -167,14 +171,13 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 ## Recommended offline development order
 
 1. Resolve effective scalar values with explicit base and modifier provenance.
-2. Resolve civilization class replacements and disabled defaults.
-3. Define the factual turn-journal schema, storage interface, canonical
+2. Define the factual turn-journal schema, storage interface, canonical
    serialization, retention expectations, and integrity tests.
-4. Connect watcher observations and command results to the journal without
+3. Connect watcher observations and command results to the journal without
    changing the live bridge protocol.
-5. Integrate ruleset queries into deterministic controller policies.
-6. Stabilize the public read/write, knowledge-query, and journal APIs.
-7. Perform optional non-empty diplomacy or non-zero science-project live
+4. Integrate ruleset queries into deterministic controller policies.
+5. Stabilize the public read/write, knowledge-query, and journal APIs.
+6. Perform optional non-empty diplomacy or non-zero science-project live
    enhancement checks only when the user is present.
 
 LLM decision-making, working memory, strategic memory, and MCP integration

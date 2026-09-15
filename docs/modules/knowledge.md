@@ -142,4 +142,6 @@ remain possible, but require the same provenance and semantic review.
 
 The first M4 slice validates and canonicalizes explicit match context and
 returns detached selected entities with source provenance. It does not yet
-compose effective scalar values or replacements.
+compose effective scalar values. Civilization-aware unit/building class
+resolution returns the effective default, unique replacement, or explicit
+disabled result together with both base and override provenance.

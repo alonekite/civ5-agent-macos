@@ -12,6 +12,7 @@ from .models import (
 )
 from .resolver import (
     ResolutionContext,
+    ResolvedClassMember,
     ResolvedRuleset,
     RulesetResolutionError,
     RulesetResolver,
@@ -26,6 +27,7 @@ __all__ = [
     "Reference",
     "ReferenceContext",
     "ResolutionContext",
+    "ResolvedClassMember",
     "ResolvedRuleset",
     "Ruleset",
     "RulesetResolutionError",
