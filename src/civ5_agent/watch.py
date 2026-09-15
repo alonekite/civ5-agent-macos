@@ -18,6 +18,11 @@ from .command import (
     execute_end_turn,
     execute_skip_unit,
 )
+from .identity import (
+    SessionIdentityError,
+    new_bridge_session_id,
+    validate_bridge_session_id,
+)
 from .ipc import LocalControlServer, default_socket_path
 from .models import Command, GameState
 from .preflight import UnsafeSessionError, require_safe_tuner_session
@@ -32,7 +37,11 @@ def make_control_handler(
     connection_lock: threading.Lock,
     audit_log: CommandAuditLog | None = None,
     safety_check: Callable[[], None] | None = None,
+    bridge_session_id: str | None = None,
 ):
+    session_id = validate_bridge_session_id(
+        bridge_session_id if bridge_session_id is not None else new_bridge_session_id()
+    )
     completed_commands: dict[
         str,
         tuple[str, dict[str, object], dict[str, object]],
@@ -41,17 +50,32 @@ def make_control_handler(
     def handle_request(request: dict[str, object]) -> dict[str, object]:
         operation = request.get("op")
         if operation == "ping":
-            return {"ok": True}
+            return {"ok": True, "bridge_session_id": session_id}
         if operation == "read_state":
             with connection_lock:
                 state = validate_live_state(client.read_game_state(state_id))
-            return {"ok": True, "state": asdict(state)}
+            return {
+                "ok": True,
+                "bridge_session_id": session_id,
+                "state": asdict(state),
+            }
         if operation in {
             "end_turn",
             "choose_research",
             "set_city_production",
             "skip_unit",
         }:
+            try:
+                requested_session_id = validate_bridge_session_id(
+                    request.get("bridge_session_id")
+                )
+            except SessionIdentityError as error:
+                return {"ok": False, "error": str(error)}
+            if requested_session_id != session_id:
+                return {
+                    "ok": False,
+                    "error": "bridge session changed; read fresh state before writing",
+                }
             if safety_check is not None:
                 try:
                     safety_check()
@@ -144,10 +168,19 @@ def make_control_handler(
                         verify_timeout=verify_timeout,
                     )
                 result_data = asdict(result)
-                response: dict[str, object] = {"ok": True, "result": result_data}
+                response: dict[str, object] = {
+                    "ok": True,
+                    "bridge_session_id": session_id,
+                    "result": result_data,
+                }
                 if audit_log is not None:
                     try:
-                        audit_log.append(str(operation), result_data, command.args)
+                        audit_log.append(
+                            str(operation),
+                            result_data,
+                            command.args,
+                            bridge_session_id=session_id,
+                        )
                     except OSError as error:
                         response["audit_error"] = str(error)
                         print(
@@ -168,6 +201,7 @@ def make_control_handler(
 
 def _watch_database(args: argparse.Namespace) -> int:
     reader = UserDataStateReader(args.database)
+    bridge_session_id = new_bridge_session_id()
     previous = None
     waiting_reported = False
 
@@ -186,7 +220,7 @@ def _watch_database(args: argparse.Namespace) -> int:
 
         waiting_reported = False
         if state != previous:
-            _print_state(state)
+            _print_state(state, bridge_session_id)
             previous = state
         if args.once:
             return 0
@@ -209,6 +243,8 @@ def _watch_tuner(args: argparse.Namespace) -> int:
             with FireTunerClient(args.host, args.port, args.timeout) as client:
                 handshake = client.handshake()
                 state_id = _find_state(handshake.lua_states, "InGame")
+                bridge_session_id = new_bridge_session_id()
+                previous = None
                 waiting_reported = False
                 connection_lock = threading.Lock()
                 handler = make_control_handler(
@@ -221,6 +257,7 @@ def _watch_tuner(args: argparse.Namespace) -> int:
                         args.port,
                         socket_path=args.socket,
                     ),
+                    bridge_session_id=bridge_session_id,
                 )
 
                 with LocalControlServer(handler, args.socket):
@@ -243,7 +280,7 @@ def _watch_tuner(args: argparse.Namespace) -> int:
                             continue
                         waiting_reported = False
                         if state != previous:
-                            _print_state(state)
+                            _print_state(state, bridge_session_id)
                             previous = state
                         if args.once:
                             return 0
@@ -261,8 +298,14 @@ def _watch_tuner(args: argparse.Namespace) -> int:
             time.sleep(args.interval)
 
 
-def _print_state(state: GameState) -> None:
-    print(json.dumps(asdict(state), sort_keys=True), flush=True)
+def _print_state(state: GameState, bridge_session_id: str) -> None:
+    print(
+        json.dumps(
+            {"bridge_session_id": bridge_session_id, "state": asdict(state)},
+            sort_keys=True,
+        ),
+        flush=True,
+    )
 
 
 def main() -> int:

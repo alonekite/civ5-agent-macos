@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .identity import validate_bridge_session_id
+
 
 def default_audit_path() -> Path:
     return Path.home() / "Library" / "Logs" / "civ5-agent" / "commands.jsonl"
@@ -28,6 +30,8 @@ class CommandAuditLog:
         operation: str,
         result: dict[str, Any],
         arguments: dict[str, Any] | None = None,
+        *,
+        bridge_session_id: str | None = None,
     ) -> None:
         record = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -35,6 +39,10 @@ class CommandAuditLog:
             "arguments": arguments or {},
             "result": result,
         }
+        if bridge_session_id is not None:
+            record["bridge_session_id"] = validate_bridge_session_id(
+                bridge_session_id
+            )
         encoded = json.dumps(record, separators=(",", ":"), sort_keys=True).encode() + b"\n"
         with self._lock:
             fd = self._open()

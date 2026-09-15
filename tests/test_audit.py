@@ -16,6 +16,7 @@ class CommandAuditLogTest(unittest.TestCase):
                 "skip_unit",
                 {"id": "def", "status": "error"},
                 {"unit_id": 8},
+                bridge_session_id="123e4567-e89b-42d3-a456-426614174000",
             )
 
             records = [json.loads(line) for line in path.read_text().splitlines()]
@@ -23,6 +24,10 @@ class CommandAuditLogTest(unittest.TestCase):
             self.assertEqual(records[0]["result"]["id"], "abc")
             self.assertEqual(records[0]["arguments"], {})
             self.assertEqual(records[1]["arguments"], {"unit_id": 8})
+            self.assertEqual(
+                records[1]["bridge_session_id"],
+                "123e4567-e89b-42d3-a456-426614174000",
+            )
             self.assertIn("timestamp", records[0])
             self.assertEqual(path.stat().st_mode & 0o777, 0o600)
 

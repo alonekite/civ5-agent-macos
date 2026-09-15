@@ -118,10 +118,11 @@ rechecks it before every watcher-mediated write. A direct command also checks
 before connecting. Only the verified local endpoint `127.0.0.1:4318` is
 accepted; custom or remote FireTuner endpoints fail closed.
 
-The first command prints one JSON snapshot. The second keeps one FireTuner
-connection open and prints only when the observed state changes. On this old
-build, a persistent connection is preferable because the game can retain a
-closed client socket until its UI processes another event.
+The first command prints one JSON observation envelope containing
+`bridge_session_id` and the unchanged live-state payload. The second keeps one
+FireTuner connection open and prints only when the observed state changes. On
+this old build, a persistent connection is preferable because the game can
+retain a closed client socket until its UI processes another event.
 
 While the long-running watcher is active it also owns a per-user, mode-0600
 Unix socket. This lets a second terminal submit the sole allowlisted write
@@ -131,10 +132,12 @@ without opening a competing FireTuner connection:
 PYTHONPATH=src python3 -m civ5_agent.command end_turn
 ```
 
-The command first reads the before-state, asks Civ V whether ending the turn is
-currently allowed, submits `CONTROL_ENDTURN` only when allowed, then polls until
-it can prove the turn number advanced. A blocker or verification timeout is an
-error and includes the before/after state in its JSON result.
+The CLI first obtains the watcher's current bridge-session identity. The command
+must echo that identity, reads the before-state, asks Civ V whether ending the
+turn is currently allowed, submits `CONTROL_ENDTURN` only when allowed, then
+polls until it can prove the turn number advanced. A missing or changed session,
+blocker, or verification timeout is an error; the JSON result includes the
+session identity and before/after state where available.
 
 The legacy controller proof can inspect the same watcher snapshot without using
 an LLM:

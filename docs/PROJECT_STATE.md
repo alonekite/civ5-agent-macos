@@ -9,9 +9,9 @@ development log.
 ## Dashboard
 
 - Current milestone: M5 — factual turn journal.
-- Active next deliverable: implement ADR-0017 session/match identity envelopes,
-  then the versioned append-only journal codec and private store.
-- Functional baseline: 170 tests pass locally on Python 3.11 and the default
+- Active next deliverable: implement the M5 journal `match_id`, explicit session
+  bindings, versioned append-only codec, and private store.
+- Functional baseline: 175 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -35,6 +35,9 @@ development log.
 - Command UUIDs, watcher-lifetime duplicate suppression, bounded IPC, private
   M2 audit logs, live preflight, and recoverable FireTuner/firewall sessions are
   implemented.
+- The bridge-session envelope is implemented offline: watcher/direct connection
+  epochs receive canonical UUIDv4 identities, reads expose them, writes must
+  echo them, and stale or missing values fail before execution.
 - M3 ruleset knowledge coverage and the M4 structural knowledge view are
   complete offline. Generated bundles remain local; AI flavor/personality and
   copyrighted presentation assets remain excluded.
@@ -72,20 +75,18 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended offline order
 
-1. Add the shared bridge-session observation/command envelope and strict UUID
-   validation without changing live-state payload schemas 2–5.
-2. Define M5 journal header/record models, explicit session binding, canonical
+1. Define M5 journal header/record models, explicit session binding, canonical
    serialization, integrity chain, bounds, and private storage.
-3. Connect watcher/CLI composition to M5 using validated in-memory events and
+2. Connect watcher/CLI composition to M5 using validated in-memory events and
    command UUID correlation; test audit/journal failure independence.
-4. Separately finalize M6 TurnPlan and execution-report schemas against the
+3. Separately finalize M6 TurnPlan and execution-report schemas against the
    bridge-session, live-state, and command contracts.
-5. Implement ordered execution, factual requirements, drift pauses, and
+4. Implement ordered execution, factual requirements, drift pauses, and
    unambiguous recovery without knowledge or journal dependencies.
-6. Stabilize public read/write, knowledge-query, journal, and execution APIs in
+5. Stabilize public read/write, knowledge-query, journal, and execution APIs in
    M7.
 
-Steps 1–3 before 4–5 are project scheduling only. M5 and M6 do not depend on
+Steps 1–2 before 3–4 are project scheduling only. M5 and M6 do not depend on
 each other.
 
 ## Recent governing decisions

@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 
 from .audit import CommandAuditLog, default_audit_path
+from .identity import new_bridge_session_id, validate_bridge_session_id
 from .ipc import default_socket_path, request
 from .models import Command, CommandResult
 from .preflight import UnsafeSessionError, require_safe_tuner_session
@@ -334,11 +335,25 @@ def main() -> int:
         args=command_args,
     )
     if not args.direct and args.socket.exists():
+        bridge_session_id: str | None = None
         try:
+            session_response = request(
+                {"op": "ping"},
+                socket_path=args.socket,
+                timeout=args.timeout,
+            )
+            if not session_response.get("ok"):
+                raise ValueError(
+                    str(session_response.get("error", "local bridge ping failed"))
+                )
+            bridge_session_id = validate_bridge_session_id(
+                session_response.get("bridge_session_id")
+            )
             response = request(
                 {
                     "op": args.action,
                     "id": command.id,
+                    "bridge_session_id": bridge_session_id,
                     **command.args,
                     "verify_timeout": args.verify_timeout,
                 },
@@ -350,20 +365,35 @@ def main() -> int:
             result_data = response.get("result")
             if not isinstance(result_data, dict):
                 raise ValueError("local bridge omitted command result")
+            if (
+                validate_bridge_session_id(response.get("bridge_session_id"))
+                != bridge_session_id
+            ):
+                raise ValueError("local bridge session changed during command")
             if response.get("audit_error"):
                 print(f"Command audit warning: {response['audit_error']}", file=sys.stderr)
-            print(json.dumps(result_data, sort_keys=True))
+            print(
+                json.dumps(
+                    {**result_data, "bridge_session_id": bridge_session_id},
+                    sort_keys=True,
+                )
+            )
             return 0 if result_data.get("status") == "success" else 1
         except (ConnectionError, OSError, TimeoutError, ValueError) as error:
             result = CommandResult(id=command.id, status="error", message=str(error))
-            print(json.dumps(asdict(result), sort_keys=True))
+            output = asdict(result)
+            if bridge_session_id is not None:
+                output["bridge_session_id"] = bridge_session_id
+            print(json.dumps(output, sort_keys=True))
             return 1
 
+    bridge_session_id: str | None = None
     try:
         require_safe_tuner_session(args.host, args.port, socket_path=args.socket)
         with FireTunerClient(args.host, args.port, args.timeout) as client:
             handshake = client.handshake()
             state_id = _find_state(handshake.lua_states, "InGame")
+            bridge_session_id = new_bridge_session_id()
             if args.action == "end_turn":
                 result = execute_end_turn(
                     client, state_id, command, verify_timeout=args.verify_timeout
@@ -394,11 +424,15 @@ def main() -> int:
             args.action,
             asdict(result),
             command.args,
+            bridge_session_id=bridge_session_id,
         )
     except OSError as error:
         print(f"Command audit warning: {error}", file=sys.stderr)
 
-    print(json.dumps(asdict(result), sort_keys=True))
+    output = asdict(result)
+    if bridge_session_id is not None:
+        output["bridge_session_id"] = bridge_session_id
+    print(json.dumps(output, sort_keys=True))
     return 0 if result.status == "success" else 1
 
 if __name__ == "__main__":

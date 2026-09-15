@@ -8,7 +8,7 @@ tests; discrepancies are defects that must be resolved explicitly.
 |---|---|---|
 | [Live state](live-state.md) | Evolving; schemas 2–5 supported with documented live evidence limits | bridge |
 | [Commands](command.md) | Evolving, core writes live-verified | bridge |
-| [Session and match identity](session-identity.md) | Accepted design; implementation pending | bridge/application/journal |
+| [Session and match identity](session-identity.md) | Bridge session implemented offline; match identity pending M5 | bridge/application/journal |
 | [Knowledge bundle](../KNOWLEDGE.md) | Evolving, implemented | knowledge |
 | [Ruleset knowledge view](resolver.md) | Structural M4 contract implemented | knowledge |
 | [Turn journal](journal.md) | Proposed | journal |

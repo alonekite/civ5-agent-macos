@@ -32,22 +32,42 @@ class WatchControlHandlerTest(unittest.TestCase):
     def setUp(self):
         self.client = _FakeClient()
         self.handler = make_control_handler(self.client, 172, threading.Lock())
+        self.session_id = self.handler({"op": "ping"})["bridge_session_id"]
+
+    def write(self, request):
+        return self.handler({**request, "bridge_session_id": self.session_id})
 
     def test_reads_validated_state(self):
         response = self.handler({"op": "read_state"})
         self.assertTrue(response["ok"])
         self.assertEqual(response["state"]["turn"], 3)
+        self.assertEqual(response["bridge_session_id"], self.session_id)
+
+    def test_rejects_missing_or_changed_session_before_write(self):
+        missing = self.handler({"op": "end_turn", "id": END_TURN_ID})
+        self.assertFalse(missing["ok"])
+        self.assertIn("bridge_session_id", missing["error"])
+
+        changed = self.handler(
+            {
+                "op": "end_turn",
+                "id": END_TURN_ID,
+                "bridge_session_id": "123e4567-e89b-42d3-a456-426614174099",
+            }
+        )
+        self.assertFalse(changed["ok"])
+        self.assertIn("session changed", changed["error"])
 
     def test_rejects_invalid_verification_timeout(self):
-        response = self.handler({"op": "end_turn", "verify_timeout": 121})
+        response = self.write({"op": "end_turn", "verify_timeout": 121})
         self.assertFalse(response["ok"])
-        response = self.handler({"op": "end_turn", "verify_timeout": True})
+        response = self.write({"op": "end_turn", "verify_timeout": True})
         self.assertFalse(response["ok"])
 
     def test_forwards_verification_timeout(self):
         result = CommandResult(id=END_TURN_ID, status="success")
         with patch("civ5_agent.watch.execute_end_turn", return_value=result) as execute:
-            response = self.handler(
+            response = self.write(
                 {"op": "end_turn", "id": END_TURN_ID, "verify_timeout": 47}
             )
         self.assertTrue(response["ok"])
@@ -64,8 +84,15 @@ class WatchControlHandlerTest(unittest.TestCase):
             threading.Lock(),
             safety_check=reject_unsafe_session,
         )
+        session_id = handler({"op": "ping"})["bridge_session_id"]
         with patch("civ5_agent.watch.execute_end_turn") as execute:
-            response = handler({"op": "end_turn", "id": "unsafe-id"})
+            response = handler(
+                {
+                    "op": "end_turn",
+                    "id": "unsafe-id",
+                    "bridge_session_id": session_id,
+                }
+            )
         self.assertFalse(response["ok"])
         self.assertIn("firewall disabled", response["error"])
         execute.assert_not_called()
@@ -73,7 +100,7 @@ class WatchControlHandlerTest(unittest.TestCase):
     def test_forwards_skip_unit_identifier(self):
         result = CommandResult(id=SKIP_ID, status="success")
         with patch("civ5_agent.watch.execute_skip_unit", return_value=result) as execute:
-            response = self.handler(
+            response = self.write(
                 {"op": "skip_unit", "id": SKIP_ID, "unit_id": 8}
             )
         self.assertTrue(response["ok"])
@@ -91,17 +118,25 @@ class WatchControlHandlerTest(unittest.TestCase):
                 threading.Lock(),
                 CommandAuditLog(path),
             )
+            session_id = handler({"op": "ping"})["bridge_session_id"]
             with patch("civ5_agent.watch.execute_end_turn", return_value=result):
-                response = handler({"op": "end_turn", "id": AUDIT_ID})
+                response = handler(
+                    {
+                        "op": "end_turn",
+                        "id": AUDIT_ID,
+                        "bridge_session_id": session_id,
+                    }
+                )
             record = json.loads(path.read_text())
         self.assertTrue(response["ok"])
         self.assertEqual(record["operation"], "end_turn")
         self.assertEqual(record["result"]["id"], AUDIT_ID)
         self.assertEqual(record["arguments"], {})
+        self.assertEqual(record["bridge_session_id"], session_id)
 
     def test_rejects_non_uuid_command_id_before_execution(self):
         with patch("civ5_agent.watch.execute_end_turn") as execute:
-            response = self.handler({"op": "end_turn", "id": "not-a-uuid"})
+            response = self.write({"op": "end_turn", "id": "not-a-uuid"})
         self.assertFalse(response["ok"])
         self.assertIn("UUIDv4", response["error"])
         execute.assert_not_called()
@@ -112,8 +147,8 @@ class WatchControlHandlerTest(unittest.TestCase):
             "civ5_agent.watch.execute_skip_unit",
             return_value=result,
         ) as execute:
-            first = self.handler({"op": "skip_unit", "id": SKIP_ID, "unit_id": 8})
-            replay = self.handler({"op": "skip_unit", "id": SKIP_ID, "unit_id": 8})
+            first = self.write({"op": "skip_unit", "id": SKIP_ID, "unit_id": 8})
+            replay = self.write({"op": "skip_unit", "id": SKIP_ID, "unit_id": 8})
         self.assertTrue(first["ok"])
         self.assertTrue(replay["replayed"])
         self.assertEqual(execute.call_count, 1)
@@ -124,8 +159,8 @@ class WatchControlHandlerTest(unittest.TestCase):
             "civ5_agent.watch.execute_skip_unit",
             return_value=result,
         ) as execute:
-            self.handler({"op": "skip_unit", "id": SKIP_ID, "unit_id": 8})
-            collision = self.handler(
+            self.write({"op": "skip_unit", "id": SKIP_ID, "unit_id": 8})
+            collision = self.write(
                 {"op": "skip_unit", "id": SKIP_ID, "unit_id": 9}
             )
         self.assertFalse(collision["ok"])

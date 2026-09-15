@@ -16,7 +16,9 @@ sessions are rejected before a game write.
 At the application boundary, a live command is associated with the current
 bridge-owned `bridge_session_id`. This session metadata is distinct from the
 command UUID and from any journal `match_id`; exact envelope versioning is
-pending implementation under ADR-0017.
+pre-stable until M7. Watcher-mediated writes must echo the identity returned by
+`ping`/`read_state`; missing or changed identity is rejected before execution.
+Direct commands create one identity for their single connection.
 
 ## Current allowlist
 

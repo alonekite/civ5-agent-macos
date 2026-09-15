@@ -66,11 +66,11 @@ existing field silently.
 
 ## Session metadata
 
-Schemas 2–5 do not expose a stable save or match identifier. They also do not
-contain the bridge connection epoch. Per ADR-0017, the bridge will attach a
-separate `bridge_session_id` in a versioned observation/command envelope rather
+Schemas 2–5 do not expose a stable save or match identifier, and their state
+payload does not contain the bridge connection epoch. Per ADR-0017, the bridge
+now attaches a separate `bridge_session_id` beside the unchanged payload rather
 than pretending that mutable state fields identify a match. M6 targets that
-session identity; M5 separately owns its `match_id`. See the
+session identity; M5 separately owns its future `match_id`. See the
 [session and match identity contract](session-identity.md).
 
 ## Privacy

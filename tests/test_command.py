@@ -1,4 +1,9 @@
+import io
+import json
+import tempfile
 import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
 from unittest.mock import patch
 
 from civ5_agent.command import (
@@ -6,6 +11,7 @@ from civ5_agent.command import (
     execute_city_production,
     execute_end_turn,
     execute_skip_unit,
+    main,
 )
 from civ5_agent.models import Command, GameState
 
@@ -289,6 +295,43 @@ class SkipUnitTest(unittest.TestCase):
 
         self.assertEqual(result.status, "error")
         self.assertIn("unchanged movement", result.message)
+
+
+class CommandCliSessionTest(unittest.TestCase):
+    def test_brokered_command_echoes_and_verifies_bridge_session(self):
+        session_id = "123e4567-e89b-42d3-a456-426614174000"
+        command_result = {
+            "id": "123e4567-e89b-42d3-a456-426614174001",
+            "status": "success",
+            "message": "verified",
+            "before": {},
+            "after": {},
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            socket_path = Path(directory) / "bridge.sock"
+            socket_path.touch()
+            with patch(
+                "civ5_agent.command.request",
+                side_effect=[
+                    {"ok": True, "bridge_session_id": session_id},
+                    {
+                        "ok": True,
+                        "bridge_session_id": session_id,
+                        "result": command_result,
+                    },
+                ],
+            ) as broker, patch(
+                "sys.argv",
+                ["civ5-command", "end_turn", "--socket", str(socket_path)],
+            ), redirect_stdout(io.StringIO()) as output:
+                status = main()
+
+        self.assertEqual(status, 0)
+        sent_command = broker.call_args_list[1].args[0]
+        self.assertEqual(sent_command["bridge_session_id"], session_id)
+        rendered = json.loads(output.getvalue())
+        self.assertEqual(rendered["bridge_session_id"], session_id)
+        self.assertEqual(rendered["status"], "success")
 
 
 if __name__ == "__main__":

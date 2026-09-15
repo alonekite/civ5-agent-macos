@@ -1,6 +1,6 @@
 # Session and Match Identity Contract
 
-Status: Accepted design; implementation pending
+Status: Bridge-session envelope implemented offline; match identity pending M5
 
 ## Purpose
 
@@ -43,7 +43,9 @@ target-verified match fingerprint has its own versioned contract.
 
 ## Compatibility
 
-Live-state schemas 2–5 do not contain this metadata. The first implementation
-must introduce a versioned shared observation/command envelope or equivalent
-application-boundary contract while retaining the state payload unchanged.
-Public naming and compatibility are finalized in M7.
+Live-state schemas 2–5 do not contain this metadata. The watcher now emits and
+brokers it beside the unchanged state payload, rejects missing or stale session
+IDs before writes, rotates it for each connection epoch, and records it in the
+M2 command audit. Direct commands create an identity for their one connection.
+The journal `match_id` and `session_binding` records remain M5 work. Public
+naming and compatibility are finalized in M7.
