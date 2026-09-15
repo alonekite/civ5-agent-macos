@@ -487,6 +487,28 @@ read-only procedure: compare ordinary researched/researchable technology state
 before and after one manual UI selection, then restore the recorded machine
 baseline. Free and stolen technology modes are not manufactured or auto-run.
 
+## 2026-09-15 — Live ordinary technology-state verification
+
+- Verified schema 5 researched and researchable technology sets against the
+  stock game UI through a guarded, read-only target-machine session.
+- Observed the ordinary choice transition through one persistent connection:
+  the choice was required before a manual UI selection, then current research
+  matched the selected stable identifier and the requirement cleared.
+- Confirmed that Civ V exposes only one prioritized end-turn blocker: production
+  or unit work can mask an unselected ordinary technology. Corrected ordinary
+  choice detection to use empty current research plus at least one legal
+  candidate, while preserving special free/steal blocker overrides.
+- Added a validation invariant so contradictory normal choice state fails
+  closed, retained the 900-byte command bound, and kept special modes
+  manual-only.
+- Restored FireTuner, its listener, firewall enablement, and Civ V rule presence
+  to the recorded baseline after the game exited.
+- Passed all 170 tests on Python 3.11 and the default runtime. Repository and
+  diff scans found no user paths, device identifiers, local IP addresses,
+  credentials, tokens, live snapshots, or recovery artifacts.
+
+Implementation and evidence commit: `6848b0b`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
