@@ -509,6 +509,30 @@ baseline. Free and stolen technology modes are not manufactured or auto-run.
 
 Implementation and evidence commit: `6848b0b`.
 
+## 2026-09-15 — M4 structural knowledge-view boundary
+
+- Re-evaluated M4 against the layered design in which long-term strategy,
+  short-term tactics, vertical skills, and deterministic current-turn execution
+  have distinct responsibilities.
+- Narrowed M4 from a planned universal effective-value resolver to a structural
+  knowledge view: explicit context validation, detached canonical entities,
+  provenance, and civilization unit/building class replacement remain in the
+  core.
+- Moved scalar composition, counterfactual comparison, prediction, route
+  analysis, and candidate scoring to future consumer-driven strategic,
+  tactical, and vertical skills. The executor continues to prefer authoritative
+  live values and does not perform those analyses.
+- Added ADR-0014 without rewriting ADR-0013. The new decision retains
+  ADR-0013's fail-closed context and immutability requirements while superseding
+  its anticipated in-core effective-value expansion.
+- Marked M4 complete, advanced the active milestone to M5 factual turn journal,
+  and synchronized the architecture, contracts, roadmap, module ownership,
+  verification matrix, and Chinese project outline.
+- Documentation link tests and formatting checks passed; scans found no local
+  identifiers, credentials, tokens, snapshots, or recovery artifacts.
+
+Architecture governance commit: `edd98ec`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
