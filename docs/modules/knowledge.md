@@ -92,6 +92,9 @@ Great-work classes and slot types are represented by stable identifiers and
 typed class/building slot relations. Individual works retain only stable IDs,
 the archaeology-only flag, and typed class/era/artifact/creator relationships;
 titles and presentation content remain excluded.
+Ten buildings preserve 21 canonically ordered theming alternatives as owned
+structured rules. Only deterministic bonus and matching constraints are kept;
+localized descriptions and AI priorities are excluded.
 Effects that need multiple context items or new target entity families are
 deferred.
 

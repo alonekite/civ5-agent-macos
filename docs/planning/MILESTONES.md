@@ -95,6 +95,8 @@ relationships without importing individual work content or presentation assets.
 Great-work stable IDs, artifact classes, archaeology flags, and typed
 class/era/creator relationships are imported while names, quotes, images, and
 audio remain excluded.
+Building theming bonuses preserve all 21 deterministic matching alternatives
+across 10 buildings without descriptions, AI priorities, or synthetic IDs.
 Current next deliverable: effects requiring multiple context items or new target
 entity families, followed by scaling rules.
 

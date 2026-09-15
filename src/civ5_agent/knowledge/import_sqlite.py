@@ -605,6 +605,18 @@ BUILDING_REFERENCE_COLUMNS = (
     ("PolicyBranchType", "requires_policy_branch", "policy_branch"),
 )
 
+THEMING_BONUS_BOOLEAN_COLUMNS = {
+    "SameEra": "same_era",
+    "UniqueEras": "unique_eras",
+    "MustBeArt": "must_be_art",
+    "MustBeArtifact": "must_be_artifact",
+    "MustBeEqualArtArtifact": "must_be_equal_art_artifact",
+    "RequiresOwner": "requires_owner",
+    "RequiresAnyButOwner": "requires_any_but_owner",
+    "RequiresSamePlayer": "requires_same_player",
+    "RequiresUniquePlayers": "requires_unique_players",
+}
+
 RESOURCE_INTEGER_COLUMNS = (
     "Happiness",
     "WonderProductionMod",
@@ -2170,6 +2182,11 @@ def import_ruleset(
             )
             _require_columns(
                 connection,
+                "Building_ThemingBonuses",
+                {"BuildingType", "Bonus", *THEMING_BONUS_BOOLEAN_COLUMNS},
+            )
+            _require_columns(
+                connection,
                 "Resources",
                 {
                     "Type",
@@ -2500,9 +2517,8 @@ def import_ruleset(
             ).fetchall()
             if not building_rows:
                 raise KnowledgeImportError("Buildings table is empty")
-            building_entities = tuple(
-                _scalar_entity("building", row, BUILDING_FIELDS, source_label)
-                for row in building_rows
+            building_entities = _building_entities(
+                connection, building_rows, source_label
             )
             building_class_columns = [
                 "Type",
@@ -2914,6 +2930,73 @@ def _scalar_entity(
             )
         attributes[attribute] = value
     return Entity(kind, row["Type"], attributes, (source_label,))
+
+
+def _building_entities(
+    connection: sqlite3.Connection,
+    rows: list[sqlite3.Row],
+    source_label: str,
+) -> tuple[Entity, ...]:
+    columns = ["BuildingType", "Bonus", *THEMING_BONUS_BOOLEAN_COLUMNS]
+    select = ", ".join(f'"{column}"' for column in columns)
+    theming_rows = connection.execute(
+        f'SELECT {select} FROM "Building_ThemingBonuses"'
+    ).fetchall()
+    by_building: dict[str, list[dict[str, Any]]] = {}
+    for row in theming_rows:
+        building_type = row["BuildingType"]
+        if not isinstance(building_type, str):
+            raise KnowledgeImportError(
+                "Building_ThemingBonuses has invalid BuildingType"
+            )
+        bonus = row["Bonus"]
+        if not isinstance(bonus, int) or isinstance(bonus, bool):
+            raise KnowledgeImportError(
+                f"building {building_type} has invalid theming Bonus: {bonus}"
+            )
+        rule: dict[str, Any] = {"bonus": bonus}
+        for column, attribute in THEMING_BONUS_BOOLEAN_COLUMNS.items():
+            value = row[column]
+            if value is None:
+                value = 0
+            if value not in (0, 1):
+                raise KnowledgeImportError(
+                    f"building {building_type} has invalid theming boolean "
+                    f"{column}: {value}"
+                )
+            rule[attribute] = bool(value)
+        rules = by_building.setdefault(building_type, [])
+        if rule in rules:
+            raise KnowledgeImportError(
+                f"building {building_type} has a duplicate theming rule"
+            )
+        rules.append(rule)
+
+    entities: list[Entity] = []
+    known_buildings = {row["Type"] for row in rows}
+    unknown_buildings = sorted(set(by_building) - known_buildings)
+    if unknown_buildings:
+        raise KnowledgeImportError(
+            "theming rule references missing building: "
+            + ", ".join(unknown_buildings)
+        )
+    for row in rows:
+        entity = _scalar_entity("building", row, BUILDING_FIELDS, source_label)
+        rules = by_building.get(row["Type"])
+        if rules:
+            attributes = dict(entity.attributes)
+            attributes["theming_bonuses"] = sorted(
+                rules,
+                key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")),
+            )
+            entity = Entity(
+                entity.kind,
+                entity.type_id,
+                attributes,
+                entity.source_paths,
+            )
+        entities.append(entity)
+    return tuple(entities)
 
 
 def _fake_feature_entity(row: sqlite3.Row, source_label: str) -> Entity:

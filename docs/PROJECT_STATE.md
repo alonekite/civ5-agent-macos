@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-09-14.
+Last updated: 2026-09-15.
 
 This file is the durable handoff for continuing development without relying on
 a particular Codex conversation. It records project facts and accepted design
@@ -9,10 +9,10 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: model copyright-safe theming constraints, then
-  continue ruleset scaling.
-- Functional test baseline: 137 tests locally on Python 3.11 and the default
-  Python runtime; CI confirmation is pending for development head `54efd81`.
+- Active next deliverable: inventory multi-context effects and new target entity
+  families, then continue ruleset scaling.
+- Functional test baseline: 141 tests locally on Python 3.11; GitHub Actions
+  passed for published head `1e1e4c5` before the current batch.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only optional non-empty diplomacy or late-game
   science-victory enhancement tests.
@@ -85,9 +85,11 @@ decisions, not raw chat transcripts.
   era, artifact, creator-unit, and free-building relationships. Only the
   deterministic archaeology flag and artifact-class numeric value are retained;
   names and presentation content remain excluded.
-- The test suite contains 137 tests locally. Python 3.11 and the local default
-  runtime pass at the current development head; GitHub Actions confirmation is
-  pending.
+- Ten buildings preserve 21 canonically ordered theming alternatives with
+  deterministic bonus, era, work-kind, owner, and player constraints. Localized
+  descriptions and AI priorities are never selected.
+- The test suite contains 141 tests locally on Python 3.11. CI confirmation is
+  pending for the current batch.
 
 ## Implemented with optional enhanced live evidence pending
 
@@ -133,8 +135,8 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
    changing the live bridge protocol.
 5. Integrate ruleset queries into deterministic controller policies.
 6. Stabilize the public read/write, knowledge-query, and journal APIs.
-7. Perform the two pending bounded live verifications only when the user is
-   present.
+7. Perform optional non-empty diplomacy or non-zero science-project live
+   enhancement checks only when the user is present.
 
 LLM decision-making, working memory, strategic memory, and MCP integration
 remain out of scope.
@@ -149,6 +151,8 @@ remain out of scope.
 - ADR-0009: manage live tests as explicit, recoverable bounded sessions.
 - ADR-0010: segment schema 4 snapshots below the target FireTuner command limit
   and reject cross-turn or cross-player mixtures.
+- ADR-0011: embed non-addressable rule sets under a stable owning entity rather
+  than inventing identifiers or importing localized descriptions.
 
 See `docs/architecture/decisions/README.md`. Development history belongs in
 `docs/development/DEVELOPMENT_LOG.md`, not in this dashboard.

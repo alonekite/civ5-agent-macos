@@ -113,6 +113,11 @@ specialist, or terrain conditions. Binary building effects include local,
 area, and global yield changes and modifiers, population/religion scaling, and
 resource quantities and requirements. Multi-context building effects and
 effects needing new target entity families are deferred.
+Building theming alternatives have no stable row identifier, so they are stored
+as a canonically sorted `theming_bonuses` array on the owning building. Each
+entry contains the integer bonus and explicit era, work-kind, owner, and player
+constraints. Null source booleans normalize to false; duplicate normalized
+rules fail. The localized `Description` and `AIPriority` columns are not read.
 Resource and resource-class entities include happiness, usage, initial
 quantity, map-placement rules, class membership, reveal/trade/obsolete
 technologies, policy reveal, and wonder-bonus obsolescence. AI trade/objective
@@ -218,6 +223,9 @@ Great works preserve stable IDs and the archaeology-only flag, with 279 class,
 24 era, 30 artifact-class, 233 creator-unit, and one free-building relationship.
 The `Unit_UniqueNames.UniqueName` column is not read; only its typed unit/work
 mapping is imported.
+Ten buildings own 21 validated theming alternatives in the tested database.
+They change entity attributes rather than entity/reference counts, and two
+consecutive imports remain byte-identical.
 
 ## Third-party research
 

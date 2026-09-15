@@ -376,6 +376,22 @@ exact executable-path firewall entry created by preparation. The target Mac
 then restored to its recorded baseline and passed an independent shutdown
 preflight.
 
+## 2026-09-15 — Copyright-safe building theming rules
+
+- Added all 21 target-database theming alternatives to their 10 owning building
+  entities with canonical ordering and strict integer/boolean normalization.
+- Preserved bonus, era, work-kind, owner, and player matching constraints while
+  never selecting localized descriptions or AI priorities.
+- Rejected duplicate normalized rules, invalid booleans, and missing building
+  parents; documented the non-addressable owned-rule pattern in ADR-0011.
+- Re-imported the real merged database twice with the same canonical hash:
+  1,631 entities, 4,876 references, and 21 embedded theming rules. No generated
+  bundle or source database was committed.
+- Passed all 141 tests on Python 3.11 and scanned the submitted diff for
+  secrets, local identifiers, generated data, and forbidden AI fields.
+
+Implementation commit: pending.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

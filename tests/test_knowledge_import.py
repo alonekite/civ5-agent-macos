@@ -1,4 +1,5 @@
 import hashlib
+import json
 import sqlite3
 import tempfile
 import unittest
@@ -45,6 +46,7 @@ from civ5_agent.knowledge.import_sqlite import (
     SPECIAL_UNIT_FIELDS,
     SPECIALIST_FIELDS,
     TECHNOLOGY_FIELDS,
+    THEMING_BONUS_BOOLEAN_COLUMNS,
     TRAIT_FIELDS,
     TRAIT_REFERENCE_COLUMNS,
     TERRAIN_FIELDS,
@@ -239,6 +241,14 @@ def create_database(
             building_definitions.append(f'"{column}" {sql_type}')
         connection.execute(
             f"CREATE TABLE Buildings ({', '.join(building_definitions)})"
+        )
+        connection.execute(
+            "CREATE TABLE Building_ThemingBonuses ("
+            "BuildingType TEXT, Description TEXT, Bonus INTEGER, "
+            + ", ".join(
+                f'"{column}" INTEGER' for column in THEMING_BONUS_BOOLEAN_COLUMNS
+            )
+            + ", AIPriority INTEGER)"
         )
         building_class_definitions = [
             "Type TEXT NOT NULL PRIMARY KEY",
@@ -761,6 +771,48 @@ def create_database(
                 *(reference_values.get(column) for column, _, _ in BUILDING_REFERENCE_COLUMNS),
                 *building_values,
             ],
+        )
+        theming_columns = [
+            "BuildingType",
+            "Description",
+            "Bonus",
+            *THEMING_BONUS_BOOLEAN_COLUMNS,
+            "AIPriority",
+        ]
+        theming_insert = (
+            "INSERT INTO Building_ThemingBonuses ("
+            + ", ".join(f'"{column}"' for column in theming_columns)
+            + ") VALUES ("
+            + ", ".join("?" for _ in theming_columns)
+            + ")"
+        )
+        connection.execute(
+            theming_insert,
+            (
+                "BUILDING_PYRAMID",
+                "TXT_KEY_TEST_DESCRIPTION",
+                2,
+                *(
+                    1 if column in {"SameEra", "MustBeArt", "RequiresOwner"} else None
+                    for column in THEMING_BONUS_BOOLEAN_COLUMNS
+                ),
+                99,
+            ),
+        )
+        connection.execute(
+            theming_insert,
+            (
+                "BUILDING_PYRAMID",
+                "TXT_KEY_ANOTHER_DESCRIPTION",
+                1,
+                *(
+                    1
+                    if column in {"UniqueEras", "MustBeArtifact"}
+                    else None
+                    for column in THEMING_BONUS_BOOLEAN_COLUMNS
+                ),
+                88,
+            ),
         )
         connection.execute(
             "INSERT INTO Building_TechEnhancedYieldChanges VALUES (?, ?, ?)",
@@ -1423,6 +1475,15 @@ class RulesetImportTest(unittest.TestCase):
         )
         pyramid = next(item for item in bundle.entities if item.type_id == "BUILDING_PYRAMID")
         self.assertEqual(pyramid.attributes["cost"], 185)
+        self.assertEqual(
+            [rule["bonus"] for rule in pyramid.attributes["theming_bonuses"]],
+            [1, 2],
+        )
+        self.assertTrue(pyramid.attributes["theming_bonuses"][0]["unique_eras"])
+        self.assertTrue(pyramid.attributes["theming_bonuses"][1]["same_era"])
+        serialized_theming = json.dumps(pyramid.attributes["theming_bonuses"])
+        self.assertNotIn("DESCRIPTION", serialized_theming)
+        self.assertNotIn("priority", serialized_theming.lower())
         pyramid_class = next(
             item for item in bundle.entities if item.type_id == "BUILDINGCLASS_PYRAMID"
         )
@@ -1928,6 +1989,86 @@ class RulesetImportTest(unittest.TestCase):
             ):
                 import_ruleset(
                     database, "cache/bad-number.db", Ruleset("bnw", "test")
+                )
+
+    def test_rejects_invalid_theming_boolean(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-theming.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Building_ThemingBonuses SET SameEra = 2"
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError, "invalid theming boolean SameEra"
+            ):
+                import_ruleset(
+                    database, "cache/bad-theming.db", Ruleset("bnw", "test")
+                )
+
+    def test_rejects_invalid_theming_bonus(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-theming-bonus.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Building_ThemingBonuses SET Bonus = ?", ("invalid",)
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError, "invalid theming Bonus"
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-theming-bonus.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_theming_rule_with_missing_building(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "missing-theming-building.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Building_ThemingBonuses SET BuildingType = ?",
+                    ("BUILDING_MISSING",),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError, "references missing building"
+            ):
+                import_ruleset(
+                    database,
+                    "cache/missing-theming-building.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_duplicate_theming_rule(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "duplicate-theming.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                columns = [
+                    "BuildingType",
+                    "Description",
+                    "Bonus",
+                    *THEMING_BONUS_BOOLEAN_COLUMNS,
+                    "AIPriority",
+                ]
+                quoted = ", ".join(f'"{column}"' for column in columns)
+                connection.execute(
+                    f"INSERT INTO Building_ThemingBonuses ({quoted}) "
+                    f"SELECT {quoted} FROM Building_ThemingBonuses LIMIT 1"
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError, "duplicate theming rule"
+            ):
+                import_ruleset(
+                    database,
+                    "cache/duplicate-theming.db",
+                    Ruleset("bnw", "test"),
                 )
 
     def test_rejects_invalid_quantity_reference(self):

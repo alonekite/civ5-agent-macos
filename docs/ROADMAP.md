@@ -46,7 +46,7 @@ No application-bundle modification is required.
 ## Phase 4+
 - [x] research selection (live-verified with `TECH_POTTERY`)
 - [x] city production (live-verified with `UNIT_SCOUT`)
-- [ ] unit skip (implemented and unit-tested; live verification pending)
+- [x] unit skip (live-verified through readiness with unchanged movement and location)
 - [ ] coordinate-based unit movement
 - [x] deterministic policy (live-verified refusal and successful execution paths)
 
@@ -101,6 +101,8 @@ No application-bundle modification is required.
   without individual work content or presentation assets
 - [x] Import great-work and artifact-class stable IDs, archaeology flags, and
   typed class, era, creator-unit, and free-building relationships
+- [x] Import building theming bonuses and matching constraints without
+  localized descriptions, AI priorities, or synthetic identifiers
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

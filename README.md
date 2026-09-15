@@ -162,7 +162,9 @@ installation. It also preserves 83 unit classes and their default and upgrade
 relationships, plus 111 policies and 12 policy branches with their core effects
 and prerequisite graph. Building classes preserve instance limits so 140
 buildings—including national and world wonders—can be classified without
-localized text. It also imports 42 resources and 4 resource classes with their
+localized text. Building-owned theming alternatives preserve their bonus and
+era, work-kind, owner, and player constraints without localized descriptions or
+AI priorities. It also imports 42 resources and 4 resource classes with their
 placement and unlock rules, excluding AI trading/objective data. The database
 itself and other game assets are not copied into this repository. Generate a
 local artifact with:
