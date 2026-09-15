@@ -12,7 +12,8 @@ decisions, not raw chat transcripts.
 - Active next deliverable: inventory multi-context effects and new target entity
   families, then continue ruleset scaling.
 - Functional test baseline: 141 tests locally on Python 3.11 and the default
-  Python runtime; CI confirmation is pending for development head `a86078e`.
+  Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
+  head `6b4e1ef`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only optional non-empty diplomacy or late-game
   science-victory enhancement tests.
@@ -88,8 +89,8 @@ decisions, not raw chat transcripts.
 - Ten buildings preserve 21 canonically ordered theming alternatives with
   deterministic bonus, era, work-kind, owner, and player constraints. Localized
   descriptions and AI priorities are never selected.
-- The test suite contains 141 tests locally on Python 3.11. CI confirmation is
-  pending for the current batch.
+- The test suite contains 141 tests locally on Python 3.11 and the default
+  runtime; the published batch passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
 
