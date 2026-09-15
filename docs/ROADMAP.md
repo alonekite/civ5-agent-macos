@@ -142,24 +142,28 @@ No application-bundle modification is required.
 - [ ] Record full validated turn snapshots and verified command lifecycles
 - [ ] Add canonical serialization, integrity hashes, and recovery tests
 
-The complete journal is an audit and reproduction source, not a wholesale
-executor input.
+The complete journal supports future tactical/strategic history selection,
+replay, comparison, debugging, and audit. It is not a wholesale executor input
+or execution-state store.
 
 ## M6 — Deterministic turn executor
 
 - [x] Separate turn planning from execution under ADR-0015
 - [x] Draft the TurnPlan, factual requirement, and execution-result boundary
-- [ ] Finalize TurnPlan identity and state-basis fields after M5 journal schemas
+- [ ] Finalize TurnPlan identity and state-basis fields against live-state and
+  command contracts
 - [ ] Validate complete plans before writing and re-check live state before each
   action
 - [ ] Execute only ordered plan-listed actions through bridge postconditions
-- [ ] Journal progress, pauses, divergence, recovery, and completion
+- [ ] Emit bounded factual progress, pause, divergence, recovery, and completion
+  events for optional recording
 - [ ] Require an explicit final `end_turn` action
 - [ ] Add stale-state, missing-decision, interruption, idempotency, and recovery
   tests
 
 M6 reports requirements but never chooses how to satisfy them. Tactical and
-strategic layers are future plan producers, not executor internals.
+strategic layers are future plan producers, not executor internals. M6 depends
+on M2, not M5; implementing M5 first is scheduling rather than architecture.
 
 Working memory and strategic memory will be designed together with a future LLM
 interaction layer outside this repository. They are not tasks on this roadmap.

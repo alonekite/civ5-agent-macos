@@ -140,9 +140,10 @@ decisions, not raw chat transcripts.
 - Broad effective scalar composition and counterfactual comparison are excluded
   from the execution core under ADR-0014. They belong to future consumer-driven
   strategic, tactical, and vertical skills.
-- M6 is replanned as a deterministic TurnPlan executor after M5. It reports
+- M6 is replanned as an M2-dependent deterministic TurnPlan executor. It reports
   factual requirements and executes only explicit ordered actions, pausing on
-  drift or missing decisions instead of choosing tactics.
+  drift or missing decisions instead of choosing tactics. It does not depend on
+  M5; optional orchestration may record its factual events in the journal.
 - Schema 5 adds bounded live reads for researched and currently researchable
   technologies plus a research-choice mode. The ordinary branch is
   live-verified, special choices fail closed, and schemas 2–4 remain compatible.
@@ -171,7 +172,8 @@ The current core will separate:
 
 Ruleset knowledge remains independent of a saved game. The journal stores facts
 and verified action lifecycles; it does not summarize, infer, plan, or choose
-actions.
+actions. Its future consumers include tactical/strategic history selection,
+replay, comparison, debugging, and audit; it is not M6 execution state.
 
 `working_memory` and `strategic_memory` are postponed to a future LLM
 interaction layer outside this repository. Their schemas will be designed with
@@ -187,14 +189,17 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
    serialization, retention expectations, and integrity tests.
 2. Connect watcher observations and command results to the journal without
    changing the live bridge protocol.
-3. Finalize the versioned TurnPlan and execution-report schemas against M5 game
-   identity, canonical hashing, and recovery semantics.
+3. Separately finalize the versioned TurnPlan and execution-report schemas
+   against live-state and command identities.
 4. Implement ordered deterministic execution, factual turn requirements,
    state-drift pauses, and unambiguous recovery without tactical choices.
 5. Stabilize the public read/write, knowledge-query, journal, and turn-execution
    APIs.
 6. Perform optional non-empty diplomacy or non-zero science-project live
    enhancement checks only when the user is present.
+
+Items 1–2 precede 3–4 as current project scheduling only. M5 and M6 have no
+runtime or storage dependency on each other.
 
 LLM decision-making, working memory, strategic memory, and MCP integration
 remain out of scope.
@@ -219,6 +224,8 @@ remain out of scope.
   analysis to future strategic, tactical, and vertical skills.
 - ADR-0015: require explicit TurnPlan input and separate tactical plan creation
   from deterministic current-turn execution.
+- ADR-0016: keep M5 as historical fact storage and M6 as an independent
+  live-state executor; connect them only through optional event recording.
 
 See `docs/architecture/decisions/README.md`. Development history belongs in
 `docs/development/DEVELOPMENT_LOG.md`, not in this dashboard.

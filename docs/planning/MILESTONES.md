@@ -10,8 +10,8 @@ GitHub Issues and should link back to one milestone ID.
 | M2 | Verified action layer | Complete | M1 |
 | M3 | Ruleset knowledge coverage | Complete | M1 |
 | M4 | Ruleset knowledge view | Complete | M3 |
-| M5 | Factual turn journal | In progress | M1, M4 |
-| M6 | Deterministic turn executor | Replanned | M2, M5 |
+| M5 | Factual turn journal | In progress | M1, M2 |
+| M6 | Deterministic turn executor | Replanned | M2 |
 | M7 | Public API stabilization | Planned | M4, M5, M6 |
 | M8 | 1.0 release readiness | Planned | M7 |
 
@@ -153,8 +153,9 @@ Acceptance criteria:
   monotonically increasing sequence numbers, and integrity checks.
 - Detect truncation, tampering, broken ordering, and cross-game mixing.
 - Provide deterministic replay/export without summarizing or inferring facts.
-- Define an extensible record-kind boundary so later M6 plan/execution lifecycle
-  facts can be added without weakening append-only integrity.
+- Define an extensible record-kind boundary so optional application orchestration
+  can later record M6 plan/execution events without weakening append-only
+  integrity or making M5 an execution dependency.
 - Do not implement working memory or strategic memory.
 
 ## M6 — Deterministic turn executor
@@ -170,15 +171,15 @@ Acceptance criteria:
   them.
 - Pause safely on stale state, new blockers, unsupported actions, failed
   verification, or ambiguous recovery; never replan automatically.
-- Journal plan receipt, execution progress, verified command lifecycles,
-  pauses, divergence, recovery, and completion.
+- Emit bounded factual plan/execution events that optional application
+  orchestration may append to M5 without affecting execution results.
 - Require `end_turn` to be an explicit final plan action.
 - Never require an LLM.
 
 The existing `civ5_agent.controller` remains an MVP readiness proof and
-provisional compatibility surface. M6 will not expand it into game strategy.
-Implementation begins after M5 establishes journal identity, integrity, and
-recovery semantics. See ADR-0015 and the proposed turn-plan contract.
+provisional compatibility surface. M6 will not expand it into game strategy and
+does not depend on M5. The current choice to implement M5 first is project
+scheduling only. See ADR-0015, ADR-0016, and the proposed turn-plan contract.
 
 ## M7 — Public API stabilization
 

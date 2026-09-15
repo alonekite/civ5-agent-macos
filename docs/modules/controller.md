@@ -23,9 +23,9 @@ until M7 and supplies only the earlier readiness proof.
 ## Public interface
 
 The current module provides state validation, mandatory-requirement reporting,
-and an opt-in legacy end-turn path. M6 will add the proposed `TurnPlan` and
-execution-report boundary after M5. Stable public Python naming is deferred to
-M7.
+and an opt-in legacy end-turn path. M6 will independently add the proposed
+`TurnPlan` and execution-report boundary. Stable public Python naming is
+deferred to M7.
 
 ## Inputs and outputs
 
@@ -36,10 +36,10 @@ requirement is not an action choice.
 
 ## Dependencies
 
-The executor depends inward on bridge action/state contracts and M5 journal
-interfaces. It may use a narrow structural knowledge query only to validate an
-explicit stable identifier. Bridge, knowledge, and journal must not depend on
-execution policy.
+The executor depends inward on bridge action/state contracts. It may use a
+narrow structural knowledge query only to validate an explicit stable
+identifier. It does not import, query, or require M5. Bridge, knowledge, and
+journal must not depend on execution policy.
 
 ## Invariants
 
@@ -60,13 +60,15 @@ ambiguous recovery produces a structured pause/refusal/error.
 
 No prompt, model, remote decision service, or arbitrary code is used. Only a
 bridge postcondition is proof of successful execution. Plans and reports are
-private per-game data.
+private per-game data. M6 may emit factual events for optional recording, but a
+journal failure cannot make a verified game action retryable.
 
 ## Verification
 
 Existing unit tests cover readiness order, refusal paths, and opt-in execution;
 basic refusal and end-turn execution were live-verified. M6 requires plan-schema,
-drift, pause, journal, recovery, and ordered multi-action tests.
+drift, pause, no-journal operation, optional event-sink failure, recovery, and
+ordered multi-action tests.
 
 ## Current limitations
 
@@ -76,7 +78,7 @@ must not grow into a tactical or strategic planner.
 
 ## Planned extensions
 
-After M5, finalize the TurnPlan schema against journal identities, implement
-requirement inspection and ordered execution, test interruption recovery, and
-stabilize naming during M7. Tactical and strategic layers remain plan producers,
-not executor internals.
+Finalize the TurnPlan schema against live-state and command identities,
+implement requirement inspection and ordered execution, test interruption
+recovery independently of M5, and stabilize naming during M7. Tactical and
+strategic layers remain plan producers, not executor internals.

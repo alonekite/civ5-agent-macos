@@ -6,7 +6,9 @@ Status: Planned (M5)
 
 The journal will preserve the complete factual history of exactly one game:
 validated snapshots, observed turn transitions, submitted command envelopes,
-command results, before/after states, and verification errors.
+command results, before/after states, verification errors, and optional factual
+plan/execution events. Its intended uses include future tactical/strategic
+history selection, replay, comparison, debugging, and audit.
 
 ## Non-responsibilities
 
@@ -23,7 +25,8 @@ export a verified sequence. See the proposed [journal contract](../contracts/jou
 
 ## Inputs and outputs
 
-Inputs are already validated bridge observations and action lifecycle results.
+Inputs are already validated bridge observations, action lifecycle results, and
+optional bounded execution events delivered by application orchestration.
 Records must carry game identity, turn, capture time, schema/ruleset identity,
 monotonic sequence, canonical payload, and integrity evidence.
 
@@ -31,8 +34,8 @@ monotonic sequence, canonical payload, and integrity evidence.
 
 The journal may depend on shared validated models and canonical serialization.
 Application orchestration appends records. It must not depend on plan production
-or executor policy, and the executor must not consume the whole journal as live
-input.
+or executor policy, and the executor must not import, query, or require the
+journal. M6 events may be recorded through an optional orchestration adapter.
 
 ## Invariants
 
@@ -41,6 +44,7 @@ input.
 - Record ordering and integrity are checkable offline.
 - Private data is never committed by default.
 - Replaying records does not execute game actions.
+- Journal contents never control an execution cursor or action retry.
 
 ## Failure modes
 
@@ -66,5 +70,7 @@ it is not an accepted design or release artifact.
 
 ## Planned extensions
 
-Implement M5 after the completed M3 knowledge coverage and M4 structural-view
-boundary, then expose selective read/export capabilities during M7.
+Implement M5 for historical capture and later tactical/strategic selection,
+replay, and comparison, then expose selective read/export capabilities during
+M7. M5 and M6 may be implemented in either order; the current M5 priority is a
+schedule choice, not a dependency.

@@ -54,7 +54,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | Ruleset structural knowledge view | Real local America context selected its Minuteman replacement and ordinary defaults with base/override provenance | Exact-ruleset match, canonical selection, unknown/duplicate rejection, provenance, base isolation, unique/default/disabled class selection | N/A | M4 complete offline; strategic/tactical scalar analysis is outside the core |
 | Turn journal | Proposed contract | No | N/A | Not implemented |
 | Legacy controller readiness proof | Yes | Basic requirement/refusal and opt-in end-turn tests | Basic live path | Confirmed as MVP proof; not the M6 tactical policy |
-| M6 deterministic turn executor | ADR-0015 and proposed TurnPlan contract | No implementation yet | No | Replanned; begins after M5 identity/integrity foundations |
+| M6 deterministic turn executor | ADR-0015/0016 and proposed TurnPlan contract | No implementation yet | No | Replanned; depends on M2, operates without M5, and may emit optional recordable events |
 | Schema 5 live technology state | Bundled BNW UI uses team `IsHasTech`, player `CanResearch`, `CanResearchForFree`, current research, and special end-turn blockers | Stable ordering, identifier/duplicate/overlap rejection, normal-choice/current-research consistency, malformed/missing-part rejection, legacy schema compatibility, and controller fail-closed modes | Yes for ordinary mode | Ordinary candidates and selection transition confirmed; free/steal modes remain pending |
 
 Update this file whenever an experiment changes the target-machine column or a

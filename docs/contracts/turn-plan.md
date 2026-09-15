@@ -1,6 +1,6 @@
 # Turn-Plan and Execution Contract
 
-Status: Proposed for M6; implementation follows M5 journal foundations
+Status: Proposed for M6; independent of M5 storage
 
 ## Purpose
 
@@ -15,13 +15,15 @@ A versioned `TurnPlan` will contain:
 
 - canonical plan identity;
 - expected game identity, turn number, and active player;
-- the journal sequence and/or validated state digest on which it was based;
+- the validated live-state digest or equivalent state-basis identity on which it
+  was based;
 - an ordered, bounded list of existing allowlisted command envelopes;
 - explicit preconditions needed to reject stale or misdirected execution.
 
 Exact field names, digest construction, record limits, and recovery tokens will
-be finalized after M5 establishes journal identity and canonical integrity
-semantics.
+be finalized within M6 against live-state and command contracts. A plan may
+carry an opaque history reference for its producer, but the executor neither
+requires nor trusts it as a precondition or recovery source.
 
 ## Execution behavior
 
@@ -32,14 +34,25 @@ semantics.
   contract.
 - Advance the execution cursor only after the bridge proves the action-specific
   postcondition.
-- Append plan and action lifecycle facts to the journal without rewriting prior
-  records.
+- Emit bounded factual plan/action lifecycle events that optional application
+  orchestration may record.
 - Pause rather than replan when state diverges, a new mandatory requirement
   appears, or a decision is missing.
 - Treat `end_turn` as valid only when explicitly listed last and still permitted
   by the live game.
 - Never infer that an interrupted action succeeded; recovery must reconcile its
-  command identity, journal evidence, and current state.
+  command identity, M6-owned execution state, and freshly read game state.
+- Operate correctly when no journal is configured or available.
+
+## Execution state
+
+M6 owns its execution cursor, verified action identities, last live-state basis,
+and current execution status. The first implementation may keep this state only
+for the executor lifetime. Any later cross-process checkpoint is a separate
+private M6 contract, not an M5 journal record.
+
+The journal may contain historical copies of plans and execution events, but
+those copies never authorize resumption, skipping, or retrying an action.
 
 ## Turn requirements
 
@@ -77,6 +90,8 @@ The final schema must make these states mutually exclusive and machine-readable.
   argument validation, idempotency, and write-after-read proof.
 - Plans and execution reports are per-game data and remain private unless the
   user explicitly exports them.
+- Journal availability or write success cannot determine whether an action is
+  safe or whether a verified action should be retried.
 
 ## Non-responsibilities
 

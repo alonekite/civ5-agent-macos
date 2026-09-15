@@ -4,8 +4,9 @@ Status: Proposed for M5; no implementation is committed
 
 ## Purpose
 
-Preserve a complete factual and replayable history of one match without
-summarization, inference, planning, or game-action execution.
+Preserve a complete factual and replayable history of one match for future
+tactical/strategic history selection, replay, comparison, debugging, and audit,
+without summarization, inference, planning, or game-action execution.
 
 ## Proposed record families
 
@@ -16,10 +17,10 @@ summarization, inference, planning, or game-action execution.
 - verification error;
 - correction that explicitly supersedes an earlier record.
 
-M5 must define a versioned record-kind extension boundary. M6 may later add
-factual plan receipt, execution transition, pause, divergence, recovery, and
-completion records after the TurnPlan schema is finalized; M5 does not interpret
-or choose plan content.
+M5 must define a versioned record-kind extension boundary. Application
+orchestration may later append factual plan receipt, execution transition,
+pause, divergence, recovery, and completion events emitted by M6. M5 does not
+interpret plan content or supply M6 execution state.
 
 ## Required common fields
 
@@ -41,6 +42,10 @@ or choose plan content.
   sequence gaps, broken integrity, and oversized records.
 - Use private local permissions and refuse unsafe symbolic-link targets.
 - Reading or replaying a journal never executes a command.
+- Journal state never authorizes M6 to resume, skip, retry, or replace an
+  action; live state and bridge postconditions remain authoritative.
+- A journal write failure is separate from the result of an already verified
+  game action and cannot make that action retryable.
 - Export is explicit and warns that records may contain private match data.
 
 ## Decisions intentionally deferred
@@ -57,4 +62,5 @@ tests. An earlier uncommitted JSONL prototype is not an accepted contract.
 ## Out of scope
 
 Working memory, strategic memory, prompt context, relevance scoring, opponent
-inference, and plan revision belong to the future LLM interaction project.
+inference, plan revision, execution cursors, and execution recovery checkpoints
+belong outside M5.

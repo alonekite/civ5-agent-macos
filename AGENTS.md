@@ -33,18 +33,20 @@ of scope for this project.
   game.
 - `journal`: append-only, integrity-checked per-game facts, including full turn
   snapshots and verified action lifecycles. It is an audit/replay source and is
-  not consumed wholesale by the executor.
+  intended for future tactical/strategic history, replay, comparison, and audit.
+  It is not an executor control plane.
 - `controller`: provisional package name for current-turn requirement inspection
   and deterministic execution of an explicit turn plan. It may orchestrate only
   whitelisted bridge actions; it does not choose strategy, tactics, research,
   production, movement, or other plan content.
 - `cli`: thin commands over the modules above.
 
-Dependencies flow inward: `controller -> bridge + journal` with only narrowly
-required structural knowledge queries. Application
+Dependencies flow inward: `controller -> bridge` with only narrowly required
+structural knowledge queries. Application
 orchestration may append bridge observations and verified action results to the
 journal. Knowledge must not depend on a live game, journal must not choose
-actions, and bridge must not depend on executor orchestration.
+actions, M6 must not require or query journal state, and bridge must not depend
+on executor orchestration.
 
 ## Ruleset knowledge scope
 The knowledge module may cover technologies; policies and ideologies; units and
@@ -100,6 +102,10 @@ and turn executor must continue to work when the local model is unavailable.
 6. add the factual turn journal
 7. deterministic turn executor
 8. stabilize the public read/write API
+
+Steps 6 and 7 are the current delivery order, not a runtime dependency. The
+executor must operate without the journal; application orchestration may record
+its factual events when a journal is configured.
 
 Do not develop LLM decision-making, working memory, strategic memory, or MCP
 integration in this repository.

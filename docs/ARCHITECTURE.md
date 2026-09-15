@@ -75,9 +75,10 @@ research, production, movement, targets, or strategy.
 M6 introduces a deterministic turn executor around an explicit versioned
 `TurnPlan`. A human or future tactical layer supplies every ordered action. The
 executor validates the plan's game/turn/player and state basis, sends only the
-next allowlisted action, advances only after write-after-read proof, records
-progress in the M5 journal, and pauses rather than replans on drift or missing
-decisions. `end_turn` must be explicitly listed last.
+next allowlisted action, advances only after write-after-read proof, emits
+bounded factual events, and pauses rather than replans on drift or missing
+decisions. It operates without M5; optional application orchestration may record
+its events. `end_turn` must be explicitly listed last.
 
 Initial allowlist:
 - end_turn
@@ -165,8 +166,9 @@ contradicting live observation.
 The turn journal is the complete, append-only record. It stores full validated
 snapshots, observed turn transitions, submitted command envelopes, command
 results, before/after states, and verification errors. Journal records are for
-reproduction, auditing, debugging, and later analysis; the entire journal is
-not passed wholesale into the executor loop.
+future tactical/strategic history selection, replay, comparison, auditing,
+debugging, and later analysis. The journal is not an executor control plane and
+is not passed wholesale into the executor loop.
 
 Records should be committed transactionally and include a monotonically
 increasing sequence, capture timestamp, game and turn identifiers, schema and
@@ -176,10 +178,11 @@ new record that supersedes an earlier record rather than rewriting history.
 The intended dependency direction is:
 
 ```text
-bridge observations + verified action results -> turn journal
+bridge observations + verified action results -> application -> turn journal
 live state                                     -> turn requirements
 explicit TurnPlan + live state                 -> deterministic turn executor
 deterministic turn executor                    -> plan-listed bridge action
+deterministic turn executor factual events     -> application -> turn journal
 ```
 
 The journal does not infer intentions, summarize opponents, select context, or
