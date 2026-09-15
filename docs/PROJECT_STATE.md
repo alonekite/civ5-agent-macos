@@ -13,7 +13,7 @@ decisions, not raw chat transcripts.
   fail-closed public contract.
 - Functional test baseline: 155 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
-  implementation head `0274324`.
+  implementation head `12427c1`.
 - Blocking issue: none for offline M3 work.
 - User presence required next: only optional non-empty diplomacy or late-game
   science-victory enhancement tests.
@@ -126,7 +126,7 @@ decisions, not raw chat transcripts.
   explicitly deferred with a semantic reason, or excluded by an accepted
   boundary. Further knowledge growth is demand-driven and positive-allowlist.
 - The test suite contains 155 tests locally on Python 3.11 and the default
-  runtime; implementation head `0274324` passed CI on Python 3.11 and 3.13.
+  runtime; implementation head `12427c1` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
 

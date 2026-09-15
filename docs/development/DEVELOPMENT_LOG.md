@@ -436,6 +436,14 @@ soundscape categories remain outside the knowledge boundary. The real import is
 byte-repeatable at 1,842 entities and 5,321 references; all 152 tests pass on
 Python 3.11, the default runtime, and GitHub Actions on Python 3.11 and 3.13.
 
+Follow-up commit `12427c1` embedded nine canonically ordered, positive map
+quantity alternatives in their six owning strategic resources, with invalid,
+duplicate, and orphaned source rows rejected. The resulting real import remains
+byte-repeatable at 1,842 entities and 5,321 references. This closes M3 after
+classifying every reviewed non-empty candidate as imported, deferred with a
+semantic reason, or excluded by an accepted boundary. All 155 tests pass on
+both local runtimes and GitHub Actions on Python 3.11 and 3.13.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
