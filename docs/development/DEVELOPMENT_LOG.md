@@ -579,6 +579,30 @@ Architecture governance commit: `7ef686d`.
 
 Architecture correction commit: `2e5165f`.
 
+## 2026-09-16 — Architecture correction and M5 journal foundation
+
+- Resolved remaining cross-document contradictions: distinguished bridge
+  sessions from declared journal matches, removed the false M6 dependency on
+  M4 knowledge and M5 history, separated the M2 security audit from the M5
+  factual journal, and made explicit final `end_turn` part of a complete plan.
+- Added a canonical UUIDv4 bridge-session envelope. Reads expose the current
+  session, writes must echo it, and missing or stale identities fail before a
+  game action can execute.
+- Implemented the private schema 1 journal with explicit `match_id`, append-only
+  session bindings, canonical JSON, contiguous sequence numbers, SHA-256 hash
+  chaining, locked and fsynced writes, record bounds, turn monotonicity, and
+  fail-closed corruption checks.
+- Connected optional FireTuner watcher capture for changed validated snapshots
+  and grounded in-memory command results. New versus resumed histories are
+  explicit, reconnect never auto-binds, independent audit/journal failures do
+  not retry actions, and the partial database fallback cannot write a journal.
+- Passed all 190 tests on Python 3.11 and the default Python 3.14 runtime.
+  Scans found no user paths, local addresses, credentials, tokens, real match
+  snapshots, or recovery artifacts in the submitted changes.
+
+Architecture correction commit: `b7f82ad`. Session-envelope commit: `bd5a186`.
+Journal-store commit: `5af502d`. Watcher-integration commit: `908f053`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
