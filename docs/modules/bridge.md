@@ -37,8 +37,9 @@ local IPC. It must not depend on controller policy or ruleset knowledge.
 - Only `127.0.0.1:4318` is accepted for the verified FireTuner adapter.
 - Live use fails closed unless the safety preflight passes.
 - One watcher owns the game connection and serializes requests.
-- Schema 4 is collected as bounded header/city/unit/diplomacy/victory programs;
-  every part must identify the same turn and active player.
+- Schema 5 is collected as bounded header/city/unit/diplomacy/victory/technology
+  programs; every part must identify the same turn and active player. Schemas
+  2–4 remain readable.
 - Every successful write includes a proved postcondition.
 - Malformed, oversized, transient, and closing-state responses are bounded.
 
@@ -61,9 +62,12 @@ and the game-side effect of unit skip have target-machine evidence. The offline
 suite covers framing, segmented-snapshot consistency, validation, IPC bounds,
 generated action code, retries, and postconditions. See the verification
 matrix.
+Schema 5 technology-state collection is offline-tested but not yet
+live-verified.
 
 ## Current limitations
 
+Schema 5 technology fields and choice-mode detection await live verification.
 Schema 4's non-empty diplomacy and late-game victory branches remain unverified.
 Coordinate movement is not implemented. The abstract public interface is not
 yet the only path used by CLI code.

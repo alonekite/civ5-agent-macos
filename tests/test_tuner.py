@@ -250,6 +250,64 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertEqual(state.schema_version, 3)
         self.assertNotIn("ready_to_move", state.units[0])
 
+    def test_parses_schema_five_technology_state_in_stable_order(self):
+        header = (
+            "CIV5_AGENT_SNAPSHOT|5|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "-1||-1|-1|true|false|8"
+        )
+        messages = [TunerMessage(-1, header)]
+        for part in ("cities", "units", "diplomacy", "victory"):
+            payload = f"CIV5_AGENT_PART|{part}|2|0"
+            if part == "victory":
+                payload += "\nCIV5_AGENT_VICTORY|science|true|0|0|0|0|0"
+            messages.append(TunerMessage(-1, payload))
+        messages.append(
+            TunerMessage(
+                -1,
+                "CIV5_AGENT_PART|technologies|2|0\n"
+                "CIV5_AGENT_RESEARCH_CHOICE|true|normal\n"
+                "CIV5_AGENT_TECHNOLOGY|researched|TECH_POTTERY\n"
+                "CIV5_AGENT_TECHNOLOGY|researched|TECH_AGRICULTURE\n"
+                "CIV5_AGENT_TECHNOLOGY|researchable|TECH_WRITING\n"
+                "CIV5_AGENT_TECHNOLOGY|researchable|TECH_CALENDAR",
+            )
+        )
+
+        state = parse_snapshot(tuple(messages))
+
+        self.assertEqual(
+            state.researched_technologies,
+            ["TECH_AGRICULTURE", "TECH_POTTERY"],
+        )
+        self.assertEqual(
+            state.researchable_technologies,
+            ["TECH_CALENDAR", "TECH_WRITING"],
+        )
+        self.assertEqual(
+            state.research_choice,
+            {"required": True, "mode": "normal"},
+        )
+
+    def test_rejects_duplicate_or_malformed_technology_records(self):
+        header = (
+            "CIV5_AGENT_SNAPSHOT|5|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "-1||-1|-1|true|false|8"
+        )
+        duplicate = (
+            TunerMessage(-1, header),
+            TunerMessage(-1, "CIV5_AGENT_TECHNOLOGY|researched|TECH_POTTERY"),
+            TunerMessage(-1, "CIV5_AGENT_TECHNOLOGY|researched|TECH_POTTERY"),
+        )
+        with self.assertRaisesRegex(ValueError, "duplicate researched technology"):
+            parse_snapshot(duplicate)
+        with self.assertRaisesRegex(ValueError, "malformed technology record"):
+            parse_snapshot(
+                (
+                    TunerMessage(-1, header),
+                    TunerMessage(-1, "CIV5_AGENT_TECHNOLOGY|researched|POTTERY"),
+                )
+            )
+
     def test_rejects_records_before_header_and_duplicate_headers(self):
         with self.assertRaisesRegex(ValueError, "before snapshot header"):
             parse_snapshot(
@@ -310,24 +368,29 @@ class TunerProtocolTest(unittest.TestCase):
 
     def test_snapshot_programs_fit_verified_firetuner_command_limit(self):
         programs = snapshot_lua_programs()
-        self.assertEqual(len(programs), 5)
+        self.assertEqual(len(programs), 6)
         self.assertTrue(all(len(program.encode("utf-8")) < 900 for program in programs))
 
     def test_read_game_state_collects_every_snapshot_program(self):
         header = TunerMessage(
             -1,
-            "CIV5_AGENT_SNAPSHOT|4|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "CIV5_AGENT_SNAPSHOT|5|2|0|7|4|5|9|0|1|33|0|Test|Test|"
             "-1||-1|-1|true|true|-1",
         )
-        part_names = ("cities", "units", "diplomacy", "victory")
+        part_names = ("cities", "units", "diplomacy", "victory", "technologies")
         part_messages = [
             TunerMessage(-1, f"CIV5_AGENT_PART|{name}|2|0")
             for name in part_names
         ]
-        part_messages[-1] = TunerMessage(
+        part_messages[3] = TunerMessage(
             -1,
             "CIV5_AGENT_PART|victory|2|0\n"
             "CIV5_AGENT_VICTORY|science|true|0|0|0|0|0",
+        )
+        part_messages[4] = TunerMessage(
+            -1,
+            "CIV5_AGENT_PART|technologies|2|0\n"
+            "CIV5_AGENT_RESEARCH_CHOICE|false|normal",
         )
         client = FireTunerClient()
         with patch.object(
@@ -338,7 +401,7 @@ class TunerProtocolTest(unittest.TestCase):
             state = client.read_game_state(172)
 
         self.assertEqual(state.turn, 2)
-        self.assertEqual(execute.call_count, 5)
+        self.assertEqual(execute.call_count, 6)
         self.assertEqual(
             [call.args for call in execute.call_args_list],
             [(172, program) for program in snapshot_lua_programs()],
@@ -353,6 +416,15 @@ class TunerProtocolTest(unittest.TestCase):
     def test_snapshot_lua_reads_active_team_science_victory_projects(self):
         lua = snapshot_lua()
         self.assertIn('GameInfo.Victories["VICTORY_SPACE_RACE"]', lua)
+
+    def test_snapshot_lua_reads_technology_facts_from_game_capabilities(self):
+        lua = snapshot_lua()
+        self.assertIn("team:IsHasTech(tech.ID)", lua)
+        self.assertIn("p:CanResearch(tech.ID)", lua)
+        self.assertIn("p:CanResearchForFree(tech.ID)", lua)
+        self.assertIn("ENDTURN_BLOCKING_RESEARCH", lua)
+        self.assertIn("ENDTURN_BLOCKING_FREE_TECH", lua)
+        self.assertIn("ENDTURN_BLOCKING_STEAL_TECH", lua)
         self.assertIn('projectCount("PROJECT_APOLLO_PROGRAM")', lua)
         self.assertIn('projectCount("PROJECT_SS_ENGINE")', lua)
 

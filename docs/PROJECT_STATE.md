@@ -9,14 +9,15 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M4 — ruleset resolver.
-- Active next deliverable: resolve effective scalar values with explicit base
-  and modifier provenance.
-- Functional test baseline: 163 tests locally on Python 3.11 and the default
+- Active next deliverable: live-verify schema 5 ordinary technology state, then
+  return to effective scalar resolution.
+- Functional test baseline: 170 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
   implementation head `3649c05`.
-- Blocking issue: none for offline M3 work.
-- User presence required next: only optional non-empty diplomacy or late-game
-  science-victory enhancement tests.
+- Blocking issue: schema 5 live evidence requires a user-started game and an
+  explicitly authorized bounded live session.
+- User presence required next: ordinary technology-state live verification;
+  non-empty diplomacy and late-game science-victory checks remain optional.
 - Planning source: `docs/planning/MILESTONES.md`.
 - Verification source: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -133,7 +134,10 @@ decisions, not raw chat transcripts.
   default, unique replacement, or explicit disabled state. Results retain base
   and override references; a real local America check selected the Minuteman
   over the Musketman and left ordinary defaults unchanged.
-- The test suite contains 163 tests locally on Python 3.11 and the default
+- Schema 5 adds bounded live reads for researched and currently researchable
+  technologies plus an observed research-choice mode. Special choices fail
+  closed, and schemas 2–4 remain compatible. This is offline-verified only.
+- The test suite contains 170 tests locally on Python 3.11 and the default
   runtime; implementation head `3649c05` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending

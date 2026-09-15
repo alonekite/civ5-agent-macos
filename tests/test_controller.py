@@ -33,6 +33,48 @@ def ready_state(**changes):
     return GameState(**values)
 
 
+def schema_five_state(**changes):
+    state = ready_state(
+        schema_version=5,
+        score=10,
+        current_era=0,
+        researched_technologies=["TECH_AGRICULTURE"],
+        researchable_technologies=["TECH_POTTERY"],
+        research_choice={"required": False, "mode": "normal"},
+    )
+    state.cities[0].update(
+        {
+            "food_times100": 0,
+            "growth_threshold": 15,
+            "food_per_turn_times100": 300,
+            "production_times100": 0,
+            "production_needed": 40,
+            "production_per_turn_times100": 500,
+        }
+    )
+    state.units[0].update(
+        {
+            "damage": 0,
+            "max_hit_points": 100,
+            "combat_strength": 8,
+            "ranged_strength": 0,
+            "range": 0,
+            "ready_to_move": False,
+        }
+    )
+    state.victory = {
+        "science_enabled": True,
+        "apollo": 0,
+        "booster": 0,
+        "cockpit": 0,
+        "stasis_chamber": 0,
+        "engine": 0,
+    }
+    for key, value in changes.items():
+        setattr(state, key, value)
+    return state
+
+
 class StateValidationTest(unittest.TestCase):
     def test_accepts_consistent_live_state(self):
         state = ready_state()
@@ -194,12 +236,76 @@ class StateValidationTest(unittest.TestCase):
         with self.assertRaisesRegex(StateValidationError, "ready_to_move"):
             validate_live_state(state)
 
+    def test_schema_five_validates_technology_sets_and_choice(self):
+        state = schema_five_state()
+        self.assertIs(validate_live_state(state), state)
+        state.researchable_technologies = ["TECH_POTTERY", "TECH_AGRICULTURE"]
+        with self.assertRaisesRegex(StateValidationError, "stable sorted order"):
+            validate_live_state(state)
+
+    def test_schema_five_rejects_overlap_and_invalid_choice(self):
+        with self.assertRaisesRegex(StateValidationError, "both researched"):
+            validate_live_state(
+                schema_five_state(
+                    researchable_technologies=["TECH_AGRICULTURE"]
+                )
+            )
+        with self.assertRaisesRegex(StateValidationError, "must use normal mode"):
+            validate_live_state(
+                schema_five_state(
+                    research_choice={
+                        "required": False,
+                        "mode": "free_technology",
+                    }
+                )
+            )
+
 
 class DeterministicPolicyTest(unittest.TestCase):
     def test_requests_research_before_turn_end(self):
         self.assertEqual(
             decide(ready_state(research=None)),
             Decision("manual_required", "choose research"),
+        )
+
+    def test_schema_five_uses_observed_research_choice(self):
+        self.assertEqual(
+            decide(
+                schema_five_state(
+                    research=None,
+                    research_choice={"required": False, "mode": "normal"},
+                )
+            ).action,
+            "end_turn",
+        )
+        self.assertEqual(
+            decide(
+                schema_five_state(
+                    research_choice={"required": True, "mode": "normal"}
+                )
+            ).reason,
+            "choose research",
+        )
+
+    def test_schema_five_special_research_choices_fail_closed(self):
+        self.assertEqual(
+            decide(
+                schema_five_state(
+                    research_choice={
+                        "required": True,
+                        "mode": "free_technology",
+                    }
+                )
+            ).reason,
+            "choose free technology",
+        )
+        self.assertEqual(
+            decide(
+                schema_five_state(
+                    research_choice={"required": True, "mode": "unsupported"}
+                )
+            ).reason,
+            "unsupported research choice",
         )
 
     def test_requests_production_before_unit_orders(self):

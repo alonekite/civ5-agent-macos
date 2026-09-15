@@ -21,7 +21,14 @@ def decide(state: GameState) -> Decision:
     validate_live_state(state)
     if not state.turn_active:
         return Decision("wait", "active player's turn is not active")
-    if state.research is None:
+    if state.schema_version >= 5 and state.research_choice["required"]:
+        mode = state.research_choice["mode"]
+        if mode == "free_technology":
+            return Decision("manual_required", "choose free technology")
+        if mode == "unsupported":
+            return Decision("manual_required", "unsupported research choice")
+        return Decision("manual_required", "choose research")
+    if state.schema_version < 5 and state.research is None:
         return Decision("manual_required", "choose research")
     without_production = [city for city in state.cities if not city.get("production")]
     if without_production:

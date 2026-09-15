@@ -804,3 +804,43 @@ science-project branches remain enhancement tests, not blockers for the schema
 Keep the segmented command-size, identity, and exact firewall-rule removal
 invariants in the regression suite. Test non-empty diplomacy or late-game
 project progress only when a suitable save is available.
+
+### 2026-09-15 — Stock UI technology-state API inspection
+
+**Hypothesis**
+
+The bundled BNW UI exposes supported read-only APIs for authoritative researched
+and currently researchable technology state, and its end-turn blocker separates
+ordinary, free, and special technology choices.
+
+**Environment**
+
+- Installed Campaign Edition BNW UI Lua sources on the target Mac.
+- No live game, FireTuner, firewall, or network listener was enabled.
+
+**Procedure**
+
+1. Inspected the bundled Expansion 2 `TechPopup.lua`, `TechTree.lua`, and
+   `ActionInfoPanel.lua` implementations.
+2. Compared ordinary and free-technology button eligibility with the end-turn
+   blocker branches used by the stock UI.
+3. Added a sixth bounded read-only snapshot program and offline parser,
+   validation, compatibility, and controller tests.
+
+**Observed result**
+
+- The stock technology UI enumerates `GameInfo.Technologies`, requires
+  `player:CanResearch(techID)`, and additionally requires
+  `player:CanResearchForFree(techID)` when free technologies are pending.
+- Researched membership is available from the active player's team through
+  `IsHasTech`.
+- The stock action panel distinguishes research, free-technology, and
+  steal-technology blockers.
+- The new technology program is 874 bytes, below the existing 900-byte bound.
+
+**Conclusion**
+
+confirmed by bundled-source inspection and offline tests only. Schema 5 must be
+read in a real ordinary choice before its researched list, candidate list, and
+normal choice branch are marked live-verified. Free and steal technology modes
+remain unverified until reproducible target-game situations exist.

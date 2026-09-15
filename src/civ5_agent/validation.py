@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import re
+
 from .models import GameState
+
+
+TECH_TYPE_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
 
 
 class StateValidationError(ValueError):
@@ -45,7 +50,7 @@ def validate_live_state(state: GameState) -> GameState:
     for field in ("turn_active", "can_end_turn"):
         if not isinstance(getattr(state, field), bool):
             raise StateValidationError(f"{field} must be a boolean")
-    if state.schema_version not in {2, 3, 4}:
+    if state.schema_version not in {2, 3, 4, 5}:
         raise StateValidationError(f"unsupported schema_version: {state.schema_version}")
     if state.turn is not None and state.turn < 0:
         raise StateValidationError("turn must be non-negative")
@@ -199,7 +204,58 @@ def validate_live_state(state: GameState) -> GameState:
                 raise StateValidationError(f"research has invalid {field}")
         if not isinstance(state.research.get("type"), str) or not state.research["type"]:
             raise StateValidationError("research has invalid type")
+        if state.schema_version >= 5 and not TECH_TYPE_PATTERN.fullmatch(
+            state.research["type"]
+        ):
+            raise StateValidationError("research has invalid technology identifier")
+    if state.schema_version >= 5:
+        _validate_technology_ids(
+            state.researched_technologies,
+            "researched_technologies",
+        )
+        _validate_technology_ids(
+            state.researchable_technologies,
+            "researchable_technologies",
+        )
+        overlap = set(state.researched_technologies) & set(
+            state.researchable_technologies
+        )
+        if overlap:
+            raise StateValidationError(
+                "technology cannot be both researched and researchable: "
+                + ", ".join(sorted(overlap))
+            )
+        if state.research and state.research["type"] in state.researched_technologies:
+            raise StateValidationError("current research is already researched")
+        if not isinstance(state.research_choice, dict):
+            raise StateValidationError("schema 5 requires research_choice")
+        required = state.research_choice.get("required")
+        mode = state.research_choice.get("mode")
+        if not isinstance(required, bool):
+            raise StateValidationError("research_choice has invalid required")
+        if mode not in {"normal", "free_technology", "unsupported"}:
+            raise StateValidationError("research_choice has invalid mode")
+        if not required and mode != "normal":
+            raise StateValidationError(
+                "non-required research_choice must use normal mode"
+            )
     return state
+
+
+def _validate_technology_ids(values: object, field: str) -> None:
+    if not isinstance(values, list):
+        raise StateValidationError(f"{field} must be a list")
+    if values != sorted(values):
+        raise StateValidationError(f"{field} must use stable sorted order")
+    if len(set(values)) != len(values):
+        raise StateValidationError(f"{field} contains duplicates")
+    if any(
+        not isinstance(value, str) or not TECH_TYPE_PATTERN.fullmatch(value)
+        for value in values
+    ):
+        raise StateValidationError(
+            f"{field} contains an invalid technology identifier"
+        )
 
 
 def _validate_records(records: list[dict[str, object]], kind: str) -> None:

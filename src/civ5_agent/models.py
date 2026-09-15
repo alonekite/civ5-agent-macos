@@ -25,6 +25,9 @@ class GameState:
     diplomacy: list[dict[str, Any]] = field(default_factory=list)
     victory: dict[str, Any] | None = None
     research: dict[str, Any] | None = None
+    researched_technologies: list[str] = field(default_factory=list)
+    researchable_technologies: list[str] = field(default_factory=list)
+    research_choice: dict[str, Any] | None = None
 
 @dataclass
 class Command:

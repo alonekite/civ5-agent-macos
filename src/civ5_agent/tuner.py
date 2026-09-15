@@ -40,12 +40,14 @@ class LuaState:
 STATE_MARKER = "CIV5_AGENT_STATE:"
 STATE_PATTERN = re.compile(r"CIV5_AGENT_STATE:(-?\d+):(-?\d+):(-?\d+)")
 SNAPSHOT_MARKER = "CIV5_AGENT_SNAPSHOT|"
-SNAPSHOT_SCHEMA_VERSION = 4
+SNAPSHOT_SCHEMA_VERSION = 5
 PART_MARKER = "CIV5_AGENT_PART|"
 CITY_MARKER = "CIV5_AGENT_CITY|"
 UNIT_MARKER = "CIV5_AGENT_UNIT|"
 DIPLOMACY_MARKER = "CIV5_AGENT_DIPLOMACY|"
 VICTORY_MARKER = "CIV5_AGENT_VICTORY|"
+TECHNOLOGY_MARKER = "CIV5_AGENT_TECHNOLOGY|"
+RESEARCH_CHOICE_MARKER = "CIV5_AGENT_RESEARCH_CHOICE|"
 COMMAND_MARKER = "CIV5_AGENT_COMMAND|"
 TECH_TYPE_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
 PRODUCTION_TYPE_PATTERNS = {
@@ -300,7 +302,23 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         '..projectCount("PROJECT_SS_STASIS_CHAMBER").."|"'
         '..projectCount("PROJECT_SS_ENGINE"))'
     )
-    return header, cities, units, diplomacy, victory
+    technologies = (
+        'local i=Game.GetActivePlayer();local p=Players[i];local team=Teams[p:GetTeam()];'
+        'local b=p:GetEndTurnBlockingType();local required=false;local mode="normal";'
+        'if b==EndTurnBlockingTypes.ENDTURN_BLOCKING_RESEARCH then required=true;'
+        'elseif b==EndTurnBlockingTypes.ENDTURN_BLOCKING_FREE_TECH then '
+        'required=true;mode="free_technology";'
+        'elseif b==EndTurnBlockingTypes.ENDTURN_BLOCKING_STEAL_TECH then '
+        'required=true;mode="unsupported" end;'
+        f'print("{PART_MARKER}technologies|"..Game.GetGameTurn().."|"..i);'
+        f'print("{RESEARCH_CHOICE_MARKER}"..tostring(required).."|"..mode);'
+        'for tech in GameInfo.Technologies() do if team:IsHasTech(tech.ID) then '
+        f'print("{TECHNOLOGY_MARKER}researched|"..tech.Type);'
+        'elseif mode~="unsupported" and p:CanResearch(tech.ID) and '
+        '(mode~="free_technology" or p:CanResearchForFree(tech.ID)) then '
+        f'print("{TECHNOLOGY_MARKER}researchable|"..tech.Type) end end'
+    )
+    return header, cities, units, diplomacy, victory, technologies
 
 
 def snapshot_lua() -> str:
@@ -451,6 +469,9 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     units: list[dict[str, object]] = []
     diplomacy: list[dict[str, object]] = []
     victory: dict[str, object] | None = None
+    researched_technologies: list[str] = []
+    researchable_technologies: list[str] = []
+    research_choice: dict[str, object] | None = None
     parts: set[str] = set()
 
     for message in messages:
@@ -460,7 +481,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     raise ValueError("multiple snapshot headers in one response")
                 fields = line.split(SNAPSHOT_MARKER, 1)[1].split("|")
                 schema_version = int(fields[0])
-                if schema_version not in {2, 3, SNAPSHOT_SCHEMA_VERSION}:
+                if schema_version not in {2, 3, 4, SNAPSHOT_SCHEMA_VERSION}:
                     raise ValueError(f"unsupported snapshot schema: {schema_version}")
                 expected_fields = 18 if schema_version == 2 else 20
                 if len(fields) != expected_fields:
@@ -513,9 +534,14 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     "units",
                     "diplomacy",
                     "victory",
+                    "technologies",
                 }:
                     raise ValueError(f"malformed snapshot part: {line!r}")
                 part, turn, active_player = fields
+                if part == "technologies" and snapshot.schema_version != 5:
+                    raise ValueError(
+                        "technologies part requires a schema 5 snapshot header"
+                    )
                 if part in parts:
                     raise ValueError(f"duplicate snapshot part: {part}")
                 if int(turn) != snapshot.turn or int(active_player) != snapshot.active_player:
@@ -554,7 +580,9 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                 if snapshot is None:
                     raise ValueError("unit record appeared before snapshot header")
                 fields = line.split(UNIT_MARKER, 1)[1].split("|")
-                expected_fields = {2: 6, 3: 11, 4: 12}[snapshot.schema_version]
+                expected_fields = {2: 6, 3: 11, 4: 12, 5: 12}[
+                    snapshot.schema_version
+                ]
                 if len(fields) != expected_fields:
                     raise ValueError(f"malformed unit record: {line!r}")
                 unit: dict[str, object] = {
@@ -579,7 +607,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     unit["ready_to_move"] = _parse_lua_bool(fields[11])
                 units.append(unit)
             elif DIPLOMACY_MARKER in line:
-                if snapshot is None or snapshot.schema_version not in {3, 4}:
+                if snapshot is None or snapshot.schema_version not in {3, 4, 5}:
                     raise ValueError(
                         "diplomacy record requires a schema 3 or 4 snapshot header"
                     )
@@ -598,7 +626,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     }
                 )
             elif VICTORY_MARKER in line:
-                if snapshot is None or snapshot.schema_version not in {3, 4}:
+                if snapshot is None or snapshot.schema_version not in {3, 4, 5}:
                     raise ValueError(
                         "victory record requires a schema 3 or 4 snapshot header"
                     )
@@ -615,19 +643,66 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     "stasis_chamber": int(fields[5]),
                     "engine": int(fields[6]),
                 }
+            elif RESEARCH_CHOICE_MARKER in line:
+                if snapshot is None or snapshot.schema_version != 5:
+                    raise ValueError(
+                        "research choice requires a schema 5 snapshot header"
+                    )
+                if research_choice is not None:
+                    raise ValueError("multiple research choice records in one response")
+                fields = line.split(RESEARCH_CHOICE_MARKER, 1)[1].split("|")
+                if len(fields) != 2 or fields[1] not in {
+                    "normal",
+                    "free_technology",
+                    "unsupported",
+                }:
+                    raise ValueError(f"malformed research choice: {line!r}")
+                research_choice = {
+                    "required": _parse_lua_bool(fields[0]),
+                    "mode": fields[1],
+                }
+            elif TECHNOLOGY_MARKER in line:
+                if snapshot is None or snapshot.schema_version != 5:
+                    raise ValueError(
+                        "technology record requires a schema 5 snapshot header"
+                    )
+                fields = line.split(TECHNOLOGY_MARKER, 1)[1].split("|")
+                if (
+                    len(fields) != 2
+                    or fields[0] not in {"researched", "researchable"}
+                    or not TECH_TYPE_PATTERN.fullmatch(fields[1])
+                ):
+                    raise ValueError(f"malformed technology record: {line!r}")
+                target = (
+                    researched_technologies
+                    if fields[0] == "researched"
+                    else researchable_technologies
+                )
+                if fields[1] in target:
+                    raise ValueError(
+                        f"duplicate {fields[0]} technology: {fields[1]}"
+                    )
+                target.append(fields[1])
 
     if snapshot is None:
         details = _summarize_messages(messages)
         raise ValueError(f"InGame Lua did not return {SNAPSHOT_MARKER} ({details})")
     if snapshot.schema_version >= 4:
         expected_parts = {"cities", "units", "diplomacy", "victory"}
+        if snapshot.schema_version >= 5:
+            expected_parts.add("technologies")
         if parts != expected_parts:
             missing = ", ".join(sorted(expected_parts - parts))
             raise ValueError(f"incomplete snapshot parts: {missing}")
+    if snapshot.schema_version >= 5 and research_choice is None:
+        raise ValueError("schema 5 snapshot omitted research choice")
     snapshot.cities = cities
     snapshot.units = units
     snapshot.diplomacy = diplomacy
     snapshot.victory = victory
+    snapshot.researched_technologies = sorted(researched_technologies)
+    snapshot.researchable_technologies = sorted(researchable_technologies)
+    snapshot.research_choice = research_choice
     return snapshot
 
 
