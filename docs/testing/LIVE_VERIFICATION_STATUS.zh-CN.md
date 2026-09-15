@@ -30,7 +30,7 @@ Edition 对局中实际验证。它是便于快速阅读的状态表，不保存
 | `choose_research` | 2026-09-12 | 从未选择科研变为 Pottery，并回读技术 ID、进度和成本 | [schema 2 实验](../EXPERIMENT_LOG.md#2026-09-12--schema-2-research-production-and-controller-live-proof) |
 | `set_city_production` | 2026-09-12 | 空生产队列变为 Scout，并通过状态回读确认 | [schema 2 实验](../EXPERIMENT_LOG.md#2026-09-12--schema-2-research-production-and-controller-live-proof) |
 | 非法结束回合拒绝 | 2026-09-12 | 单位仍需命令时，结束回合被拒绝且回合状态不变 | [schema 2 实验](../EXPERIMENT_LOG.md#2026-09-12--schema-2-research-production-and-controller-live-proof) |
-| 确定性控制器 | 2026-09-12 | dry-run 指出必选事项；满足条件后执行并验证回合推进 | [schema 2 实验](../EXPERIMENT_LOG.md#2026-09-12--schema-2-research-production-and-controller-live-proof) |
+| 旧 controller 的就绪检查证明 | 2026-09-12 | dry-run 指出必选事项；显式执行后验证回合推进；不代表未来 M6 战术策略 | [schema 2 实验](../EXPERIMENT_LOG.md#2026-09-12--schema-2-research-production-and-controller-live-proof) |
 | FireTuner 安全边界与恢复 | 2026-09-12 | 防火墙临时开启、Civ V 入站被阻止；测试后配置、端口、socket 和防火墙恢复 | [schema 2 实验](../EXPERIMENT_LOG.md#2026-09-12--schema-2-research-production-and-controller-live-proof) |
 | 只读安全预检 | 2026-09-13 | 恢复后的主机通过 shutdown 检查：FireTuner 关闭且无监听端口和 agent socket | [预检实验](../EXPERIMENT_LOG.md#2026-09-13--read-only-safety-preflight) |
 | schema 4 分段读取 | 2026-09-14 | 读取分数、时代、城市经济、单位状态及早期外交/胜利分支；分段长度受限并检查回合/玩家一致性 | [分段读取实验](../EXPERIMENT_LOG.md#2026-09-14--segmented-live-state-and-corrected-unit-skip-proof) |

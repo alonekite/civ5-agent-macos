@@ -12,7 +12,7 @@ Its importer reads the user's local merged SQLite data without modifying it.
 ## Non-responsibilities
 
 - Live or saved-game state.
-- Controller strategy or action choice.
+- Plan production, executor orchestration, strategy, or action choice.
 - Per-game working or strategic memory.
 - AI flavor/personality data.
 - Civilopedia prose, quotations, art, audio, or copied game databases.
@@ -35,8 +35,8 @@ committed.
 ## Dependencies
 
 Knowledge depends only on standard-library data/SQLite functionality and its own
-models, codec, validation, and index. It must not depend on a live bridge or
-controller.
+models, codec, validation, and index. It must not depend on a live bridge,
+planner, or executor.
 
 ## Invariants
 
@@ -97,7 +97,7 @@ titles and presentation content remain excluded.
 Ten buildings preserve 21 canonically ordered theming alternatives as owned
 structured rules. Only deterministic bonus and matching constraints are kept;
 localized descriptions and AI priorities are excluded.
-The remaining-table inventory found no unimported controller-facing gameplay
+The remaining-table inventory found no unimported core-facing gameplay
 effect that needs more than one context item. AI formation slots are excluded
 under ADR-0005, while natural-wonder placement columns that end in `Type` are
 boolean flags rather than identifiers. Nine region entities now support typed
@@ -137,7 +137,7 @@ these source rows have no stable identity independent of the owning resource.
 M3 coverage is complete under the reviewed positive-allowlist boundary. Policy
 and building remainders are prohibited flavor tables; presentation-only
 calendars and city-size soundscape categories are excluded; natural-wonder
-placement remains explicitly deferred until a controller use case requires it.
+placement remains explicitly deferred until a concrete consumer requires it.
 M4 adds a structural per-game knowledge view without mutating base facts. It
 validates and canonicalizes explicit match context, returns detached selected
 entities with source provenance, and resolves civilization-aware unit/building

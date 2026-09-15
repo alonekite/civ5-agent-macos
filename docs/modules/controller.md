@@ -1,11 +1,13 @@
-# Module: controller
+# Module: deterministic turn executor
 
-Status: Implemented, expansion in progress
+Status: M6 replanned; legacy `controller` proof implemented
 
 ## Responsibility
 
-The controller validates a live snapshot, evaluates conservative deterministic
-policy, and emits a structured candidate action from the bridge allowlist.
+The target M6 module validates an explicit `TurnPlan`, coordinates its ordered
+allowlisted actions through the bridge, re-reads every result, and pauses safely
+when live state diverges. The current Python package remains named `controller`
+until M7 and supplies only the earlier readiness proof.
 
 ## Non-responsibilities
 
@@ -13,54 +15,68 @@ policy, and emits a structured candidate action from the bridge allowlist.
 - Treating an issued command as success.
 - Mutating ruleset knowledge.
 - Reading the entire future turn journal as decision context.
+- Selecting research, production, unit destinations, targets, tactics, or
+  strategy.
+- Scoring candidates, revising plans, or replacing failed actions.
 - LLM decisions, working memory, or strategic memory.
 
 ## Public interface
 
-The current module provides state validation, deterministic decision output, and
-an opt-in CLI execution path. Its stable public Python interface is deferred to
+The current module provides state validation, mandatory-requirement reporting,
+and an opt-in legacy end-turn path. M6 will add the proposed `TurnPlan` and
+execution-report boundary after M5. Stable public Python naming is deferred to
 M7.
 
 ## Inputs and outputs
 
-Inputs are validated live `GameState` plus narrowly required structural
-knowledge queries. Output is a decision such as wait, choose research, choose
-production, issue a unit order, or end turn.
+The target input is a validated live `GameState` plus a versioned explicit
+`TurnPlan`. Outputs are factual requirements and a machine-readable execution
+report such as completed, paused, stale, failed, or recovery-required. A
+requirement is not an action choice.
 
 ## Dependencies
 
-Controller may depend inward on bridge contracts and structural knowledge-view
-APIs. Bridge and knowledge must not depend on controller policy.
+The executor depends inward on bridge action/state contracts and M5 journal
+interfaces. It may use a narrow structural knowledge query only to validate an
+explicit stable identifier. Bridge, knowledge, and journal must not depend on
+execution policy.
 
 ## Invariants
 
-- Deterministic inputs produce deterministic decisions.
-- Missing or invalid evidence yields wait/refusal, not a guessed action.
-- Execution remains opt-in and uses the same verified bridge command path.
-- The controller cannot expand the bridge allowlist.
+- Deterministic inputs and live observations produce deterministic execution
+  transitions.
+- Missing or invalid evidence pauses/refuses; it never creates plan content.
+- Every action is explicit, opt-in, and uses the verified bridge command path.
+- The executor cannot expand the bridge allowlist.
+- `end_turn` executes only when listed as the final action and still legal.
 
 ## Failure modes
 
-Invalid snapshot, mandatory unresolved choice, wrong turn ownership, unsupported
-knowledge context, or unavailable broker produces a structured refusal/error.
+Invalid plan/snapshot, mandatory unresolved choice, wrong game/turn/player,
+state drift, unsupported action, unavailable broker, failed verification, or
+ambiguous recovery produces a structured pause/refusal/error.
 
 ## Security and privacy
 
-No prompt, model, remote decision service, or arbitrary code is used. Controller
-output is not proof of successful execution.
+No prompt, model, remote decision service, or arbitrary code is used. Only a
+bridge postcondition is proof of successful execution. Plans and reports are
+private per-game data.
 
 ## Verification
 
-Unit tests cover policy order, refusal paths, candidate commands, and opt-in
-execution. Basic refusal and end-turn execution were live-verified.
+Existing unit tests cover readiness order, refusal paths, and opt-in execution;
+basic refusal and end-turn execution were live-verified. M6 requires plan-schema,
+drift, pause, journal, recovery, and ordered multi-action tests.
 
 ## Current limitations
 
-The controller does not yet consume broader structural knowledge queries. It is
-a conservative current-turn proof rather than a tactical or strategic planner.
+The explicit plan executor is not implemented. The current `decide()` function
+mixes factual requirement reporting with the legacy end-turn recommendation and
+must not grow into a tactical or strategic planner.
 
 ## Planned extensions
 
-Add structural knowledge queries only when a concrete conservative policy needs
-them, then stabilize the boundary during M7. Candidate comparison and
-counterfactual rule analysis belong to future tactical/strategic skills.
+After M5, finalize the TurnPlan schema against journal identities, implement
+requirement inspection and ordered execution, test interruption recovery, and
+stabilize naming during M7. Tactical and strategic layers remain plan producers,
+not executor internals.

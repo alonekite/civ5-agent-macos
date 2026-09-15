@@ -32,8 +32,8 @@ decisions, not raw chat transcripts.
 - `end_turn` was executed in a live game and verified by re-reading the turn.
 - Research selection and city production were executed and verified in a live
   game.
-- The deterministic controller was live-verified for refusal and successful
-  execution paths.
+- The legacy deterministic controller proof was live-verified for requirement
+  refusal and an explicitly invoked end-turn execution path.
 - Schema 4's bounded segmented reader and the corrected `skip_unit` readiness
   postcondition were verified in a live early-game match.
 - Schema 5 ordinary researched/researchable technology state and the transition
@@ -93,8 +93,8 @@ decisions, not raw chat transcripts.
 - Ten buildings preserve 21 canonically ordered theming alternatives with
   deterministic bonus, era, work-kind, owner, and player constraints. Localized
   descriptions and AI priorities are never selected.
-- The remaining-table inventory found no unimported controller-facing gameplay
-  effect requiring more than one typed context. Built-in AI formation slots are
+- The remaining-table inventory found no unimported core-facing gameplay effect
+  requiring more than one typed context. Built-in AI formation slots are
   excluded by ADR-0005; apparent natural-wonder `Type` columns are booleans.
 - Nine region entities, 59 build/feature rules, and 112 distinct civilization
   starting-fact references now preserve start-region preferences, free building
@@ -140,6 +140,9 @@ decisions, not raw chat transcripts.
 - Broad effective scalar composition and counterfactual comparison are excluded
   from the execution core under ADR-0014. They belong to future consumer-driven
   strategic, tactical, and vertical skills.
+- M6 is replanned as a deterministic TurnPlan executor after M5. It reports
+  factual requirements and executes only explicit ordered actions, pausing on
+  drift or missing decisions instead of choosing tactics.
 - Schema 5 adds bounded live reads for researched and currently researchable
   technologies plus a research-choice mode. The ordinary branch is
   live-verified, special choices fail closed, and schemas 2–4 remain compatible.
@@ -164,7 +167,7 @@ The current core will separate:
 1. `live state`: the latest validated observation and current source of truth;
 2. `turn journal`: an append-only full record of every turn, command, result,
    and verification outcome, retained for audit but not consumed wholesale by
-   the controller.
+   the executor.
 
 Ruleset knowledge remains independent of a saved game. The journal stores facts
 and verified action lifecycles; it does not summarize, infer, plan, or choose
@@ -184,10 +187,13 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
    serialization, retention expectations, and integrity tests.
 2. Connect watcher observations and command results to the journal without
    changing the live bridge protocol.
-3. Integrate structural knowledge queries into deterministic controller
-   policies only when a concrete conservative policy requires them.
-4. Stabilize the public read/write, knowledge-query, and journal APIs.
-5. Perform optional non-empty diplomacy or non-zero science-project live
+3. Finalize the versioned TurnPlan and execution-report schemas against M5 game
+   identity, canonical hashing, and recovery semantics.
+4. Implement ordered deterministic execution, factual turn requirements,
+   state-drift pauses, and unambiguous recovery without tactical choices.
+5. Stabilize the public read/write, knowledge-query, journal, and turn-execution
+   APIs.
+6. Perform optional non-empty diplomacy or non-zero science-project live
    enhancement checks only when the user is present.
 
 LLM decision-making, working memory, strategic memory, and MCP integration
@@ -211,6 +217,8 @@ remain out of scope.
   and detach selected result entities from immutable base knowledge.
 - ADR-0014: keep M4 as a structural knowledge view and move effective-rule
   analysis to future strategic, tactical, and vertical skills.
+- ADR-0015: require explicit TurnPlan input and separate tactical plan creation
+  from deterministic current-turn execution.
 
 See `docs/architecture/decisions/README.md`. Development history belongs in
 `docs/development/DEVELOPMENT_LOG.md`, not in this dashboard.

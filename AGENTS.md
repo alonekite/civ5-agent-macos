@@ -8,8 +8,8 @@ Prove a reliable bidirectional bridge:
 
 Build the project as a reusable Civilization V read/write core. The core consists
 of a game bridge, verified actions, ruleset knowledge, a factual turn journal,
-and a deterministic controller. LLM integration and MCP integration are out of
-scope for this project.
+and a deterministic turn executor. LLM integration and MCP integration are out
+of scope for this project.
 
 ## Hard constraints
 - Do not assume Windows DLL compatibility.
@@ -33,15 +33,18 @@ scope for this project.
   game.
 - `journal`: append-only, integrity-checked per-game facts, including full turn
   snapshots and verified action lifecycles. It is an audit/replay source and is
-  not consumed wholesale by the controller.
-- `controller`: deterministic policy that consumes live state plus ruleset
-  knowledge and emits only whitelisted actions.
+  not consumed wholesale by the executor.
+- `controller`: provisional package name for current-turn requirement inspection
+  and deterministic execution of an explicit turn plan. It may orchestrate only
+  whitelisted bridge actions; it does not choose strategy, tactics, research,
+  production, movement, or other plan content.
 - `cli`: thin commands over the modules above.
 
-Dependencies flow inward: `controller -> bridge + knowledge`. Application
+Dependencies flow inward: `controller -> bridge + journal` with only narrowly
+required structural knowledge queries. Application
 orchestration may append bridge observations and verified action results to the
 journal. Knowledge must not depend on a live game, journal must not choose
-actions, and bridge must not depend on controller policy.
+actions, and bridge must not depend on executor orchestration.
 
 ## Ruleset knowledge scope
 The knowledge module may cover technologies; policies and ideologies; units and
@@ -86,7 +89,7 @@ handling. Give it only repository and locally installed game data that the user
 has authorized. Capture prompts and outputs when they affect generated code or
 data. Validate every result with deterministic parsers, schemas, referential
 integrity checks, fixtures, and tests before accepting it. The knowledge module
-and controller must continue to work when the local model is unavailable.
+and turn executor must continue to work when the local model is unavailable.
 
 ## Engineering order
 1. inspect environment
@@ -95,7 +98,7 @@ and controller must continue to work when the local model is unavailable.
 4. add verification
 5. add the versioned ruleset knowledge module
 6. add the factual turn journal
-7. deterministic controller
+7. deterministic turn executor
 8. stabilize the public read/write API
 
 Do not develop LLM decision-making, working memory, strategic memory, or MCP

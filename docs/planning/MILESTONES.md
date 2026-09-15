@@ -11,7 +11,7 @@ GitHub Issues and should link back to one milestone ID.
 | M3 | Ruleset knowledge coverage | Complete | M1 |
 | M4 | Ruleset knowledge view | Complete | M3 |
 | M5 | Factual turn journal | In progress | M1, M4 |
-| M6 | Deterministic controller expansion | In progress | M2, M3, M4 |
+| M6 | Deterministic turn executor | Replanned | M2, M5 |
 | M7 | Public API stabilization | Planned | M4, M5, M6 |
 | M8 | 1.0 release readiness | Planned | M7 |
 
@@ -97,7 +97,7 @@ class/era/creator relationships are imported while names, quotes, images, and
 audio remain excluded.
 Building theming bonuses preserve all 21 deterministic matching alternatives
 across 10 buildings without descriptions, AI priorities, or synthetic IDs.
-The remaining-rule inventory found no controller-facing effect requiring more
+The remaining-rule inventory found no core-facing effect requiring more
 than one context item; AI role/formation data remains excluded. Region entities,
 civilization start facts, and technology-conditioned build/feature rules are
 complete. Game-speed, handicap, world-size, and ancient-ruin facts are also
@@ -153,27 +153,39 @@ Acceptance criteria:
   monotonically increasing sequence numbers, and integrity checks.
 - Detect truncation, tampering, broken ordering, and cross-game mixing.
 - Provide deterministic replay/export without summarizing or inferring facts.
+- Define an extensible record-kind boundary so later M6 plan/execution lifecycle
+  facts can be added without weakening append-only integrity.
 - Do not implement working memory or strategic memory.
 
-## M6 — Deterministic controller expansion
+## M6 — Deterministic turn executor
 
 Acceptance criteria:
 
-- Consume only validated live state and public knowledge-view APIs.
-- Emit only explicit allowlisted candidate actions.
-- Keep execution opt-in and route every action through bridge verification.
-- Cover conservative mandatory-choice and turn-completion policies with tests.
+- Consume a versioned explicit `TurnPlan`; never invent missing plan content.
+- Validate target game, turn, active player, state basis, action ordering, and
+  every declared precondition before writing.
+- Execute only plan-listed allowlisted actions through bridge verification and
+  advance only after each write-after-read postcondition succeeds.
+- Report factual unresolved turn requirements without selecting how to satisfy
+  them.
+- Pause safely on stale state, new blockers, unsupported actions, failed
+  verification, or ambiguous recovery; never replan automatically.
+- Journal plan receipt, execution progress, verified command lifecycles,
+  pauses, divergence, recovery, and completion.
+- Require `end_turn` to be an explicit final plan action.
 - Never require an LLM.
 
-The existing basic controller satisfies the initial proof; this milestone
-remains in progress until concrete conservative policies require and use the
-completed structural knowledge interfaces.
+The existing `civ5_agent.controller` remains an MVP readiness proof and
+provisional compatibility surface. M6 will not expand it into game strategy.
+Implementation begins after M5 establishes journal identity, integrity, and
+recovery semantics. See ADR-0015 and the proposed turn-plan contract.
 
 ## M7 — Public API stabilization
 
 Acceptance criteria:
 
-- Define supported read, action, knowledge-view, and journal APIs.
+- Define supported read, action, knowledge-view, journal, turn-plan, and
+  execution-report APIs.
 - Publish schema versions, compatibility guarantees, error semantics, and size
   limits.
 - Add contract tests for supported Python versions.

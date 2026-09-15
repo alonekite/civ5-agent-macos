@@ -21,7 +21,8 @@ do not belong in the repository.
 - [Bridge module](modules/bridge.md)
 - [Knowledge module](modules/knowledge.md)
 - [Journal module](modules/journal.md)
-- [Controller module](modules/controller.md)
+- [Turn-executor module](modules/controller.md): target M6 boundary; current
+  Python package retains the provisional `controller` name.
 - [CLI module](modules/cli.md)
 - [Module documentation template](modules/TEMPLATE.md)
 
@@ -35,6 +36,7 @@ do not belong in the repository.
 - [Remaining rules inventory](knowledge/REMAINING_RULES_INVENTORY.md): reviewed
   SQLite families, exclusions, and the completed M3 classification.
 - [Journal contract](contracts/journal.md)
+- [Turn-plan and execution contract](contracts/turn-plan.md)
 
 The Python implementation and tests remain authoritative for exact executable
 behavior. Contract documents define intended compatibility and rejection rules.

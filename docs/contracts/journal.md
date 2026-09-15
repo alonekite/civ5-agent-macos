@@ -16,6 +16,11 @@ summarization, inference, planning, or game-action execution.
 - verification error;
 - correction that explicitly supersedes an earlier record.
 
+M5 must define a versioned record-kind extension boundary. M6 may later add
+factual plan receipt, execution transition, pause, divergence, recovery, and
+completion records after the TurnPlan schema is finalized; M5 does not interpret
+or choose plan content.
+
 ## Required common fields
 
 - journal schema version;

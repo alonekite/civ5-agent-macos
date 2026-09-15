@@ -53,7 +53,8 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | Typed unit identifier relations | Real merged database imported twice with 323 links across 11 allowlisted identifier columns and equal hashes | Synthetic coverage of every mapping plus bundle-level target validation | N/A | Implemented offline |
 | Ruleset structural knowledge view | Real local America context selected its Minuteman replacement and ordinary defaults with base/override provenance | Exact-ruleset match, canonical selection, unknown/duplicate rejection, provenance, base isolation, unique/default/disabled class selection | N/A | M4 complete offline; strategic/tactical scalar analysis is outside the core |
 | Turn journal | Proposed contract | No | N/A | Not implemented |
-| Expanded deterministic controller | Yes | Basic tests | Basic live path | In progress |
+| Legacy controller readiness proof | Yes | Basic requirement/refusal and opt-in end-turn tests | Basic live path | Confirmed as MVP proof; not the M6 tactical policy |
+| M6 deterministic turn executor | ADR-0015 and proposed TurnPlan contract | No implementation yet | No | Replanned; begins after M5 identity/integrity foundations |
 | Schema 5 live technology state | Bundled BNW UI uses team `IsHasTech`, player `CanResearch`, `CanResearchForFree`, current research, and special end-turn blockers | Stable ordering, identifier/duplicate/overlap rejection, normal-choice/current-research consistency, malformed/missing-part rejection, legacy schema compatibility, and controller fail-closed modes | Yes for ordinary mode | Ordinary candidates and selection transition confirmed; free/steal modes remain pending |
 
 Update this file whenever an experiment changes the target-machine column or a

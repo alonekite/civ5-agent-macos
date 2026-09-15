@@ -121,8 +121,8 @@ No application-bundle modification is required.
   ADR-0012 without bulk-reading AI behavior parameters
 - [x] Import climates, sea levels, game options, and typed promotion
   invisibility/detection facts; exclude presentation-only calendar families
-- [x] Classify all reviewed remaining rules and import every accepted
-  controller-facing family, including resource map-quantity alternatives
+- [x] Classify all reviewed remaining rules and import every accepted core or
+  future decision-support family, including resource map-quantity alternatives
 - [x] Validate explicit game-speed, difficulty, civilization, policy, belief,
   DLC, and mod context as a structural knowledge view
 - [x] Define and validate explicit canonical resolution context without
@@ -133,8 +133,8 @@ No application-bundle modification is required.
 - [x] Resolve civilization replacements and disabled class defaults with base
   and override provenance
 - [x] Expose a validated, deterministic entity/reference query API
-- [ ] Integrate structural knowledge queries only when a concrete conservative
-  controller policy requires them
+- [ ] Add structural knowledge queries only when a concrete core validation or
+  future decision-support consumer requires them
 
 ## M5 — Per-game factual journal
 
@@ -143,7 +143,23 @@ No application-bundle modification is required.
 - [ ] Add canonical serialization, integrity hashes, and recovery tests
 
 The complete journal is an audit and reproduction source, not a wholesale
-controller input.
+executor input.
+
+## M6 — Deterministic turn executor
+
+- [x] Separate turn planning from execution under ADR-0015
+- [x] Draft the TurnPlan, factual requirement, and execution-result boundary
+- [ ] Finalize TurnPlan identity and state-basis fields after M5 journal schemas
+- [ ] Validate complete plans before writing and re-check live state before each
+  action
+- [ ] Execute only ordered plan-listed actions through bridge postconditions
+- [ ] Journal progress, pauses, divergence, recovery, and completion
+- [ ] Require an explicit final `end_turn` action
+- [ ] Add stale-state, missing-decision, interruption, idempotency, and recovery
+  tests
+
+M6 reports requirements but never chooses how to satisfy them. Tactical and
+strategic layers are future plan producers, not executor internals.
 
 Working memory and strategic memory will be designed together with a future LLM
 interaction layer outside this repository. They are not tasks on this roadmap.

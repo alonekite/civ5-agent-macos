@@ -13,7 +13,7 @@ live contracts.
 ## Non-responsibilities
 
 - Ruleset facts and strategic interpretation.
-- Controller policy.
+- Turn planning or executor orchestration.
 - Arbitrary caller-supplied Lua.
 - Working memory, strategic memory, or LLM interaction.
 - Changing the firewall or enabling FireTuner automatically.
@@ -30,7 +30,8 @@ See [live-state](../contracts/live-state.md) and
 ## Dependencies
 
 The bridge may depend on shared models, validation, preflight, transport, and
-local IPC. It must not depend on controller policy or ruleset knowledge.
+local IPC. It must not depend on turn-executor orchestration, plan production,
+or ruleset knowledge.
 
 ## Invariants
 

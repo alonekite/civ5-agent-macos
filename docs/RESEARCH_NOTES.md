@@ -31,7 +31,8 @@ Resolved since the initial notes:
 - `choose_research` and `set_city_production` use the same stock APIs as the
   bundled UI and have been live-verified with strict identifiers, capability
   checks, and read-back verification.
-- Snapshot schema 2 and the deterministic controller have been live-verified.
+- Snapshot schema 2 and the legacy controller readiness/end-turn proof have
+  been live-verified.
 - Snapshot schema 4 has live-verified early-game score, era, city, unit,
   pre-contact diplomacy, and science-victory values. Non-empty diplomacy and
   non-zero science projects remain optional enhancement evidence.

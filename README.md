@@ -2,7 +2,7 @@
 
 Goal: build a reusable, testable read/write core between **Civilization V
 running on Apple Silicon macOS** and external Python, backed by versioned
-ruleset knowledge and a deterministic controller.
+ruleset knowledge, a factual journal, and deterministic turn execution.
 
 ## Core question
 Can a Lua mod running inside Civ V on an M4 Mac:
@@ -53,10 +53,9 @@ Bridge storage / IPC
    ├── state: Civ V → Python
    └── commands: Python → Civ V
    ▼
-Python controller
-   ▲
-   │
-Versioned ruleset knowledge
+Explicit TurnPlan → deterministic turn executor → verified bridge actions
+
+Versioned ruleset knowledge → future strategy/tactics/vertical skills
 ```
 
 Verified transport on the target App Store build: bundled FireTuner over
@@ -137,16 +136,18 @@ currently allowed, submits `CONTROL_ENDTURN` only when allowed, then polls until
 it can prove the turn number advanced. A blocker or verification timeout is an
 error and includes the before/after state in its JSON result.
 
-The deterministic controller can inspect the same watcher snapshot without
-using an LLM:
+The legacy controller proof can inspect the same watcher snapshot without using
+an LLM:
 
 ```bash
 PYTHONPATH=src python3 -m civ5_agent.controller
 ```
 
-It conservatively reports one of: wait, choose research, choose production,
-issue unit orders, or end turn. Add `--execute` only when it should submit an
-end-turn decision through the same verified command path.
+It conservatively reports one of: wait, research required, production required,
+unit orders required, or ready to end turn. Add `--execute` only for the legacy
+explicit end-turn proof. M6 will replace policy expansion with an explicit
+TurnPlan executor; it will not choose research, production, movement, tactics,
+or strategy.
 
 ## Versioned ruleset knowledge
 

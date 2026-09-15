@@ -7,14 +7,14 @@
                                           │     │
                        ┌──────────────────┘     └──────────────┐
                        ▼                                     ▼
-                [ Turn Journal ]              [ Deterministic Controller ]
+                [ Turn Journal ]              [ Deterministic Turn Executor ]
                        ▲                                     ▲
                        │                                     │
             verified action results        [ Structural Knowledge View ]
                                                              ▲
                                               [ Ruleset Knowledge ]
 
-[ Deterministic Controller ] ── whitelisted action ──► [ Lua Bridge ]
+[ TurnPlan ] ──► [ Deterministic Turn Executor ] ──► [ Lua Bridge ]
 ```
 
 The verified Phase 1 transport is the game's bundled FireTuner server on
@@ -64,12 +64,20 @@ The first live-verified write is `end_turn`. The implementation:
 4. re-reads state until the turn number increases or verification times out;
 5. returns the command UUID, status, message, before-state, and after-state.
 
-## Deterministic policy
+## Deterministic turn execution
 
-`civ5_agent.controller` is deliberately separate from any LLM. It validates the
+The current `civ5_agent.controller` is an MVP readiness proof. It validates the
 snapshot, checks turn ownership and mandatory choices in a conservative order,
-and produces a structured decision. Execution is opt-in with `--execute` and
-still goes through the same Lua preconditions and turn-advance verification.
+and can submit an explicitly requested end turn through the verified bridge.
+It is not the target tactical policy for M6 and must not grow by choosing
+research, production, movement, targets, or strategy.
+
+M6 introduces a deterministic turn executor around an explicit versioned
+`TurnPlan`. A human or future tactical layer supplies every ordered action. The
+executor validates the plan's game/turn/player and state basis, sends only the
+next allowlisted action, advances only after write-after-read proof, records
+progress in the M5 journal, and pauses rather than replans on drift or missing
+decisions. `end_turn` must be explicitly listed last.
 
 Initial allowlist:
 - end_turn
@@ -134,7 +142,7 @@ tactical, and vertical-skill decision support outside this execution core. When
 Civ V reports a current effective value directly, the live observation is
 authoritative.
 
-Do not expose arbitrary Lua execution to any controller or external decision
+Do not expose arbitrary Lua execution to any executor or external decision
 system.
 
 ## Per-game factual history
@@ -149,7 +157,7 @@ The current core separates live state from one durable history layer:
 ### Live state
 
 The most recent validated snapshot read from Civ V is the source of truth for
-the current position. Cached data or a controller plan must never override a
+the current position. Cached data or a TurnPlan must never override a
 contradicting live observation.
 
 ### Turn journal
@@ -158,7 +166,7 @@ The turn journal is the complete, append-only record. It stores full validated
 snapshots, observed turn transitions, submitted command envelopes, command
 results, before/after states, and verification errors. Journal records are for
 reproduction, auditing, debugging, and later analysis; the entire journal is
-not passed into the controller decision loop.
+not passed wholesale into the executor loop.
 
 Records should be committed transactionally and include a monotonically
 increasing sequence, capture timestamp, game and turn identifiers, schema and
@@ -169,8 +177,9 @@ The intended dependency direction is:
 
 ```text
 bridge observations + verified action results -> turn journal
-live state + ruleset knowledge                 -> deterministic controller
-deterministic controller                       -> whitelisted bridge action
+live state                                     -> turn requirements
+explicit TurnPlan + live state                 -> deterministic turn executor
+deterministic turn executor                    -> plan-listed bridge action
 ```
 
 The journal does not infer intentions, summarize opponents, select context, or
@@ -187,7 +196,8 @@ LLM-facing layer outside this repository:
 - strategic memory will maintain victory objectives, approximate technology and
   policy routes, expansion, diplomacy, military direction, and revision history.
 
-That future layer also owns consumer-driven research, military, exploration,
+That future layer also owns `TurnPlan` production and consumer-driven research,
+military, exploration,
 city-development, and other vertical skills. Their deterministic rules may
 compare alternatives or calculate counterfactual effective values for strategy
 and tactics; those analyses are not responsibilities of the current executor or

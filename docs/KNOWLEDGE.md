@@ -1,8 +1,9 @@
 # Ruleset Knowledge
 
 The knowledge module contains structured gameplay facts that are independent of
-a particular match. It is a deterministic input to the controller, not an AI
-memory or a replacement for live state.
+a particular match. It supplies structural queries to future plan producers and
+narrow validation facts to the execution core; it is not an AI memory or a
+replacement for live state.
 
 ## Boundaries
 
@@ -275,7 +276,7 @@ They change entity attributes rather than entity/reference counts, and two
 consecutive imports remain byte-identical.
 Six resources similarly own nine validated, canonically ordered map-quantity
 alternatives without changing entity/reference counts.
-The remaining-rule inventory found no unimported controller-facing effect that
+The remaining-rule inventory found no unimported core-facing effect that
 needs more than one typed context. Built-in AI formation roles remain excluded
 by ADR-0005, and natural-wonder placement fields that resemble type identifiers
 are booleans. See `knowledge/REMAINING_RULES_INVENTORY.md`.

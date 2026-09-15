@@ -4,8 +4,8 @@ Status: Evolving
 
 ## Purpose
 
-`GameState` is the validated observation passed from bridge readers to callers
-and the deterministic controller. The implementation in `models.py`,
+`GameState` is the validated observation passed from bridge readers to callers,
+requirement inspection, and deterministic execution. The implementation in `models.py`,
 `validation.py`, and tuner marker parser is authoritative for exact fields.
 
 ## Version status
@@ -54,8 +54,9 @@ and the deterministic controller. The implementation in `models.py`,
   non-required choice must use `normal`.
 - Validation rejects a normal choice whose `required` value disagrees with the
   presence or absence of the current `research` record.
-- The deterministic controller never auto-executes `free_technology` or
-  `unsupported`; both produce `manual_required`.
+- The current requirement inspector never auto-executes `free_technology` or
+  `unsupported`; both produce `manual_required`. Future M6 execution requires
+  every action to be explicit in a TurnPlan.
 
 ## Compatibility
 

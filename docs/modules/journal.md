@@ -30,8 +30,9 @@ monotonic sequence, canonical payload, and integrity evidence.
 ## Dependencies
 
 The journal may depend on shared validated models and canonical serialization.
-Application orchestration appends records. It must not depend on controller
-policy, and the controller must not consume the whole journal as live input.
+Application orchestration appends records. It must not depend on plan production
+or executor policy, and the executor must not consume the whole journal as live
+input.
 
 ## Invariants
 

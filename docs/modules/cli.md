@@ -42,8 +42,9 @@ preparation.
 
 ## Dependencies
 
-CLI may depend on public bridge, knowledge, controller, preflight, and future
-journal interfaces. Core modules must not depend on CLI parsing.
+CLI may depend on public bridge, knowledge, provisional controller/executor,
+preflight, and future journal interfaces. Core modules must not depend on CLI
+parsing.
 
 ## Invariants
 
@@ -70,8 +71,11 @@ The primary watch and command flows have bounded target-machine evidence.
 ## Current limitations
 
 The public CLI compatibility policy is not frozen before M7.
+`civ5-controller` is the legacy readiness/end-turn proof; it is not the future
+M6 tactical planner. M7 may rename it when the TurnPlan executor is public.
 
 ## Planned extensions
 
-Add thin journal operations only after its core contract exists, then document
-and test stable exit/error behavior during M7.
+Add thin journal operations only after its core contract exists, then add an
+explicit TurnPlan execution entry point and stabilize names/error behavior in
+M7.

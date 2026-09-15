@@ -39,7 +39,7 @@ implemented.
 
 ## Multi-context result
 
-No unimported controller-facing gameplay effect in the reviewed database needs
+No unimported core-facing gameplay effect in the reviewed database needs
 more than one `ReferenceContext` item.
 
 `MultiUnitFormation_SlotEntries` is the only non-empty table with a genuine
@@ -57,8 +57,8 @@ ADR-0011, not modeled as typed contexts.
 
 ## New entity families
 
-Priority is based on the deterministic controller's need for gameplay rules,
-not on table size.
+Priority is based on a concrete core or future decision-support consumer's need
+for gameplay rules, not on table size.
 
 | Priority | Entity families | Related target rows | Decision |
 |---|---|---:|---|
@@ -77,7 +77,8 @@ counts, declaration probabilities, attitudes, flavors, roles, objectives, and
 strategy weights remain prohibited by ADR-0005.
 
 `Calendars`, `Months`, `Seasons`, and `GameSpeed_Turns` describe presentation of
-in-game dates rather than controller-facing gameplay rules. They are excluded
+in-game dates rather than core or decision-support gameplay rules. They are
+excluded
 from M3; in particular, the 31 ordered speed/calendar segments do not justify
 inventing row identities. `CitySizes` is likewise used only by presentation and
 soundscape data in the reviewed database.

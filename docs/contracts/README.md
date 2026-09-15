@@ -11,6 +11,7 @@ tests; discrepancies are defects that must be resolved explicitly.
 | [Knowledge bundle](../KNOWLEDGE.md) | Evolving, implemented | knowledge |
 | [Ruleset knowledge view](resolver.md) | Structural M4 contract implemented | knowledge |
 | [Turn journal](journal.md) | Proposed | journal |
+| [Turn plan and execution](turn-plan.md) | Proposed for M6 | controller/executor |
 | Public Python API | Planned for M7 | cross-module |
 
 ## Contract rules
