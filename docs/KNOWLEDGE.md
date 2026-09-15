@@ -78,6 +78,9 @@ tables, and civilization unit/building class overrides. It also requires
 quantity tables. Projects, processes, and victory rules use `Projects`,
 `Processes`, `Victories`, their prerequisite and threshold tables, production
 conversion yields, and resource requirements.
+`Climates`, `SeaLevels`, and `GameOptions` supply allowlisted map-generation and
+stable option facts. `InvisibleInfos` supplies typed targets for promotion
+invisibility and detection fields.
 Active package IDs come from
 `DownloadableContent`; callers cannot silently relabel a BNW database as
 vanilla or Gods & Kings.
@@ -173,6 +176,10 @@ The `Civilization_FreeUnits.UnitAIType` behavior field is never selected.
 Fifteen allowlisted global-define entities preserve movement, hit-point, city
 growth, food-consumption, purchase, and unit-upgrade constants. The remaining
 `Defines` rows and all `PostDefines` are not bulk-imported.
+Five climates, three sea levels, and 29 game options preserve deterministic
+map-generation parameters and stable option defaults/support. One invisibility
+category anchors two typed promotion relations. Descriptions, help text, option
+UI visibility, and calendar/date presentation tables are excluded.
 Binary effects also cover beliefs, policies, buildings, resources, specialists,
 and unit/building resource quantities. Projects retain
 instance limits, cost, deterministic flags, technology and victory gates,
@@ -207,9 +214,10 @@ features, 29 improvements, 2 routes, 6 yields, 35 build actions, 6 projects, 5
 processes, 5 victory types, 14 unit-combat categories, 5 domains, 4 special
 unit categories, 2 hurry methods, 4 great-work classes, 3 great-work slot types,
 279 great works, 6 artifact classes, 9 regions, 4 game speeds, 9 handicaps, 6
-world sizes, and 20 ancient-ruin outcomes, plus 47 World Congress entities, 58
+world sizes, 5 climates, 3 sea levels, 29 game options, one invisibility
+category, and 20 ancient-ruin outcomes, plus 47 World Congress entities, 58
 minor civilizations, 5 minor traits, and 15 global defines. The complete
-current import contains 1,804 entities and 5,319
+current import contains 1,842 entities and 5,321
 references, including 148 unit-domain, 22 special-unit, and 323 additional typed
 unit-identifier relationships; 646 binary attributed references from 84
 single-value table families, four multi-attribute promotion families, and

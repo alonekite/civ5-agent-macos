@@ -33,6 +33,8 @@ implemented.
 | Minor civilizations and traits | 58 / 5 | stable identities and deterministic trait membership; prose, art, colors, and AI flavor excluded |
 | Civilization initial units and coastal starts | 44 / 12 / 1 | typed unit-class quantities and boolean map-placement facts; `UnitAIType` is never selected |
 | Global defines | 15 allowlisted keys | movement, hit points, city growth, food consumption, purchase, and unit-upgrade constants under ADR-0012 |
+| `Climates`, `SeaLevels`, `GameOptions` | 5 / 3 / 29 | stable map-generation and ruleset-switch entities with explicit gameplay-field allowlists |
+| `InvisibleInfos` and promotion fields | 1 category / 2 links | typed promotion invisibility and detection semantics |
 
 ## Multi-context result
 
@@ -63,6 +65,8 @@ not on table size.
 | Completed | ancient-ruin outcomes | 20 outcomes, 83 handicap links | `GoodyHuts` are deterministic outcomes with typed unit-class and handicap relations |
 | Completed | World Congress resolutions, decisions, sessions, projects, rewards, votes | 18 / 10 / 4 / 3 / 9 / 3 | Stable entity families and typed unlock/reward relations exclude UI text and art |
 | Completed | minor civilizations and minor traits | 58 / 5 | Stable identities and deterministic trait membership exclude prose, art, colors, and AI flavor |
+| Completed | climates, sea levels, game options | 5 / 3 / 29 | Map-generation parameters and stable option support/default flags; descriptions, help, and UI visibility excluded |
+| Completed | invisibility categories | 1 category, 2 promotion links | Stable category identity and typed invisibility/detection relations |
 | Deferred | natural-wonder placement rules | 17 | Consider embedded rules only if deterministic map reasoning needs them |
 
 The scaling review must distinguish deterministic difficulty modifiers applied
@@ -71,9 +75,11 @@ starting-unit, barbarian, and similar numerical effects are candidates. Option
 counts, declaration probabilities, attitudes, flavors, roles, objectives, and
 strategy weights remain prohibited by ADR-0005.
 
-`GameSpeed_Turns` contains 31 ordered calendar segments without stable row IDs.
-It remains deferred until its semantic ordering can be reproduced without using
-SQLite `rowid` as invented identity or provenance.
+`Calendars`, `Months`, `Seasons`, and `GameSpeed_Turns` describe presentation of
+in-game dates rather than controller-facing gameplay rules. They are excluded
+from M3; in particular, the 31 ordered speed/calendar segments do not justify
+inventing row identities. `CitySizes` is likewise used only by presentation and
+soundscape data in the reviewed database.
 
 ## Explicit exclusions
 
@@ -96,7 +102,7 @@ imported, explicitly deferred with a reason, or excluded under an accepted
 boundary. Per-game selection and modifier application remain an M4 resolver
 responsibility.
 
-The next broader audit targets remaining map/calendar families. Large tables
-are not imported wholesale: each field must be controller-relevant and must
-pass the same copyright and AI-boundary review. The first global-define slice is
-complete; expanding it remains positive-allowlist work under ADR-0012.
+The next audit targets `Resource_QuantityTypes` and its nine map-generation
+distribution rows, followed by final classification of the remaining non-empty
+candidate tables. Large tables are not imported wholesale: each field must be
+controller-relevant and pass the same copyright and AI-boundary review.

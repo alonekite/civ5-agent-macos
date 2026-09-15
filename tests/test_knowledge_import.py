@@ -22,12 +22,14 @@ from civ5_agent.knowledge.import_sqlite import (
     BUILDING_CLASS_FIELDS,
     BUILDING_FIELDS,
     BUILDING_REFERENCE_COLUMNS,
+    CLIMATE_FIELDS,
     CIVILIZATION_FIELDS,
     KnowledgeImportError,
     ERA_FIELDS,
     FEATURE_FIELDS,
     FAKE_FEATURE_FIELDS,
     FEATURE_REFERENCE_COLUMNS,
+    GAME_OPTION_FIELDS,
     IMPROVEMENT_FIELDS,
     IMPROVEMENT_REFERENCE_COLUMNS,
     LEAGUE_PROJECT_FIELDS,
@@ -44,6 +46,7 @@ from civ5_agent.knowledge.import_sqlite import (
     HANDICAP_FIELDS,
     PROMOTION_FIELDS,
     PROMOTION_PREREQUISITE_COLUMNS,
+    PROMOTION_VISIBILITY_REFERENCE_COLUMNS,
     POLICY_BRANCH_FIELDS,
     POLICY_FIELDS,
     PLAIN_REFERENCE_TABLES,
@@ -57,6 +60,7 @@ from civ5_agent.knowledge.import_sqlite import (
     RESOLUTION_FIELDS,
     RESOLUTION_REFERENCE_COLUMNS,
     ROUTE_FIELDS,
+    SEA_LEVEL_FIELDS,
     SPECIAL_UNIT_FIELDS,
     SPECIALIST_FIELDS,
     TECHNOLOGY_FIELDS,
@@ -486,6 +490,28 @@ def create_database(
             connection.execute(
                 f'CREATE TABLE "{table}" ({", ".join(definitions)})'
             )
+        for table, fields, extra_columns in (
+            ("Climates", CLIMATE_FIELDS, ("Description TEXT",)),
+            ("SeaLevels", SEA_LEVEL_FIELDS, ("Description TEXT",)),
+            (
+                "GameOptions",
+                GAME_OPTION_FIELDS,
+                ("Description TEXT", "Help TEXT", "Visible INTEGER"),
+            ),
+        ):
+            definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
+            definitions.extend(
+                f'"{column}" {"REAL" if value_type == "number" else "INTEGER"}'
+                for column, (_attribute, value_type) in fields.items()
+            )
+            definitions.extend(extra_columns)
+            connection.execute(
+                f'CREATE TABLE "{table}" ({", ".join(definitions)})'
+            )
+        connection.execute(
+            "CREATE TABLE InvisibleInfos ("
+            "Type TEXT NOT NULL PRIMARY KEY, Description TEXT)"
+        )
         goody_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
         goody_definitions.extend(
             f'"{column}" TEXT'
@@ -806,6 +832,8 @@ def create_database(
             for column, (_, value_type) in PROMOTION_FIELDS.items():
                 if column == "CombatPercent":
                     value = combat_percent
+                elif column in {"Invisible", "SeeInvisible"} and type_id == "PROMOTION_SHOCK_1":
+                    value = "INVISIBLE_TEST"
                 elif value_type in {"boolean", "integer"}:
                     value = 0
                 else:
@@ -1365,11 +1393,52 @@ def create_database(
                 for _attribute, value_type in fields.values()
             ]
             values = [type_id, *scalar_values, *excluded]
+            quoted_columns = ", ".join(f'"{column}"' for column in columns)
             connection.execute(
-                f'INSERT INTO "{table}" ({", ".join(columns)}) VALUES '
+                f'INSERT INTO "{table}" ({quoted_columns}) VALUES '
                 f'({", ".join("?" for _ in values)})',
                 values,
             )
+        for table, type_id, fields, excluded in (
+            (
+                "Climates",
+                "CLIMATE_TEST",
+                CLIMATE_FIELDS,
+                ("TXT_KEY_CLIMATE",),
+            ),
+            (
+                "SeaLevels",
+                "SEALEVEL_TEST",
+                SEA_LEVEL_FIELDS,
+                ("TXT_KEY_SEA_LEVEL",),
+            ),
+            (
+                "GameOptions",
+                "GAMEOPTION_TEST",
+                GAME_OPTION_FIELDS,
+                ("TXT_KEY_GAME_OPTION", "TXT_KEY_GAME_OPTION_HELP", 1),
+            ),
+        ):
+            columns = ["Type", *fields]
+            if table == "GameOptions":
+                columns.extend(("Description", "Help", "Visible"))
+            else:
+                columns.append("Description")
+            scalar_values = [
+                0.25 if value_type == "number" else 1
+                for _attribute, value_type in fields.values()
+            ]
+            values = [type_id, *scalar_values, *excluded]
+            quoted_columns = ", ".join(f'"{column}"' for column in columns)
+            connection.execute(
+                f'INSERT INTO "{table}" ({quoted_columns}) VALUES '
+                f'({", ".join("?" for _ in values)})',
+                values,
+            )
+        connection.execute(
+            "INSERT INTO InvisibleInfos VALUES (?, ?)",
+            ("INVISIBLE_TEST", "TXT_KEY_INVISIBLE"),
+        )
         goody_columns = [
             "Type",
             *(column for column, _kind, _target_kind in ANCIENT_RUIN_REFERENCE_COLUMNS),
@@ -1631,7 +1700,7 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 68)
+        self.assertEqual(len(bundle.entities), 72)
         self.assertEqual(
             len(bundle.references),
             58
@@ -1650,7 +1719,8 @@ class RulesetImportTest(unittest.TestCase):
             + 2
             + 2
             + 15
-            + 1,
+            + 1
+            + 2,
         )
         self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
@@ -2369,6 +2439,42 @@ class RulesetImportTest(unittest.TestCase):
         self.assertEqual(world_size.attributes["grid_width"], 100)
         self.assertEqual(world_size.attributes["num_cities_tech_cost_mod"], 2.5)
         self.assertNotIn("description", world_size.attributes)
+        climate = next(
+            item for item in bundle.entities if item.type_id == "CLIMATE_TEST"
+        )
+        self.assertEqual(climate.attributes["snow_latitude_change"], 0.25)
+        self.assertEqual(climate.attributes["mountain_percent"], 1)
+        self.assertNotIn("description", climate.attributes)
+        sea_level = next(
+            item for item in bundle.entities if item.type_id == "SEALEVEL_TEST"
+        )
+        self.assertEqual(sea_level.attributes["sea_level_change"], 1)
+        self.assertNotIn("description", sea_level.attributes)
+        game_option = next(
+            item for item in bundle.entities if item.type_id == "GAMEOPTION_TEST"
+        )
+        self.assertTrue(game_option.attributes["default"])
+        self.assertTrue(game_option.attributes["supports_single_player"])
+        self.assertTrue(game_option.attributes["supports_multiplayer"])
+        self.assertNotIn("visible", game_option.attributes)
+        self.assertNotIn("description", game_option.attributes)
+        self.assertNotIn("help", game_option.attributes)
+        invisibility = next(
+            item for item in bundle.entities if item.type_id == "INVISIBLE_TEST"
+        )
+        self.assertEqual(invisibility.attributes, {})
+        self.assertEqual(
+            {
+                (item.kind, item.target_kind, item.target_type_id)
+                for item in bundle.references
+                if item.source_type_id == "PROMOTION_SHOCK_1"
+                and item.kind in {"has_invisibility", "detects_invisibility"}
+            },
+            {
+                ("has_invisibility", "invisibility", "INVISIBLE_TEST"),
+                ("detects_invisibility", "invisibility", "INVISIBLE_TEST"),
+            },
+        )
         ancient_ruin = next(
             item for item in bundle.entities if item.type_id == "GOODY_TEST"
         )
@@ -2537,6 +2643,47 @@ class RulesetImportTest(unittest.TestCase):
                 import_ruleset(
                     database,
                     "cache/bad-game-speed.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_invalid_climate_number(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-climate.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Climates SET SnowLatitudeChange = ?",
+                    ("invalid",),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "climate CLIMATE_TEST has invalid number SnowLatitudeChange",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-climate.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_promotion_with_missing_invisibility(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "missing-invisibility.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE UnitPromotions SET Invisible = ? "
+                    "WHERE Type = ?",
+                    ("INVISIBLE_MISSING", "PROMOTION_SHOCK_1"),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeValidationError,
+                "reference target does not exist",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/missing-invisibility.db",
                     Ruleset("bnw", "test"),
                 )
 

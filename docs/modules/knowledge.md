@@ -122,10 +122,17 @@ Fifteen allowlisted `global_define` entities preserve movement, hit-point,
 growth, food-consumption, purchase, and upgrade constants. Their stable source
 `Name` keys are accepted under ADR-0012; the importer does not bulk-copy
 `Defines` or read AI behavior parameters.
+Climate and sea-level entities retain allowlisted map-generation parameters,
+and game-option entities retain default and single-/multiplayer support flags.
+An invisibility category is connected to promotions through typed invisibility
+and detection references. Localized text, UI visibility, and calendar display
+tables are not imported.
 
 ## Planned extensions
 
 Policy and building table coverage is closed; the only remaining non-empty
-families are their prohibited flavor tables. M3 next reviews remaining
-map/calendar families. M4 then adds per-game resolution without mutating base
-facts.
+families are their prohibited flavor tables. The map/calendar audit accepted
+climates, sea levels, game options, and invisibility semantics while excluding
+presentation-only calendars and city-size soundscape categories. M3 next
+reviews resource-quantity distributions and closes the remaining
+classification. M4 then adds per-game resolution without mutating base facts.

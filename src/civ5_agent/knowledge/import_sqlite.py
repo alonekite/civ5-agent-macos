@@ -1253,6 +1253,41 @@ WORLD_SIZE_FIELDS = {
     "NumCitiesPolicyCostMod": ("num_cities_policy_cost_mod", "number"),
     "NumCitiesTechCostMod": ("num_cities_tech_cost_mod", "number"),
 }
+CLIMATE_FIELDS = {
+    **{
+        column: (_snake_case(column), "integer")
+        for column in (
+            "DesertPercentChange",
+            "JungleLatitude",
+            "HillRange",
+            "MountainPercent",
+        )
+    },
+    **{
+        column: (_snake_case(column), "number")
+        for column in (
+            "SnowLatitudeChange",
+            "TundraLatitudeChange",
+            "GrassLatitudeChange",
+            "DesertBottomLatitudeChange",
+            "DesertTopLatitudeChange",
+            "IceLatitude",
+            "RandIceLatitude",
+        )
+    },
+}
+SEA_LEVEL_FIELDS = {
+    "SeaLevelChange": ("sea_level_change", "integer"),
+}
+GAME_OPTION_FIELDS = {
+    "Default": ("default", "boolean"),
+    "SupportsSinglePlayer": ("supports_single_player", "boolean"),
+    "SupportsMultiplayer": ("supports_multiplayer", "boolean"),
+}
+PROMOTION_VISIBILITY_REFERENCE_COLUMNS = (
+    ("Invisible", "has_invisibility", "invisibility"),
+    ("SeeInvisible", "detects_invisibility", "invisibility"),
+)
 ANCIENT_RUIN_BOOLEAN_COLUMNS = (
     "Tech",
     "RevealUnknownResource",
@@ -2688,6 +2723,12 @@ def import_ruleset(
                 connection, "HandicapInfos", {"Type", *HANDICAP_FIELDS}
             )
             _require_columns(connection, "Worlds", {"Type", *WORLD_SIZE_FIELDS})
+            _require_columns(connection, "Climates", {"Type", *CLIMATE_FIELDS})
+            _require_columns(connection, "SeaLevels", {"Type", *SEA_LEVEL_FIELDS})
+            _require_columns(
+                connection, "GameOptions", {"Type", *GAME_OPTION_FIELDS}
+            )
+            _require_columns(connection, "InvisibleInfos", {"Type"})
             _require_columns(
                 connection,
                 "GoodyHuts",
@@ -3170,6 +3211,34 @@ def import_ruleset(
                 _scalar_entity("world_size", row, WORLD_SIZE_FIELDS, source_label)
                 for row in world_size_rows
             )
+            climate_rows = _select_scalar_rows(
+                connection, "Climates", CLIMATE_FIELDS
+            )
+            climate_entities = tuple(
+                _scalar_entity("climate", row, CLIMATE_FIELDS, source_label)
+                for row in climate_rows
+            )
+            sea_level_rows = _select_scalar_rows(
+                connection, "SeaLevels", SEA_LEVEL_FIELDS
+            )
+            sea_level_entities = tuple(
+                _scalar_entity("sea_level", row, SEA_LEVEL_FIELDS, source_label)
+                for row in sea_level_rows
+            )
+            game_option_rows = _select_scalar_rows(
+                connection, "GameOptions", GAME_OPTION_FIELDS
+            )
+            game_option_entities = tuple(
+                _scalar_entity("game_option", row, GAME_OPTION_FIELDS, source_label)
+                for row in game_option_rows
+            )
+            invisibility_rows = _select_scalar_rows(
+                connection, "InvisibleInfos", {}
+            )
+            invisibility_entities = tuple(
+                _scalar_entity("invisibility", row, {}, source_label)
+                for row in invisibility_rows
+            )
             ancient_ruin_rows = _select_scalar_rows(
                 connection,
                 "GoodyHuts",
@@ -3438,6 +3507,10 @@ def import_ruleset(
                 + game_speed_entities
                 + handicap_entities
                 + world_size_entities
+                + climate_entities
+                + sea_level_entities
+                + game_option_entities
+                + invisibility_entities
                 + ancient_ruin_entities
                 + league_project_reward_entities
                 + league_project_entities
@@ -3731,6 +3804,20 @@ def _promotion_references(
                     row["Type"],
                     "promotion",
                     prerequisite,
+                    (source_label,),
+                )
+            )
+        for column, kind, target_kind in PROMOTION_VISIBILITY_REFERENCE_COLUMNS:
+            target = row[column]
+            if target in (None, "NONE"):
+                continue
+            references.append(
+                Reference(
+                    kind,
+                    "promotion",
+                    row["Type"],
+                    target_kind,
+                    target,
                     (source_label,),
                 )
             )

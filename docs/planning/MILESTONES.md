@@ -110,6 +110,11 @@ the broader remaining-family audit, now focused on map/calendar tables, before
 M4. Civilization starting facts include initial unit-class quantities and
 coastal placement without reading AI roles. Fifteen global constants needed for
 movement, health, growth, purchase, and upgrades are allowlisted under ADR-0012.
+Climates, sea levels, and game options now preserve map-generation and stable
+ruleset-switch facts, while promotion invisibility/detection targets are typed.
+Calendar/date presentation families and city-size soundscape categories are
+explicitly outside M3. The next slice reviews resource-quantity distributions
+and completes the remaining-family classification.
 
 ## M4 — Ruleset resolver
 

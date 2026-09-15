@@ -119,6 +119,8 @@ No application-bundle modification is required.
   without selecting AI role data
 - [x] Import the first positive allowlist of deterministic global defines under
   ADR-0012 without bulk-reading AI behavior parameters
+- [x] Import climates, sea levels, game options, and typed promotion
+  invisibility/detection facts; exclude presentation-only calendar families
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context
