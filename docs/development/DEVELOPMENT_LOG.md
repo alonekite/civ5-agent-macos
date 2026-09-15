@@ -420,6 +420,14 @@ instead of conflating excluded roles. The real database now imports as 1,789
 entities and 5,319 references with repeatable output; all 148 tests pass on
 Python 3.11 and the default runtime.
 
+Follow-up commit `e5f0aa5` added 15 explicitly allowlisted global gameplay
+defines for movement, health, growth, food consumption, purchase, and upgrade
+calculations. ADR-0012 documents use of stable source `Defines.Name` keys as
+entity identity. The remaining 1,688 definitions and `PostDefines` are not
+bulk-imported, preventing AI behavior parameters from crossing the knowledge
+boundary. The real import is byte-repeatable at 1,804 entities and 5,319
+references; all 150 tests pass on both supported local runtimes.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
