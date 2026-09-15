@@ -36,6 +36,11 @@ unknown fields, duplicate entities or references, dangling references, invalid
 paths, invalid identifiers, unsupported value types, non-finite numbers, and AI
 parameter fields are rejected.
 
+ADR-0012 permits a narrow exception to the literal `Type`-column convention:
+an explicitly allowlisted stable uppercase `Defines.Name` may identify a
+`global_define` entity. It still uses the same identifier validation,
+provenance, canonicalization, and query API.
+
 Schema 1 remains readable and serializes references without `attributes`.
 Schema 1 in-memory references must have empty attributes. Schema 2 introduced
 reference attributes, which use the same strict JSON and finite-number rules as
@@ -165,6 +170,9 @@ Minor-civilization and minor-trait entities retain stable IDs and typed trait
 membership without localized names, Civilopedia prose, art, colors, or flavor.
 Civilization start facts include unit-class quantities and coastal placement.
 The `Civilization_FreeUnits.UnitAIType` behavior field is never selected.
+Fifteen allowlisted global-define entities preserve movement, hit-point, city
+growth, food-consumption, purchase, and unit-upgrade constants. The remaining
+`Defines` rows and all `PostDefines` are not bulk-imported.
 Binary effects also cover beliefs, policies, buildings, resources, specialists,
 and unit/building resource quantities. Projects retain
 instance limits, cost, deterministic flags, technology and victory gates,
@@ -200,8 +208,8 @@ processes, 5 victory types, 14 unit-combat categories, 5 domains, 4 special
 unit categories, 2 hurry methods, 4 great-work classes, 3 great-work slot types,
 279 great works, 6 artifact classes, 9 regions, 4 game speeds, 9 handicaps, 6
 world sizes, and 20 ancient-ruin outcomes, plus 47 World Congress entities, 58
-minor civilizations, and 5 minor traits. The complete current import contains
-1,789 entities and 5,319
+minor civilizations, 5 minor traits, and 15 global defines. The complete
+current import contains 1,804 entities and 5,319
 references, including 148 unit-domain, 22 special-unit, and 323 additional typed
 unit-identifier relationships; 646 binary attributed references from 84
 single-value table families, four multi-attribute promotion families, and

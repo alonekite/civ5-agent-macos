@@ -28,6 +28,24 @@ from .validation import KnowledgeValidationError, validate_bundle
 GODS_AND_KINGS_PACKAGE_ID = "0E3751A1F8404E1B9706519BF484E59D"
 BRAVE_NEW_WORLD_PACKAGE_ID = "6DA0763641234018B6436575B4EC336B"
 
+GLOBAL_DEFINE_VALUE_TYPES = {
+    "BASE_CITY_GROWTH_THRESHOLD": "integer",
+    "BASE_UNIT_UPGRADE_COST": "integer",
+    "CITY_GROWTH_EXPONENT": "number",
+    "CITY_GROWTH_MULTIPLIER": "integer",
+    "FOOD_CONSUMPTION_PER_POPULATION": "integer",
+    "GOLD_PURCHASE_GOLD_PER_PRODUCTION": "integer",
+    "GOLD_PURCHASE_VISIBLE_DIVISOR": "integer",
+    "MAX_CITY_HIT_POINTS": "integer",
+    "MAX_HIT_POINTS": "integer",
+    "MOVE_DENOMINATOR": "integer",
+    "UNIT_UPGRADE_COST_DISCOUNT_MAX": "integer",
+    "UNIT_UPGRADE_COST_EXPONENT": "integer",
+    "UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA": "integer",
+    "UNIT_UPGRADE_COST_PER_PRODUCTION": "integer",
+    "UNIT_UPGRADE_COST_VISIBLE_DIVISOR": "integer",
+}
+
 
 def _snake_case(value: str) -> str:
     words = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", value)
@@ -2268,6 +2286,7 @@ def import_ruleset(
                 "DownloadableContent",
                 {"PackageID", "IsActive"},
             )
+            _require_columns(connection, "Defines", {"Name", "Value"})
             active_packages = _active_packages(connection)
             _validate_ruleset_family(ruleset.family, active_packages)
             if ruleset.dlc and ruleset.dlc != active_packages:
@@ -2279,6 +2298,9 @@ def import_ruleset(
                 ruleset.game_version,
                 active_packages,
                 ruleset.mods,
+            )
+            global_define_entities = _global_define_entities(
+                connection, source_label
             )
             _require_columns(
                 connection,
@@ -3376,7 +3398,8 @@ def import_ruleset(
             ruleset=ruleset,
             sources=(source,),
             entities=(
-                era_entities
+                global_define_entities
+                + era_entities
                 + technology_entities
                 + unit_entities
                 + unit_class_entities
@@ -3454,6 +3477,49 @@ def _select_scalar_rows(
     if not rows:
         raise KnowledgeImportError(f"{table} table is empty")
     return rows
+
+
+def _global_define_entities(
+    connection: sqlite3.Connection, source_label: str
+) -> tuple[Entity, ...]:
+    names = tuple(sorted(GLOBAL_DEFINE_VALUE_TYPES))
+    placeholders = ", ".join("?" for _ in names)
+    rows = connection.execute(
+        f'SELECT "Name", "Value" FROM "Defines" '
+        f'WHERE "Name" IN ({placeholders}) ORDER BY "Name"',
+        names,
+    ).fetchall()
+    found = {row["Name"] for row in rows}
+    missing = sorted(set(names) - found)
+    if missing:
+        raise KnowledgeImportError(
+            "required global defines are missing: " + ", ".join(missing)
+        )
+    entities: list[Entity] = []
+    for row in rows:
+        name = row["Name"]
+        value = row["Value"]
+        value_type = GLOBAL_DEFINE_VALUE_TYPES[name]
+        if value_type == "integer":
+            if not isinstance(value, int) or isinstance(value, bool):
+                raise KnowledgeImportError(
+                    f"global define {name} has invalid integer value: {value}"
+                )
+        elif value_type == "number":
+            if (
+                not isinstance(value, (int, float))
+                or isinstance(value, bool)
+                or not math.isfinite(value)
+            ):
+                raise KnowledgeImportError(
+                    f"global define {name} has invalid number value: {value}"
+                )
+        else:
+            raise AssertionError(f"unsupported global define type: {value_type}")
+        entities.append(
+            Entity("global_define", name, {"value": value}, (source_label,))
+        )
+    return tuple(entities)
 
 
 def _scalar_entity(

@@ -106,9 +106,10 @@ resolutions, decisions, sessions, projects, rewards, and votes are complete with
 typed relations. Minor-civilization identities and deterministic trait
 membership are complete. The policy/building remainder audit found only
 prohibited flavor tables outside the importer. Current next deliverable: close
-the broader remaining-family audit, starting with deterministic global defines
-and map/calendar tables, before M4. Civilization starting facts now include
-initial unit-class quantities and coastal placement without reading AI roles.
+the broader remaining-family audit, now focused on map/calendar tables, before
+M4. Civilization starting facts include initial unit-class quantities and
+coastal placement without reading AI roles. Fifteen global constants needed for
+movement, health, growth, purchase, and upgrades are allowlisted under ADR-0012.
 
 ## M4 — Ruleset resolver
 

@@ -117,6 +117,8 @@ No application-bundle modification is required.
   trait membership
 - [x] Import civilization initial unit-class quantities and coastal placement
   without selecting AI role data
+- [x] Import the first positive allowlist of deterministic global defines under
+  ADR-0012 without bulk-reading AI behavior parameters
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

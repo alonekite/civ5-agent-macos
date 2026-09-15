@@ -118,10 +118,14 @@ Civilizations also retain 44 initial unit-class quantities and coastal-start
 flags. The source `UnitAIType` column is not selected; duplicate
 civilization/unit-class pairs fail through reference identity instead of being
 silently merged across excluded roles.
+Fifteen allowlisted `global_define` entities preserve movement, hit-point,
+growth, food-consumption, purchase, and upgrade constants. Their stable source
+`Name` keys are accepted under ADR-0012; the importer does not bulk-copy
+`Defines` or read AI behavior parameters.
 
 ## Planned extensions
 
 Policy and building table coverage is closed; the only remaining non-empty
-families are their prohibited flavor tables. M3 next reviews deterministic
-global defines and remaining map/calendar families. M4 then adds per-game
-resolution without mutating base facts.
+families are their prohibited flavor tables. M3 next reviews remaining
+map/calendar families. M4 then adds per-game resolution without mutating base
+facts.

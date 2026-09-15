@@ -40,6 +40,7 @@ from civ5_agent.knowledge.import_sqlite import (
     GAME_SPEED_FIELDS,
     GREAT_WORK_ARTIFACT_CLASS_FIELDS,
     GREAT_WORK_FIELDS,
+    GLOBAL_DEFINE_VALUE_TYPES,
     HANDICAP_FIELDS,
     PROMOTION_FIELDS,
     PROMOTION_PREREQUISITE_COLUMNS,
@@ -148,6 +149,18 @@ def create_database(
         connection.execute(
             "INSERT INTO DownloadableContent VALUES (?, 1)",
             (BRAVE_NEW_WORLD_PACKAGE_ID,),
+        )
+        connection.execute("CREATE TABLE Defines (Name TEXT PRIMARY KEY, Value)")
+        connection.executemany(
+            "INSERT INTO Defines VALUES (?, ?)",
+            [
+                (
+                    name,
+                    1.5 if value_type == "number" else 10,
+                )
+                for name, value_type in GLOBAL_DEFINE_VALUE_TYPES.items()
+            ]
+            + [("AI_TEST_DEFINE", 999)],
         )
         connection.execute(f"CREATE TABLE Technologies ({', '.join(definitions)})")
         era_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
@@ -1618,7 +1631,7 @@ class RulesetImportTest(unittest.TestCase):
                 "cache/Civ5DebugDatabase.db",
                 Ruleset("bnw", "1.0.3.279"),
             )
-        self.assertEqual(len(bundle.entities), 53)
+        self.assertEqual(len(bundle.entities), 68)
         self.assertEqual(
             len(bundle.references),
             58
@@ -1641,6 +1654,15 @@ class RulesetImportTest(unittest.TestCase):
         )
         self.assertEqual(bundle.schema_version, 3)
         self.assertEqual(bundle.ruleset.dlc, (BRAVE_NEW_WORLD_PACKAGE_ID,))
+        city_growth = next(
+            item for item in bundle.entities
+            if item.type_id == "CITY_GROWTH_EXPONENT"
+        )
+        self.assertEqual(city_growth.kind, "global_define")
+        self.assertEqual(city_growth.attributes, {"value": 1.5})
+        self.assertFalse(
+            any(item.type_id == "AI_TEST_DEFINE" for item in bundle.entities)
+        )
         hurry = next(item for item in bundle.entities if item.type_id == "HURRY_TEST")
         self.assertEqual(hurry.attributes["gold_per_production"], 1)
         self.assertIn(
@@ -2515,6 +2537,46 @@ class RulesetImportTest(unittest.TestCase):
                 import_ruleset(
                     database,
                     "cache/bad-game-speed.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_invalid_global_define_integer(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "bad-global-define.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "UPDATE Defines SET Value = ? WHERE Name = ?",
+                    ("invalid", "MAX_HIT_POINTS"),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "global define MAX_HIT_POINTS has invalid integer value",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/bad-global-define.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_missing_required_global_define(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "missing-global-define.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "DELETE FROM Defines WHERE Name = ?",
+                    ("MAX_HIT_POINTS",),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "required global defines are missing: MAX_HIT_POINTS",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/missing-global-define.db",
                     Ruleset("bnw", "test"),
                 )
 

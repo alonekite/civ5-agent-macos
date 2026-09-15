@@ -9,9 +9,8 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: audit deterministic global defines and remaining
-  map/calendar families, then close M3.
-- Functional test baseline: 148 tests locally on Python 3.11 and the default
+- Active next deliverable: audit remaining map/calendar families, then close M3.
+- Functional test baseline: 150 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
   implementation head `15d3fa0`.
 - Blocking issue: none for offline M3 work.
@@ -53,7 +52,7 @@ decisions, not raw chat transcripts.
   categories, domains, special-unit categories, hurry methods, great-work
   classes, slots, works, and artifact classes, and their currently supported
   relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,789 entities and 5,319
+- The real Campaign Edition database currently yields 1,804 entities and 5,319
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -112,7 +111,10 @@ decisions, not raw chat transcripts.
 - Civilization starting facts now include 44 initial unit-class quantities, 12
   coastal-start preferences, and one first-placement preference. The source AI
   role column is never selected.
-- The test suite contains 148 tests locally on Python 3.11 and the default
+- Fifteen allowlisted global defines preserve movement, hit points, city growth,
+  food consumption, purchase, and unit-upgrade constants without bulk-importing
+  AI behavior parameters.
+- The test suite contains 150 tests locally on Python 3.11 and the default
   runtime; implementation head `15d3fa0` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
@@ -149,8 +151,7 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Audit deterministic global defines and remaining map/calendar families, then
-   close M3.
+1. Audit remaining map/calendar families, then close M3.
 2. Add per-game modifier resolution without mutating base knowledge.
 3. Define the factual turn-journal schema, storage interface, canonical
    serialization, retention expectations, and integrity tests.
@@ -176,6 +177,8 @@ remain out of scope.
   and reject cross-turn or cross-player mixtures.
 - ADR-0011: embed non-addressable rule sets under a stable owning entity rather
   than inventing identifiers or importing localized descriptions.
+- ADR-0012: represent explicitly allowlisted stable global define names as
+  ordinary sourced knowledge entities.
 
 See `docs/architecture/decisions/README.md`. Development history belongs in
 `docs/development/DEVELOPMENT_LOG.md`, not in this dashboard.

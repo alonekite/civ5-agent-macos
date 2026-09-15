@@ -18,6 +18,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0009](ADR-0009-recoverable-live-session.md) | Manage live tests as recoverable bounded sessions | Accepted |
 | [ADR-0010](ADR-0010-segment-live-snapshots.md) | Segment live snapshots below the FireTuner command limit | Accepted |
 | [ADR-0011](ADR-0011-embed-non-addressable-rules.md) | Embed non-addressable rules under stable parent entities | Accepted |
+| [ADR-0012](ADR-0012-allowlisted-global-define-entities.md) | Model allowlisted global defines as entities | Accepted |
 
 ## Template
 
