@@ -163,6 +163,8 @@ league projects and rewards, and legacy votes with typed prerequisites and
 rewards but no descriptions, help text, or art.
 Minor-civilization and minor-trait entities retain stable IDs and typed trait
 membership without localized names, Civilopedia prose, art, colors, or flavor.
+Civilization start facts include unit-class quantities and coastal placement.
+The `Civilization_FreeUnits.UnitAIType` behavior field is never selected.
 Binary effects also cover beliefs, policies, buildings, resources, specialists,
 and unit/building resource quantities. Projects retain
 instance limits, cost, deterministic flags, technology and victory gates,
@@ -199,7 +201,7 @@ unit categories, 2 hurry methods, 4 great-work classes, 3 great-work slot types,
 279 great works, 6 artifact classes, 9 regions, 4 game speeds, 9 handicaps, 6
 world sizes, and 20 ancient-ruin outcomes, plus 47 World Congress entities, 58
 minor civilizations, and 5 minor traits. The complete current import contains
-1,789 entities and 5,275
+1,789 entities and 5,319
 references, including 148 unit-domain, 22 special-unit, and 323 additional typed
 unit-identifier relationships; 646 binary attributed references from 84
 single-value table families, four multi-attribute promotion families, and
@@ -227,6 +229,8 @@ buildings, unit classes, specialists, policies, votes, and vote sources.
 Minor civilizations contribute 58 typed trait memberships. All non-empty
 policy and building relation tables are now covered except the flavor tables,
 which remain prohibited by ADR-0005.
+Civilizations contribute 44 typed initial unit-class quantities; 12 are marked
+to start along an ocean and one is marked for first coastal placement.
 Quantified coverage additionally preserves building-class happiness, culture,
 tourism, and production effects; domain experience and production; free units;
 building prerequisite counts; adjacent-mountain yields; technology trade-route

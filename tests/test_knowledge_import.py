@@ -342,6 +342,14 @@ def create_database(
             "CREATE TABLE Civilization_BuildingClassOverrides "
             "(CivilizationType TEXT, BuildingClassType TEXT, BuildingType TEXT)"
         )
+        connection.execute(
+            "CREATE TABLE Civilization_Start_Along_Ocean "
+            "(CivilizationType TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE Civilization_Start_Place_First_Along_Ocean "
+            "(CivilizationType TEXT)"
+        )
         connection.execute("CREATE TABLE Religions (Type TEXT NOT NULL PRIMARY KEY)")
         belief_definitions = ["Type TEXT NOT NULL PRIMARY KEY"]
         belief_definitions.extend(
@@ -1075,6 +1083,14 @@ def create_database(
                 "BUILDINGCLASS_PYRAMID",
                 "BUILDING_PYRAMID",
             ),
+        )
+        connection.execute(
+            "INSERT INTO Civilization_Start_Along_Ocean VALUES (?)",
+            ("CIVILIZATION_TEST",),
+        )
+        connection.execute(
+            "INSERT INTO Civilization_Start_Place_First_Along_Ocean VALUES (?)",
+            ("CIVILIZATION_TEST",),
         )
         connection.execute("CREATE TABLE Regions (Type TEXT NOT NULL PRIMARY KEY)")
         connection.execute("INSERT INTO Regions VALUES (?)", ("REGION_TEST",))
@@ -1836,7 +1852,14 @@ class RulesetImportTest(unittest.TestCase):
         civilization = next(
             item for item in bundle.entities if item.type_id == "CIVILIZATION_TEST"
         )
-        self.assertEqual(civilization.attributes, {"playable": True})
+        self.assertEqual(
+            civilization.attributes,
+            {
+                "playable": True,
+                "starts_along_ocean": True,
+                "placed_first_along_ocean": True,
+            },
+        )
         leader = next(
             item for item in bundle.entities if item.type_id == "LEADER_TEST"
         )
@@ -2796,6 +2819,26 @@ class RulesetImportTest(unittest.TestCase):
                 import_ruleset(
                     database,
                     "cache/bad-override.db",
+                    Ruleset("bnw", "test"),
+                )
+
+    def test_rejects_ocean_start_for_missing_civilization(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "missing-ocean-start-civilization.db"
+            create_database(database)
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute(
+                    "INSERT INTO Civilization_Start_Along_Ocean VALUES (?)",
+                    ("CIVILIZATION_MISSING",),
+                )
+                connection.commit()
+            with self.assertRaisesRegex(
+                KnowledgeImportError,
+                "references missing civilization",
+            ):
+                import_ruleset(
+                    database,
+                    "cache/missing-ocean-start-civilization.db",
                     Ruleset("bnw", "test"),
                 )
 

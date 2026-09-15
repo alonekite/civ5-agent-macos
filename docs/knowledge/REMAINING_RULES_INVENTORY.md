@@ -31,6 +31,7 @@ implemented.
 | `GoodyHuts` and handicap availability | 20 / 83 | deterministic ancient-ruin outcomes, typed unit-class results, and difficulty availability |
 | World Congress families | 47 entities, 68 links | resolutions, decisions, sessions, projects, rewards, legacy votes, and typed prerequisites/rewards |
 | Minor civilizations and traits | 58 / 5 | stable identities and deterministic trait membership; prose, art, colors, and AI flavor excluded |
+| Civilization initial units and coastal starts | 44 / 12 / 1 | typed unit-class quantities and boolean map-placement facts; `UnitAIType` is never selected |
 
 ## Multi-context result
 
@@ -93,3 +94,8 @@ is closed. Continue the broader M3 audit until every non-empty candidate is
 imported, explicitly deferred with a reason, or excluded under an accepted
 boundary. Per-game selection and modifier application remain an M4 resolver
 responsibility.
+
+The next broader audit targets positive allowlists for deterministic global
+`Defines` plus remaining map/calendar families. Large tables are not imported
+wholesale: each field must be controller-relevant and must pass the same
+copyright and AI-boundary review.

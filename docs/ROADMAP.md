@@ -115,6 +115,8 @@ No application-bundle modification is required.
   and votes with typed prerequisites and rewards
 - [x] Import minor-civilization and minor-trait identities with deterministic
   trait membership
+- [x] Import civilization initial unit-class quantities and coastal placement
+  without selecting AI role data
 - [ ] Import contextual/ternary effect tables and remaining rules
 - [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
   policy, belief, DLC, and mod context

@@ -1502,6 +1502,11 @@ PLAIN_REFERENCE_TABLES = (
 
 QUANTITY_REFERENCE_TABLES = (
     (
+        "Civilization_FreeUnits", "CivilizationType", "UnitClassType",
+        "starts_with_unit_class", "civilization", "unit_class", "Count",
+        "amount",
+    ),
+    (
         "Terrain_Yields", "TerrainType", "YieldType", "yield",
         "terrain", "yield", "Yield", "amount",
     ),
@@ -2555,6 +2560,16 @@ def import_ruleset(
                 "Civilization_BuildingClassOverrides",
                 {"CivilizationType", "BuildingClassType", "BuildingType"},
             )
+            _require_columns(
+                connection,
+                "Civilization_Start_Along_Ocean",
+                {"CivilizationType"},
+            )
+            _require_columns(
+                connection,
+                "Civilization_Start_Place_First_Along_Ocean",
+                {"CivilizationType"},
+            )
             _require_columns(connection, "Religions", {"Type"})
             _require_columns(
                 connection,
@@ -2952,11 +2967,8 @@ def import_ruleset(
             ).fetchall()
             if not civilization_rows:
                 raise KnowledgeImportError("Civilizations table is empty")
-            civilization_entities = tuple(
-                _scalar_entity(
-                    "civilization", row, CIVILIZATION_FIELDS, source_label
-                )
-                for row in civilization_rows
+            civilization_entities = _civilization_entities(
+                connection, civilization_rows, source_label
             )
             leader_rows = connection.execute(
                 'SELECT "Type" FROM "Leaders" ORDER BY "Type"'
@@ -3548,6 +3560,48 @@ def _building_entities(
                 entity.source_paths,
             )
         entities.append(entity)
+    return tuple(entities)
+
+
+def _civilization_entities(
+    connection: sqlite3.Connection,
+    rows: list[sqlite3.Row],
+    source_label: str,
+) -> tuple[Entity, ...]:
+    known = {row["Type"] for row in rows}
+    flags: dict[str, set[str]] = {}
+    for table, attribute in (
+        ("Civilization_Start_Along_Ocean", "starts_along_ocean"),
+        (
+            "Civilization_Start_Place_First_Along_Ocean",
+            "placed_first_along_ocean",
+        ),
+    ):
+        values = {
+            row["CivilizationType"]
+            for row in connection.execute(
+                f'SELECT DISTINCT "CivilizationType" FROM "{table}" '
+                'ORDER BY "CivilizationType"'
+            )
+        }
+        missing = sorted(values - known)
+        if missing:
+            raise KnowledgeImportError(
+                f"{table} references missing civilization: {', '.join(missing)}"
+            )
+        flags[attribute] = values
+
+    entities: list[Entity] = []
+    for row in rows:
+        entity = _scalar_entity(
+            "civilization", row, CIVILIZATION_FIELDS, source_label
+        )
+        attributes = dict(entity.attributes)
+        for attribute, values in flags.items():
+            attributes[attribute] = row["Type"] in values
+        entities.append(
+            Entity(entity.kind, entity.type_id, attributes, entity.source_paths)
+        )
     return tuple(entities)
 
 

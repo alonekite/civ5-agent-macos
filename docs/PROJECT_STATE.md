@@ -9,9 +9,9 @@ decisions, not raw chat transcripts.
 ## Dashboard
 
 - Current milestone: M3 — ruleset knowledge coverage.
-- Active next deliverable: close the broader remaining-family M3 audit, then
-  begin per-game modifier resolution.
-- Functional test baseline: 147 tests locally on Python 3.11 and the default
+- Active next deliverable: audit deterministic global defines and remaining
+  map/calendar families, then close M3.
+- Functional test baseline: 148 tests locally on Python 3.11 and the default
   Python runtime; GitHub Actions passed on Python 3.11 and 3.13 for published
   head `6b4e1ef`.
 - Blocking issue: none for offline M3 work.
@@ -53,7 +53,7 @@ decisions, not raw chat transcripts.
   categories, domains, special-unit categories, hurry methods, great-work
   classes, slots, works, and artifact classes, and their currently supported
   relations from a local merged Civ V SQLite database.
-- The real Campaign Edition database currently yields 1,789 entities and 5,275
+- The real Campaign Edition database currently yields 1,789 entities and 5,319
   validated references. The map slice includes 9 terrains, 25 ordinary
   features, 2 fake features, 29 improvements, 2 routes, 6 yields, and 35 build
   actions. Generated bundles remain local and uncommitted.
@@ -109,7 +109,10 @@ decisions, not raw chat transcripts.
   58 typed memberships without localized prose, art, colors, or flavor data.
 - The policy/building remainder audit found only their prohibited flavor tables
   outside the importer; all non-flavor non-empty relation tables are covered.
-- The test suite contains 147 tests locally on Python 3.11 and the default
+- Civilization starting facts now include 44 initial unit-class quantities, 12
+  coastal-start preferences, and one first-placement preference. The source AI
+  role column is never selected.
+- The test suite contains 148 tests locally on Python 3.11 and the default
   runtime; the published batch passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
@@ -146,7 +149,8 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Close the broader remaining-family M3 audit.
+1. Audit deterministic global defines and remaining map/calendar families, then
+   close M3.
 2. Add per-game modifier resolution without mutating base knowledge.
 3. Define the factual turn-journal schema, storage interface, canonical
    serialization, retention expectations, and integrity tests.

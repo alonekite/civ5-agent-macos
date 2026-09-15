@@ -114,10 +114,14 @@ unit classes, specialists, and policies without presentation fields.
 Minor-civilization and minor-trait entities preserve stable IDs and typed trait
 membership. Localized names, Civilopedia prose, art, colors, and flavor tables
 remain excluded.
+Civilizations also retain 44 initial unit-class quantities and coastal-start
+flags. The source `UnitAIType` column is not selected; duplicate
+civilization/unit-class pairs fail through reference identity instead of being
+silently merged across excluded roles.
 
 ## Planned extensions
 
 Policy and building table coverage is closed; the only remaining non-empty
-families are their prohibited flavor tables. M3 next completes the broader
-remaining-family audit. M4 then adds per-game resolution without mutating base
-facts.
+families are their prohibited flavor tables. M3 next reviews deterministic
+global defines and remaining map/calendar families. M4 then adds per-game
+resolution without mutating base facts.
