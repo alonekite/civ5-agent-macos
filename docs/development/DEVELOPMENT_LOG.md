@@ -533,6 +533,30 @@ Implementation and evidence commit: `6848b0b`.
 
 Architecture governance commit: `edd98ec`.
 
+## 2026-09-15 — M6 deterministic turn-executor boundary
+
+- Replaced the planned “deterministic controller expansion” milestone with a
+  deterministic current-turn executor that consumes an explicit versioned
+  `TurnPlan`.
+- Separated factual requirement inspection from action choice: the core may
+  report missing research, production, or unit orders but cannot select how to
+  satisfy them.
+- Required complete plan validation, live-state checks before every action,
+  bridge write-after-read proof, explicit final `end_turn`, safe pause on drift
+  or missing decisions, and unambiguous recovery.
+- Added ADR-0015 and a proposed TurnPlan/execution contract. The current
+  `controller` package and CLI remain an MVP readiness/end-turn proof until M7;
+  they are no longer an expansion point for tactical policy.
+- Made M6 depend on M5 journal identity, integrity, and recovery semantics, and
+  reserved extensible factual journal records for later plan execution events.
+- Updated repository instructions, architecture, milestones, roadmap, module
+  boundaries, contracts, verification status, README, and Chinese project
+  outline. No runtime code changed in this governance batch.
+- Documentation link and formatting checks passed; scans found no local
+  identifiers, credentials, tokens, snapshots, or recovery artifacts.
+
+Architecture governance commit: `7ef686d`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
