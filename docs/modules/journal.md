@@ -65,5 +65,5 @@ it is not an accepted design or release artifact.
 
 ## Planned extensions
 
-Complete M5 only after M3/M4 knowledge work, then expose selective read/export
-capabilities during M7.
+Implement M5 after the completed M3 knowledge coverage and M4 structural-view
+boundary, then expose selective read/export capabilities during M7.

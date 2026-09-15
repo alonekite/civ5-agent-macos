@@ -8,8 +8,9 @@ decisions, not raw chat transcripts.
 
 ## Dashboard
 
-- Current milestone: M4 — ruleset resolver.
-- Active next deliverable: effective scalar resolution for M4.
+- Current milestone: M5 — factual turn journal.
+- Active next deliverable: versioned append-only journal records, canonical
+  serialization, integrity checks, and private storage.
 - Functional test baseline: 170 tests locally on Python 3.11 and the default
   Python runtime; implementation commit `6848b0b` passed GitHub Actions on
   Python 3.11 and 3.13.
@@ -128,7 +129,7 @@ decisions, not raw chat transcripts.
 - M3 is complete: every reviewed non-empty candidate family is imported,
   explicitly deferred with a semantic reason, or excluded by an accepted
   boundary. Further knowledge growth is demand-driven and positive-allowlist.
-- M4 now has an initial explicit context contract covering exact ruleset,
+- M4 is complete as a structural ruleset knowledge view covering exact ruleset,
   game-speed, handicap, world-size, civilization, policy, and belief selection.
   Unknown, duplicate, and incompatible selections fail closed; resolved entity
   values are detached from the base bundle.
@@ -136,11 +137,14 @@ decisions, not raw chat transcripts.
   default, unique replacement, or explicit disabled state. Results retain base
   and override references; a real local America check selected the Minuteman
   over the Musketman and left ordinary defaults unchanged.
+- Broad effective scalar composition and counterfactual comparison are excluded
+  from the execution core under ADR-0014. They belong to future consumer-driven
+  strategic, tactical, and vertical skills.
 - Schema 5 adds bounded live reads for researched and currently researchable
-  technologies plus an observed research-choice mode. Special choices fail
-  closed, and schemas 2–4 remain compatible. This is offline-verified only.
+  technologies plus a research-choice mode. The ordinary branch is
+  live-verified, special choices fail closed, and schemas 2–4 remain compatible.
 - The test suite contains 170 tests locally on Python 3.11 and the default
-  runtime; implementation head `5669973` passed CI on Python 3.11 and 3.13.
+  runtime; implementation head `6848b0b` passed CI on Python 3.11 and 3.13.
 
 ## Implemented with optional enhanced live evidence pending
 
@@ -176,14 +180,14 @@ See `docs/ARCHITECTURE.md` for the detailed boundaries.
 
 ## Recommended offline development order
 
-1. Resolve effective scalar values with explicit base and modifier provenance.
-2. Define the factual turn-journal schema, storage interface, canonical
+1. Define the factual turn-journal schema, storage interface, canonical
    serialization, retention expectations, and integrity tests.
-3. Connect watcher observations and command results to the journal without
+2. Connect watcher observations and command results to the journal without
    changing the live bridge protocol.
-4. Integrate ruleset queries into deterministic controller policies.
-5. Stabilize the public read/write, knowledge-query, and journal APIs.
-6. Perform optional non-empty diplomacy or non-zero science-project live
+3. Integrate structural knowledge queries into deterministic controller
+   policies only when a concrete conservative policy requires them.
+4. Stabilize the public read/write, knowledge-query, and journal APIs.
+5. Perform optional non-empty diplomacy or non-zero science-project live
    enhancement checks only when the user is present.
 
 LLM decision-making, working memory, strategic memory, and MCP integration
@@ -205,6 +209,8 @@ remain out of scope.
   ordinary sourced knowledge entities.
 - ADR-0013: require explicit, canonically ordered per-game resolution context
   and detach selected result entities from immutable base knowledge.
+- ADR-0014: keep M4 as a structural knowledge view and move effective-rule
+  analysis to future strategic, tactical, and vertical skills.
 
 See `docs/architecture/decisions/README.md`. Development history belongs in
 `docs/development/DEVELOPMENT_LOG.md`, not in this dashboard.

@@ -10,12 +10,11 @@
                 [ Turn Journal ]              [ Deterministic Controller ]
                        ▲                                     ▲
                        │                                     │
-            verified action results        [ Resolved Ruleset Context ]
+            verified action results        [ Structural Knowledge View ]
                                                              ▲
                                               [ Ruleset Knowledge ]
-                                                             │
-                                                             ▼
-                                             whitelisted action via bridge
+
+[ Deterministic Controller ] ── whitelisted action ──► [ Lua Bridge ]
 ```
 
 The verified Phase 1 transport is the game's bundled FireTuner server on
@@ -121,12 +120,19 @@ The knowledge module is deterministic and never requires an LLM. A local model
 may help draft code or mappings during development, but model output is accepted
 only after schema, integrity, fixture, and test validation.
 
-The M4 resolver validates an explicit per-game selection against the immutable
-ruleset bundle. Its initial contract covers exact ruleset identity, game speed,
-difficulty, map size, civilization, adopted policies, and active beliefs. It
-fails closed on missing or incompatible identifiers and returns detached entity
-values plus source provenance. Effective modifier composition is the next M4
-slice.
+The completed M4 structural knowledge view validates an explicit per-game
+selection against the immutable ruleset bundle. Its contract covers exact
+ruleset identity, game speed, difficulty, map size, civilization, adopted
+policies, and active beliefs. It fails closed on missing or incompatible
+identifiers, returns detached entity values plus source provenance, and resolves
+unit/building class defaults and civilization replacements. The implementation
+retains the provisional name `RulesetResolver` until M7.
+
+It does not compose broad effective scalar values, compare candidates, predict
+outcomes, or choose actions. Those operations belong with future strategic,
+tactical, and vertical-skill decision support outside this execution core. When
+Civ V reports a current effective value directly, the live observation is
+authoritative.
 
 Do not expose arbitrary Lua execution to any controller or external decision
 system.
@@ -180,6 +186,12 @@ LLM-facing layer outside this repository:
   information, and near-term production, research, and unit intentions;
 - strategic memory will maintain victory objectives, approximate technology and
   policy routes, expansion, diplomacy, military direction, and revision history.
+
+That future layer also owns consumer-driven research, military, exploration,
+city-development, and other vertical skills. Their deterministic rules may
+compare alternatives or calculate counterfactual effective values for strategy
+and tactics; those analyses are not responsibilities of the current executor or
+the M4 structural knowledge view.
 
 Some working-memory content will be derived from factual journal records, but
 its selection, summarization, inference, expiry, and prompt representation are

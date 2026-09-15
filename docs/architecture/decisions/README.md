@@ -20,6 +20,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0011](ADR-0011-embed-non-addressable-rules.md) | Embed non-addressable rules under stable parent entities | Accepted |
 | [ADR-0012](ADR-0012-allowlisted-global-define-entities.md) | Model allowlisted global defines as entities | Accepted |
 | [ADR-0013](ADR-0013-explicit-ruleset-resolution-context.md) | Require explicit ruleset resolution context | Accepted |
+| [ADR-0014](ADR-0014-separate-ruleset-view-from-decision-support.md) | Separate structural ruleset views from future decision support | Accepted |
 
 ## Template
 

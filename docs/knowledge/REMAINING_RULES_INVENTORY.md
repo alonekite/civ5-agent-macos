@@ -98,7 +98,10 @@ The following families remain outside the knowledge module:
 M3 is complete: every reviewed non-empty candidate is imported, explicitly
 deferred with a semantic reason, or excluded by an accepted boundary. Policy
 and building remainders are prohibited flavor tables. New rules are added only
-when a controller or resolver use case establishes their relevance, and each
-field must pass the same provenance, copyright, and AI-boundary review.
+when a core controller or future decision-support skill establishes their
+relevance, and each field must pass the same provenance, copyright, and
+AI-boundary review.
 
-Per-game selection and modifier application now belong to the M4 resolver.
+Per-game structural selection belongs to the completed M4 knowledge view.
+Modifier application and counterfactual comparison belong to future
+consumer-driven strategic, tactical, and vertical skills under ADR-0014.

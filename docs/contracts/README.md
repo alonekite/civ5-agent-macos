@@ -9,6 +9,7 @@ tests; discrepancies are defects that must be resolved explicitly.
 | [Live state](live-state.md) | Evolving; schema 2 and schema 4 live-verified | bridge |
 | [Commands](command.md) | Evolving, core writes live-verified | bridge |
 | [Knowledge bundle](../KNOWLEDGE.md) | Evolving, implemented | knowledge |
+| [Ruleset knowledge view](resolver.md) | Structural M4 contract implemented | knowledge |
 | [Turn journal](journal.md) | Proposed | journal |
 | Public Python API | Planned for M7 | cross-module |
 

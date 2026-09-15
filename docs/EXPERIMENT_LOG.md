@@ -905,3 +905,7 @@ Keep a persistent single connection, derive ordinary required state from an
 empty current research plus at least one legal candidate while retaining
 special blocker overrides, enforce the consistency invariant, and return to M4
 effective scalar resolution.
+
+Planning note: ADR-0014 later superseded the proposed scalar-resolution step.
+M4 was closed as a structural knowledge view, and effective-rule analysis was
+moved to future consumer-driven strategic, tactical, and vertical skills.

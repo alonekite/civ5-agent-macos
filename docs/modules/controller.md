@@ -23,14 +23,14 @@ M7.
 
 ## Inputs and outputs
 
-Inputs are validated live `GameState` plus, as M3/M4 mature, explicit knowledge
-and resolver queries. Output is a decision such as wait, choose research, choose
+Inputs are validated live `GameState` plus narrowly required structural
+knowledge queries. Output is a decision such as wait, choose research, choose
 production, issue a unit order, or end turn.
 
 ## Dependencies
 
-Controller may depend inward on bridge contracts and knowledge/resolver APIs.
-Bridge and knowledge must not depend on controller policy.
+Controller may depend inward on bridge contracts and structural knowledge-view
+APIs. Bridge and knowledge must not depend on controller policy.
 
 ## Invariants
 
@@ -56,10 +56,11 @@ execution. Basic refusal and end-turn execution were live-verified.
 
 ## Current limitations
 
-The controller does not yet consume the broader knowledge graph or a per-game
-ruleset resolver. It is a conservative proof rather than a full game strategy.
+The controller does not yet consume broader structural knowledge queries. It is
+a conservative current-turn proof rather than a tactical or strategic planner.
 
 ## Planned extensions
 
-Complete M3/M4 query integration and add small independently testable policies
-before M7 API stabilization.
+Add structural knowledge queries only when a concrete conservative policy needs
+them, then stabilize the boundary during M7. Candidate comparison and
+counterfactual rule analysis belong to future tactical/strategic skills.

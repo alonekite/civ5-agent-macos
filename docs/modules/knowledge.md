@@ -1,6 +1,6 @@
 # Module: knowledge
 
-Status: Implemented, coverage in progress
+Status: Implemented
 
 ## Responsibility
 
@@ -20,7 +20,8 @@ Its importer reads the user's local merged SQLite data without modifying it.
 ## Public interface
 
 `KnowledgeBundle`, `KnowledgeIndex`, canonical codec functions, validation, the
-SQLite importer, and the explicit per-game `RulesetResolver`. See
+SQLite importer, and the structural per-game knowledge view currently named
+`RulesetResolver`. See
 [KNOWLEDGE.md](../KNOWLEDGE.md) and the
 [resolver contract](../contracts/resolver.md) for executable behavior.
 
@@ -137,11 +138,12 @@ M3 coverage is complete under the reviewed positive-allowlist boundary. Policy
 and building remainders are prohibited flavor tables; presentation-only
 calendars and city-size soundscape categories are excluded; natural-wonder
 placement remains explicitly deferred until a controller use case requires it.
-M4 adds per-game resolution without mutating base facts. New knowledge families
-remain possible, but require the same provenance and semantic review.
+M4 adds a structural per-game knowledge view without mutating base facts. It
+validates and canonicalizes explicit match context, returns detached selected
+entities with source provenance, and resolves civilization-aware unit/building
+classes to the default, unique replacement, or explicit disabled result.
 
-The first M4 slice validates and canonicalizes explicit match context and
-returns detached selected entities with source provenance. It does not yet
-compose effective scalar values. Civilization-aware unit/building class
-resolution returns the effective default, unique replacement, or explicit
-disabled result together with both base and override provenance.
+Broad effective scalar composition, prediction, candidate comparison, and
+strategic/tactical analysis are not planned knowledge-module extensions. They
+belong to future consumer-driven decision-support skills. New knowledge
+families remain possible, but require the same provenance and semantic review.

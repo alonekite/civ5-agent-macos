@@ -123,15 +123,18 @@ No application-bundle modification is required.
   invisibility/detection facts; exclude presentation-only calendar families
 - [x] Classify all reviewed remaining rules and import every accepted
   controller-facing family, including resource map-quantity alternatives
-- [ ] Resolve static knowledge against live game-speed, difficulty, civilization,
-  policy, belief, DLC, and mod context
+- [x] Validate explicit game-speed, difficulty, civilization, policy, belief,
+  DLC, and mod context as a structural knowledge view
 - [x] Define and validate explicit canonical resolution context without
   mutating base knowledge
-- [ ] Compose effective scalar values with base and modifier provenance
+- [x] Exclude broad effective scalar composition from the execution core and
+  defer it to consumer-driven strategic, tactical, and vertical skills under
+  ADR-0014
 - [x] Resolve civilization replacements and disabled class defaults with base
   and override provenance
 - [x] Expose a validated, deterministic entity/reference query API
-- [ ] Integrate ruleset queries into controller decisions
+- [ ] Integrate structural knowledge queries only when a concrete conservative
+  controller policy requires them
 
 ## M5 — Per-game factual journal
 

@@ -31,7 +31,7 @@ do not belong in the repository.
 - [Live-state contract](contracts/live-state.md)
 - [Command contract](contracts/command.md)
 - [Knowledge contract](KNOWLEDGE.md)
-- [Ruleset resolver contract](contracts/resolver.md)
+- [Ruleset knowledge-view contract](contracts/resolver.md)
 - [Remaining rules inventory](knowledge/REMAINING_RULES_INVENTORY.md): reviewed
   SQLite families, exclusions, and the completed M3 classification.
 - [Journal contract](contracts/journal.md)

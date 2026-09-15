@@ -9,8 +9,8 @@ GitHub Issues and should link back to one milestone ID.
 | M1 | Bidirectional bridge MVP | Complete | M0 |
 | M2 | Verified action layer | Complete | M1 |
 | M3 | Ruleset knowledge coverage | Complete | M1 |
-| M4 | Ruleset resolver | In progress | M3 |
-| M5 | Factual turn journal | Planned | M1 |
+| M4 | Ruleset knowledge view | Complete | M3 |
+| M5 | Factual turn journal | In progress | M1, M4 |
 | M6 | Deterministic controller expansion | In progress | M2, M3, M4 |
 | M7 | Public API stabilization | Planned | M4, M5, M6 |
 | M8 | 1.0 release readiness | Planned | M7 |
@@ -105,11 +105,11 @@ complete without AI decision heuristics or presentation fields. World Congress
 resolutions, decisions, sessions, projects, rewards, and votes are complete with
 typed relations. Minor-civilization identities and deterministic trait
 membership are complete. The policy/building remainder audit found only
-prohibited flavor tables outside the importer. Current next deliverable: close
-the broader remaining-family audit, now focused on map/calendar tables, before
-M4. Civilization starting facts include initial unit-class quantities and
-coastal placement without reading AI roles. Fifteen global constants needed for
-movement, health, growth, purchase, and upgrades are allowlisted under ADR-0012.
+prohibited flavor tables outside the importer. The broader map/calendar audit
+is complete. Civilization starting facts include initial unit-class quantities
+and coastal placement without reading AI roles. Fifteen global constants needed
+for movement, health, growth, purchase, and upgrades are allowlisted under
+ADR-0012.
 Climates, sea levels, and game options now preserve map-generation and stable
 ruleset-switch facts, while promotion invisibility/detection targets are typed.
 Calendar/date presentation families and city-size soundscape categories are
@@ -121,24 +121,27 @@ imported, explicitly deferred with a semantic reason, or excluded under an
 accepted boundary. New families remain positive-allowlist extensions rather
 than reopening the milestone.
 
-## M4 — Ruleset resolver
+## M4 — Ruleset knowledge view
 
 Acceptance criteria:
 
 - Preserve immutable base ruleset facts.
-- Resolve effective facts for a declared DLC/Mod set and per-game modifiers.
-- Support game speed, difficulty, map size, civilization replacements, adopted
-  policies, and beliefs where source rules require them.
-- Return provenance for both base facts and applied modifiers.
+- Validate a complete declared ruleset, game speed, difficulty, map size,
+  civilization, adopted-policy set, and active-belief set.
+- Return detached canonical entities and source provenance.
+- Resolve structural unit/building class identity to its default,
+  civilization replacement, or explicitly disabled result.
 - Reject incomplete or incompatible context instead of guessing.
+- Exclude scalar composition, candidate scoring, prediction, route evaluation,
+  strategy, tactics, and action selection from the execution core.
 
-The initial context-resolution slice is implemented. It requires exact ruleset,
-game-speed, handicap, world-size, civilization, adopted-policy, and active-
-belief identifiers; canonicalizes set-like selections; rejects unknown and
-duplicate values; and returns detached selected entities plus source
-provenance. Unit and building classes now resolve to a default, civilization
-replacement, or explicit disabled result while retaining base and override
-references. Effective scalar modifier composition remains next.
+M4 completed on 2026-09-15. The structural view requires exact identifiers,
+canonicalizes set-like selections, rejects unknown and duplicate values, and
+returns detached selected entities plus source provenance. Unit and building
+classes resolve to a default, civilization replacement, or explicit disabled
+result while retaining base and override references. ADR-0014 moves effective
+scalar and counterfactual analysis to future consumer-driven decision-support
+skills rather than the current execution core.
 
 ## M5 — Factual turn journal
 
@@ -156,20 +159,21 @@ Acceptance criteria:
 
 Acceptance criteria:
 
-- Consume only validated live state and public knowledge/resolver APIs.
+- Consume only validated live state and public knowledge-view APIs.
 - Emit only explicit allowlisted candidate actions.
 - Keep execution opt-in and route every action through bridge verification.
 - Cover conservative mandatory-choice and turn-completion policies with tests.
 - Never require an LLM.
 
-The existing basic controller satisfies the initial proof; this milestone remains
-in progress until it uses the completed knowledge/resolver interfaces.
+The existing basic controller satisfies the initial proof; this milestone
+remains in progress until concrete conservative policies require and use the
+completed structural knowledge interfaces.
 
 ## M7 — Public API stabilization
 
 Acceptance criteria:
 
-- Define supported read, action, knowledge-query, resolver, and journal APIs.
+- Define supported read, action, knowledge-view, and journal APIs.
 - Publish schema versions, compatibility guarantees, error semantics, and size
   limits.
 - Add contract tests for supported Python versions.
