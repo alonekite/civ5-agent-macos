@@ -124,6 +124,26 @@ FireTuner connection open and prints only when the observed state changes. On
 this old build, a persistent connection is preferable because the game can
 retain a closed client socket until its UI processes another event.
 
+Optional M5 capture is explicit, private, and available only through the
+validated FireTuner watcher. Start a new journal with:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.watch \
+  --journal /private/path/to/match.jsonl --journal-mode new
+```
+
+After a watcher restart or reconnect, automatic continuation is prohibited.
+Explicitly resume the existing declared match with `--journal-mode resume`, or
+use `new` with a different nonexistent path. The initial integration records
+changed validated snapshots and grounded in-memory command results; it never
+parses the M2 audit file. A snapshot persistence failure stops requested
+recording, while a command-result persistence failure is reported separately
+and never retries the already executed game action.
+
+The legacy `--transport database` fallback emits a deliberately partial,
+unversioned state and therefore rejects `--journal`; it is not admissible as a
+factual match-history source.
+
 While the long-running watcher is active it also owns a per-user, mode-0600
 Unix socket. This lets a second terminal submit the sole allowlisted write
 without opening a competing FireTuner connection:

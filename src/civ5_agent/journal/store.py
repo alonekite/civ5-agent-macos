@@ -148,6 +148,12 @@ class JournalStore:
                     raise JournalError("bridge session is already bound to this journal")
             elif bridge_session_id is not None and bridge_session_id not in bound_sessions:
                 raise JournalError("bridge session is not bound to this journal")
+            prior_turn = next(
+                (record.turn for record in reversed(records) if record.turn is not None),
+                None,
+            )
+            if turn is not None and prior_turn is not None and turn < prior_turn:
+                raise JournalError("journal turn cannot move backwards")
             if kind == "correction":
                 supersedes = payload.get("supersedes_sequence")
                 if (
@@ -186,6 +192,7 @@ def _read_verified(fd: int) -> tuple[list[JournalRecord], set[str]]:
     os.lseek(fd, 0, os.SEEK_SET)
     records: list[JournalRecord] = []
     bound_sessions: set[str] = set()
+    last_turn: int | None = None
     with os.fdopen(os.dup(fd), "rb") as stream:
         while True:
             line = stream.readline(MAX_RECORD_BYTES + 1)
@@ -245,6 +252,10 @@ def _read_verified(fd: int) -> tuple[list[JournalRecord], set[str]]:
                     raise JournalError(
                         "correction requires an existing supersedes_sequence"
                     )
+            if record.turn is not None:
+                if last_turn is not None and record.turn < last_turn:
+                    raise JournalError("journal turn moves backwards")
+                last_turn = record.turn
             records.append(record)
     if not records:
         raise JournalError("journal is empty")

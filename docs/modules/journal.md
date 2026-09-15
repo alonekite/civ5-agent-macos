@@ -1,6 +1,6 @@
 # Module: journal
 
-Status: Core codec/store implemented offline (M5 in progress)
+Status: Core store and initial opt-in capture implemented offline (M5 in progress)
 
 ## Responsibility
 
@@ -23,8 +23,11 @@ debugging, and audit.
 ## Public interface
 
 `JournalStore.create`, `open`, `read_all`, `append`, and `bind_session` implement
-the private schema 1 core. Runtime capture and public M7 compatibility are not
-yet implemented. See the [journal contract](../contracts/journal.md).
+the private schema 1 core. `JournalCapture` optionally records watcher snapshots
+and grounded in-memory command results when the user supplies both `--journal`
+and `--journal-mode new|resume` with the FireTuner transport. The partial,
+unversioned database fallback is not a journal source. Public M7 compatibility
+is not yet implemented. See the [journal contract](../contracts/journal.md).
 
 ## Inputs and outputs
 
@@ -69,19 +72,21 @@ and export policy. No automatic Git inclusion is permitted.
 Offline tests cover codec round trips, canonical UUID identities, private
 permissions, append/reopen, hash chaining, tampering, truncation, size bounds,
 concurrent appends, symlink refusal, correction targets, and unbound/duplicate
-session rejection. Runtime integration must prove that journal input comes from
-validated in-memory events rather than the independent M2 command-audit file.
+session rejection. Adapter tests reject unvalidated snapshots and database-
+transport capture. Runtime integration must still prove the target-machine
+journal input comes from validated in-memory events rather than the independent
+M2 command-audit file.
 
 ## Current limitations
 
-Watcher/CLI capture, command lifecycle adapters, export, retention, compaction,
-and selective queries are not implemented. The hash chain detects modification
-but is not a digital signature and does not defend against complete authorized
-rewriting of the private file.
+Submitted-command and verification-error lifecycle records, explicit turn-
+transition records, export, retention, compaction, and selective queries are not
+implemented. The hash chain detects modification but is not a digital signature
+and does not defend against complete authorized rewriting of the private file.
 
 ## Planned extensions
 
-Connect validated watcher observations and command results through application
-composition, add deterministic replay/export, then expose selective read APIs
-during M7. M5 and M6 may be implemented in either order; the current M5 priority
-is a schedule choice, not a dependency.
+Complete the remaining factual lifecycle adapters, add deterministic
+replay/export, then expose selective read APIs during M7. M5 and M6 may be
+implemented in either order; the current M5 priority is a schedule choice, not
+a dependency.

@@ -9,9 +9,10 @@ development log.
 ## Dashboard
 
 - Current milestone: M5 — factual turn journal.
-- Active next deliverable: connect validated watcher observations and command
-  results to the implemented M5 store through optional application composition.
-- Functional baseline: 184 tests pass locally on Python 3.11 and the default
+- Active next deliverable: add remaining command-submission,
+  verification-error, and explicit turn-transition records, then deterministic
+  replay/export.
+- Functional baseline: 190 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -64,6 +65,9 @@ development log.
 - Watcher/CLI composition code may pass validated observations, command results,
   and optional M6 factual events to M5. M5 never parses the independent M2 audit
   log as input, and logging failures never make a verified game action retryable.
+- Opt-in watcher capture records changed validated snapshots and grounded
+  in-memory command results. `new` creates a match journal; `resume` explicitly
+  binds a new bridge session. Reconnect never binds automatically.
 - A complete-turn plan requires a final explicit `end_turn`; `completed` means
   that action and every preceding action were verified.
 
@@ -79,8 +83,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended offline order
 
-1. Connect watcher/CLI composition to M5 using validated in-memory events and
-   command UUID correlation; test audit/journal failure independence.
+1. Add remaining submitted-command, verification-error, and explicit
+   turn-transition lifecycle records.
 2. Add deterministic journal replay/export plus retention guidance without
    weakening append-only integrity.
 3. Separately finalize M6 TurnPlan and execution-report schemas against the

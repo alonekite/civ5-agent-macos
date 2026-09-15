@@ -11,7 +11,7 @@ tests; discrepancies are defects that must be resolved explicitly.
 | [Session and match identity](session-identity.md) | Bridge session and journal match binding implemented offline | bridge/application/journal |
 | [Knowledge bundle](../KNOWLEDGE.md) | Evolving, implemented | knowledge |
 | [Ruleset knowledge view](resolver.md) | Structural M4 contract implemented | knowledge |
-| [Turn journal](journal.md) | Schema 1 codec/store implemented offline; capture pending | journal |
+| [Turn journal](journal.md) | Schema 1 store and initial opt-in capture implemented offline | journal |
 | [Turn plan and execution](turn-plan.md) | Proposed for M6 | controller/executor |
 | Public Python API | Planned for M7 | cross-module |
 

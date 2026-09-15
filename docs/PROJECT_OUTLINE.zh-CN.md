@@ -134,9 +134,10 @@ CLI 是模块外的一层薄入口，提供状态监听、命令提交、安全�
 
 schema 1 追加式 codec 和私有 JSONL store 已离线实现：包含 `match_id`、明确的
 session binding、连续序号、SHA-256 链、文件锁、`fsync`、记录大小限制和损坏/
-截断拒绝。下一步连接 watcher 与动作结果。它为未来战术/战略层的历史选择、
-复盘、比较、调试和审计保存事实，不是 M6 的执行状态。现有 M2 command audit
-是独立安全记录；M5 直接接收内存中的验证结果，只通过 command UUID 关联，
+截断拒绝。显式启用时，watcher 已能记录变化后的验证快照和带回合依据的内存命令
+结果；`new` 新建 journal，`resume` 才会绑定新 session，重连不会自动续接。它为
+未来战术/战略层的历史选择、复盘、比较、调试和审计保存事实，不是 M6 的执行
+状态。现有 M2 command audit 是独立安全记录；M5 只通过 command UUID 关联，
 不解析 audit 文件。
 
 ### M6：确定性回合执行器（依赖 M2，与 M5 独立）

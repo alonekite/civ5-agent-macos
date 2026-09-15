@@ -1,6 +1,6 @@
 # Turn-Journal Contract
 
-Status: Schema 1 codec/store implemented offline; runtime capture pending
+Status: Schema 1 store and initial opt-in capture implemented offline
 
 ## Purpose
 
@@ -46,7 +46,8 @@ interpret plan content or supply M6 execution state.
 - A record from an unbound bridge session is rejected. Later sessions require an
   explicit append-only binding; they are never inferred from snapshot similarity.
 - Reject truncation, duplicate keys, non-finite values, unknown record kinds,
-  sequence gaps, broken integrity, and oversized records.
+  sequence gaps, backward turn movement, broken integrity, and oversized
+  records.
 - Use private local permissions and refuse unsafe symbolic-link targets.
 - Reading or replaying a journal never executes a command.
 - Journal state never authorizes M6 to resume, skip, retry, or replace an
@@ -73,8 +74,11 @@ interpret plan content or supply M6 execution state.
 - Public selective-query API.
 
 These remaining choices require later benchmarks and compatibility design.
-Identity semantics are implemented in the codec/store under ADR-0017. Runtime
-watcher/CLI fan-out remains pending.
+Identity semantics are implemented in the codec/store under ADR-0017. Opt-in
+watcher composition records changed snapshots and grounded command results from
+memory. This adapter accepts only validated FireTuner live state; the partial,
+unversioned database fallback is rejected as journal input. Remaining command
+lifecycle families and replay/export remain pending.
 
 ## Out of scope
 

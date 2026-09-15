@@ -1,3 +1,4 @@
+import io
 import json
 import tempfile
 import threading
@@ -8,7 +9,7 @@ from unittest.mock import patch
 from civ5_agent.audit import CommandAuditLog
 from civ5_agent.models import CommandResult, GameState
 from civ5_agent.preflight import UnsafeSessionError
-from civ5_agent.watch import make_control_handler
+from civ5_agent.watch import main, make_control_handler
 
 END_TURN_ID = "123e4567-e89b-42d3-a456-426614174000"
 SKIP_ID = "123e4567-e89b-42d3-a456-426614174001"
@@ -134,6 +135,43 @@ class WatchControlHandlerTest(unittest.TestCase):
         self.assertEqual(record["arguments"], {})
         self.assertEqual(record["bridge_session_id"], session_id)
 
+    def test_journal_failure_does_not_retry_or_change_verified_result(self):
+        class FailingJournal:
+            def record_command_result(self, operation, arguments, result):
+                raise ValueError("journal unavailable")
+
+        result = CommandResult(id=END_TURN_ID, status="success")
+        handler = make_control_handler(
+            self.client,
+            172,
+            threading.Lock(),
+            bridge_session_id=self.session_id,
+            journal_capture=FailingJournal(),
+        )
+        with patch(
+            "civ5_agent.watch.execute_end_turn", return_value=result
+        ) as execute, patch("sys.stderr", new=io.StringIO()):
+            response = handler(
+                {
+                    "op": "end_turn",
+                    "id": END_TURN_ID,
+                    "bridge_session_id": self.session_id,
+                }
+            )
+            replay = handler(
+                {
+                    "op": "end_turn",
+                    "id": END_TURN_ID,
+                    "bridge_session_id": self.session_id,
+                }
+            )
+
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["result"]["status"], "success")
+        self.assertIn("journal unavailable", response["journal_error"])
+        self.assertTrue(replay["replayed"])
+        self.assertEqual(execute.call_count, 1)
+
     def test_rejects_non_uuid_command_id_before_execution(self):
         with patch("civ5_agent.watch.execute_end_turn") as execute:
             response = self.write({"op": "end_turn", "id": "not-a-uuid"})
@@ -166,6 +204,26 @@ class WatchControlHandlerTest(unittest.TestCase):
         self.assertFalse(collision["ok"])
         self.assertIn("different arguments", collision["error"])
         self.assertEqual(execute.call_count, 1)
+
+
+class WatchArgumentsTest(unittest.TestCase):
+    def test_database_transport_rejects_journal_capture(self):
+        with tempfile.TemporaryDirectory() as directory, patch(
+            "sys.argv",
+            [
+                "civ5_agent.watch",
+                "--transport",
+                "database",
+                "--journal",
+                str(Path(directory) / "match.jsonl"),
+                "--journal-mode",
+                "new",
+            ],
+        ), patch("sys.stderr", new=io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                main()
+
+        self.assertEqual(raised.exception.code, 2)
 
 
 if __name__ == "__main__":

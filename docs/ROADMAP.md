@@ -143,10 +143,13 @@ No application-bundle modification is required.
 - [x] Implement the bridge-session envelope under ADR-0017 with strict UUIDv4
   validation and stale/missing-session write rejection
 - [x] Implement journal `match_id` and explicit cross-session binding
-- [ ] Record supported validated snapshots and verified command lifecycles
+- [x] Add opt-in watcher capture for changed validated snapshots and grounded
+  in-memory command results
+- [ ] Record remaining command-submission, verification-error, and explicit
+  turn-transition lifecycle events
 - [x] Add canonical serialization, hash-chain, truncation, tampering,
   concurrency, permission, and reopen tests
-- [ ] Correlate M2 audit and M5 journal by command UUID without parsing the audit
+- [x] Correlate M2 audit and M5 journal by command UUID without parsing the audit
   file or coupling their failure behavior
 
 The supported captured journal sequence supports future tactical/strategic

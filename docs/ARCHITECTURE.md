@@ -171,8 +171,8 @@ restart. The architecture therefore does not use one ambiguous “game ID”:
   binding; automatic cross-session inference is prohibited for now.
 
 This fail-closed split is defined by ADR-0017 and the session-identity contract.
-Live-state schemas 2–5 predate the envelope, so implementation remains a
-prerequisite for M5/M6 identity-isolation claims.
+Live-state schemas 2–5 predate the envelope; the bridge now carries session
+identity beside the unchanged state payload and M5 enforces explicit bindings.
 
 ## Per-match factual history
 
@@ -223,6 +223,13 @@ deterministic turn executor factual events     -> application -> turn journal
 “Application” here means composition code in the watcher and CLI entry points.
 It wires modules together and handles optional sinks; it is not a core policy,
 planning, or decision module.
+
+The initial opt-in watcher adapter records changed validated snapshots and
+grounded in-memory command results. It requires paired `--journal` and
+`--journal-mode new|resume` arguments, never parses the command audit, and never
+automatically binds a replacement connection after reconnect. It is restricted
+to the validated FireTuner transport; the partial, unversioned database fallback
+cannot write a journal.
 
 The journal does not infer intentions, summarize opponents, select context, or
 choose actions. It preserves the facts needed to reproduce those operations

@@ -24,6 +24,7 @@ from .identity import (
     validate_bridge_session_id,
 )
 from .ipc import LocalControlServer, default_socket_path
+from .journal import JournalCapture, JournalError
 from .models import Command, GameState
 from .preflight import UnsafeSessionError, require_safe_tuner_session
 from .storage import UserDataStateReader, default_state_database
@@ -38,6 +39,7 @@ def make_control_handler(
     audit_log: CommandAuditLog | None = None,
     safety_check: Callable[[], None] | None = None,
     bridge_session_id: str | None = None,
+    journal_capture: JournalCapture | None = None,
 ):
     session_id = validate_bridge_session_id(
         bridge_session_id if bridge_session_id is not None else new_bridge_session_id()
@@ -188,6 +190,20 @@ def make_control_handler(
                             file=sys.stderr,
                             flush=True,
                         )
+                if journal_capture is not None:
+                    try:
+                        journal_capture.record_command_result(
+                            str(operation),
+                            command.args,
+                            result_data,
+                        )
+                    except (JournalError, OSError, ValueError) as error:
+                        response["journal_error"] = str(error)
+                        print(
+                            f"Turn journal warning: {error}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
                 completed_commands[command.id] = (
                     command.action,
                     dict(command.args),
@@ -231,6 +247,7 @@ def _watch_tuner(args: argparse.Namespace) -> int:
     previous = None
     waiting_reported = False
     audit_log = CommandAuditLog(args.audit_log)
+    journal_capture: JournalCapture | None = None
     try:
         audit_log.ensure_ready()
     except OSError as error:
@@ -244,6 +261,15 @@ def _watch_tuner(args: argparse.Namespace) -> int:
                 handshake = client.handshake()
                 state_id = _find_state(handshake.lua_states, "InGame")
                 bridge_session_id = new_bridge_session_id()
+                if journal_capture is not None:
+                    print(
+                        "Turn journal requires explicit --journal-mode resume after reconnect",
+                        file=sys.stderr,
+                    )
+                    return 1
+                journal_capture = _start_journal(args, bridge_session_id)
+                if args.journal is not None and journal_capture is None:
+                    return 1
                 previous = None
                 waiting_reported = False
                 connection_lock = threading.Lock()
@@ -258,6 +284,7 @@ def _watch_tuner(args: argparse.Namespace) -> int:
                         socket_path=args.socket,
                     ),
                     bridge_session_id=bridge_session_id,
+                    journal_capture=journal_capture,
                 )
 
                 with LocalControlServer(handler, args.socket):
@@ -280,6 +307,16 @@ def _watch_tuner(args: argparse.Namespace) -> int:
                             continue
                         waiting_reported = False
                         if state != previous:
+                            if journal_capture is not None:
+                                try:
+                                    journal_capture.record_snapshot(state)
+                                except (JournalError, OSError, ValueError) as error:
+                                    print(
+                                        f"Turn journal unavailable: {error}",
+                                        file=sys.stderr,
+                                        flush=True,
+                                    )
+                                    return 1
                             _print_state(state, bridge_session_id)
                             previous = state
                         if args.once:
@@ -308,6 +345,23 @@ def _print_state(state: GameState, bridge_session_id: str) -> None:
     )
 
 
+def _start_journal(
+    args: argparse.Namespace,
+    bridge_session_id: str,
+) -> JournalCapture | None:
+    if args.journal is None:
+        return None
+    try:
+        return JournalCapture.start(
+            args.journal,
+            bridge_session_id,
+            args.journal_mode,
+        )
+    except (JournalError, OSError, ValueError) as error:
+        print(f"Turn journal unavailable: {error}", file=sys.stderr, flush=True)
+        return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Watch live state from Civilization V")
     parser.add_argument("--transport", choices=["tuner", "database"], default="tuner")
@@ -317,6 +371,8 @@ def main() -> int:
     parser.add_argument("--timeout", type=float, default=3.0)
     parser.add_argument("--socket", type=Path, default=default_socket_path())
     parser.add_argument("--audit-log", type=Path, default=default_audit_path())
+    parser.add_argument("--journal", type=Path)
+    parser.add_argument("--journal-mode", choices=["new", "resume"])
     parser.add_argument("--interval", type=float, default=0.5)
     parser.add_argument("--once", action="store_true")
     args = parser.parse_args()
@@ -326,6 +382,12 @@ def main() -> int:
 
     if args.timeout <= 0:
         parser.error("--timeout must be greater than zero")
+
+    if (args.journal is None) != (args.journal_mode is None):
+        parser.error("--journal and --journal-mode must be provided together")
+
+    if args.transport == "database" and args.journal is not None:
+        parser.error("--journal requires --transport tuner")
 
     try:
         if args.transport == "database":

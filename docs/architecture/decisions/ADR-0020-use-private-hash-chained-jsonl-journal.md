@@ -27,6 +27,8 @@ Use one private JSON Lines file per declared match with journal schema 1:
   complete encoded record, and call `fsync` before success;
 - reads take a shared lock and reject truncation or any semantic/integrity
   violation;
+- observed turn numbers cannot move backwards within one journal; loading an
+  earlier branch requires a new declared match journal;
 - files use mode `0600`; creation refuses to replace an existing path;
 - cross-session continuation is an explicit `session_binding` record under
   ADR-0017.

@@ -20,6 +20,11 @@ Current commands:
 - `civ5-live-session`
 - `civ5-knowledge`
 
+`civ5-watch` also accepts the paired opt-in arguments `--journal PATH` and
+`--journal-mode new|resume`. `new` refuses an existing path; `resume` explicitly
+binds the new bridge session to an existing declared match. Journal capture is
+restricted to `--transport tuner`; the partial database fallback is rejected.
+
 ## Non-responsibilities
 
 - Defining rules that exist nowhere in a core module.
@@ -81,7 +86,7 @@ M6 tactical planner. M7 may rename it when the TurnPlan executor is public.
 
 ## Planned extensions
 
-Add thin journal operations only after its core contract exists, then add an
-explicit TurnPlan execution entry point and stabilize names/error behavior in
-M7. Journal integration consumes validated in-memory results and never parses
-the independent M2 audit file.
+Add thin verify/export journal operations, then add an explicit TurnPlan
+execution entry point and stabilize names/error behavior in M7. Journal capture
+consumes validated in-memory results and never parses the independent M2 audit
+file.
