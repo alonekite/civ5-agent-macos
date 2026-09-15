@@ -603,6 +603,20 @@ Architecture correction commit: `2e5165f`.
 Architecture correction commit: `b7f82ad`. Session-envelope commit: `bd5a186`.
 Journal-store commit: `5af502d`. Watcher-integration commit: `908f053`.
 
+## 2026-09-16 — Complete factual watcher lifecycle capture
+
+- Recorded command submissions before bridge execution without making journal
+  persistence an execution precondition.
+- Added unsuccessful execution/postcondition facts and explicit turn-transition
+  records derived from consecutive validated watcher snapshots.
+- Preserved fail-safe behavior: lifecycle write failures are returned as
+  warnings and cannot block or retry the associated game action.
+- Passed all 191 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, addresses, credentials, tokens, or
+  real match data.
+
+Implementation commit: `f51c5fd`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
