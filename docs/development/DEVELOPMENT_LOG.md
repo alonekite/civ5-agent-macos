@@ -557,6 +557,28 @@ Architecture governance commit: `edd98ec`.
 
 Architecture governance commit: `7ef686d`.
 
+## 2026-09-15 — M5/M6 dependency correction
+
+- Corrected the M5/M6 boundary after reviewing their different purposes: M5 is
+  factual historical storage for future tactical and strategic context
+  selection, replay, comparison, debugging, and audit; it is not an execution
+  control plane.
+- Made M6 depend on M2 live-state and verified-command contracts only. M6 owns
+  its execution cursor and recovery state and must operate when M5 is absent or
+  unavailable.
+- Kept integration one-way and optional: application orchestration may append
+  neutral factual events emitted by M6 to M5, but journal success or failure
+  cannot authorize a retry or change the result of a bridge-verified game
+  action. Fresh live state remains authoritative.
+- Added ADR-0016, which supersedes only the journal-dependency portions of
+  ADR-0015, and synchronized repository instructions, architecture, contracts,
+  milestones, roadmap, module documents, verification status, and the Chinese
+  project outline.
+- Documentation tests and formatting checks passed; scans found no local user
+  or device identifiers, credentials, tokens, snapshots, or recovery artifacts.
+
+Architecture correction commit: `2e5165f`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
