@@ -392,6 +392,27 @@ preflight.
 
 Implementation commit: `a86078e`.
 
+## 2026-09-15 — Remaining ruleset and scaling coverage
+
+- Reviewed all non-empty multi-identifier tables and recorded the classification
+  in the remaining-rules inventory. No unimported controller-facing rule needs
+  more than one typed context; built-in AI role/formation data remains excluded.
+- Added region identities, civilization starting facts, and 59 build/feature
+  rules with deterministic values and optional technology context.
+- Added immutable game-speed, handicap, and world-size facts while excluding AI
+  decision heuristics, personality parameters, prose, and art.
+- Added ancient-ruin outcomes and World Congress resolutions, decisions,
+  sessions, projects, rewards, and votes with validated typed relationships.
+- Added minor-civilization and minor-trait identities and membership without
+  localized or flavor data. The policy/building audit found only prohibited
+  flavor tables outside the importer.
+- Re-imported the real merged database twice with equal output: 1,789 entities
+  and 5,275 references. No generated bundle or source database was committed.
+- Passed all 147 tests on Python 3.11 and the default runtime, and found no local
+  paths, IP addresses, credentials, or tokens in the repository scan.
+
+Implementation commit: `1a0a784`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
