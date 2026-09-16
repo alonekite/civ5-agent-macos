@@ -45,3 +45,16 @@ M8 release gates and current blockers are tracked in
 artifact scans, upgrade notes, and rollback procedures remain required. Until
 they are complete, `main` plus passing CI is the development baseline, not a
 stable release promise.
+
+The current offline wheel gate builds without runtime dependencies, validates archive
+paths and bounds, checks package-source coverage and wheel RECORD hashes, scans
+for common private material, and checks metadata/entry points against
+`pyproject.toml`:
+
+```bash
+python3.11 -m pip wheel --no-deps --wheel-dir dist .
+python3.11 scripts/check_release_artifact.py dist/*.whl
+```
+
+The generated `dist/` directory is ignored and must not be committed. A passing
+development wheel is not a release until the remaining M8 gates are complete.

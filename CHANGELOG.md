@@ -52,6 +52,8 @@ versioned releases. Development details belong in
   and live-safety error categories plus published schema and size limits.
 - Supported pre-1.0 `civ5-turn` JSON envelopes and exit meanings; all other
   command-line entry points are explicitly provisional.
+- Bounded wheel inspection for package coverage, metadata, entry points,
+  RECORD integrity, unsafe members, and common private material.
 
 ### Security
 

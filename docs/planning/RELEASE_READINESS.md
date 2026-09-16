@@ -16,8 +16,8 @@ experiment evidence.
 | High-impact risks | Safety, single-owner transport, and write read-back controls are implemented | Explicitly close or accept R-003, R-004, and R-006 using current evidence |
 | Setup/security/recovery docs | README, security policy, live checklist, and recoverable session manager exist | Reconcile the checklist with the combined M5/M6 run and add release rollback instructions |
 | Public compatibility | M7 aggregate Python API and bounded `civ5-turn` contract are complete | Add upgrade notes for the first stable version and confirm version metadata |
-| Packaging | Editable installation and console scripts pass CI | Add complete package metadata, build wheel/sdist, inspect contents, and install-test the artifacts |
-| Tests and scans | 247 tests pass on Python 3.11/3.13/default runtime; tracked-source scans are clean | Run warning-enabled tests and sensitive-data scans against the exact release artifact |
+| Packaging | Editable installation and console scripts pass CI; wheel metadata and bounded inspection are implemented | Build and inspect an sdist, complete remaining metadata, and prove clean artifact installation in CI |
+| Tests and scans | 251 tests pass on Python 3.11/3.13/default runtime; tracked-source scans are clean; wheel inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run the final warning-enabled suite and scans against the exact tagged release artifacts |
 | Reproducibility | Source commit and CI results are recorded | Define tag/version rules, publish artifact hashes, and prove two clean builds have the intended contents |
 | Release | No release tag exists | Complete every blocking gate, update changelog, tag, and verify rollback from the tagged source |
 
@@ -62,8 +62,23 @@ Mere implementation or an unchecked roadmap item is not a disposition.
   version.
 - Run documentation-link, forbidden-content, credential, private-address, and
   user-path scans on extracted artifact contents.
+- Manually review public attribution and URLs for unintended real names or
+  account identifiers; automated scans cannot reliably recognize arbitrary
+  personal names. Intentional license attribution and repository ownership must
+  be recorded as explicit public metadata.
 - Record cryptographic hashes for published artifacts and retain the commands
   needed to reproduce them.
+
+The current wheel check is:
+
+```bash
+python -m pip wheel --no-deps --wheel-dir dist .
+python scripts/check_release_artifact.py dist/*.whl
+```
+
+CI additionally installs the wheel into a clean virtual environment, imports
+the aggregate API, and starts the supported `civ5-turn` entry point. Source
+distribution inspection and two-build reproducibility remain open gates.
 
 ## Completion rule
 

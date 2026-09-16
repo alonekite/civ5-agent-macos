@@ -10,10 +10,10 @@ development log.
 
 - Current milestone: M8 — 1.0 release readiness. M5 and M6 bounded
   target-machine verification remain pending.
-- Active next deliverable: implement package artifact build/install/scan
+- Active next deliverable: add source-distribution and two-build reproducibility
   checks, then finalize the bounded M5/M6 live-verification procedure without
   changing machine safety state.
-- Functional baseline: 247 tests pass locally on Python 3.11 and the default
+- Functional baseline: 251 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -124,7 +124,7 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Implement and test release artifact inspection and packaging metadata.
+1. Extend the wheel gate to source-distribution and two-build reproducibility.
 2. Finalize the combined M5/M6 bounded live procedure.
 3. Run bounded M5/M6 live verification when the user is present.
 4. Prepare a reproducible release candidate only after required live evidence

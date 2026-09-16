@@ -20,3 +20,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -e .
       - run: python -Wd -m unittest discover -s tests -v
+      - run: python -m pip wheel --no-deps --wheel-dir dist .
+      - run: python scripts/check_release_artifact.py dist/*.whl
+      - run: python -m venv /tmp/civ5-agent-release-venv
+      - run: /tmp/civ5-agent-release-venv/bin/pip install --no-deps --no-index dist/*.whl
+      - run: /tmp/civ5-agent-release-venv/bin/python -c "import civ5_agent.api"
+      - run: /tmp/civ5-agent-release-venv/bin/civ5-turn --help

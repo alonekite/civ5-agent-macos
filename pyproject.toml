@@ -1,7 +1,12 @@
 [project]
 name = "civ5-agent-macos"
 version = "0.1.0"
+description = "Verified Civilization V read/write core for Apple Silicon macOS"
+readme = "README.md"
 requires-python = ">=3.11"
+
+[project.urls]
+Repository = "https://github.com/alonekite/civ5-agent-macos"
 
 [project.scripts]
 civ5-watch = "civ5_agent.watch:main"
