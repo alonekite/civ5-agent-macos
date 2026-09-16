@@ -823,6 +823,24 @@ Implementation commit: `a78d560`.
 
 Implementation commit: `a680c16`.
 
+## 2026-09-16 — Aggregate pre-1.0 API and error taxonomy
+
+- Added `civ5_agent.api` as the contract-tested aggregate Python import surface
+  for bridge, knowledge, journal, TurnPlan, and deterministic execution clients.
+- Introduced compatible validation, protocol, transport, and safety error bases;
+  malformed evidence after a submitted write now preserves unknown-outcome
+  recovery semantics rather than appearing as a deterministic rejection.
+- Published supported live/knowledge schema sets and command, execution, IPC,
+  plan, event-sink, and journal bounds as importable constants.
+- Accepted ADR-0026 and updated M7 planning, contracts, module ownership,
+  changelog, project state, and verification evidence.
+- Passed all 247 tests on Python 3.11 and the default Python 3.14 runtime. The
+  repository scan found no private paths, network addresses, credentials,
+  tokens, generated datasets, or real match records; the public repository
+  owner name remains intentionally present only in the existing license.
+
+Implementation commit: `81c58ab`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
