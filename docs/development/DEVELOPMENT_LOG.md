@@ -1001,6 +1001,28 @@ Implementation commit: `a73f07f`.
 
 Implementation commit: `c1dc935`.
 
+## 2026-09-16 — Use the game-defined no-end-turn blocker
+
+- Recorded the sanitized second combined M5/M6 target-machine attempt. It
+  confirmed compact command-marker delivery, a complete failed-command journal
+  lifecycle, stale-plan refusal before a second write, private integrity/export
+  controls, and exact host restoration, but not automatic turn advancement.
+- Traced the deterministic rejection to an incorrect numeric zero-blocker
+  assumption. The target runtime returned the no-blocker value as `-1`, and the
+  bundled Brave New World UI/tutorial Lua uses the named
+  `NO_ENDTURN_BLOCKING_TYPE` enum.
+- Added ADR-0029, changed the Lua guard to the game enum, exposed the verified
+  parsed target value through the bridge/public API, and made factual readiness
+  inspect the blocker independently of UI clickability.
+- Reconciled the live ledger, test matrix, milestones, risks, release gate,
+  contracts, project dashboard, outline, checklist, and changelog without
+  treating the operator's stock-UI click as an automatic transition.
+- All 260 tests passed warning-enabled on Python 3.11 and the default Python
+  3.14 runtime. Compilation, shell syntax, documentation links, diff checks,
+  and sensitive-content scanning passed without private live artifacts.
+
+Implementation commit: `f3fa05c`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
