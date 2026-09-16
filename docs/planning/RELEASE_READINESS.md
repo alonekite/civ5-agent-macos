@@ -16,9 +16,9 @@ experiment evidence.
 | High-impact risks | Safety, single-owner transport, and write read-back controls are implemented | Explicitly close or accept R-003, R-004, and R-006 using current evidence |
 | Setup/security/recovery docs | README, security policy, live checklist, and recoverable session manager exist | Reconcile the checklist with the combined M5/M6 run and add release rollback instructions |
 | Public compatibility | M7 aggregate Python API and bounded `civ5-turn` contract are complete | Add upgrade notes for the first stable version and confirm version metadata |
-| Packaging | Editable installation and console scripts pass CI; wheel metadata and bounded inspection are implemented | Build and inspect an sdist, complete remaining metadata, and prove clean artifact installation in CI |
-| Tests and scans | 251 tests pass on Python 3.11/3.13/default runtime; tracked-source scans are clean; wheel inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run the final warning-enabled suite and scans against the exact tagged release artifacts |
-| Reproducibility | Source commit and CI results are recorded | Define tag/version rules, publish artifact hashes, and prove two clean builds have the intended contents |
+| Packaging | Editable installation and console scripts pass CI; wheel and sdist manifests, bounded inspection, and clean-environment install checks are implemented | Confirm final version/license metadata on the release candidate |
+| Tests and scans | 254 tests pass on Python 3.11/3.13/default runtime; tracked-source scans are clean; artifact inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run the final warning-enabled suite and scans against the exact tagged release artifacts |
+| Reproducibility | CI builds each artifact twice and requires identical normalized content hashes | Define tag/version rules, publish archive hashes, and document that container timestamps may make compressed bytes differ despite identical contents |
 | Release | No release tag exists | Complete every blocking gate, update changelog, tag, and verify rollback from the tagged source |
 
 ## Blocking live evidence
@@ -69,16 +69,20 @@ Mere implementation or an unchecked roadmap item is not a disposition.
 - Record cryptographic hashes for published artifacts and retain the commands
   needed to reproduce them.
 
-The current wheel check is:
+The current artifact check is:
 
 ```bash
 python -m pip wheel --no-deps --wheel-dir dist .
+python -c "from setuptools.build_meta import build_sdist; build_sdist('dist')"
 python scripts/check_release_artifact.py dist/*.whl
+python scripts/check_release_artifact.py dist/*.tar.gz
 ```
 
-CI additionally installs the wheel into a clean virtual environment, imports
-the aggregate API, and starts the supported `civ5-turn` entry point. Source
-distribution inspection and two-build reproducibility remain open gates.
+CI builds wheel and source artifacts twice and requires identical normalized
+member/content hashes. It installs each artifact into a separate clean virtual
+environment, imports the aggregate API, and starts the supported `civ5-turn`
+entry point from the wheel. Compressed archive hashes are still recorded
+separately because container timestamps may differ.
 
 ## Completion rule
 

@@ -8,6 +8,7 @@ import hashlib
 import json
 import re
 import sys
+import tarfile
 import tomllib
 from pathlib import Path, PurePosixPath
 from zipfile import BadZipFile, ZipFile, ZipInfo
@@ -39,8 +40,8 @@ _FORBIDDEN_COMPONENTS = frozenset(
     {".git", "__pycache__", "build", "dist", "logs", "tmp"}
 )
 _TEXT_PATTERNS = (
-    ("macOS user path", re.compile(rb"/Users/[^/\s]+/")),
-    ("Linux user path", re.compile(rb"/home/[^/\s]+/")),
+    ("macOS user path", re.compile(rb"/" rb"Users/[^/\s]+/")),
+    ("Linux user path", re.compile(rb"/" rb"home/[^/\s]+/")),
     ("Windows user path", re.compile(rb"[A-Za-z]:\\Users\\[^\\\s]+\\")),
     (
         "private IPv4 address",
@@ -76,7 +77,7 @@ def inspect_wheel(path: Path, project_root: Path) -> dict[str, object]:
     expected_distribution = re.sub(r"[-_.]+", "_", project["name"])
     expected_dist_info = f"{expected_distribution}-{project['version']}.dist-info"
     expected_sources = {
-        source.relative_to(project_root / "src").as_posix()
+        source.relative_to(project_root / "src").as_posix(): source.read_bytes()
         for source in (project_root / "src" / "civ5_agent").rglob("*.py")
     }
 
@@ -93,6 +94,7 @@ def inspect_wheel(path: Path, project_root: Path) -> dict[str, object]:
 
     try:
         with ZipFile(path) as archive:
+            contents = {}
             files = {
                 info.filename: info
                 for info in archive.infolist()
@@ -103,17 +105,21 @@ def inspect_wheel(path: Path, project_root: Path) -> dict[str, object]:
             for info in files.values():
                 _validate_member(info, expected_dist_info)
                 content = archive.read(info)
+                contents[info.filename] = content
                 _scan_content(info.filename, content)
 
             packaged_sources = {
                 name for name in files if name.startswith("civ5_agent/")
             }
-            if packaged_sources != expected_sources:
-                missing = sorted(expected_sources - packaged_sources)
-                extra = sorted(packaged_sources - expected_sources)
+            if packaged_sources != set(expected_sources):
+                missing = sorted(set(expected_sources) - packaged_sources)
+                extra = sorted(packaged_sources - set(expected_sources))
                 raise ArtifactError(
                     f"package source mismatch: missing={missing!r}, extra={extra!r}"
                 )
+            for name, expected_content in expected_sources.items():
+                if contents[name] != expected_content:
+                    raise ArtifactError(f"package source content mismatch: {name}")
 
             metadata_name = f"{expected_dist_info}/METADATA"
             entry_points_name = f"{expected_dist_info}/entry_points.txt"
@@ -131,6 +137,16 @@ def inspect_wheel(path: Path, project_root: Path) -> dict[str, object]:
             _validate_entry_points(archive.read(entry_points_name), project)
             _validate_wheel_metadata(archive.read(wheel_name))
             _validate_record(archive, record_name, files)
+            license_names = {
+                f"{expected_dist_info}/LICENSE",
+                f"{expected_dist_info}/licenses/LICENSE",
+            }
+            actual_license_names = license_names & set(files)
+            if len(actual_license_names) != 1:
+                raise ArtifactError("wheel must contain exactly one LICENSE")
+            license_name = actual_license_names.pop()
+            if contents[license_name] != (project_root / "LICENSE").read_bytes():
+                raise ArtifactError("wheel LICENSE does not match project source")
     except BadZipFile as error:
         raise ArtifactError("artifact is not a valid wheel archive") from error
 
@@ -138,10 +154,112 @@ def inspect_wheel(path: Path, project_root: Path) -> dict[str, object]:
         "ok": True,
         "artifact": path.name,
         "bytes": size,
+        "content_sha256": _content_sha256(contents),
         "files": len(files),
+        "kind": "wheel",
         "project": project["name"],
         "sha256": _sha256(path.read_bytes()),
         "version": project["version"],
+    }
+
+
+def inspect_sdist(path: Path, project_root: Path) -> dict[str, object]:
+    project = _load_project(project_root)
+    distribution = re.sub(r"[-_.]+", "_", project["name"])
+    root_name = f"{distribution}-{project['version']}"
+    expected_filename = f"{root_name}.tar.gz"
+    if path.name != expected_filename:
+        raise ArtifactError(f"sdist filename must be {expected_filename}")
+    size = path.stat().st_size
+    if size <= 0 or size > MAX_ARTIFACT_BYTES:
+        raise ArtifactError(f"artifact size must be 1..{MAX_ARTIFACT_BYTES} bytes")
+
+    try:
+        with tarfile.open(path, "r:gz") as archive:
+            members = archive.getmembers()
+            files = {}
+            for member in members:
+                _validate_tar_member(member, root_name)
+                if member.isfile():
+                    relative = PurePosixPath(member.name).relative_to(root_name)
+                    extracted = archive.extractfile(member)
+                    if extracted is None:
+                        raise ArtifactError(f"cannot read sdist member: {member.name}")
+                    content = extracted.read()
+                    key = relative.as_posix()
+                    if key in files:
+                        raise ArtifactError("artifact contains duplicate member names")
+                    files[key] = content
+                    _scan_content(member.name, content)
+    except (tarfile.TarError, EOFError) as error:
+        raise ArtifactError("artifact is not a valid source archive") from error
+
+    expected = _expected_sdist_files(project_root)
+    generated = {
+        "PKG-INFO",
+        "setup.cfg",
+        f"src/{distribution}.egg-info/PKG-INFO",
+        f"src/{distribution}.egg-info/SOURCES.txt",
+        f"src/{distribution}.egg-info/dependency_links.txt",
+        f"src/{distribution}.egg-info/entry_points.txt",
+        f"src/{distribution}.egg-info/top_level.txt",
+    }
+    if set(files) != expected | generated:
+        missing = sorted((expected | generated) - set(files))
+        extra = sorted(set(files) - (expected | generated))
+        raise ArtifactError(
+            f"sdist content mismatch: missing={missing!r}, extra={extra!r}"
+        )
+    for name in expected:
+        if files[name] != (project_root / name).read_bytes():
+            raise ArtifactError(f"sdist source content mismatch: {name}")
+    _validate_metadata(files["PKG-INFO"], project)
+    _validate_entry_points(
+        files[f"src/{distribution}.egg-info/entry_points.txt"], project
+    )
+    return {
+        "ok": True,
+        "artifact": path.name,
+        "bytes": size,
+        "content_sha256": _content_sha256(files),
+        "files": len(files),
+        "kind": "sdist",
+        "project": project["name"],
+        "sha256": _sha256(path.read_bytes()),
+        "version": project["version"],
+    }
+
+
+def inspect_artifact(path: Path, project_root: Path) -> dict[str, object]:
+    if path.suffix == ".whl":
+        return inspect_wheel(path, project_root)
+    if path.name.endswith(".tar.gz"):
+        return inspect_sdist(path, project_root)
+    raise ArtifactError("artifact must be a .whl or .tar.gz file")
+
+
+def inspect_artifacts(
+    paths: list[Path],
+    project_root: Path,
+) -> dict[str, object]:
+    if not paths:
+        raise ArtifactError("at least one artifact is required")
+    results = [inspect_artifact(path, project_root) for path in paths]
+    if len(results) == 1:
+        return results[0]
+    kinds = {item["kind"] for item in results}
+    content_hashes = {item["content_sha256"] for item in results}
+    if len(kinds) != 1:
+        raise ArtifactError("compared artifacts must have the same kind")
+    if len(content_hashes) != 1:
+        raise ArtifactError("artifact contents are not reproducible")
+    return {
+        "ok": True,
+        "artifacts": [item["artifact"] for item in results],
+        "content_sha256": results[0]["content_sha256"],
+        "kind": results[0]["kind"],
+        "project": results[0]["project"],
+        "version": results[0]["version"],
     }
 
 
@@ -194,6 +312,48 @@ def _validate_member(info: ZipInfo, expected_dist_info: str) -> None:
     if relative.parts in {("LICENSE",), ("licenses", "LICENSE")}:
         return
     raise ArtifactError(f"unexpected metadata member: {info.filename}")
+
+
+def _validate_tar_member(member: tarfile.TarInfo, root_name: str) -> None:
+    path = PurePosixPath(member.name)
+    if (
+        not member.name
+        or member.name.startswith("/")
+        or "\\" in member.name
+        or ".." in path.parts
+        or not path.parts
+        or path.parts[0] != root_name
+        or any(part.lower() in _FORBIDDEN_COMPONENTS for part in path.parts)
+    ):
+        raise ArtifactError(f"unsafe artifact member: {member.name!r}")
+    if not (member.isfile() or member.isdir()):
+        raise ArtifactError(f"artifact member is not a regular file: {member.name}")
+    if member.isfile() and member.size > MAX_MEMBER_BYTES:
+        raise ArtifactError(f"artifact member is too large: {member.name}")
+    if member.isfile() and path.suffix.lower() in _FORBIDDEN_SUFFIXES:
+        raise ArtifactError(f"forbidden artifact member: {member.name}")
+
+
+def _expected_sdist_files(project_root: Path) -> set[str]:
+    expected = {
+        "CHANGELOG.md",
+        "LICENSE",
+        "MANIFEST.in",
+        "README.md",
+        "SECURITY.md",
+        "pyproject.toml",
+    }
+    selections = (
+        (project_root / "src" / "civ5_agent", {".py"}),
+        (project_root / "tests", {".py"}),
+        (project_root / "scripts", {".py", ".sh"}),
+        (project_root / "docs", {".md"}),
+    )
+    for root, suffixes in selections:
+        for source in root.rglob("*"):
+            if source.is_file() and source.suffix in suffixes:
+                expected.add(source.relative_to(project_root).as_posix())
+    return expected
 
 
 def _scan_content(name: str, content: bytes) -> None:
@@ -272,15 +432,24 @@ def _sha256(content: bytes) -> str:
     return hashlib.sha256(content).hexdigest()
 
 
+def _content_sha256(contents: dict[str, bytes]) -> str:
+    digest = hashlib.sha256()
+    for name in sorted(contents):
+        digest.update(name.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(hashlib.sha256(contents[name]).digest())
+    return digest.hexdigest()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Inspect a civ5-agent wheel before release"
+        description="Inspect civ5-agent release artifacts"
     )
-    parser.add_argument("artifact", type=Path)
+    parser.add_argument("artifact", type=Path, nargs="+")
     parser.add_argument("--project-root", type=Path, default=Path.cwd())
     args = parser.parse_args(argv)
     try:
-        result = inspect_wheel(args.artifact, args.project_root.resolve())
+        result = inspect_artifacts(args.artifact, args.project_root.resolve())
         status = 0
     except (ArtifactError, OSError) as error:
         result = {"ok": False, "error": str(error)}

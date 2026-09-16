@@ -210,7 +210,7 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 - [x] Audit release gates and record current evidence and blockers
 - [ ] Prepare and run the bounded combined M5/M6 target-machine verification
 - [ ] Disposition every open high-impact release risk
-- [ ] Complete package metadata and artifact build/install/scan checks
+- [x] Complete development wheel/sdist build, install, content, and scan checks
 - [ ] Add version/tag, upgrade, release, and rollback procedures
 - [ ] Produce a clean release candidate with passing CI and artifact hashes
 

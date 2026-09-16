@@ -46,15 +46,19 @@ artifact scans, upgrade notes, and rollback procedures remain required. Until
 they are complete, `main` plus passing CI is the development baseline, not a
 stable release promise.
 
-The current offline wheel gate builds without runtime dependencies, validates archive
-paths and bounds, checks package-source coverage and wheel RECORD hashes, scans
-for common private material, and checks metadata/entry points against
-`pyproject.toml`:
+The current artifact gate builds without runtime dependencies, validates wheel
+and source-archive paths and bounds, checks declared source coverage and wheel
+RECORD hashes, scans for common private material, and checks metadata/entry
+points against `pyproject.toml`:
 
 ```bash
 python3.11 -m pip wheel --no-deps --wheel-dir dist .
+python3.11 -c "from setuptools.build_meta import build_sdist; build_sdist('dist')"
 python3.11 scripts/check_release_artifact.py dist/*.whl
+python3.11 scripts/check_release_artifact.py dist/*.tar.gz
 ```
 
-The generated `dist/` directory is ignored and must not be committed. A passing
-development wheel is not a release until the remaining M8 gates are complete.
+CI repeats both builds, compares normalized content hashes, and clean-installs
+both artifact kinds. The generated `dist/` directories are ignored and must not
+be committed. Passing development artifacts are not a release until the
+remaining M8 gates are complete.
