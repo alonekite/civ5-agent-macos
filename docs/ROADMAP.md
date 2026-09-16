@@ -208,7 +208,8 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 ## M8 — 1.0 release readiness
 
 - [x] Audit release gates and record current evidence and blockers
-- [ ] Prepare and run the bounded combined M5/M6 target-machine verification
+- [x] Prepare the bounded combined M5/M6 target-machine verification procedure
+- [ ] Run the combined M5/M6 procedure with the operator present
 - [ ] Disposition every open high-impact release risk
 - [x] Complete development wheel/sdist build, install, content, and scan checks
 - [ ] Add version/tag, upgrade, release, and rollback procedures

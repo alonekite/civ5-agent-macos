@@ -12,7 +12,7 @@ experiment evidence.
 
 | Gate | Current evidence | Remaining work |
 |---|---|---|
-| Required live verification | M1/M2 bridge reads and four allowlisted actions are live-verified | Run one bounded M5 capture/verify/export and one M6 TurnPlan validate/execute session |
+| Required live verification | M1/M2 bridge reads and four allowlisted actions are live-verified; the combined M5/M6 procedure is documented | Run the operator-present [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) |
 | High-impact risks | Safety, single-owner transport, and write read-back controls are implemented | Explicitly close or accept R-003, R-004, and R-006 using current evidence |
 | Setup/security/recovery docs | README, security policy, live checklist, and recoverable session manager exist | Reconcile the checklist with the combined M5/M6 run and add release rollback instructions |
 | Public compatibility | M7 aggregate Python API and bounded `civ5-turn` contract are complete | Add upgrade notes for the first stable version and confirm version metadata |
@@ -37,8 +37,9 @@ The required M8 live batch is deliberately narrow:
    snapshot.
 
 The operator must be present. Automation must not enable FireTuner, change the
-firewall, start the game, or infer plan content. Exact commands and restoration
-checks belong in the bounded live-test checklist before this gate is run.
+firewall, start the game, or infer plan content. Exact private-path setup,
+plan-authoring, single-execution, restoration, integrity, replay, export, and
+permission checks are fixed in section 6 of the bounded live-test checklist.
 
 ## High-impact risk disposition
 

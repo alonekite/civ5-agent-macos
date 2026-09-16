@@ -137,3 +137,158 @@ Record the schema fields observed and every restored shutdown condition in
 the optional write regression ran. Then update
 `docs/testing/LIVE_VERIFICATION_STATUS.zh-CN.md` and
 `docs/testing/TEST_MATRIX.md` with the sanitized result.
+
+## 6. M8 release gate: combined M5/M6 verification
+
+This is the next required target-machine session. It is separate from the
+schema regression above and is deliberately limited to a private journal plus
+one explicit `end_turn` TurnPlan. The operator must be present throughout. Do
+not run it from unattended automation, and never commit any generated file.
+
+### 6.1 Create private paths
+
+From the repository root, create one private temporary directory. Keep the
+same terminal open for the whole session:
+
+```bash
+umask 077
+export CIV5_LIVE_ROOT="$(mktemp -d -t civ5-agent-live.XXXXXX)"
+export CIV5_LIVE_JOURNAL="$CIV5_LIVE_ROOT/match.journal.jsonl"
+export CIV5_LIVE_AUDIT="$CIV5_LIVE_ROOT/command-audit.jsonl"
+export CIV5_LIVE_PLAN="$CIV5_LIVE_ROOT/end-turn-plan.json"
+export CIV5_LIVE_EXPORT="$CIV5_LIVE_ROOT/journal-structure.json"
+```
+
+Confirm that `CIV5_LIVE_ROOT` is non-empty and is outside the repository. Do
+not print or copy its contents into an issue, chat, or tracked file.
+
+### 6.2 Establish the guarded live session
+
+Follow sections 1 and 2 exactly: quit the game first, run `live_session
+prepare`, start the game manually, enter a normal single-player match, and
+require a passing `preflight live` result.
+
+Start the watcher in this terminal and leave it running:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.watch \
+  --journal "$CIV5_LIVE_JOURNAL" --journal-mode new \
+  --audit-log "$CIV5_LIVE_AUDIT"
+```
+
+Wait for the first validated snapshot. In the game UI, manually choose any
+required research and production and finish every unit order until the stock UI
+allows the turn to end. Do not let a script choose those actions.
+
+### 6.3 Author and validate one explicit plan
+
+In a second terminal, copy only the value of `CIV5_LIVE_ROOT` from the first
+terminal, export it, and derive the other four paths with the same commands
+from section 6.1. Copying this temporary directory name does not expose its
+contents. Then run this bounded plan-authoring snippet. It refuses to create a
+plan unless the current state has no reported turn requirement. It chooses no
+action: the sole action is explicitly fixed here as the already live-verified
+`end_turn` command.
+
+```bash
+PYTHONPATH=src python3 - "$CIV5_LIVE_PLAN" <<'PY'
+from dataclasses import asdict
+import json
+from pathlib import Path
+import sys
+import uuid
+
+from civ5_agent.api import (
+    PlannedAction,
+    WatcherBridgeClient,
+    inspect_turn_requirements,
+    make_turn_plan,
+)
+
+destination = Path(sys.argv[1])
+session_id, state = WatcherBridgeClient().read_state()
+requirements = inspect_turn_requirements(state)
+if requirements:
+    kinds = ",".join(requirement.kind for requirement in requirements)
+    raise SystemExit(f"turn is not ready; requirements={kinds}")
+plan = make_turn_plan(
+    state,
+    session_id,
+    (PlannedAction(str(uuid.uuid4()), "end_turn", {}),),
+)
+with destination.open("x", encoding="utf-8") as target:
+    json.dump(asdict(plan), target, allow_nan=False, sort_keys=True)
+    target.write("\n")
+destination.chmod(0o600)
+print(json.dumps({"ok": True, "action_count": 1}, sort_keys=True))
+PY
+
+PYTHONPATH=src python3 -m civ5_agent.turn_cli validate "$CIV5_LIVE_PLAN"
+```
+
+The authoring command and validation must both exit 0. If requirements remain,
+resolve them manually in the game and create a new plan at a new private path;
+never modify a previously created plan. If validation reports a stale state,
+discard that plan and stop to understand what changed before deciding whether
+to author another one.
+
+### 6.4 Execute once and observe the transition
+
+Execute the validated plan exactly once:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.turn_cli execute "$CIV5_LIVE_PLAN"
+```
+
+Success requires exit 0, `ok: true`, report status `completed`, exactly one
+successful `end_turn` step, and an observed turn advance in both the game and
+watcher. If the command exits 1 or 2, times out, or reports
+`recovery_required`, do not retry or create another write command. Preserve the
+private files and proceed directly to shutdown so the outcome can be analyzed
+without risking a duplicate action.
+
+### 6.5 Restore first, then verify journal artifacts offline
+
+Quit Civilization V, stop the watcher with Ctrl-C, and run `live_session
+restore` as in section 5. Require a clean restored shutdown proof before doing
+anything else. Then run:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.journal_cli verify "$CIV5_LIVE_JOURNAL"
+
+PYTHONPATH=src python3 - "$CIV5_LIVE_JOURNAL" <<'PY'
+from collections import Counter
+from pathlib import Path
+import json
+import sys
+
+from civ5_agent.api import replay_journal
+
+events = replay_journal(Path(sys.argv[1]))
+sequences = [event.sequence for event in events]
+if sequences != list(range(len(events))):
+    raise SystemExit("replay sequence is not contiguous")
+print(json.dumps({
+    "ok": True,
+    "event_count": len(events),
+    "kind_counts": dict(sorted(Counter(event.kind for event in events).items())),
+}, sort_keys=True))
+PY
+
+PYTHONPATH=src python3 -m civ5_agent.journal_cli export \
+  "$CIV5_LIVE_JOURNAL" "$CIV5_LIVE_EXPORT"
+stat -f '%Lp %N' "$CIV5_LIVE_JOURNAL" "$CIV5_LIVE_PLAN" "$CIV5_LIVE_EXPORT"
+```
+
+Verification succeeds only if the full hash chain is valid, replay order is
+contiguous, the journal contains validated snapshots plus the command lifecycle
+and observed turn transition, the export reports the same structural counts,
+and all three files have mode `600`. The replay check intentionally prints only
+counts; do not run the payload-emitting replay CLI during this release gate.
+
+Append only a sanitized conclusion to the experiment log, live-status ledger,
+and verification matrix. Record the action kind, completion status, turn
+advance, event kinds/counts, integrity result, permissions, and clean restore;
+do not record paths, UUIDs, hashes, snapshots, player data, or exact match
+state. Retain or delete the temporary directory manually after the conclusion
+is recorded; project automation must not remove private evidence.

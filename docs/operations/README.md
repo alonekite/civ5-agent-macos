@@ -5,7 +5,8 @@ Operational procedures must be safe to follow without remembering a prior chat.
 - [Security policy](../../SECURITY.md): FireTuner exposure and mandatory safety
   boundaries.
 - [Bounded live-test checklist](../LIVE_TEST_CHECKLIST.md): ordered target-Mac
-  procedure and restoration steps.
+  procedure and restoration steps, including the operator-present M8 combined
+  M5/M6 release gate.
 - `python -m civ5_agent.live_session prepare`: record the private baseline,
   establish the Civ V firewall guard, enable FireTuner, and verify readiness.
 - `python -m civ5_agent.live_session restore`: restore the recorded game config,
