@@ -8,6 +8,7 @@ from dataclasses import asdict, dataclass
 from typing import Any, Literal
 
 from .actions import CommandValidationError, validate_command
+from .errors import ValidationError
 from .identity import (
     new_plan_id,
     validate_bridge_session_id,
@@ -20,6 +21,7 @@ from .validation import validate_live_state
 TURN_PLAN_SCHEMA_VERSION = 1
 EXECUTION_REPORT_SCHEMA_VERSION = 1
 MAX_PLAN_ACTIONS = 64
+MAX_EVENT_SINK_ERRORS = MAX_PLAN_ACTIONS * 2 + 2
 _DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}\Z")
 _REPORT_STATUSES = frozenset(
     {"completed", "paused", "stale", "failed", "recovery_required"}
@@ -28,7 +30,7 @@ _REASON_CODE_PATTERN = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
 MAX_REPORT_MESSAGE_LENGTH = 1024
 
 
-class TurnPlanError(ValueError):
+class TurnPlanError(ValidationError):
     pass
 
 
@@ -303,7 +305,7 @@ def validate_execution_report(
         raise TurnPlanError("execution report message is invalid or too long")
     if (
         not isinstance(report.event_sink_errors, tuple)
-        or len(report.event_sink_errors) > (MAX_PLAN_ACTIONS * 2 + 2)
+        or len(report.event_sink_errors) > MAX_EVENT_SINK_ERRORS
         or any(
             not isinstance(error, str) or len(error) > MAX_REPORT_MESSAGE_LENGTH
             for error in report.event_sink_errors

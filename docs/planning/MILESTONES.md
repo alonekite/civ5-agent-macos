@@ -225,12 +225,13 @@ Acceptance criteria:
 - Separate public interfaces from FireTuner and local-database implementation
   details.
 
-Current progress: the cross-module inventory now identifies existing versioned
-contracts, candidate Python/CLI surfaces, implementation-only internals, current
-limits, and unresolved error-taxonomy gaps. The session-aware watcher bridge
-client now exposes live reads, verified individual actions, and cached-result
-lookups independently of M6 under ADR-0025. No remaining provisional import path
-has been declared stable merely by appearing in the inventory.
+Current progress: the cross-module inventory identifies versioned contracts,
+implementation-only internals, and current limits. The session-aware watcher
+bridge client exposes live reads, verified individual actions, and cached-result
+lookups independently of M6 under ADR-0025. ADR-0026 defines the contract-tested
+`civ5_agent.api` aggregate surface, compatible error categories, and pre-1.0
+change policy. CLI JSON/exit compatibility and any demonstrated need for
+narrower knowledge or journal facades remain open.
 
 ## M8 — 1.0 release readiness
 

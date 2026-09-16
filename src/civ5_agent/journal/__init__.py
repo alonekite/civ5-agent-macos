@@ -1,3 +1,4 @@
+from .codec import JOURNAL_SCHEMA_VERSION, MAX_RECORD_BYTES
 from .export import RedactedExportReport, export_redacted_journal
 from .integration import JournalCapture
 from .models import JournalRecord
@@ -13,6 +14,8 @@ __all__ = [
     "JournalStore",
     "JournalVerification",
     "RedactedExportReport",
+    "JOURNAL_SCHEMA_VERSION",
+    "MAX_RECORD_BYTES",
     "export_redacted_journal",
     "verify_journal",
     "replay_journal",

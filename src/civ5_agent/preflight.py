@@ -8,6 +8,7 @@ import subprocess
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
+from .errors import SafetyError
 from .ipc import default_socket_path
 
 
@@ -45,7 +46,7 @@ class SafetyStatus:
         return not self.issues
 
 
-class UnsafeSessionError(RuntimeError):
+class UnsafeSessionError(SafetyError):
     pass
 
 

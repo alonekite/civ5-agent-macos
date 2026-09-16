@@ -1,6 +1,6 @@
 # Public API Inventory
 
-Status: M7 inventory complete; compatibility surface not yet frozen
+Status: Supported aggregate pre-1.0 surface implemented; CLI freeze pending
 
 ## Purpose
 
@@ -21,18 +21,27 @@ stable API by itself.
 | Execution report/event | `schema_version` | Schema 1 only |
 | Bridge session | canonical UUIDv4 envelope | One watcher/direct-connection epoch; never a match identity |
 
-Existing schema compatibility rules remain authoritative even while Python
-import paths and CLI names are provisional.
+Existing schema compatibility rules remain authoritative. `civ5_agent.api` is
+the supported aggregate Python import path under ADR-0026; CLI compatibility is
+still provisional.
 
 ## Candidate supported Python surface
 
 ### Bridge data and validation
 
-`civ5_agent.bridge.__all__` now exposes the candidate supported bridge surface:
+`civ5_agent.bridge.__all__` exposes the bridge surface:
 the `Bridge` protocol, watcher-only `WatcherBridgeClient`, `GameState`,
 `Command`, `CommandResult`, `ALLOWED_ACTIONS`, `validate_command`, and
 `CommandValidationError`. Live reads and individual verified writes no longer
-require M6 types. Exact exception compatibility remains pending.
+require M6 types.
+
+## Supported aggregate import
+
+`civ5_agent.api.__all__` is contract-tested as the supported aggregate pre-1.0
+surface. It re-exports the documented module models, operations, errors, schema
+versions, supported schema sets, and byte/count limits. Raw FireTuner, IPC
+server, watcher-handler, importer, and private codec helpers are deliberately
+absent.
 
 ### Ruleset knowledge
 
@@ -89,27 +98,23 @@ them to use the supported core.
 | Local watcher response | 4 MiB |
 | TurnPlan actions | 64 |
 | TurnPlan JSON file | 64 KiB |
-| Execution message | 1,024 characters |
-| Execution event-sink errors | `2 * MAX_PLAN_ACTIONS + 2` |
-| Journal record | Contract/code constant; must be published before freeze |
-| Knowledge bundle | No public byte limit yet; deterministic validation required |
+| Command-result or execution-report message | 1,024 characters |
+| Execution event-sink errors | 130 |
+| Journal record | 4 MiB |
+| Knowledge bundle | No fixed public byte limit; deterministic validation and source integrity are mandatory |
 
 ## Error inventory
 
-Current callers may encounter domain errors (`TurnPlanError`, `JournalError`,
-`KnowledgeValidationError`, `RulesetResolutionError`, identity/state validation
-errors) and transport/filesystem errors (`ConnectionError`, `TimeoutError`,
-`OSError`). These are not yet organized under one public hierarchy. CLI commands
-map them to bounded JSON and nonzero exit status, but exact cross-command error
-codes are not frozen.
+All supported domain errors inherit `Civ5AgentError`. Validation errors retain
+`ValueError` compatibility, safety errors retain `RuntimeError`, protocol errors
+retain `ValueError`, and transport-ambiguous exchanges use `TransportError`,
+which retains `ConnectionError`. Wrapped failures preserve `__cause__`. CLI
+commands map errors to bounded JSON and nonzero exit status, but exact
+cross-command error codes are not frozen.
 
 ## M7 work derived from this inventory
 
-1. Define a small public exception taxonomy without hiding existing causal
-   errors needed for recovery.
-2. Publish exact schema, size, and compatibility guarantees from one supported
-   import surface and add import/behavior contract tests on Python 3.11 and 3.13.
-3. Decide whether existing knowledge and journal exports need narrower facades;
+1. Decide whether existing knowledge and journal exports need narrower facades;
    add selective queries only for demonstrated consumers.
-4. Freeze CLI names, JSON envelopes, and exit semantics or document deliberate
+2. Freeze CLI names, JSON envelopes, and exit semantics or document deliberate
    provisional exceptions before M8.

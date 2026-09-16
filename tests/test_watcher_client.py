@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from civ5_agent.actions import CommandValidationError, validate_command
 from civ5_agent.bridge import Bridge
+from civ5_agent.errors import ProtocolError, TransportError
 from civ5_agent.models import Command, GameState
 from civ5_agent.watcher_client import WatcherBridgeClient
 
@@ -42,6 +43,13 @@ class WatcherBridgeClientTest(unittest.TestCase):
         self.assertEqual(session_id, SESSION_ID)
         self.assertEqual(observed, state())
 
+        malformed = {**response, "bridge_session_id": "not-a-session"}
+        with patch(
+            "civ5_agent.watcher_client.request",
+            return_value=malformed,
+        ), self.assertRaisesRegex(ProtocolError, "UUID"):
+            WatcherBridgeClient().read_state()
+
     def test_executes_validated_command_and_requires_terminal_matching_result(self):
         command = Command("skip_unit", {"unit_id": 8}, id=COMMAND_ID)
         response = {
@@ -69,14 +77,20 @@ class WatcherBridgeClientTest(unittest.TestCase):
         with patch(
             "civ5_agent.watcher_client.request",
             return_value=pending,
-        ), self.assertRaisesRegex(ValueError, "terminal"):
+        ), self.assertRaisesRegex(TransportError, "terminal"):
             WatcherBridgeClient().execute_command(command, SESSION_ID)
 
         malformed = {**response, "result": {**response["result"], "after": {}}}
         with patch(
             "civ5_agent.watcher_client.request",
             return_value=malformed,
-        ), self.assertRaisesRegex(ValueError, "live state is missing"):
+        ), self.assertRaisesRegex(TransportError, "live state is missing"):
+            WatcherBridgeClient().execute_command(command, SESSION_ID)
+
+        with patch(
+            "civ5_agent.watcher_client.request",
+            side_effect=TimeoutError("timed out"),
+        ), self.assertRaisesRegex(TransportError, "timed out"):
             WatcherBridgeClient().execute_command(command, SESSION_ID)
 
     def test_rejects_invalid_command_before_watcher_contact(self):

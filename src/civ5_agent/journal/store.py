@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from ..errors import ValidationError
 from ..identity import (
     new_match_id,
     validate_bridge_session_id,
@@ -33,7 +34,7 @@ _LIVE_RECORD_KINDS = frozenset(
 _APPENDABLE_RECORD_KINDS = _LIVE_RECORD_KINDS | {"correction"}
 
 
-class JournalError(ValueError):
+class JournalError(ValidationError):
     pass
 
 

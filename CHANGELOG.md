@@ -48,6 +48,8 @@ versioned releases. Development details belong in
   constraints, excluding localized descriptions and AI priorities.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
+- Aggregate pre-1.0 Python API with explicit validation, protocol, transport,
+  and live-safety error categories plus published schema and size limits.
 
 ### Security
 

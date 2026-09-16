@@ -5,6 +5,7 @@ import re
 from pathlib import PurePosixPath
 from typing import Any
 
+from ..errors import ValidationError
 from .models import KnowledgeBundle, ReferenceContext
 
 
@@ -13,9 +14,10 @@ KIND_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 ALLOWED_FAMILIES = {"vanilla", "gk", "bnw"}
 FORBIDDEN_ATTRIBUTE_FRAGMENTS = ("flavor", "personality")
+SUPPORTED_KNOWLEDGE_SCHEMA_VERSIONS = frozenset({1, 2, 3})
 
 
-class KnowledgeValidationError(ValueError):
+class KnowledgeValidationError(ValidationError):
     pass
 
 
@@ -23,7 +25,7 @@ def validate_bundle(bundle: KnowledgeBundle) -> KnowledgeBundle:
     if (
         not isinstance(bundle.schema_version, int)
         or isinstance(bundle.schema_version, bool)
-        or bundle.schema_version not in {1, 2, 3}
+        or bundle.schema_version not in SUPPORTED_KNOWLEDGE_SCHEMA_VERSIONS
     ):
         raise KnowledgeValidationError(
             f"unsupported knowledge schema_version: {bundle.schema_version}"

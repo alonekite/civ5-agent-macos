@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from uuid import UUID, uuid4
 
+from .errors import ValidationError
 
-class SessionIdentityError(ValueError):
+
+class SessionIdentityError(ValidationError):
     pass
 
 

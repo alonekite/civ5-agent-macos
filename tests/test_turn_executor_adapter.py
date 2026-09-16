@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from civ5_agent.models import GameState
+from civ5_agent.errors import TransportError
 from civ5_agent.turn_executor_adapter import WatcherTurnExecutor
 from civ5_agent.turn_executor import execute_turn_plan
 from civ5_agent.turn_plan import PlannedAction, make_turn_plan
@@ -95,8 +96,40 @@ class WatcherTurnExecutorTest(unittest.TestCase):
         with patch(
             "civ5_agent.watcher_client.request",
             return_value=response,
-        ), self.assertRaisesRegex(ValueError, "session changed"):
+        ), self.assertRaisesRegex(TransportError, "session changed"):
             adapter.execute_action(action, SESSION_ID)
+
+    def test_malformed_post_write_result_requires_recovery(self):
+        before = state()
+        action = PlannedAction(COMMAND_ID, "end_turn", {})
+        plan = make_turn_plan(before, SESSION_ID, (action,), plan_id=PLAN_ID)
+        responses = (
+            {
+                "ok": True,
+                "bridge_session_id": SESSION_ID,
+                "state": asdict(before),
+            },
+            {
+                "ok": True,
+                "bridge_session_id": SESSION_ID,
+                "result": {
+                    "id": COMMAND_ID,
+                    "status": "pending",
+                    "message": "not terminal",
+                    "before": asdict(before),
+                    "after": asdict(before),
+                },
+            },
+        )
+        with tempfile.TemporaryDirectory() as directory, patch(
+            "civ5_agent.watcher_client.request",
+            side_effect=responses,
+        ):
+            report = WatcherTurnExecutor(Path(directory) / "agent.sock").execute(plan)
+
+        self.assertEqual(report.status, "recovery_required")
+        self.assertEqual(report.reason_code, "action_outcome_unknown")
+        self.assertEqual(report.next_action_index, 0)
 
     def test_validates_timeouts_before_contacting_watcher(self):
         with self.assertRaisesRegex(ValueError, "timeout"):

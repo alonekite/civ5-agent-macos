@@ -17,7 +17,11 @@ from .resolver import (
     RulesetResolutionError,
     RulesetResolver,
 )
-from .validation import KnowledgeValidationError, validate_bundle
+from .validation import (
+    SUPPORTED_KNOWLEDGE_SCHEMA_VERSIONS,
+    KnowledgeValidationError,
+    validate_bundle,
+)
 
 __all__ = [
     "Entity",
@@ -33,6 +37,7 @@ __all__ = [
     "RulesetResolutionError",
     "RulesetResolver",
     "Source",
+    "SUPPORTED_KNOWLEDGE_SCHEMA_VERSIONS",
     "bundle_sha256",
     "dumps",
     "loads",

@@ -3,11 +3,12 @@ from __future__ import annotations
 import copy
 from dataclasses import dataclass
 
+from ..errors import ValidationError
 from .index import KnowledgeIndex
 from .models import Entity, KnowledgeBundle, Reference, Ruleset, Source
 
 
-class RulesetResolutionError(ValueError):
+class RulesetResolutionError(ValidationError):
     """Raised when per-game context cannot be resolved without guessing."""
 
 

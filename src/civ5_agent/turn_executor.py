@@ -7,7 +7,7 @@ from .identity import validate_bridge_session_id
 from .models import CommandResult, GameState
 from .turn_plan import (
     EXECUTION_REPORT_SCHEMA_VERSION,
-    MAX_PLAN_ACTIONS,
+    MAX_EVENT_SINK_ERRORS,
     MAX_REPORT_MESSAGE_LENGTH,
     ExecutionReport,
     ExecutionEvent,
@@ -653,5 +653,5 @@ class _EventEmitter:
             )
             self.sink(event)
         except Exception as error:  # optional sink must not affect execution
-            if len(self.errors) < (MAX_PLAN_ACTIONS * 2 + 2):
+            if len(self.errors) < MAX_EVENT_SINK_ERRORS:
                 self.errors.append(str(error)[:1024])

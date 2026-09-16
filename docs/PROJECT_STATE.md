@@ -10,9 +10,10 @@ development log.
 
 - Current offline milestone: M7 — public API stabilization. M5 and M6 bounded
   target-machine verification remain pending.
-- Active next deliverable: establish the supported import and exception
-  surface, then publish complete size/version guarantees.
-- Functional baseline: 241 tests pass locally on Python 3.11 and the default
+- Active next deliverable: freeze or explicitly qualify CLI JSON/exit
+  compatibility, then assess whether demonstrated consumers need narrower
+  knowledge or journal facades.
+- Functional baseline: 247 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -103,6 +104,10 @@ development log.
 - `civ5_agent.bridge` now exposes a session-aware `Bridge` protocol and
   watcher-only client for validated reads, individual verified commands, and
   read-only result lookup independently of M6.
+- `civ5_agent.api` is the contract-tested aggregate pre-1.0 Python surface.
+  Public errors distinguish validation, protocol, transport-ambiguous, and
+  live-safety failures while preserving compatible built-in catch behavior.
+  Supported schema sets and byte/count limits are exported constants.
 
 ## Evidence still optional
 
@@ -116,13 +121,10 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended offline order
 
-1. Inventory the provisional public interfaces and define M7 compatibility,
-   error, and size-limit guarantees. (Inventory complete; guarantees pending.)
-2. Define the supported import surface and exception taxonomy with contract
-   tests.
-3. Add selective journal and knowledge queries only where the public API
+1. Freeze or explicitly qualify CLI names, JSON envelopes, and exit semantics.
+2. Add selective journal and knowledge queries only where the public API
    inventory demonstrates a concrete need.
-4. Run bounded M5/M6 live verification when the user is present.
+3. Run bounded M5/M6 live verification when the user is present.
 
 M5 live verification and M6 implementation are independent workstreams.
 
@@ -147,6 +149,8 @@ M5 live verification and M6 implementation are independent workstreams.
   the watcher-owned CLI path.
 - ADR-0025: the public bridge client is session-aware, watcher-only, and
   independent of M6 orchestration.
+- ADR-0026: one aggregate pre-1.0 import surface and explicit error taxonomy
+  define supported Python compatibility.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

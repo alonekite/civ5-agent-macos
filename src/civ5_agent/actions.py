@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from .errors import ValidationError
 from .identity import validate_command_id
 from .models import Command
 
@@ -15,9 +16,10 @@ _PRODUCTION_PATTERNS = {
 ALLOWED_ACTIONS = frozenset(
     {"end_turn", "choose_research", "set_city_production", "skip_unit"}
 )
+MAX_COMMAND_MESSAGE_LENGTH = 1024
 
 
-class CommandValidationError(ValueError):
+class CommandValidationError(ValidationError):
     pass
 
 

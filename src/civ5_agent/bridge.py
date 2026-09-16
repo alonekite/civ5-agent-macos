@@ -2,8 +2,15 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from .actions import ALLOWED_ACTIONS, CommandValidationError, validate_command
+from .actions import (
+    ALLOWED_ACTIONS,
+    MAX_COMMAND_MESSAGE_LENGTH,
+    CommandValidationError,
+    validate_command,
+)
+from .ipc import MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES
 from .models import Command, CommandResult, GameState
+from .validation import SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS, validate_live_state
 from .watcher_client import WatcherBridgeClient
 
 
@@ -31,6 +38,11 @@ __all__ = [
     "CommandResult",
     "CommandValidationError",
     "GameState",
+    "MAX_REQUEST_BYTES",
+    "MAX_RESPONSE_BYTES",
+    "MAX_COMMAND_MESSAGE_LENGTH",
+    "SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS",
     "WatcherBridgeClient",
     "validate_command",
+    "validate_live_state",
 ]

@@ -10,6 +10,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable
 
+from .errors import SafetyError
 from .preflight import (
     CIV_EXECUTABLE,
     FIREWALL_TOOL,
@@ -24,7 +25,7 @@ SUDO_TOOL = Path("/usr/bin/sudo")
 CommandRunner = Callable[[Path, str, str], str]
 
 
-class LiveSessionError(RuntimeError):
+class LiveSessionError(SafetyError):
     pass
 
 

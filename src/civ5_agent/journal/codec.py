@@ -7,6 +7,7 @@ from dataclasses import asdict
 from datetime import datetime
 from typing import Any
 
+from ..errors import ValidationError
 from ..identity import validate_bridge_session_id, validate_match_id
 from .models import JournalRecord
 
@@ -41,7 +42,7 @@ _FIELDS = frozenset(
 _HASH_PATTERN = re.compile(r"[0-9a-f]{64}")
 
 
-class JournalCodecError(ValueError):
+class JournalCodecError(ValidationError):
     pass
 
 

@@ -13,6 +13,7 @@ from contextlib import closing
 from pathlib import Path
 from typing import Any
 
+from ..errors import ValidationError
 from .codec import dumps
 from .models import (
     Entity,
@@ -2292,7 +2293,7 @@ ATTRIBUTED_REFERENCE_TABLES = (
 )
 
 
-class KnowledgeImportError(ValueError):
+class KnowledgeImportError(ValidationError):
     pass
 
 

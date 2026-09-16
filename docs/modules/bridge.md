@@ -54,7 +54,10 @@ or ruleset knowledge.
 
 Unsafe session, missing in-game Lua state, malformed snapshot, blocked action,
 transport closure, verification timeout, audit failure, and duplicate-ID misuse
-are distinct errors where their recovery semantics differ.
+are distinct errors where their recovery semantics differ. Supported callers
+can catch `ValidationError`, `ProtocolError`, `TransportError`, or `SafetyError`
+from the aggregate API. A malformed result after submitting a write is
+transport-ambiguous and must enter recovery rather than deterministic rejection.
 
 ## Security and privacy
 
@@ -79,6 +82,6 @@ has a direct fallback; the supported Python bridge client is watcher-only.
 
 ## Planned extensions
 
-Complete pending live checks, add only narrowly specified actions, and finish
-the M7 exception and compatibility contract. The session envelope has offline
-tests; M5/M6 composition must preserve its fail-closed behavior.
+Complete pending live checks and add only narrowly specified actions. The
+session envelope and public error semantics have offline tests; M5/M6
+composition must preserve their fail-closed behavior.

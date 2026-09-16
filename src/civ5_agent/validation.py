@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import re
 
+from .errors import ValidationError
 from .models import GameState
 
 
 TECH_TYPE_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
+SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5})
 
 
-class StateValidationError(ValueError):
+class StateValidationError(ValidationError):
     pass
 
 
@@ -50,7 +52,7 @@ def validate_live_state(state: GameState) -> GameState:
     for field in ("turn_active", "can_end_turn"):
         if not isinstance(getattr(state, field), bool):
             raise StateValidationError(f"{field} must be a boolean")
-    if state.schema_version not in {2, 3, 4, 5}:
+    if state.schema_version not in SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS:
         raise StateValidationError(f"unsupported schema_version: {state.schema_version}")
     if state.turn is not None and state.turn < 0:
         raise StateValidationError("turn must be non-negative")

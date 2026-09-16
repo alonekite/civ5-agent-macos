@@ -13,7 +13,7 @@ tests; discrepancies are defects that must be resolved explicitly.
 | [Ruleset knowledge view](resolver.md) | Structural M4 contract implemented | knowledge |
 | [Turn journal](journal.md) | M5 implemented offline; bounded live verification pending | journal |
 | [Turn plan and execution](turn-plan.md) | Schema 1 execution/recovery and bounded CLI implemented offline | controller/executor |
-| [Public Python API](public-api.md) | M7 inventory complete; compatibility surface not frozen | cross-module |
+| [Public Python API](public-api.md) | Aggregate pre-1.0 surface and error contract implemented; CLI freeze pending | cross-module |
 
 ## Contract rules
 
