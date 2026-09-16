@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import asdict
+from dataclasses import asdict, replace
 
 from .identity import validate_bridge_session_id
 from .models import CommandResult, GameState
 from .turn_plan import (
     EXECUTION_REPORT_SCHEMA_VERSION,
+    MAX_PLAN_ACTIONS,
     MAX_REPORT_MESSAGE_LENGTH,
     ExecutionReport,
+    ExecutionEvent,
     ExecutionStepReport,
     PlannedAction,
     StaleTurnPlanError,
@@ -16,6 +18,7 @@ from .turn_plan import (
     TurnPlanError,
     live_state_digest,
     validate_execution_report,
+    validate_execution_event,
     validate_turn_plan,
 )
 from .turn_requirements import TurnRequirement, inspect_turn_requirements
@@ -23,9 +26,73 @@ from .validation import validate_live_state
 
 StateReader = Callable[[], tuple[str, GameState]]
 ActionExecutor = Callable[[PlannedAction, str], CommandResult]
+EventSink = Callable[[ExecutionEvent], None]
 
 
 def execute_turn_plan(
+    plan: TurnPlan,
+    read_state: StateReader,
+    execute_action: ActionExecutor,
+    event_sink: EventSink | None = None,
+) -> ExecutionReport:
+    emitter = _EventEmitter(plan, event_sink)
+    emitter.emit("plan_received", reason_code="plan_received", message="plan received")
+
+    def observed_action_executor(
+        action: PlannedAction,
+        session_id: str,
+    ) -> CommandResult:
+        index = plan.actions.index(action)
+        emitter.emit(
+            "action_started",
+            action_index=index,
+            action=action,
+            reason_code="action_started",
+            message="planned action submitted to bridge",
+        )
+        try:
+            result = execute_action(action, session_id)
+        except (OSError, TimeoutError, ConnectionError):
+            emitter.emit(
+                "action_outcome_unknown",
+                action_index=index,
+                action=action,
+                reason_code="action_outcome_unknown",
+                message="bridge outcome is unknown",
+            )
+            raise
+        except (TypeError, ValueError) as error:
+            emitter.emit(
+                "action_rejected",
+                action_index=index,
+                action=action,
+                reason_code="action_rejected",
+                message=str(error),
+            )
+            raise
+        emitter.emit(
+            "action_result_received",
+            action_index=index,
+            action=action,
+            reason_code="action_result_received",
+            message=result.message if isinstance(result.message, str) else "invalid result",
+        )
+        return result
+
+    report = _execute_turn_plan_core(plan, read_state, observed_action_executor)
+    emitter.emit(
+        report.status,
+        reason_code=report.reason_code,
+        message=report.message,
+    )
+    report = replace(report, event_sink_errors=tuple(emitter.errors))
+    try:
+        return validate_execution_report(report, plan)
+    except TurnPlanError:
+        return report
+
+
+def _execute_turn_plan_core(
     plan: TurnPlan,
     read_state: StateReader,
     execute_action: ActionExecutor,
@@ -340,3 +407,39 @@ def _report(
     if no_step:
         return report
     return validate_execution_report(report, plan)
+
+
+class _EventEmitter:
+    def __init__(self, plan: TurnPlan, sink: EventSink | None):
+        self.plan = plan
+        self.sink = sink
+        self.errors: list[str] = []
+
+    def emit(
+        self,
+        kind: str,
+        *,
+        reason_code: str,
+        message: str,
+        action_index: int | None = None,
+        action: PlannedAction | None = None,
+    ) -> None:
+        if self.sink is None:
+            return
+        try:
+            event = validate_execution_event(
+                ExecutionEvent(
+                    schema_version=EXECUTION_REPORT_SCHEMA_VERSION,
+                    plan_id=self.plan.plan_id,
+                    bridge_session_id=self.plan.bridge_session_id,
+                    kind=kind,
+                    action_index=action_index,
+                    command_id=action.command_id if action is not None else None,
+                    reason_code=reason_code,
+                    message=str(message)[:1024],
+                )
+            )
+            self.sink(event)
+        except Exception as error:  # optional sink must not affect execution
+            if len(self.errors) < (MAX_PLAN_ACTIONS * 2 + 2):
+                self.errors.append(str(error)[:1024])

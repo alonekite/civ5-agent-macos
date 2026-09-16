@@ -71,6 +71,15 @@ The current implementation keeps cursor and verified steps in the returned
 report only. Explicit reconciliation of a `recovery_required` report and a
 watcher/CLI adapter remain pending.
 
+## Optional factual events
+
+An optional bounded sink may receive schema 1 `ExecutionEvent` values for plan
+receipt, action start, neutral bridge-result receipt, deterministic rejection,
+unknown outcome, and terminal execution status. Result receipt does not claim
+success before before/after continuity is validated. Sink failures are bounded
+in `ExecutionReport.event_sink_errors` and never block, alter, or retry actions.
+The executor works identically without a sink and does not import M5.
+
 The journal may contain historical copies of plans and execution events, but
 those copies never authorize resumption, skipping, or retrying an action.
 

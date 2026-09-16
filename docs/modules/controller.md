@@ -1,6 +1,6 @@
 # Module: deterministic turn executor
 
-Status: M6 ordered core implemented offline; adapter/events/recovery pending
+Status: M6 ordered core/events implemented offline; adapter/recovery pending
 
 ## Responsibility
 
@@ -78,13 +78,13 @@ ordered multi-action tests.
 
 ## Current limitations
 
-Watcher/CLI adaptation, optional event emission, and explicit ambiguous-outcome
-reconciliation are not implemented. The current `decide()` function
+Watcher/CLI adaptation and explicit ambiguous-outcome reconciliation are not
+implemented. The current `decide()` function
 mixes factual requirement reporting with the legacy end-turn recommendation and
 must not grow into a tactical or strategic planner.
 
 ## Planned extensions
 
-Add optional factual events, watcher/CLI adaptation, and interruption recovery
-independently of M5, then stabilize naming during M7. Tactical and
+Add watcher/CLI adaptation and interruption recovery independently of M5, then
+stabilize naming during M7. Tactical and
 strategic layers remain plan producers, not executor internals.

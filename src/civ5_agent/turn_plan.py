@@ -89,6 +89,30 @@ class ExecutionReport:
     steps: tuple[ExecutionStepReport, ...]
     reason_code: str
     message: str
+    event_sink_errors: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class ExecutionEvent:
+    schema_version: int
+    plan_id: str
+    bridge_session_id: str
+    kind: Literal[
+        "plan_received",
+        "action_started",
+        "action_result_received",
+        "action_rejected",
+        "action_outcome_unknown",
+        "completed",
+        "paused",
+        "stale",
+        "failed",
+        "recovery_required",
+    ]
+    action_index: int | None
+    command_id: str | None
+    reason_code: str
+    message: str
 
 
 def live_state_digest(state: GameState) -> str:
@@ -228,6 +252,15 @@ def validate_execution_report(
         or len(report.message) > MAX_REPORT_MESSAGE_LENGTH
     ):
         raise TurnPlanError("execution report message is invalid or too long")
+    if (
+        not isinstance(report.event_sink_errors, tuple)
+        or len(report.event_sink_errors) > (MAX_PLAN_ACTIONS * 2 + 2)
+        or any(
+            not isinstance(error, str) or len(error) > MAX_REPORT_MESSAGE_LENGTH
+            for error in report.event_sink_errors
+        )
+    ):
+        raise TurnPlanError("event_sink_errors is invalid or unbounded")
 
     normalized_steps = []
     for index, step in enumerate(report.steps):
@@ -270,6 +303,54 @@ def validate_execution_report(
             "paused, stale, and recovery reports contain only completed steps"
         )
     return report
+
+
+def validate_execution_event(event: ExecutionEvent) -> ExecutionEvent:
+    if not isinstance(event, ExecutionEvent):
+        raise TurnPlanError("event must be an ExecutionEvent")
+    if (
+        isinstance(event.schema_version, bool)
+        or not isinstance(event.schema_version, int)
+        or event.schema_version != EXECUTION_REPORT_SCHEMA_VERSION
+    ):
+        raise TurnPlanError("unsupported ExecutionEvent schema_version")
+    try:
+        validate_plan_id(event.plan_id)
+        validate_bridge_session_id(event.bridge_session_id)
+        if event.command_id is not None:
+            validate_command_id(event.command_id)
+    except ValueError as error:
+        raise TurnPlanError(str(error)) from error
+    if event.kind not in {
+        "plan_received",
+        "action_started",
+        "action_result_received",
+        "action_rejected",
+        "action_outcome_unknown",
+        "completed",
+        "paused",
+        "stale",
+        "failed",
+        "recovery_required",
+    }:
+        raise TurnPlanError("unsupported ExecutionEvent kind")
+    if event.action_index is not None and (
+        isinstance(event.action_index, bool)
+        or not isinstance(event.action_index, int)
+        or not 0 <= event.action_index < MAX_PLAN_ACTIONS
+    ):
+        raise TurnPlanError("execution event action_index is invalid")
+    has_action = event.action_index is not None or event.command_id is not None
+    if has_action != (event.action_index is not None and event.command_id is not None):
+        raise TurnPlanError("execution event action identity must be complete")
+    if (
+        not isinstance(event.reason_code, str)
+        or not _REASON_CODE_PATTERN.fullmatch(event.reason_code)
+        or not isinstance(event.message, str)
+        or len(event.message) > MAX_REPORT_MESSAGE_LENGTH
+    ):
+        raise TurnPlanError("execution event reason or message is invalid")
+    return event
 
 
 def _validate_planned_action(action: PlannedAction) -> PlannedAction:

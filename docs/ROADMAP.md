@@ -175,7 +175,7 @@ execution-state store.
   action
 - [x] Execute only ordered plan-listed actions through terminal bridge results
   and before/after state continuity
-- [ ] Emit bounded factual progress, pause, divergence, recovery, and completion
+- [x] Emit bounded factual progress, pause, divergence, recovery, and completion
   events for optional recording
 - [x] Require an explicit final `end_turn` action
 - [ ] Add stale-state, missing-decision, interruption, idempotency, and recovery

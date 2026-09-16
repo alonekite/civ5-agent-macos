@@ -87,7 +87,9 @@ mismatch rejects the plan before writing. The digest is not reapplied after the
 plan's own verified mutations. The in-process ordered core instead requires
 each command result's before-state to match the latest observation and uses the
 verified after-state as the next basis. It never retries an unknown submission.
-Watcher/CLI adaptation and explicit recovery remain pending.
+Optional neutral lifecycle events are emitted through a bounded sink whose
+failure cannot affect execution. Watcher/CLI adaptation and explicit recovery
+remain pending.
 
 M6 does not query the structural knowledge view. Stable identifier shape, live
 capability, and action legality are bridge command responsibilities. Knowledge

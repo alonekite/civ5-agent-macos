@@ -203,7 +203,8 @@ action, state-basis, execution-report validation, and factual requirement
 inspection are implemented offline. The ordered in-process core re-reads before
 every action, proves bridge-result state continuity, pauses on uncovered
 requirements/drift, and never retries an ambiguous submission. Optional factual
-events, watcher/CLI adaptation, and explicit recovery remain pending.
+events are bounded and sink failures cannot alter execution. Watcher/CLI
+adaptation and explicit recovery remain pending.
 
 ## M7 — Public API stabilization
 

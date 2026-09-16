@@ -10,9 +10,9 @@ development log.
 
 - Current offline milestone: M6 — deterministic turn executor. M5 bounded
   target-machine verification remains pending.
-- Active next deliverable: add bounded optional execution events, then a
-  watcher/CLI adapter and explicit ambiguous-outcome recovery.
-- Functional baseline: 217 tests pass locally on Python 3.11 and the default
+- Active next deliverable: add a watcher/CLI adapter and explicit
+  ambiguous-outcome recovery.
+- Functional baseline: 219 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -86,6 +86,8 @@ development log.
 - The ordered M6 core re-reads before each action, enforces continuity with the
   prior verified after-state, pauses on drift/missing requirements, and never
   retries an action whose outcome became unknown.
+- Optional bounded execution events remain neutral until state continuity is
+  verified; sink failures are reported but cannot affect execution.
 
 ## Evidence still optional
 

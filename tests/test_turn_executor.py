@@ -247,6 +247,54 @@ class TurnExecutorTest(unittest.TestCase):
         self.assertEqual(report.reason_code, "action_rejected")
         self.assertEqual(attempts, [COMMAND_IDS[0]])
 
+    def test_emits_bounded_factual_lifecycle_events(self):
+        initial = state()
+        advanced = state(turn=5)
+        action = PlannedAction(COMMAND_IDS[0], "end_turn", {})
+        plan = make_turn_plan(initial, SESSION_ID, (action,), plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, advanced])
+        events = []
+
+        report = execute_turn_plan(
+            plan,
+            bridge.read_state,
+            bridge.execute,
+            events.append,
+        )
+
+        self.assertEqual(report.status, "completed")
+        self.assertEqual(
+            [event.kind for event in events],
+            [
+                "plan_received",
+                "action_started",
+                "action_result_received",
+                "completed",
+            ],
+        )
+        self.assertEqual(events[1].command_id, COMMAND_IDS[0])
+
+    def test_event_sink_failure_does_not_change_or_retry_execution(self):
+        initial = state()
+        advanced = state(turn=5)
+        action = PlannedAction(COMMAND_IDS[0], "end_turn", {})
+        plan = make_turn_plan(initial, SESSION_ID, (action,), plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, advanced])
+
+        def broken_sink(event):
+            raise OSError("event sink unavailable")
+
+        report = execute_turn_plan(
+            plan,
+            bridge.read_state,
+            bridge.execute,
+            broken_sink,
+        )
+
+        self.assertEqual(report.status, "completed")
+        self.assertEqual(bridge.executed, ["end_turn"])
+        self.assertTrue(report.event_sink_errors)
+
 
 if __name__ == "__main__":
     unittest.main()
