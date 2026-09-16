@@ -678,6 +678,21 @@ Implementation commit: `3d389b0`.
 
 Implementation commit: `d59d291`.
 
+## 2026-09-16 — Factual turn-requirement inspection
+
+- Added deterministic requirement inspection for inactive turns, ordinary or
+  special research choices, individual cities without production, individual
+  units needing orders, and the game-reported end-turn blocker.
+- Preserved stable city/unit ordering and exposed ordinary research candidates
+  only when the bridge identifies ordinary choice mode.
+- Refactored the legacy readiness proof to map the first factual requirement to
+  its existing compatibility message without adding action selection.
+- Passed all 210 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, addresses, credentials, tokens, or
+  real match data.
+
+Implementation commit: `066e95e`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
