@@ -946,6 +946,25 @@ Implementation commit: `35aadc7`.
 
 Implementation commit: `75d87a5`.
 
+## 2026-09-16 — M8 high-impact risk disposition
+
+- Audited R-003 against the four-action allowlist, stock-API capability checks,
+  exact read-back postconditions, offline failures, and target-build live
+  evidence; marked it controlled only for the documented release scope.
+- Audited R-004 against exact ruleset context, active-DLC detection, immutable
+  source reads, source size/SHA-256 provenance, change detection, and local-only
+  generated bundles; marked it controlled by provenance without claiming
+  semantic equivalence between source hashes.
+- Audited R-006 against ADR-0005, positive importer allowlists, generic
+  flavor/personality rejection, adversarial fixtures, the completed remainder
+  inventory, and release scans; marked it controlled while requiring renewed
+  field review for every extension.
+- Reconciled M8 planning and current state. All 78 focused documentation,
+  knowledge, artifact, and tuner tests passed warning-enabled; sensitive-data
+  scanning found no private material.
+
+Implementation commit: `9a4adf1`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
