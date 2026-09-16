@@ -1,6 +1,6 @@
 # Turn-Plan and Execution Contract
 
-Status: Proposed for M6; independent of M5 storage
+Status: Schema 1 models and admission validation implemented; execution pending
 
 ## Purpose
 
@@ -9,21 +9,27 @@ future tactical layer and the deterministic execution core. A plan states what
 to execute; it does not embed strategy, scoring, model prompts, or executable
 code.
 
-## Proposed plan envelope
+## TurnPlan schema 1
 
-A versioned `TurnPlan` will contain:
+A `TurnPlan` contains:
 
-- canonical plan identity;
-- expected bridge-session identity, turn number, and active player;
-- the validated live-state digest or equivalent state-basis identity on which it
-  was based;
-- an ordered, bounded list of existing allowlisted command envelopes;
-- explicit preconditions needed to reject stale or misdirected execution.
+- `schema_version = 1`;
+- canonical UUIDv4 `plan_id` and target `bridge_session_id`;
+- non-negative expected `turn` and `active_player`;
+- lowercase SHA-256 `state_basis_digest` over canonical JSON of the complete
+  validated initial `GameState`;
+- one to 64 ordered `PlannedAction` values.
 
-Exact field names, digest construction, record limits, and recovery tokens will
-be finalized within M6 against live-state and command contracts. A plan may
-carry an opaque history reference for its producer, but the executor neither
-requires nor trusts it as a precondition or recovery source.
+Each action contains a unique canonical UUIDv4 `command_id`, one of
+`choose_research`, `set_city_production`, `skip_unit`, or `end_turn`, and the
+exact arguments defined by the command contract. Extra fields, unknown actions,
+arbitrary predicates/code, duplicate command IDs, and malformed stable IDs are
+rejected. A complete plan contains exactly one final `end_turn`.
+
+Admission compares session, turn, player, and state basis before any write. The
+initial digest is not re-applied after earlier verified actions intentionally
+change state; fresh live state is still read before every action. Plans contain
+no M5 `match_id` and do not require journal or knowledge access.
 
 ## Execution behavior
 
@@ -68,7 +74,7 @@ Requirements may include observed stable identifiers and legal candidates
 already returned by the bridge. They do not select a candidate or create an
 action. Resolving a requirement belongs to the plan producer.
 
-## Result states
+## ExecutionReport schema 1
 
 Execution reports distinguish at least:
 
@@ -81,7 +87,12 @@ Execution reports distinguish at least:
 - `recovery_required`: prior execution cannot be classified without explicit
   reconciliation.
 
-The final schema must make these states mutually exclusive and machine-readable.
+The schema binds `plan_id` and `bridge_session_id`, carries `next_action_index`,
+bounded `reason_code` and message, and contiguous per-action step reports. Each
+step matches the planned index, command ID, and action and carries success/error,
+a bounded message, and optional before/after state digests.
+
+Validation makes these states mutually exclusive and machine-readable.
 The first M6 contract models complete-turn plans only. A future partial-plan
 contract would need a distinct plan kind and terminal result; it cannot reuse
 `completed` to mean that a turn was ended.

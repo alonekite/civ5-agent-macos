@@ -196,9 +196,10 @@ PYTHONPATH=src python3 -m civ5_agent.controller
 
 It conservatively reports one of: wait, research required, production required,
 unit orders required, or ready to end turn. Add `--execute` only for the legacy
-explicit end-turn proof. M6 will replace policy expansion with an explicit
-TurnPlan executor; it will not choose research, production, movement, tactics,
-or strategy.
+explicit end-turn proof. M6 schema 1 now validates bounded complete-turn plans,
+their initial live-state basis, and execution-report consistency; ordered
+execution remains pending. It will not choose research, production, movement,
+tactics, or strategy.
 
 ## Versioned ruleset knowledge
 

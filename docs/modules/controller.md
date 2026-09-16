@@ -1,6 +1,6 @@
 # Module: deterministic turn executor
 
-Status: M6 planned; legacy `controller` proof implemented
+Status: M6 schema 1 admission implemented; execution pending; legacy proof retained
 
 ## Responsibility
 
@@ -22,10 +22,10 @@ until M7 and supplies only the earlier readiness proof.
 
 ## Public interface
 
-The current module provides state validation, mandatory-requirement reporting,
-and an opt-in legacy end-turn path. M6 will independently add the proposed
-`TurnPlan` and execution-report boundary. Stable public Python naming is
-deferred to M7.
+The current legacy module provides state validation, mandatory-requirement
+reporting, and an opt-in end-turn path. `civ5_agent.turn_plan` now provides
+schema 1 TurnPlan/action/report models, canonical state digests, construction,
+and strict admission/report validation. Stable public naming is deferred to M7.
 
 ## Inputs and outputs
 
@@ -73,13 +73,12 @@ ordered multi-action tests.
 
 ## Current limitations
 
-The explicit plan executor is not implemented. The current `decide()` function
+Ordered plan execution is not implemented. The current `decide()` function
 mixes factual requirement reporting with the legacy end-turn recommendation and
 must not grow into a tactical or strategic planner.
 
 ## Planned extensions
 
-Finalize the TurnPlan schema against live-state and command identities,
-implement requirement inspection and ordered execution, test interruption
+Implement requirement inspection and ordered execution, test interruption
 recovery independently of M5, and stabilize naming during M7. Tactical and
 strategic layers remain plan producers, not executor internals.

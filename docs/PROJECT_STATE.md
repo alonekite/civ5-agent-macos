@@ -8,11 +8,11 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M5 — factual turn journal implementation complete offline;
-  bounded target-machine verification pending.
-- Active next deliverable: verify M5 capture/verification/export in one bounded
-  real-game session; continue M6 contract work when live testing is unavailable.
-- Functional baseline: 199 tests pass locally on Python 3.11 and the default
+- Current offline milestone: M6 — deterministic turn executor. M5 bounded
+  target-machine verification remains pending.
+- Active next deliverable: implement factual requirement inspection and ordered
+  TurnPlan execution with fresh live-state checks before every action.
+- Functional baseline: 206 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -78,6 +78,8 @@ development log.
   payloads, timestamps, identities, hashes, and source paths under ADR-0021.
 - A complete-turn plan requires a final explicit `end_turn`; `completed` means
   that action and every preceding action were verified.
+- TurnPlan schema 1 binds canonical plan/session identities, turn, player, and a
+  full validated initial-state digest to at most 64 strictly allowlisted actions.
 
 ## Evidence still optional
 
@@ -91,16 +93,13 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended offline order
 
-1. Run the bounded M5 live capture/verify/export test when the user is present.
-2. Separately finalize M6 TurnPlan and execution-report schemas against the
-   bridge-session, live-state, and command contracts.
-3. Implement ordered execution, factual requirements, drift pauses, and
+1. Implement ordered execution, factual requirements, drift pauses, and
    unambiguous recovery without knowledge or journal dependencies.
-4. Add selective journal queries and stabilize public read/write,
+2. Run the bounded M5 live capture/verify/export test when the user is present.
+3. Add selective journal queries and stabilize public read/write,
    knowledge-query, journal, and execution APIs in M7.
 
-Steps 1–2 before 3–4 are project scheduling only. M5 and M6 do not depend on
-each other.
+M5 live verification and M6 implementation are independent workstreams.
 
 ## Recent governing decisions
 
@@ -116,6 +115,7 @@ each other.
 - ADR-0020: M5 uses private hash-chained JSONL with locked, fsynced appends and
   fail-closed corruption detection.
 - ADR-0021: supported file export is structural and redacted by default.
+- ADR-0022: complete-turn plans bind to one validated initial live-state basis.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

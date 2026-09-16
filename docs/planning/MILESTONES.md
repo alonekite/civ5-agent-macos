@@ -11,7 +11,7 @@ GitHub Issues and should link back to one milestone ID.
 | M3 | Ruleset knowledge coverage | Complete | M1 |
 | M4 | Ruleset knowledge view | Complete | M3 |
 | M5 | Factual turn journal | Implemented offline; live verification pending | M1, M2 |
-| M6 | Deterministic turn executor | Planned | M2 |
+| M6 | Deterministic turn executor | In progress | M2 |
 | M7 | Public API stabilization | Planned | M4, M5, M6 |
 | M8 | 1.0 release readiness | Planned | M7 |
 
@@ -198,7 +198,9 @@ The existing `civ5_agent.controller` remains an MVP readiness proof and
 provisional compatibility surface. M6 will not expand it into game strategy and
 depends only on bridge state/session/action contracts, not M4 knowledge or M5.
 The current choice to implement M5 first is project scheduling only. See
-ADR-0015 through ADR-0017 and the proposed turn-plan contract.
+ADR-0015 through ADR-0018, ADR-0022, and the turn-plan contract. Schema 1 plan,
+action, state-basis, and execution-report validation are implemented offline;
+ordered execution and recovery remain pending.
 
 ## M7 — Public API stabilization
 

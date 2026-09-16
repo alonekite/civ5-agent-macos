@@ -81,6 +81,11 @@ missing decisions. It operates without M5; optional application orchestration
 may record its events. A complete-turn plan must list `end_turn` last and is not
 `completed` until that action is verified.
 
+Schema 1 admission is implemented under ADR-0022. The complete validated
+initial live state is canonically hashed; a session, turn, player, or digest
+mismatch rejects the plan before writing. The digest is not reapplied after the
+plan's own verified mutations. Ordered execution remains pending.
+
 M6 does not query the structural knowledge view. Stable identifier shape, live
 capability, and action legality are bridge command responsibilities. Knowledge
 is available to the human or future plan producer that chooses explicit plan

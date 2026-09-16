@@ -166,8 +166,10 @@ execution-state store.
 
 - [x] Separate turn planning from execution under ADR-0015
 - [x] Draft the TurnPlan, factual requirement, and execution-result boundary
-- [ ] Finalize TurnPlan identity and state-basis fields against live-state and
+- [x] Finalize TurnPlan identity and state-basis fields against live-state and
   command contracts
+- [x] Add bounded complete-plan admission and execution-report consistency
+  validation
 - [ ] Validate complete plans before writing and re-check live state before each
   action
 - [ ] Execute only ordered plan-listed actions through bridge postconditions

@@ -23,6 +23,18 @@ def validate_match_id(value: object) -> str:
     return _validate_uuid4(value, "match_id")
 
 
+def new_plan_id() -> str:
+    return str(uuid4())
+
+
+def validate_plan_id(value: object) -> str:
+    return _validate_uuid4(value, "plan_id")
+
+
+def validate_command_id(value: object) -> str:
+    return _validate_uuid4(value, "command_id")
+
+
 def _validate_uuid4(value: object, label: str) -> str:
     if not isinstance(value, str):
         raise SessionIdentityError(f"{label} must be a canonical UUIDv4")
