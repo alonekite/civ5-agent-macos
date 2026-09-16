@@ -65,6 +65,10 @@ bridge-session identity. Writes preserve the plan's command UUID and session
 identity, send only the declared action arguments, and require a terminal
 `CommandResult` whose response session still matches. The adapter never connects
 directly to FireTuner and never weakens the core's validation or retry rules.
+It can also make a read-only, session-scoped lookup of an uncertain command UUID.
+A hit must match the planned action and exact arguments before its cached
+terminal result is returned. A miss remains unknown and never submits or retries
+the action. The cache is intentionally limited to the current watcher lifetime.
 
 ## Execution state
 
@@ -76,7 +80,8 @@ record.
 
 The current implementation keeps cursor and verified steps in the returned
 report only. Explicit reconciliation of a `recovery_required` report and a CLI
-plan-loading surface remain pending.
+plan-loading surface remain pending; the session-scoped cached-result lookup is
+the implemented recovery transport primitive.
 
 ## Optional factual events
 

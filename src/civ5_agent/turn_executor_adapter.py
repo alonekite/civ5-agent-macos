@@ -64,6 +64,45 @@ class WatcherTurnExecutor:
         except TypeError as error:
             raise ValueError("watcher returned malformed command result") from error
 
+    def lookup_action_result(
+        self,
+        action: PlannedAction,
+        bridge_session_id: str,
+    ) -> CommandResult | None:
+        session_id = validate_bridge_session_id(bridge_session_id)
+        response = request(
+            {
+                "op": "command_status",
+                "command_id": action.command_id,
+                "bridge_session_id": session_id,
+            },
+            socket_path=self.socket_path,
+            timeout=self.timeout + self.verify_timeout + 5,
+        )
+        if not response.get("ok"):
+            raise ValueError(str(response.get("error", "watcher rejected lookup")))
+        if validate_bridge_session_id(response.get("bridge_session_id")) != session_id:
+            raise ValueError("watcher bridge session changed during lookup")
+        found = response.get("found")
+        if found is False:
+            return None
+        if found is not True:
+            raise ValueError("watcher returned malformed command status")
+        if response.get("action") != action.action:
+            raise ValueError("cached command action does not match TurnPlan")
+        if response.get("arguments") != action.arguments:
+            raise ValueError("cached command arguments do not match TurnPlan")
+        result = response.get("result")
+        if not isinstance(result, dict):
+            raise ValueError("watcher omitted cached command result")
+        try:
+            command_result = CommandResult(**result)
+        except TypeError as error:
+            raise ValueError("watcher returned malformed cached command result") from error
+        if command_result.id != action.command_id:
+            raise ValueError("cached command result id does not match TurnPlan")
+        return command_result
+
     def execute(
         self,
         plan: TurnPlan,

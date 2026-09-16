@@ -103,6 +103,60 @@ class WatcherTurnExecutorTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "verify_timeout"):
             WatcherTurnExecutor(verify_timeout=121)
 
+    def test_looks_up_cached_result_without_resubmitting_action(self):
+        action = PlannedAction(COMMAND_ID, "skip_unit", {"unit_id": 8})
+        response = {
+            "ok": True,
+            "bridge_session_id": SESSION_ID,
+            "found": True,
+            "action": "skip_unit",
+            "arguments": {"unit_id": 8},
+            "result": {
+                "id": COMMAND_ID,
+                "status": "success",
+                "message": "verified",
+                "before": asdict(state()),
+                "after": asdict(state()),
+            },
+        }
+        with patch(
+            "civ5_agent.turn_executor_adapter.request",
+            return_value=response,
+        ) as send:
+            result = WatcherTurnExecutor().lookup_action_result(action, SESSION_ID)
+
+        self.assertEqual(result.id, COMMAND_ID)
+        self.assertEqual(send.call_args.args[0]["op"], "command_status")
+        self.assertNotIn("unit_id", send.call_args.args[0])
+
+    def test_cached_result_lookup_distinguishes_missing_and_mismatch(self):
+        action = PlannedAction(COMMAND_ID, "skip_unit", {"unit_id": 8})
+        missing = {
+            "ok": True,
+            "bridge_session_id": SESSION_ID,
+            "found": False,
+        }
+        with patch(
+            "civ5_agent.turn_executor_adapter.request",
+            return_value=missing,
+        ):
+            self.assertIsNone(
+                WatcherTurnExecutor().lookup_action_result(action, SESSION_ID)
+            )
+
+        mismatched = {
+            **missing,
+            "found": True,
+            "action": "end_turn",
+            "arguments": {},
+            "result": {},
+        }
+        with patch(
+            "civ5_agent.turn_executor_adapter.request",
+            return_value=mismatched,
+        ), self.assertRaisesRegex(ValueError, "action does not match"):
+            WatcherTurnExecutor().lookup_action_result(action, SESSION_ID)
+
 
 if __name__ == "__main__":
     unittest.main()

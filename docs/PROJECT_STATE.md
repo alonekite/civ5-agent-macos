@@ -12,7 +12,7 @@ development log.
   target-machine verification remains pending.
 - Active next deliverable: add explicit ambiguous-outcome recovery, then a
   bounded CLI plan-loading surface.
-- Functional baseline: 222 tests pass locally on Python 3.11 and the default
+- Functional baseline: 225 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -91,6 +91,9 @@ development log.
 - The watcher execution adapter reads state and submits plan-listed actions over
   the existing private watcher socket, preserving bridge session and command
   identities without opening another FireTuner connection.
+- A session-scoped, read-only command-status request retrieves terminal results
+  already cached by the current watcher. Missing results remain unknown and are
+  never automatically resubmitted; report reconciliation is still pending.
 
 ## Evidence still optional
 

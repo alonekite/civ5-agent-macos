@@ -33,7 +33,9 @@ read/action capabilities, verifies result state continuity, and returns bounded
 terminal reports without importing knowledge or journal modules.
 `civ5_agent.turn_executor_adapter.WatcherTurnExecutor` supplies those two
 capabilities through the existing per-user watcher socket. It does not open a
-second FireTuner connection.
+second FireTuner connection. It also exposes a read-only completed-command
+lookup for later recovery reconciliation; a cache miss never resubmits an
+action.
 
 ## Inputs and outputs
 

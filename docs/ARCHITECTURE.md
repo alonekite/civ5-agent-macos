@@ -91,7 +91,9 @@ Optional neutral lifecycle events are emitted through a bounded sink whose
 failure cannot affect execution. The watcher adapter now supplies state reads
 and plan-listed writes through the existing private Unix socket, preserving
 session and command identities without creating another FireTuner client.
-CLI plan loading and explicit recovery remain pending.
+The same socket now supports a session-scoped read-only lookup of completed
+command UUIDs. A miss never executes or retries a command; full report
+reconciliation and CLI plan loading remain pending.
 
 M6 does not query the structural knowledge view. Stable identifier shape, live
 capability, and action legality are bridge command responsibilities. Knowledge
@@ -126,6 +128,9 @@ neither logging failure changes a bridge-verified game result.
 For one watcher lifetime, completed command UUIDs are cached together with
 their operation, arguments, and response. An identical retry returns that
 response with `replayed: true`; reuse with different arguments is rejected.
+The executor adapter instead uses the read-only `command_status` request when
+an earlier submission has an unknown outcome. A matching cache hit returns the
+terminal result; a miss does not take any write path.
 The lookup, execution, audit, and cache insertion share the connection lock so
 concurrent duplicate requests cannot both reach Civ V.
 

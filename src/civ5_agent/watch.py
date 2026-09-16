@@ -22,6 +22,7 @@ from .identity import (
     SessionIdentityError,
     new_bridge_session_id,
     validate_bridge_session_id,
+    validate_command_id,
 )
 from .ipc import LocalControlServer, default_socket_path
 from .journal import JournalCapture, JournalError
@@ -61,6 +62,36 @@ def make_control_handler(
                 "bridge_session_id": session_id,
                 "state": asdict(state),
             }
+        if operation == "command_status":
+            try:
+                requested_session_id = validate_bridge_session_id(
+                    request.get("bridge_session_id")
+                )
+                command_id = validate_command_id(request.get("command_id"))
+            except SessionIdentityError as error:
+                return {"ok": False, "error": str(error)}
+            if requested_session_id != session_id:
+                return {
+                    "ok": False,
+                    "error": "bridge session changed; command outcome is unavailable",
+                }
+            with connection_lock:
+                completed = completed_commands.get(command_id)
+                if completed is None:
+                    return {
+                        "ok": True,
+                        "bridge_session_id": session_id,
+                        "found": False,
+                    }
+                previous_operation, previous_arguments, previous_response = completed
+                return {
+                    "ok": True,
+                    "bridge_session_id": session_id,
+                    "found": True,
+                    "action": previous_operation,
+                    "arguments": dict(previous_arguments),
+                    "result": previous_response["result"],
+                }
         if operation in {
             "end_turn",
             "choose_research",

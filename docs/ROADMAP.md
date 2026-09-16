@@ -181,6 +181,7 @@ execution-state store.
 - [x] Adapt execution to the watcher-owned private IPC without opening another
   FireTuner connection
 - [x] Add stale-state, missing-decision, interruption, and core no-retry tests
+- [x] Add a session-scoped read-only watcher lookup for completed command UUIDs
 - [ ] Add explicit ambiguous-outcome reconciliation and recovery tests
 - [ ] Add bounded CLI plan loading
 

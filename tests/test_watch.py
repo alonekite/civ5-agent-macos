@@ -208,6 +208,39 @@ class WatchControlHandlerTest(unittest.TestCase):
         self.assertIn("different arguments", collision["error"])
         self.assertEqual(execute.call_count, 1)
 
+    def test_command_status_is_read_only_and_session_scoped(self):
+        missing = self.write(
+            {"op": "command_status", "command_id": SKIP_ID}
+        )
+        self.assertTrue(missing["ok"])
+        self.assertFalse(missing["found"])
+
+        result = CommandResult(id=SKIP_ID, status="success")
+        with patch(
+            "civ5_agent.watch.execute_skip_unit",
+            return_value=result,
+        ) as execute:
+            self.write({"op": "skip_unit", "id": SKIP_ID, "unit_id": 8})
+            status = self.write(
+                {"op": "command_status", "command_id": SKIP_ID}
+            )
+
+        self.assertTrue(status["found"])
+        self.assertEqual(status["action"], "skip_unit")
+        self.assertEqual(status["arguments"], {"unit_id": 8})
+        self.assertEqual(status["result"]["id"], SKIP_ID)
+        self.assertEqual(execute.call_count, 1)
+
+        changed = self.handler(
+            {
+                "op": "command_status",
+                "command_id": SKIP_ID,
+                "bridge_session_id": "123e4567-e89b-42d3-a456-426614174099",
+            }
+        )
+        self.assertFalse(changed["ok"])
+        self.assertIn("session changed", changed["error"])
+
 
 class WatchArgumentsTest(unittest.TestCase):
     def test_database_transport_rejects_journal_capture(self):
