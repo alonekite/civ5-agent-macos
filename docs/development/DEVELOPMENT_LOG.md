@@ -617,6 +617,18 @@ Journal-store commit: `5af502d`. Watcher-integration commit: `908f053`.
 
 Implementation commit: `f51c5fd`.
 
+## 2026-09-16 — Payload-free journal verification
+
+- Added deterministic full-chain journal verification and a `civ5-journal
+  verify` CLI command.
+- The verification summary exposes structural counts, turn bounds, identities,
+  and the chain head without exposing snapshot or command payloads.
+- Passed all 193 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, addresses, credentials, tokens, or
+  real match data.
+
+Implementation commit: `ad3ee4e`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
