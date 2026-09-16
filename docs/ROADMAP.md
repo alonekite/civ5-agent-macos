@@ -153,7 +153,9 @@ No application-bundle modification is required.
   file or coupling their failure behavior
 - [x] Add deterministic full-chain verification with a payload-free summary
 - [x] Add deterministic append-order replay with an explicit private-payload gate
-- [ ] Add explicit privacy-preserving export
+- [x] Add explicit privacy-preserving structural export and retention guidance
+- [ ] Verify capture, verification, replay, and export in a bounded real-game
+  session
 
 The supported captured journal sequence supports future tactical/strategic
 history selection, replay, comparison, debugging, and audit. It is not a claim

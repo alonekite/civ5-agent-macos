@@ -10,7 +10,7 @@ GitHub Issues and should link back to one milestone ID.
 | M2 | Verified action layer | Complete | M1 |
 | M3 | Ruleset knowledge coverage | Complete | M1 |
 | M4 | Ruleset knowledge view | Complete | M3 |
-| M5 | Factual turn journal | In progress | M1, M2 |
+| M5 | Factual turn journal | Implemented offline; live verification pending | M1, M2 |
 | M6 | Deterministic turn executor | Planned | M2 |
 | M7 | Public API stabilization | Planned | M4, M5, M6 |
 | M8 | 1.0 release readiness | Planned | M7 |
@@ -171,8 +171,10 @@ Opt-in watcher composition records changed validated snapshots and grounded
 in-memory command results, with explicit new/resume semantics and independent
 audit/journal failure handling. Pre-execution submissions, unsuccessful results,
 and observed turn transitions are included. It rejects partial database-fallback
-state and unvalidated snapshots. Replay/export, retention guidance, and selective
-queries remain incomplete, so M5 remains in progress.
+state and unvalidated snapshots. Deterministic verification, explicit private-
+payload replay, redacted structural export, and manual retention guidance are
+implemented under ADR-0021. All acceptance criteria are implemented offline;
+bounded target-machine capture/verify/export evidence remains pending.
 
 ## M6 — Deterministic turn executor
 

@@ -1,3 +1,4 @@
+from .export import RedactedExportReport, export_redacted_journal
 from .integration import JournalCapture
 from .models import JournalRecord
 from .replay import JournalReplayEvent, replay_journal
@@ -11,6 +12,8 @@ __all__ = [
     "JournalReplayEvent",
     "JournalStore",
     "JournalVerification",
+    "RedactedExportReport",
+    "export_redacted_journal",
     "verify_journal",
     "replay_journal",
 ]

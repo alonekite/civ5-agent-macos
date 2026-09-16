@@ -1,6 +1,6 @@
 # Module: journal
 
-Status: Core store and factual watcher capture implemented offline (M5 in progress)
+Status: M5 implemented offline; bounded live verification pending
 
 ## Responsibility
 
@@ -32,6 +32,9 @@ is not yet implemented. See the [journal contract](../contracts/journal.md).
 then expose only structural counts, turn bounds, identities, and the head hash.
 `replay_journal` returns detached events in validated append order; it preserves
 corrections as events and never derives executable state from them.
+`export_redacted_journal` exclusively writes canonical mode-0600 structural
+exports under ADR-0021 without payloads, timestamps, identities, hashes, or
+source paths.
 
 ## Inputs and outputs
 
@@ -83,12 +86,13 @@ M2 command-audit file.
 
 ## Current limitations
 
-File export, retention, compaction, and selective queries are not implemented.
+Automatic deletion/compaction and selective queries are not implemented.
 The hash chain detects modification but is not a digital signature and does not
 defend against complete authorized rewriting of the private file.
 
 ## Planned extensions
 
-Add privacy-preserving file export, then expose selective read APIs during M7.
-M5 and M6 may be implemented in either order; the
-current M5 priority is a schedule choice, not a dependency.
+Run bounded target-machine verification, then expose selective read APIs during
+M7. Automatic retention remains intentionally absent; the source journal is
+operator-controlled and a redacted export is not a backup. M5 and M6 remain
+independent.

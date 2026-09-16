@@ -161,6 +161,17 @@ PYTHONPATH=src python3 -m civ5_agent.journal_cli replay \
   /private/path/to/match.jsonl --include-private-payloads
 ```
 
+Create a canonical mode-0600 structural export without payloads, timestamps,
+identities, hashes, or source paths. The destination must not already exist:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.journal_cli export \
+  /private/path/to/match.jsonl /private/path/to/redacted-export.json
+```
+
+The export still contains turn and event chronology, so it is redacted rather
+than anonymous. It is not a backup or a replacement for the verifiable source.
+
 While the long-running watcher is active it also owns a per-user, mode-0600
 Unix socket. This lets a second terminal submit the sole allowlisted write
 without opening a competing FireTuner connection:

@@ -231,6 +231,12 @@ automatically binds a replacement connection after reconnect. It is restricted
 to the validated FireTuner transport; the partial, unversioned database fallback
 cannot write a journal.
 
+Full-chain verification is payload-free. Replay preserves append order and
+requires explicit acknowledgement before printing private payloads. Supported
+file export is the canonical redacted structure defined by ADR-0021: sequence,
+turn, and event kind only, with private/correlatable content removed. It is not
+a replacement for the authoritative hash-chained source.
+
 The journal does not infer intentions, summarize opponents, select context, or
 choose actions. It preserves the facts needed to reproduce those operations
 later.

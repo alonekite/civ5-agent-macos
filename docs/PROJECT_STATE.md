@@ -8,10 +8,11 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M5 — factual turn journal.
-- Active next deliverable: add explicit privacy-preserving journal export plus
-  retention guidance.
-- Functional baseline: 195 tests pass locally on Python 3.11 and the default
+- Current milestone: M5 — factual turn journal implementation complete offline;
+  bounded target-machine verification pending.
+- Active next deliverable: verify M5 capture/verification/export in one bounded
+  real-game session; continue M6 contract work when live testing is unavailable.
+- Functional baseline: 199 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -73,6 +74,8 @@ development log.
 - `civ5-journal replay` returns the verified append-order factual record stream
   without executing actions and requires explicit private-payload
   acknowledgement.
+- `civ5-journal export` creates a new private structural export that omits
+  payloads, timestamps, identities, hashes, and source paths under ADR-0021.
 - A complete-turn plan requires a final explicit `end_turn`; `completed` means
   that action and every preceding action were verified.
 
@@ -88,15 +91,13 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended offline order
 
-1. Add an explicit privacy-preserving export path and retention guidance without
-   weakening append-only integrity.
-2. Add selective queries without weakening append-only integrity.
-3. Separately finalize M6 TurnPlan and execution-report schemas against the
+1. Run the bounded M5 live capture/verify/export test when the user is present.
+2. Separately finalize M6 TurnPlan and execution-report schemas against the
    bridge-session, live-state, and command contracts.
-4. Implement ordered execution, factual requirements, drift pauses, and
+3. Implement ordered execution, factual requirements, drift pauses, and
    unambiguous recovery without knowledge or journal dependencies.
-5. Stabilize public read/write, knowledge-query, journal, and execution APIs in
-   M7.
+4. Add selective journal queries and stabilize public read/write,
+   knowledge-query, journal, and execution APIs in M7.
 
 Steps 1–2 before 3–4 are project scheduling only. M5 and M6 do not depend on
 each other.
@@ -114,6 +115,7 @@ each other.
   command UUID.
 - ADR-0020: M5 uses private hash-chained JSONL with locked, fsynced appends and
   fail-closed corruption detection.
+- ADR-0021: supported file export is structural and redacted by default.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

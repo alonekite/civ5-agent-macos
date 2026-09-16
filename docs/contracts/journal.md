@@ -1,6 +1,6 @@
 # Turn-Journal Contract
 
-Status: Schema 1 store and initial opt-in capture implemented offline
+Status: M5 contract implemented offline; bounded live verification pending
 
 ## Purpose
 
@@ -60,7 +60,7 @@ interpret plan content or supply M6 execution state.
 - Command UUIDs may correlate a journal record with the independent M2 security
   audit, but M5 consumes the validated in-memory result and never parses the
   audit file as its input or source of truth.
-- Export is explicit and warns that records may contain private match data.
+- Export is explicit and warns that even redacted chronology may be sensitive.
 
 ## Implemented storage decisions
 
@@ -70,10 +70,23 @@ interpret plan content or supply M6 execution state.
 - Newline and size bounds that reject partial/truncated records without
   automatic repair.
 - Explicit initial and later bridge-session bindings.
+- Deterministic verification, append-order replay, and canonical structural
+  export under ADR-0021.
+
+## Retention policy
+
+- The private source journal is authoritative and is never deleted, compacted,
+  rotated, uploaded, or committed automatically.
+- Operators choose retention according to their own privacy and replay needs.
+  Verify a source before archiving or intentionally deleting it.
+- Preserve source bytes if verifiable history is required. A redacted export is
+  a diagnostic/share artifact, not a backup and not proof of the original chain.
+- Full-payload replay is local and explicit. Structural export remains
+  mode-`0600` and is described as redacted, never anonymous.
 
 ## Decisions intentionally deferred
 
-- Retention, compaction, and large-snapshot deduplication.
+- Automatic retention/deletion, compaction, and large-snapshot deduplication.
 - Public selective-query API.
 
 These remaining choices require later benchmarks and compatibility design.
@@ -84,7 +97,9 @@ turn transitions without making persistence an execution precondition. This
 adapter accepts only validated FireTuner live state; the partial, unversioned
 database fallback is rejected as journal input. Deterministic full-chain
 verification and append-order factual replay are implemented; replay requires
-explicit private-payload acknowledgement. File export remains pending.
+explicit private-payload acknowledgement. Canonical structural export excludes
+payloads, timestamps, identities, hashes, and paths. Bounded live verification
+remains pending.
 
 ## Out of scope
 

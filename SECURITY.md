@@ -59,6 +59,16 @@ Never expose FireTuner through port forwarding, a public Wi-Fi network, a VPN
 that permits peer access, or an untrusted LAN. Do not pass arbitrary Lua from an
 LLM or remote caller; keep actions on the audited allowlist.
 
+## Journal privacy
+
+Private journals and full replay output may contain names, match state, command
+arguments, and timestamps. Keep them outside the repository and do not attach
+them to public issues. `civ5-journal export` removes payloads, timestamps,
+identities, hashes, and paths and creates a mode-0600 file without overwriting an
+existing destination. The remaining turn/event chronology may still be
+sensitive, so the result is redacted rather than anonymous. It is not a backup
+of the verifiable source journal.
+
 ## Reporting a vulnerability
 
 Please open a GitHub security advisory rather than a public issue when a report

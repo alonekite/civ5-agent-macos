@@ -5,11 +5,13 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 from civ5_agent.journal import (
     JournalCapture,
     JournalError,
     JournalStore,
+    export_redacted_journal,
     replay_journal,
     verify_journal,
 )
@@ -417,6 +419,96 @@ class JournalReplayTest(unittest.TestCase):
             ), self.assertRaises(SystemExit) as raised:
                 journal_main(["replay", str(path)])
             self.assertEqual(raised.exception.code, 2)
+
+
+class JournalExportTest(unittest.TestCase):
+    def test_writes_private_redacted_structural_export(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "match.jsonl"
+            destination = root / "export.json"
+            store = JournalStore.create(source, SESSION_ONE, match_id=MATCH_ID)
+            store.append(
+                "snapshot",
+                {"state": {"turn": 7, "private_player_name": "local"}},
+                bridge_session_id=SESSION_ONE,
+                turn=7,
+            )
+
+            report = export_redacted_journal(source, destination)
+            second_destination = root / "export-again.json"
+            export_redacted_journal(source, second_destination)
+            exported = json.loads(destination.read_text())
+
+            self.assertEqual(report.record_count, 2)
+            self.assertEqual(destination.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(destination.read_bytes(), second_destination.read_bytes())
+            self.assertEqual(
+                exported["events"],
+                [
+                    {"kind": "journal_started", "sequence": 0, "turn": None},
+                    {"kind": "snapshot", "sequence": 1, "turn": 7},
+                ],
+            )
+            serialized = destination.read_text()
+            for private_value in (
+                "private_player_name",
+                "local",
+                MATCH_ID,
+                SESSION_ONE,
+                "captured_at",
+                "record_hash",
+            ):
+                self.assertNotIn(private_value, serialized)
+
+    def test_refuses_existing_or_symbolic_link_destination(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "match.jsonl"
+            JournalStore.create(source, SESSION_ONE, match_id=MATCH_ID)
+            existing = root / "existing.json"
+            existing.write_text("keep")
+            link = root / "link.json"
+            link.symlink_to(existing)
+
+            with self.assertRaisesRegex(JournalError, "cannot create"):
+                export_redacted_journal(source, existing)
+            with self.assertRaisesRegex(JournalError, "cannot create"):
+                export_redacted_journal(source, link)
+
+            self.assertEqual(existing.read_text(), "keep")
+
+    def test_removes_new_destination_after_write_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "match.jsonl"
+            destination = root / "partial.json"
+            JournalStore.create(source, SESSION_ONE, match_id=MATCH_ID)
+
+            with patch(
+                "civ5_agent.journal.export.os.write",
+                return_value=0,
+            ), self.assertRaisesRegex(JournalError, "made no progress"):
+                export_redacted_journal(source, destination)
+
+            self.assertFalse(destination.exists())
+
+    def test_cli_exports_without_printing_destination_or_payloads(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "match.jsonl"
+            destination = root / "export.json"
+            JournalStore.create(source, SESSION_ONE, match_id=MATCH_ID)
+            output = StringIO()
+
+            with redirect_stdout(output):
+                status = journal_main(["export", str(source), str(destination)])
+
+            response = json.loads(output.getvalue())
+            self.assertEqual(status, 0)
+            self.assertTrue(response["ok"])
+            self.assertEqual(response["export"]["record_count"], 1)
+            self.assertNotIn(str(destination), output.getvalue())
 
 
 if __name__ == "__main__":

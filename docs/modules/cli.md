@@ -29,6 +29,8 @@ restricted to `--transport tuner`; the partial database fallback is rejected.
 payload-free JSON summary; it never executes actions or exports match contents.
 `civ5-journal replay PATH --include-private-payloads` emits the validated
 append-order record stream. The mandatory flag makes private output explicit.
+`civ5-journal export SOURCE DESTINATION` exclusively creates a mode-0600
+structural export with private payloads and correlatable metadata removed.
 
 ## Non-responsibilities
 
@@ -91,7 +93,6 @@ M6 tactical planner. M7 may rename it when the TurnPlan executor is public.
 
 ## Planned extensions
 
-Add a private file-export journal operation, then add an explicit TurnPlan
-execution entry point and stabilize names/error behavior in M7. Journal capture
-consumes validated in-memory results and never parses the independent M2 audit
-file.
+Add an explicit TurnPlan execution entry point and stabilize names/error
+behavior in M7. Journal capture consumes validated in-memory results and never
+parses the independent M2 audit file.
