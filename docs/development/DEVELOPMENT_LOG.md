@@ -643,6 +643,24 @@ Implementation commit: `ad3ee4e`.
 
 Implementation commit: `58f0f6c`.
 
+## 2026-09-16 — Redacted journal export and M5 offline completion
+
+- Added canonical structural export containing only sequence, turn, and event
+  kind plus aggregate counts; payloads, timestamps, match/session identifiers,
+  hashes, and source paths are excluded.
+- Required a nonexistent destination, mode-0600 regular file, canonical output,
+  `fsync`, and cleanup after partial-write failure. Repeated exports are byte
+  identical.
+- Added ADR-0021, journal privacy guidance, and an operator-controlled retention
+  policy. Redacted exports are explicitly not anonymous and not backups.
+- Marked all M5 acceptance criteria implemented offline; bounded target-machine
+  capture/verify/export evidence remains pending.
+- Passed all 199 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, addresses, credentials, tokens, or
+  real match data.
+
+Implementation commit: `3d389b0`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
