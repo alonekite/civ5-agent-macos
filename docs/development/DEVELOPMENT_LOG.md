@@ -806,6 +806,23 @@ Implementation commit: `4f93642`.
 
 Implementation commit: `a78d560`.
 
+## 2026-09-16 — Session-aware public watcher bridge client
+
+- Replaced the unused pre-session asynchronous bridge prototype with a
+  runtime-checkable protocol matching verified synchronous reads, writes, and
+  read-only result lookup.
+- Added `WatcherBridgeClient` as a watcher-only public bridge surface that
+  validates commands before contact and validates returned session/command
+  identities, terminal status, bounded messages, and before/after states.
+- Centralized bridge-owned action allowlist and exact argument validation so
+  TurnPlan admission and individual bridge commands share one implementation.
+- Refactored `WatcherTurnExecutor` to extend the bridge client only for M6
+  PlannedAction translation and execution/recovery composition.
+- Accepted ADR-0025; all 241 tests passed on Python 3.11 and the default Python
+  3.14 runtime, and sensitive-information scanning found no private material.
+
+Implementation commit: `a680c16`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
