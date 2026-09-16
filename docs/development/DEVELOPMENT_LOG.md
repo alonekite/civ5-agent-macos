@@ -912,6 +912,23 @@ Implementation commit: `d7e40e9`.
 
 Implementation commit: `dd5f74a`.
 
+## 2026-09-16 — Combined M5/M6 live release-gate procedure
+
+- Added a self-contained, operator-present target-Mac procedure for capturing a
+  private M5 journal while validating and executing exactly one explicit
+  `end_turn` M6 TurnPlan through the watcher-owned path.
+- Fixed private temporary paths, mode-0600 artifacts, manual readiness,
+  fail-without-retry behavior, mandatory host restoration, payload-free
+  integrity checks, detached structural replay, redacted export, and sanitized
+  evidence rules without changing FireTuner, firewall, or game state.
+- Reconciled the release checklist, roadmap, project dashboard, operations
+  index, live-status ledger, and verification matrix so implementation is not
+  mistaken for live evidence.
+- All 254 tests passed warning-enabled on Python 3.11 and the default Python
+  3.14 runtime. The documentation diff passed link and sensitive-content checks.
+
+Implementation commit: `35aadc7`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
