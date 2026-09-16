@@ -1045,6 +1045,28 @@ Implementation commit: `f3fa05c`.
 
 Evidence commit: `41aa550`.
 
+## 2026-09-16 — Complete the M5/M6 target-machine gate
+
+- Recorded the sanitized successful combined live run: a newly authored
+  one-action TurnPlan passed validation, completed once, and automatically
+  advanced the game by one turn while the watcher observed the new schema-5
+  state.
+- Confirmed the same private M5 journal contained the successful command
+  lifecycle and observed transition. Full-chain verification, contiguous
+  replay, structural export, mode-`0600` permissions, and exact host
+  restoration all passed.
+- Marked M5 and M6 complete across their owning module documents, contracts,
+  milestones, roadmap, verification ledger and matrix, release readiness,
+  risks, project dashboard, outline, checklist, operations guidance, and
+  changelog. The bounded procedure remains available for regression testing.
+- Both warning-enabled 260-test suites passed on Python 3.11 and the default
+  Python 3.14 runtime. Documentation links, diff checks, and added-line scans
+  for local paths, user names, private addresses, live identities, hashes, and
+  common credentials passed. No raw journal, plan, report, export, audit data,
+  snapshot, private path, identity, or state hash was committed.
+
+Evidence commit: `8ec902d`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
