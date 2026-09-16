@@ -965,6 +965,19 @@ Implementation commit: `75d87a5`.
 
 Implementation commit: `9a4adf1`.
 
+## 2026-09-16 — M8 status-language reconciliation
+
+- Audited roadmap, milestones, release readiness, project state, test strategy,
+  module status, contracts, and the Chinese project outline after the M8
+  release-control batches.
+- Standardized high-impact outcomes as controlled, accepted, or closed; removed
+  stale wording that still treated completed risk disposition as future work;
+  and made the operator-present M5/M6 run the sole pre-candidate blocker.
+- Documentation-link validation and sensitive-content scanning passed. No
+  implementation, machine safety state, version, or release tag changed.
+
+Implementation commit: `a73f07f`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
