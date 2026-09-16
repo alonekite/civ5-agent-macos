@@ -771,6 +771,25 @@ Implementation commit: `138ee49`.
 
 Implementation commit: `74fca9d`.
 
+## 2026-09-16 — Bounded watcher-only TurnPlan CLI
+
+- Added exact-field schema 1 TurnPlan decoding with a 64-KiB file bound,
+  structural validation before watcher contact, and rejection of unknown fields
+  and non-finite JSON values.
+- Added `civ5-turn validate` for fresh read-only admission and explicit
+  `civ5-turn execute` for complete-plan execution through the existing private
+  watcher socket only.
+- Kept plan production, M4/M5 access, direct FireTuner fallback, and arbitrary
+  predicates outside the CLI; valid non-completed reports have a distinct exit
+  status from malformed input or transport failure.
+- Accepted ADR-0024 and marked every M6 acceptance criterion implemented
+  offline; M7 public API stabilization is now the active offline milestone.
+- Passed all 236 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no user paths, private addresses, credentials,
+  tokens, generated datasets, or real match data.
+
+Implementation commit: `4f93642`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
