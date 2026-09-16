@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 from .models import GameState
-from .validation import validate_live_state
+from .validation import NO_END_TURN_BLOCKING_TYPE, validate_live_state
 
 
 @dataclass(frozen=True)
@@ -58,7 +58,10 @@ def inspect_turn_requirements(state: GameState) -> tuple[TurnRequirement, ...]:
         if needs_orders:
             requirements.append(TurnRequirement("unit_orders", subject_id=unit["id"]))
 
-    if not validated.can_end_turn:
+    if (
+        not validated.can_end_turn
+        or validated.end_turn_blocking_type != NO_END_TURN_BLOCKING_TYPE
+    ):
         requirements.append(
             TurnRequirement(
                 "end_turn_blocked",

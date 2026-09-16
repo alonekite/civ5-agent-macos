@@ -14,7 +14,7 @@ def schema_five_state(**changes):
         "current_era": 0,
         "turn_active": True,
         "can_end_turn": True,
-        "end_turn_blocking_type": 0,
+        "end_turn_blocking_type": -1,
         "research": {"id": 1, "type": "TECH_POTTERY", "progress": 8, "cost": 40},
         "researched_technologies": ["TECH_AGRICULTURE"],
         "researchable_technologies": ["TECH_MINING", "TECH_POTTERY"],
@@ -67,6 +67,14 @@ def schema_five_state(**changes):
 class TurnRequirementTest(unittest.TestCase):
     def test_reports_nothing_when_turn_is_ready(self):
         self.assertEqual(inspect_turn_requirements(schema_five_state()), ())
+
+    def test_reports_game_blocker_even_when_ui_can_end_turn(self):
+        requirements = inspect_turn_requirements(
+            schema_five_state(can_end_turn=True, end_turn_blocking_type=1)
+        )
+        self.assertEqual(len(requirements), 1)
+        self.assertEqual(requirements[0].kind, "end_turn_blocked")
+        self.assertEqual(requirements[0].blocking_type, 1)
 
     def test_inactive_turn_short_circuits_other_requirements(self):
         state = schema_five_state(

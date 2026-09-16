@@ -178,7 +178,9 @@ PYTHONPATH=src python3 -m civ5_agent.watch \
 
 Wait for the first validated snapshot. In the game UI, manually choose any
 required research and production and finish every unit order until the stock UI
-allows the turn to end. Do not let a script choose those actions.
+shows Next Turn. Do not let a script choose those actions. The button label is
+not itself proof that the next click will advance: plan validation must also
+observe the game-defined no-blocker value and no reported unit requirement.
 
 ### 6.3 Author and validate one explicit plan
 

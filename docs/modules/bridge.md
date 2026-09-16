@@ -50,6 +50,9 @@ or ruleset knowledge.
 - Every successful write includes a proved postcondition.
 - Every FireTuner Lua program is at most 1,000 UTF-8 bytes; oversized programs
   fail before transport contact.
+- End-turn readiness compares the game-defined no-blocker enum in Lua and the
+  verified target-build `NO_END_TURN_BLOCKING_TYPE` value in parsed-state
+  consumers; UI clickability alone is insufficient.
 - Malformed, oversized, transient, and closing-state responses are bounded.
 
 ## Failure modes

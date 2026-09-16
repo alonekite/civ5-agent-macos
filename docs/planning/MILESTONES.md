@@ -175,8 +175,10 @@ state and unvalidated snapshots. Deterministic verification, explicit private-
 payload replay, redacted structural export, and manual retention guidance are
 implemented under ADR-0021. All acceptance criteria are implemented offline;
 the first target-machine attempt confirmed capture/integrity/replay/export but
-exposed an exception-lifecycle gap. ADR-0028 fixes that gap offline; a complete
-live command lifecycle remains pending.
+exposed an exception-lifecycle gap. ADR-0028 fixed that gap, and the second
+attempt live-verified a complete failed-command submission/result/verification
+lifecycle plus integrity/replay/export. A successful lifecycle and automatic
+turn transition in one run remain pending.
 
 ## M6 — Deterministic turn executor
 
@@ -215,7 +217,11 @@ and explicit execution are implemented as a strict 64-KiB watcher-only JSON
 surface under ADR-0024. All M6 acceptance criteria are implemented offline;
 live plan validation is confirmed, but the first execution exposed target
 FireTuner truncation. ADR-0028 compacts and pre-bounds the action program
-offline; successful live execution remains pending.
+and the second attempt confirmed intact marker delivery plus stale-plan
+pre-write refusal. That attempt also exposed an incorrect numeric zero-blocker
+assumption. ADR-0029 now uses the game-defined no-blocker enum and checks the
+numeric blocker independently of UI clickability; successful live execution
+remains pending.
 
 ## M7 — Public API stabilization
 

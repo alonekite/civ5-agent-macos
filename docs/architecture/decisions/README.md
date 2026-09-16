@@ -35,6 +35,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0026](ADR-0026-aggregate-pre1-public-api-and-errors.md) | Aggregate the pre-1.0 public API and error taxonomy | Accepted |
 | [ADR-0027](ADR-0027-stabilize-turn-cli-only.md) | Stabilize only the bounded TurnPlan CLI before 1.0 | Accepted |
 | [ADR-0028](ADR-0028-bound-firetuner-programs-and-preserve-unknown-outcomes.md) | Bound FireTuner Lua and preserve unknown write outcomes | Accepted |
+| [ADR-0029](ADR-0029-use-game-defined-no-end-turn-blocker.md) | Use the game-defined no-end-turn blocker | Accepted |
 
 ## Template
 

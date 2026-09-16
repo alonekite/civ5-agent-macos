@@ -32,8 +32,10 @@ stabilizes `civ5-turn` and explicitly classifies every other CLI as provisional.
 `civ5_agent.bridge.__all__` exposes the bridge surface:
 the `Bridge` protocol, watcher-only `WatcherBridgeClient`, `GameState`,
 `Command`, `CommandResult`, `ALLOWED_ACTIONS`, `validate_command`, and
-`CommandValidationError`. Live reads and individual verified writes no longer
-require M6 types.
+`CommandValidationError`. `NO_END_TURN_BLOCKING_TYPE` exposes the verified
+target-build numeric value used by the live-state field and factual requirement
+inspection. Live reads and individual verified writes no longer require M6
+types.
 
 ## Supported aggregate import
 

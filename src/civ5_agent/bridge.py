@@ -10,7 +10,11 @@ from .actions import (
 )
 from .ipc import MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES
 from .models import Command, CommandResult, GameState
-from .validation import SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS, validate_live_state
+from .validation import (
+    NO_END_TURN_BLOCKING_TYPE,
+    SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS,
+    validate_live_state,
+)
 from .watcher_client import WatcherBridgeClient
 
 
@@ -41,6 +45,7 @@ __all__ = [
     "MAX_REQUEST_BYTES",
     "MAX_RESPONSE_BYTES",
     "MAX_COMMAND_MESSAGE_LENGTH",
+    "NO_END_TURN_BLOCKING_TYPE",
     "SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS",
     "WatcherBridgeClient",
     "validate_command",

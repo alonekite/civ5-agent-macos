@@ -433,7 +433,7 @@ class TunerProtocolTest(unittest.TestCase):
         lua = end_turn_lua()
         self.assertIn("UI.CanEndTurn()", lua)
         self.assertIn("Game.IsProcessingMessages()", lua)
-        self.assertIn("b==0", lua)
+        self.assertIn("b==EndTurnBlockingTypes.NO_ENDTURN_BLOCKING_TYPE", lua)
         self.assertIn("Network.HasSentNetTurnComplete()", lua)
         self.assertEqual(lua.count("Game.DoControl"), 1)
         self.assertLessEqual(len(lua.encode("utf-8")), MAX_LUA_PROGRAM_BYTES)

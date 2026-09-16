@@ -127,7 +127,9 @@ already returned by the bridge. They do not select a candidate or create an
 action. Ordinary research candidates are included only in ordinary mode;
 free/unsupported modes never reuse them. City and unit requirements are sorted
 by observed stable ID, and the game-reported end-turn blocker remains a separate
-fact. Resolving any requirement belongs to the plan producer.
+fact. A blocker is reported whenever its numeric value differs from the public
+target-build `NO_END_TURN_BLOCKING_TYPE` value, even if `UI.CanEndTurn()` is
+true. Resolving any requirement belongs to the plan producer.
 
 ## ExecutionReport schema 1
 

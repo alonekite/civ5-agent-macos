@@ -18,7 +18,8 @@ open until evidence justifies closing it; mitigation does not erase the risk.
 | R-011 | Public API leaks FireTuner-specific behavior | Medium | Medium | Controlled | M7 exposes implementation-neutral models/protocols through `civ5_agent.api`; the watcher-only adapter is explicit and raw FireTuner/IPC internals are excluded and contract-tested |
 | R-012 | Python version differences break CI after local success | Medium | Medium | Controlled | Keep Python 3.11 minimum; run GitHub Actions on 3.11 and 3.13; avoid newer-only syntax |
 | R-013 | Mutable snapshot fields are mistaken for a permanent save identity | Medium | High | Controlled by design | Use bridge-session identity for execution and explicit match identity for journals; prohibit automatic cross-session inference until target-verified evidence exists |
-| R-014 | FireTuner truncates an oversized Lua program and leaves a submitted write outcome unclear | High above target limit | High | Controlled by design; repeat live proof pending | Enforce a 1,000-byte pre-send maximum, keep every generated program below it, record/cache unknown outcomes without retry, and repeat the compact M5/M6 live gate |
+| R-014 | FireTuner truncates an oversized Lua program and leaves a submitted write outcome unclear | High above target limit | High | Controlled by design | Enforce a 1,000-byte pre-send maximum, keep every generated program below it, record/cache unknown outcomes without retry; compact marker delivery is target-verified |
+| R-015 | A numeric end-turn blocker assumption disagrees with the target runtime | Medium without symbolic checks | Medium | Controlled by design; repeat success pending | Compare the Lua enum symbol, expose the verified parsed value, inspect it independently of UI clickability, and require turn-advance postcondition |
 
 ## Review rules
 
@@ -60,9 +61,9 @@ R-014 is **controlled by design**, not closed. The target-machine attempt
 proved that oversized Lua can be truncated after submission. ADR-0028 now
 rejects programs above 1,000 UTF-8 bytes before transport, tests every generated
 program against that limit, and preserves any post-submission uncertainty as a
-journal verification error plus a non-retryable watcher cache entry. The compact
-`end_turn` path still requires a successful target-machine repeat before the
-M5/M6 release gate can close.
+journal verification error plus a non-retryable watcher cache entry. The second
+attempt proved compact marker delivery and a complete deterministic-failure
+journal lifecycle. Automatic turn advancement remains a separate M6 gate.
 
 These dispositions bound the first stable release; they do not erase the
 underlying conditions or authorize additional game builds, actions, sources, or

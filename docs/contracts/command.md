@@ -40,8 +40,9 @@ Coordinate movement is not implemented and is not part of the allowlist.
 
 The target FireTuner accepts only bounded Lua reliably. Every internal program
 is rejected before send above 1,000 UTF-8 bytes. `end_turn` additionally
-requires an active turn, zero game-reported blocker, no message processing, no
-already-sent multiplayer turn, and `UI.CanEndTurn()` before its sole write.
+requires an active turn, the game-defined `NO_ENDTURN_BLOCKING_TYPE`, no message
+processing, no already-sent multiplayer turn, and `UI.CanEndTurn()` before its
+sole write. Numeric zero is not the target runtime's no-blocker value.
 
 ## Result
 

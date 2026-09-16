@@ -970,3 +970,70 @@ Bound every FireTuner program before send, compact `end_turn`, preserve
 post-submission uncertainty in the journal and M6 recovery path, pass offline
 regression/CI, then repeat the bounded combined session without manually
 changing state after any execution failure.
+
+### 2026-09-16 — Combined M5/M6 release-gate second attempt
+
+**Hypothesis**
+
+The compact, pre-bounded `end_turn` program can pass through the target
+FireTuner, automatically advance the turn, and leave a complete M5 command
+lifecycle.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the target Apple
+  Silicon Mac.
+- Normal single-player saved match using schema 5.
+- Recoverable guarded FireTuner session under the explicit Civ V block-incoming
+  firewall rule.
+
+**Procedure**
+
+1. Prepared and live-preflighted a fresh guarded session, then started one
+   watcher with a new private journal and audit path.
+2. Manually resolved visible turn requirements, created a new one-action
+   `end_turn` TurnPlan, and passed read-only validation.
+3. Executed the plan once. The compact command returned a deterministic blocked
+   marker and did not advance the turn.
+4. The operator then used the stock Next Turn control; it exposed a worker still
+   requiring orders without advancing. After resolving that unit, a retry of
+   the now-stale plan was rejected before any action step.
+5. Quit the game, restored the exact host baseline, then verified, structurally
+   replayed, and redacted-exported the private journal.
+6. Inspected the bundled Brave New World `ActionInfoPanel.lua` and tutorial Lua
+   for the authoritative blocker comparison.
+
+**Observed result**
+
+- Plan creation and validation again succeeded.
+- The bounded Lua arrived intact and returned `blocked` with blocker value
+  `-1`; the implementation had incorrectly required numeric zero.
+- The stock UI sources compare the value with
+  `EndTurnBlockingTypes.NO_ENDTURN_BLOCKING_TYPE`, confirming that a named game
+  enum, not zero, is authoritative on the target build.
+- The stale-plan retry returned no execution steps, confirming refusal before
+  a second write.
+- The 13-record journal contained one start, nine snapshots, one command
+  submission, one failed command result, and one verification error. Hash-chain
+  verification, contiguous structural replay, redacted export, and mode `600`
+  checks all passed.
+- No turn transition was recorded; the stock Next Turn click revealed a unit
+  requirement in the same turn.
+- Restoration returned FireTuner, listener, socket, firewall, and Civ V rule to
+  the recorded baseline with no issues.
+
+**Conclusion**
+
+partial. The attempt live-verified the compact transport path, deterministic
+blocked marker, complete M5 failed-command lifecycle, stale-plan pre-write
+refusal, private integrity/export controls, and clean recovery. It did not
+verify M6 automatic turn advancement. The blocker failure was caused by an
+incorrect numeric assumption, not transport truncation or an unknown outcome.
+
+**Next step**
+
+Compare against the game's named no-blocker enum, expose the verified parsed
+value for requirement inspection, test readiness independently of
+`UI.CanEndTurn()`, then repeat with a newly authored plan. Treat an unchanged
+turn or newly surfaced unit requirement as a verified failure and never retry
+the old plan.

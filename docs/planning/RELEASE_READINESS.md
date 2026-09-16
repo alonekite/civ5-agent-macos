@@ -12,12 +12,12 @@ experiment evidence.
 
 | Gate | Current evidence | Remaining work |
 |---|---|---|
-| Required live verification | M1/M2 bridge actions are live-verified; the first combined M5/M6 attempt proved plan validation plus journal integrity/replay/export but exposed bounded-transport and exception-lifecycle defects that are fixed offline | Repeat the operator-present [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) and require a complete command lifecycle plus automatic turn advance |
-| High-impact risks | Every high-impact risk has an explicit release disposition; R-003, R-004, R-006, and R-014 are controlled within the documented scope | Repeat R-014 live proof, preserve the controls, and reopen review if release scope changes |
+| Required live verification | Two combined attempts proved plan validation, journal controls, a complete failed-command lifecycle, compact marker delivery, and stale-plan refusal; ADR-0029 fixes the second attempt's no-blocker semantic error offline | Repeat the operator-present [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) with a new plan and require a successful lifecycle plus automatic turn advance |
+| High-impact risks | Every high-impact risk has an explicit release disposition; R-003, R-004, R-006, and R-014 are controlled within the documented scope | Preserve the controls and reopen review if release scope changes |
 | Setup/security/recovery docs | README, security policy, live checklist, recoverable session manager, and release/upgrade/rollback runbook exist | Reconcile the live checklist with the completed combined M5/M6 run |
 | Public compatibility | M7 aggregate Python API and bounded `civ5-turn` contract are complete; stable-version transition steps are documented | Apply the stable version and compatibility wording on the final release commit |
 | Packaging | Editable installation and console scripts pass CI; wheel and sdist manifests, bounded inspection, and clean-environment install checks are implemented | Confirm final version/license metadata on the release candidate |
-| Tests and scans | 259 tests pass locally on Python 3.11/default runtime and in GitHub Actions on Python 3.11/3.13; tracked-source scans are clean; artifact inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run the final warning-enabled suite and scans against the exact tagged release artifacts |
+| Tests and scans | 260 tests pass locally on Python 3.11/default runtime; the prior batch passed GitHub Actions 3.11/3.13; tracked-source scans are clean; artifact inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run this batch in CI, then run the final warning-enabled suite and scans against the exact tagged release artifacts |
 | Reproducibility | CI builds each artifact twice and requires identical normalized content hashes; tag/version/hash rules are documented | Execute the runbook on the final candidate and publish selected archive hashes |
 | Release | No release tag exists; immutable annotated-tag, publication-verification, withdrawal, and rollback procedures are documented | Complete every blocking gate, update the changelog/version, and execute the runbook |
 
@@ -36,11 +36,13 @@ The required M8 live batch is deliberately narrow:
    matrix; never commit the journal, plan, report, export, audit log, or raw
    snapshot.
 
-The 2026-09-16 attempt did not satisfy this gate: M6 validation succeeded, but
-an oversized Lua program was truncated before action execution, and M5 lacked
-an exception-path terminal fact. ADR-0028 bounds every program, compacts
-`end_turn`, and preserves unknown outcomes without retry. Those changes have
-offline evidence only until the complete procedure is repeated.
+Neither 2026-09-16 attempt satisfied this gate. The first exposed Lua
+truncation and a missing exception-path fact, fixed by ADR-0028. The second
+proved compact marker delivery, complete deterministic-failure journaling, and
+stale-plan refusal, but exposed an incorrect numeric zero-blocker assumption.
+ADR-0029 now uses the game-defined enum and fail-closed requirement inspection.
+Automatic turn advancement and its successful journal lifecycle still require
+one clean repeat.
 
 The operator must be present. Automation must not enable FireTuner, change the
 firewall, start the game, or infer plan content. Exact private-path setup,

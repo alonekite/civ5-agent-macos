@@ -8,6 +8,7 @@ from .models import GameState
 
 TECH_TYPE_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
 SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5})
+NO_END_TURN_BLOCKING_TYPE = -1
 
 
 class StateValidationError(ValidationError):

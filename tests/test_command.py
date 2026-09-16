@@ -58,7 +58,7 @@ def game_state(turn, gold):
         gold=gold,
         turn_active=True,
         can_end_turn=True,
-        end_turn_blocking_type=0,
+        end_turn_blocking_type=-1,
     )
 
 

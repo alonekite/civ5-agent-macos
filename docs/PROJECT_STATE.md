@@ -10,13 +10,12 @@ development log.
 
 - Current milestone: M8 — 1.0 release readiness. M5 and M6 bounded
   target-machine verification remain pending.
-- Active next deliverable: run the bounded M5/M6 target-machine gate when the
-  user is present. The first attempt exposed FireTuner program truncation and a
-  missing exception-lifecycle fact; both are fixed offline under ADR-0028 and
-  require repeat live proof.
-- Functional baseline: 259 tests pass locally on Python 3.11 and the default
-  runtime; the current pushed batch passed GitHub Actions on Python 3.11 and
-  3.13.
+- Active next deliverable: repeat the bounded M5/M6 target-machine gate with a
+  new plan. The second attempt proved compact marker delivery, a complete M5
+  failed-command lifecycle, and stale-plan refusal, then exposed the incorrect
+  numeric zero-blocker assumption fixed offline under ADR-0029.
+- Functional baseline: 260 tests pass locally on Python 3.11 and the default
+  runtime; GitHub Actions is pending for this batch.
 - Blocking issue: none.
 - User presence required next: only for the documented combined M5/M6 live
   release gate; offline release-procedure work can continue independently.
@@ -92,6 +91,9 @@ development log.
 - The ordered M6 core re-reads before each action, enforces continuity with the
   prior verified after-state, pauses on drift/missing requirements, and never
   retries an action whose outcome became unknown.
+- Factual readiness treats only the target-build
+  `NO_END_TURN_BLOCKING_TYPE` value as no blocker, independently of
+  `UI.CanEndTurn()`; the Lua write guard compares the game enum symbol itself.
 - Optional bounded execution events remain neutral until state continuity is
   verified; sink failures are reported but cannot affect execution.
 - The watcher execution adapter reads state and submits plan-listed actions over
@@ -162,6 +164,8 @@ M5 live verification and M6 implementation are independent workstreams.
   entry points remain explicitly provisional.
 - ADR-0028: FireTuner programs are bounded before transport, and unknown
   post-submission outcomes are recorded and never retried automatically.
+- ADR-0029: readiness and writes use the game-defined no-end-turn-blocker
+  semantics rather than a numeric zero assumption.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

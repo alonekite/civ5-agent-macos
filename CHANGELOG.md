@@ -73,5 +73,7 @@ versioned releases. Development details belong in
   live test exposed truncation of the prior exhaustive expression.
 - Preserve failed post-submission command lifecycles as verification errors
   instead of dropping them before journal capture.
+- Use Civ V's named no-end-turn-blocker enum instead of an incorrect numeric
+  zero assumption, and inspect the blocker independently of UI clickability.
 
 No release has been tagged yet.
