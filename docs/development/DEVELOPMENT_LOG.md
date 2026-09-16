@@ -629,6 +629,20 @@ Implementation commit: `f51c5fd`.
 
 Implementation commit: `ad3ee4e`.
 
+## 2026-09-16 — Deterministic factual journal replay
+
+- Added a read-only replay API that validates the entire journal before
+  returning detached factual events in original append order.
+- Preserved correction records as events rather than inferring reconstructed
+  state or an execution cursor.
+- Added `civ5-journal replay` with mandatory acknowledgement before private
+  snapshot and command payloads can be printed.
+- Passed all 195 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, addresses, credentials, tokens, or
+  real match data.
+
+Implementation commit: `58f0f6c`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
