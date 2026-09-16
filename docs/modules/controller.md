@@ -4,10 +4,10 @@ Status: M6 implemented offline; target-machine verification pending
 
 ## Responsibility
 
-The target M6 module validates an explicit `TurnPlan`, coordinates its ordered
-allowlisted actions through the bridge, re-reads every result, and pauses safely
-when live state diverges. The current Python package remains named `controller`
-until M7 and supplies only the earlier readiness proof.
+M6 validates an explicit `TurnPlan`, coordinates its ordered allowlisted actions
+through the bridge, re-reads every result, and pauses safely when live state
+diverges. The legacy `controller.py` remains only the earlier readiness proof;
+the supported M6 surface is exported through `civ5_agent.api`.
 
 ## Non-responsibilities
 
@@ -27,7 +27,7 @@ reporting, and an opt-in end-turn path. `civ5_agent.turn_plan` now provides
 schema 1 TurnPlan/action/report models, canonical state digests, construction,
 and strict admission/report validation. `civ5_agent.turn_requirements` provides
 ordered factual requirements without selecting actions. Stable public naming is
-deferred to M7.
+defined by the M7 aggregate API rather than the legacy controller module.
 `civ5_agent.turn_executor` executes only plan-listed actions through injected
 read/action capabilities, verifies result state continuity, and returns bounded
 terminal reports without importing knowledge or journal modules.
@@ -76,10 +76,10 @@ recording, but a journal failure cannot make a verified game action retryable.
 
 ## Verification
 
-Existing unit tests cover readiness order, refusal paths, and opt-in execution;
-basic refusal and end-turn execution were live-verified. M6 requires plan-schema,
-drift, pause, no-journal operation, optional event-sink failure, recovery, and
-ordered multi-action tests.
+Unit tests cover readiness order, refusal paths, plan schema, drift, pause,
+no-journal operation, optional event-sink failure, conservative recovery, and
+ordered multi-action execution. Basic legacy refusal and end-turn execution are
+live-verified; bounded target-machine TurnPlan execution remains pending.
 
 ## Current limitations
 
@@ -90,5 +90,5 @@ must not grow into a tactical or strategic planner.
 
 ## Planned extensions
 
-Stabilize naming during M7. Tactical and strategic layers remain plan
-producers, not executor internals.
+Complete bounded target-machine M6 verification. Tactical and strategic layers
+remain plan producers, not executor internals.

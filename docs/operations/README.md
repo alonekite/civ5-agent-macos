@@ -38,8 +38,10 @@ process must not assume it can inherit that authorization.
 - Recover project direction from `docs/PROJECT_STATE.md`, milestones, ADRs, and
   the development log rather than depending on a transcript.
 
-## Future release operations
+## Release operations
 
-M8 will add reproducible packaging, version/tag rules, artifact scans, upgrade
-notes, and rollback procedures. Until then, `main` plus passing CI is the
-development baseline, not a stable release promise.
+M8 release gates and current blockers are tracked in
+[M8 release readiness](../planning/RELEASE_READINESS.md). Reproducible packaging, version/tag rules,
+artifact scans, upgrade notes, and rollback procedures remain required. Until
+they are complete, `main` plus passing CI is the development baseline, not a
+stable release promise.

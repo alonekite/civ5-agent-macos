@@ -12,7 +12,7 @@ versioned releases. Development details belong in
 - Live state watcher and private local command broker.
 - Verified end-turn, research-selection, and city-production actions.
 - Deterministic controller proof.
-- Versioned ruleset knowledge core and partial BNW knowledge importer.
+- Versioned ruleset knowledge core and reviewed BNW knowledge importer.
 - Civilization, leader, deterministic trait, and unique/disabled class
   knowledge coverage without AI personality data.
 - Religion, core belief, specialist, and great-person class knowledge coverage.

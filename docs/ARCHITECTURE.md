@@ -172,8 +172,8 @@ selection against the immutable ruleset bundle. Its contract covers exact
 ruleset identity, game speed, difficulty, map size, civilization, adopted
 policies, and active beliefs. It fails closed on missing or incompatible
 identifiers, returns detached entity values plus source provenance, and resolves
-unit/building class defaults and civilization replacements. The implementation
-retains the provisional name `RulesetResolver` until M7.
+unit/building class defaults and civilization replacements. M7 retained
+`RulesetResolver` in the supported aggregate pre-1.0 API.
 
 It does not compose broad effective scalar values, compare candidates, predict
 outcomes, or choose actions. Those operations belong with future strategic,

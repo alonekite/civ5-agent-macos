@@ -12,6 +12,8 @@ do not belong in the repository.
   and next deliverables.
 - [Roadmap](ROADMAP.md): capability-level backlog.
 - [Milestones](planning/MILESTONES.md): completion criteria and dependencies.
+- [M8 release readiness](planning/RELEASE_READINESS.md): stable-release gates,
+  evidence, and blockers.
 
 ## Architecture and decisions
 
@@ -38,8 +40,8 @@ do not belong in the repository.
   SQLite families, exclusions, and the completed M3 classification.
 - [Journal contract](contracts/journal.md)
 - [Turn-plan and execution contract](contracts/turn-plan.md)
-- [Public API inventory](contracts/public-api.md): M7 candidate surfaces,
-  implementation boundaries, compatibility gaps, and current limits.
+- [Public API inventory](contracts/public-api.md): supported pre-1.0 aggregate
+  surface, implementation boundaries, error semantics, and current limits.
 - [CLI compatibility contract](contracts/cli.md): supported `civ5-turn`
   envelopes and exits, plus explicitly provisional entry points.
 

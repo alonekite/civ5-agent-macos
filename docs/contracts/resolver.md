@@ -2,9 +2,9 @@
 
 Status: M4 structural contract implemented
 
-The implementation retains the provisional Python name `RulesetResolver`, but
-ADR-0014 defines its architectural role as a structural knowledge view rather
-than an execution-layer planner.
+M7 retained the Python name `RulesetResolver` in the supported aggregate
+pre-1.0 API. ADR-0014 defines its architectural role as a structural knowledge
+view rather than an execution-layer planner.
 
 ## Input
 
@@ -41,7 +41,7 @@ never substitutes an inferred default or ignores an unsupported selection.
 
 ## Compatibility
 
-Field names—including the legacy `RulesetResolver` name—and failure semantics
-remain provisional until M7 public API stabilization. Consequential changes
-before then require documentation and tests; after M7 they require an explicit
-compatibility decision.
+`RulesetResolver`, its structural models, and validation errors are part of the
+supported aggregate pre-1.0 API. Breaking changes during 0.x require a
+minor-version increment, compatibility note, contract updates, and tests under
+ADR-0026.

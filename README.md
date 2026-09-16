@@ -284,10 +284,10 @@ local bridge rejects caller-supplied IDs that are not UUIDv4. Use `--audit-log
 PATH` to choose another location. An audit write failure is reported separately
 and never causes an already-run game action to be retried.
 
-This command audit is M2 safety evidence and is separate from the planned M5
-match journal. M5 will receive validated command results directly from
-watcher/CLI composition code and correlate them by command UUID; it will not
-parse the audit file or make either store's failure change the game result.
+This command audit is M2 safety evidence and is separate from the implemented
+M5 match journal. Opt-in watcher composition passes validated command results
+directly to M5 and correlates them by command UUID; it does not parse the audit
+file or let either store's failure change the game result.
 
 To restore the original configuration later:
 
@@ -304,8 +304,8 @@ listening, and the agent Unix socket is absent.
 On the tested Campaign Edition build, enabling FireTuner made Civ V listen on
 `TCP *:4318`, not loopback only. That endpoint accepts Lua commands and has no
 authentication observed by this project. Use it only for bounded development
-sessions. See [SECURITY.md](SECURITY.md) before enabling it. For the next
-schema-3 and unit-action verification, follow the ordered
+sessions. See [SECURITY.md](SECURITY.md) before enabling it. For any
+target-machine verification, follow the ordered
 [bounded live-test checklist](docs/LIVE_TEST_CHECKLIST.md).
 
 ## Prior art and references

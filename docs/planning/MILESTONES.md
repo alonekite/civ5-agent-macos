@@ -13,7 +13,7 @@ GitHub Issues and should link back to one milestone ID.
 | M5 | Factual turn journal | Implemented offline; live verification pending | M1, M2 |
 | M6 | Deterministic turn executor | Implemented offline; live verification pending | M2 |
 | M7 | Public API stabilization | Complete | M4, M5, M6 |
-| M8 | 1.0 release readiness | Planned | M7 |
+| M8 | 1.0 release readiness | In progress | M7 |
 
 ## M0 — Environment reconnaissance
 
@@ -245,6 +245,13 @@ Acceptance criteria:
 - Provide setup, security, recovery, upgrade, and release documentation.
 - Run tests and sensitive-information scans on the release artifact.
 - Tag a reproducible version without generated game data or private logs.
+
+Current progress: the first release-gate audit is recorded in
+[M8 release readiness](RELEASE_READINESS.md). Public compatibility is complete through
+M7, and setup/security/recovery documentation exists. Blocking work is the
+bounded M5/M6 target-machine run, explicit disposition of open high-impact
+risks, artifact build/install/scan automation, version/tag rules, upgrade and
+rollback guidance, and final release evidence.
 
 LLM interaction, working memory, strategic memory, and MCP are not M-series
 milestones. They require a separate future project plan.

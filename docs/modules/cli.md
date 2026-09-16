@@ -67,9 +67,8 @@ preparation.
 
 ## Dependencies
 
-CLI may depend on public bridge, knowledge, provisional controller/executor,
-preflight, and future journal interfaces. Core modules must not depend on CLI
-parsing.
+CLI may depend on public bridge, knowledge, deterministic executor, preflight,
+and journal interfaces. Core modules must not depend on CLI parsing.
 
 ## Invariants
 

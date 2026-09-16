@@ -205,5 +205,14 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 - [x] Assess selective journal/knowledge facades and defer new queries because
   no current supported consumer requires them
 
+## M8 — 1.0 release readiness
+
+- [x] Audit release gates and record current evidence and blockers
+- [ ] Prepare and run the bounded combined M5/M6 target-machine verification
+- [ ] Disposition every open high-impact release risk
+- [ ] Complete package metadata and artifact build/install/scan checks
+- [ ] Add version/tag, upgrade, release, and rollback procedures
+- [ ] Produce a clean release candidate with passing CI and artifact hashes
+
 LLM decision-making, working memory, strategic memory, and MCP integration are
 intentionally outside this repository's scope.
