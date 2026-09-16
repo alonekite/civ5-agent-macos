@@ -754,6 +754,23 @@ Implementation commit: `7971ddd`.
 
 Implementation commit: `138ee49`.
 
+## 2026-09-16 — Conservative unknown-outcome reconciliation
+
+- Added deterministic reconciliation for `recovery_required` reports using the
+  watcher adapter's read-only cached-result lookup and a fresh validated state.
+- Allowed a recovered final end-turn to complete only after fresh turn-advance
+  confirmation; recovered non-final success advances the factual cursor but
+  pauses before the next write.
+- Kept cache misses, unavailable lookups, malformed results, session changes,
+  and contradictory fresh state non-retryable and explicitly classified.
+- Accepted ADR-0023 to make these recovery and no-automatic-retry semantics
+  durable without introducing knowledge or journal dependencies.
+- Passed all 230 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, private addresses, credentials,
+  tokens, or real match data.
+
+Implementation commit: `74fca9d`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
