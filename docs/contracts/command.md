@@ -13,10 +13,17 @@ A command contains:
 Malformed identifiers, unknown actions, extra/invalid arguments, and unsafe
 sessions are rejected before a game write.
 
+`civ5_agent.bridge.validate_command` is the public bridge-owned argument
+validator. `WatcherBridgeClient.execute_command` requires the current
+`bridge_session_id`, sends only the normalized allowlisted envelope through the
+private watcher socket, validates the echoed session/command identities, and
+returns only a terminal `success|error` result with bounded text and validated
+before/after states.
+
 At the application boundary, a live command is associated with the current
 bridge-owned `bridge_session_id`. This session metadata is distinct from the
-command UUID and from any journal `match_id`; exact envelope versioning is
-pre-stable until M7. Watcher-mediated writes must echo the identity returned by
+command UUID and from any journal `match_id`. Watcher-mediated writes must echo
+the identity returned by
 `ping`/`read_state`; missing or changed identity is rejected before execution.
 Direct commands create one identity for their single connection.
 
@@ -33,9 +40,11 @@ Coordinate movement is not implemented and is not part of the allowlist.
 
 ## Result
 
-The result carries the command ID, `pending|success|error` status, a bounded
-message, and before/after state where available. A successful transport frame
-is not sufficient: `success` requires the action-specific postcondition.
+The internal result model can represent `pending|success|error`, but the public
+watcher client accepts only terminal `success|error`. It carries the command ID,
+a bounded message, and before/after state where available. A successful
+transport frame is not sufficient: `success` requires the action-specific
+postcondition.
 
 ## Retry behavior
 

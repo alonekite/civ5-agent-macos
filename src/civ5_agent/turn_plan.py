@@ -7,28 +7,20 @@ import re
 from dataclasses import asdict, dataclass
 from typing import Any, Literal
 
+from .actions import CommandValidationError, validate_command
 from .identity import (
     new_plan_id,
     validate_bridge_session_id,
     validate_command_id,
     validate_plan_id,
 )
-from .models import GameState
+from .models import Command, GameState
 from .validation import validate_live_state
 
 TURN_PLAN_SCHEMA_VERSION = 1
 EXECUTION_REPORT_SCHEMA_VERSION = 1
 MAX_PLAN_ACTIONS = 64
 _DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}\Z")
-_TECH_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
-_PRODUCTION_PATTERNS = {
-    "unit": re.compile(r"UNIT_[A-Z0-9_]+\Z"),
-    "building": re.compile(r"BUILDING_[A-Z0-9_]+\Z"),
-    "project": re.compile(r"PROJECT_[A-Z0-9_]+\Z"),
-}
-_ACTIONS = frozenset(
-    {"end_turn", "choose_research", "set_city_production", "skip_unit"}
-)
 _REPORT_STATUSES = frozenset(
     {"completed", "paused", "stale", "failed", "recovery_required"}
 )
@@ -414,43 +406,13 @@ def _validate_planned_action(action: PlannedAction) -> PlannedAction:
     if not isinstance(action, PlannedAction):
         raise TurnPlanError("every action must be a PlannedAction")
     try:
-        command_id = validate_command_id(action.command_id)
-    except ValueError as error:
-        raise TurnPlanError(str(error)) from error
-    if action.action not in _ACTIONS:
-        raise TurnPlanError(f"unsupported planned action: {action.action!r}")
-    if not isinstance(action.arguments, dict):
-        raise TurnPlanError("action arguments must be an object")
-    arguments = dict(action.arguments)
-    if action.action == "end_turn":
-        _require_fields(arguments, set(), action.action)
-    elif action.action == "choose_research":
-        _require_fields(arguments, {"tech_type"}, action.action)
-        tech_type = arguments["tech_type"]
-        if not isinstance(tech_type, str) or not _TECH_PATTERN.fullmatch(tech_type):
-            raise TurnPlanError("tech_type must match TECH_[A-Z0-9_]+")
-    elif action.action == "set_city_production":
-        _require_fields(arguments, {"city_id", "kind", "item_type"}, action.action)
-        city_id = arguments["city_id"]
-        if isinstance(city_id, bool) or not isinstance(city_id, int) or city_id < 0:
-            raise TurnPlanError("city_id must be a non-negative integer")
-        kind = arguments["kind"]
-        pattern = _PRODUCTION_PATTERNS.get(kind) if isinstance(kind, str) else None
-        if pattern is None:
-            raise TurnPlanError("production kind must be unit, building, or project")
-        item_type = arguments["item_type"]
-        if not isinstance(item_type, str) or not pattern.fullmatch(item_type):
-            raise TurnPlanError(f"{kind} item_type has an invalid format")
-    else:
-        _require_fields(arguments, {"unit_id"}, action.action)
-        unit_id = arguments["unit_id"]
-        if isinstance(unit_id, bool) or not isinstance(unit_id, int) or unit_id < 0:
-            raise TurnPlanError("unit_id must be a non-negative integer")
-    return PlannedAction(command_id, action.action, arguments)
-
-
-def _require_fields(arguments: dict[str, Any], expected: set[str], action: str) -> None:
-    if set(arguments) != expected:
-        raise TurnPlanError(
-            f"{action} argument fields must be exactly {sorted(expected)}"
+        command = validate_command(
+            Command(
+                action=action.action,
+                args=action.arguments,
+                id=action.command_id,
+            )
         )
+    except CommandValidationError as error:
+        raise TurnPlanError(str(error)) from error
+    return PlannedAction(command.id, command.action, command.args)

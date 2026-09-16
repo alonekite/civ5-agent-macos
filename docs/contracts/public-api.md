@@ -28,15 +28,11 @@ import paths and CLI names are provisional.
 
 ### Bridge data and validation
 
-- `civ5_agent.models.GameState`
-- `civ5_agent.models.Command`
-- `civ5_agent.models.CommandResult`
-- `civ5_agent.validation.validate_live_state`
-
-Gap: live watcher reads and single verified writes do not yet have a dedicated
-bridge-facing public client. `WatcherTurnExecutor` currently wraps those
-capabilities for M6, but a public bridge API should not require executor
-semantics.
+`civ5_agent.bridge.__all__` now exposes the candidate supported bridge surface:
+the `Bridge` protocol, watcher-only `WatcherBridgeClient`, `GameState`,
+`Command`, `CommandResult`, `ALLOWED_ACTIONS`, `validate_command`, and
+`CommandValidationError`. Live reads and individual verified writes no longer
+require M6 types. Exact exception compatibility remains pending.
 
 ### Ruleset knowledge
 
@@ -109,13 +105,11 @@ codes are not frozen.
 
 ## M7 work derived from this inventory
 
-1. Define a bridge-facing watcher client independent of M6 and its supported
-   read/action methods.
-2. Define a small public exception taxonomy without hiding existing causal
+1. Define a small public exception taxonomy without hiding existing causal
    errors needed for recovery.
-3. Publish exact schema, size, and compatibility guarantees from one supported
+2. Publish exact schema, size, and compatibility guarantees from one supported
    import surface and add import/behavior contract tests on Python 3.11 and 3.13.
-4. Decide whether existing knowledge and journal exports need narrower facades;
+3. Decide whether existing knowledge and journal exports need narrower facades;
    add selective queries only for demonstrated consumers.
-5. Freeze CLI names, JSON envelopes, and exit semantics or document deliberate
+4. Freeze CLI names, JSON envelopes, and exit semantics or document deliberate
    provisional exceptions before M8.

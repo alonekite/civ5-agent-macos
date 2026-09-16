@@ -6,9 +6,10 @@ Status: Implemented
 
 The bridge owns transport, validated live-state reads, action argument checks,
 internally generated Lua for allowlisted actions, and write-after-read
-verification. `tuner.py` is the verified live adapter; `storage.py` is the
-database-backed fallback reader; `models.py` and `validation.py` define shared
-live contracts.
+verification. `WatcherBridgeClient` is the supported live application adapter
+over the watcher-owned private socket; `tuner.py` remains its internal game
+transport. `storage.py` is the partial database-backed fallback reader;
+`models.py`, `actions.py`, and `validation.py` define shared live contracts.
 
 ## Non-responsibilities
 
@@ -20,9 +21,12 @@ live contracts.
 
 ## Public interface
 
-The abstract direction is represented by `GameBridge.read_state()` and
-`GameBridge.execute(command)`. Current CLIs also use the concrete watcher broker
-and FireTuner client while the public API remains pre-stable.
+`civ5_agent.bridge` exports a runtime-checkable `Bridge` protocol,
+`WatcherBridgeClient`, shared state/command/result models, the action allowlist,
+and `validate_command`. Reads return the current bridge-session identity with a
+validated state. Writes and read-only completed-result lookups require that
+identity and a validated `Command`, and accept only a matching terminal result.
+The client never opens FireTuner directly.
 
 See [live-state](../contracts/live-state.md) and
 [command](../contracts/command.md).
@@ -70,12 +74,11 @@ postconditions. See the verification matrix.
 
 Schema 5 free-technology and steal-technology modes remain offline-only. Schema
 4's non-empty diplomacy and late-game victory branches remain unverified.
-Coordinate movement is not implemented. The abstract public interface is not
-yet the only path used by CLI code.
+Coordinate movement is not implemented. The standalone legacy command CLI still
+has a direct fallback; the supported Python bridge client is watcher-only.
 
 ## Planned extensions
 
-Complete pending live checks, add only narrowly specified actions, and hide
-transport details behind the M7 public API. The new session envelope has offline
-tests but needs no separate game write; future M5/M6 integration must preserve
-its fail-closed behavior.
+Complete pending live checks, add only narrowly specified actions, and finish
+the M7 exception and compatibility contract. The session envelope has offline
+tests; M5/M6 composition must preserve its fail-closed behavior.

@@ -48,5 +48,7 @@ brokers it beside the unchanged state payload, rejects missing or stale session
 IDs before writes, rotates it for each connection epoch, and records it in the
 M2 command audit. Direct commands create an identity for their one connection.
 The M5 schema 1 store now creates `match_id` and enforces explicit
-`session_binding` records. Runtime watcher/CLI journal capture remains pending;
-public naming and compatibility are finalized in M7.
+`session_binding` records. Runtime watcher/CLI journal capture is implemented
+offline. The M7 watcher bridge client exposes session identity on reads and
+requires it for writes and result lookups; broader public error compatibility
+remains pending.

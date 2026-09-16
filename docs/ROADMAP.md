@@ -198,7 +198,7 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 
 - [x] Inventory versioned contracts, candidate public symbols, implementation
   internals, size limits, and error gaps
-- [ ] Add a bridge-facing watcher client independent of M6 execution semantics
+- [x] Add a bridge-facing watcher client independent of M6 execution semantics
 - [ ] Define and test the supported Python import surface and exception taxonomy
 - [ ] Publish complete schema/version/size compatibility guarantees
 - [ ] Freeze or explicitly qualify CLI JSON and exit-status compatibility

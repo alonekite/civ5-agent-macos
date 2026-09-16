@@ -10,9 +10,9 @@ development log.
 
 - Current offline milestone: M7 — public API stabilization. M5 and M6 bounded
   target-machine verification remain pending.
-- Active next deliverable: define a bridge-facing watcher client independent of
-  M6, then establish the supported import and exception surface.
-- Functional baseline: 236 tests pass locally on Python 3.11 and the default
+- Active next deliverable: establish the supported import and exception
+  surface, then publish complete size/version guarantees.
+- Functional baseline: 241 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -100,6 +100,9 @@ development log.
 - `civ5-turn validate` strictly loads a bounded schema 1 plan and checks it
   against fresh watcher state without writing. `civ5-turn execute` is the
   explicit watcher-only execution entry point and returns the complete report.
+- `civ5_agent.bridge` now exposes a session-aware `Bridge` protocol and
+  watcher-only client for validated reads, individual verified commands, and
+  read-only result lookup independently of M6.
 
 ## Evidence still optional
 
@@ -115,7 +118,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 1. Inventory the provisional public interfaces and define M7 compatibility,
    error, and size-limit guarantees. (Inventory complete; guarantees pending.)
-2. Add the bridge-facing watcher client and supported import contract tests.
+2. Define the supported import surface and exception taxonomy with contract
+   tests.
 3. Add selective journal and knowledge queries only where the public API
    inventory demonstrates a concrete need.
 4. Run bounded M5/M6 live verification when the user is present.
@@ -141,6 +145,8 @@ M5 live verification and M6 implementation are independent workstreams.
   never automatically retried.
 - ADR-0024: TurnPlan files are bounded, exact-field, and executable only through
   the watcher-owned CLI path.
+- ADR-0025: the public bridge client is session-aware, watcher-only, and
+  independent of M6 orchestration.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

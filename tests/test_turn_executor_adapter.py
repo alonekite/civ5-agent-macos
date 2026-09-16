@@ -72,7 +72,7 @@ class WatcherTurnExecutorTest(unittest.TestCase):
             },
         )
         with tempfile.TemporaryDirectory() as directory, patch(
-            "civ5_agent.turn_executor_adapter.request",
+            "civ5_agent.watcher_client.request",
             side_effect=responses,
         ) as send:
             adapter = WatcherTurnExecutor(Path(directory) / "agent.sock")
@@ -93,7 +93,7 @@ class WatcherTurnExecutorTest(unittest.TestCase):
             "result": {},
         }
         with patch(
-            "civ5_agent.turn_executor_adapter.request",
+            "civ5_agent.watcher_client.request",
             return_value=response,
         ), self.assertRaisesRegex(ValueError, "session changed"):
             adapter.execute_action(action, SESSION_ID)
@@ -121,7 +121,7 @@ class WatcherTurnExecutorTest(unittest.TestCase):
             },
         }
         with patch(
-            "civ5_agent.turn_executor_adapter.request",
+            "civ5_agent.watcher_client.request",
             return_value=response,
         ) as send:
             result = WatcherTurnExecutor().lookup_action_result(action, SESSION_ID)
@@ -138,7 +138,7 @@ class WatcherTurnExecutorTest(unittest.TestCase):
             "found": False,
         }
         with patch(
-            "civ5_agent.turn_executor_adapter.request",
+            "civ5_agent.watcher_client.request",
             return_value=missing,
         ):
             self.assertIsNone(
@@ -153,7 +153,7 @@ class WatcherTurnExecutorTest(unittest.TestCase):
             "result": {},
         }
         with patch(
-            "civ5_agent.turn_executor_adapter.request",
+            "civ5_agent.watcher_client.request",
             return_value=mismatched,
         ), self.assertRaisesRegex(ValueError, "action does not match"):
             WatcherTurnExecutor().lookup_action_result(action, SESSION_ID)
@@ -190,7 +190,7 @@ class WatcherTurnExecutorTest(unittest.TestCase):
             },
         )
         with patch(
-            "civ5_agent.turn_executor_adapter.request",
+            "civ5_agent.watcher_client.request",
             side_effect=responses,
         ) as send:
             report = WatcherTurnExecutor().reconcile(plan, recovery)

@@ -227,8 +227,10 @@ Acceptance criteria:
 
 Current progress: the cross-module inventory now identifies existing versioned
 contracts, candidate Python/CLI surfaces, implementation-only internals, current
-limits, and unresolved error-taxonomy and bridge-client gaps. No provisional
-import path has been declared stable merely by appearing in the inventory.
+limits, and unresolved error-taxonomy gaps. The session-aware watcher bridge
+client now exposes live reads, verified individual actions, and cached-result
+lookups independently of M6 under ADR-0025. No remaining provisional import path
+has been declared stable merely by appearing in the inventory.
 
 ## M8 — 1.0 release readiness
 

@@ -52,6 +52,11 @@ The local protocol accepts one JSON object per line. Requests are capped at
 server converts malformed JSON, non-object callbacks, serialization failures,
 and unexpected callback exceptions into bounded structured errors.
 
+The M7 `WatcherBridgeClient` is the bridge-facing Python surface over this
+private socket. It exposes validated session-aware reads, individual verified
+commands, and read-only completed-result lookup without importing TurnPlan or
+opening FireTuner. `WatcherTurnExecutor` extends it only for M6 composition.
+
 ## Write safety
 
 The first live-verified write is `end_turn`. The implementation:
