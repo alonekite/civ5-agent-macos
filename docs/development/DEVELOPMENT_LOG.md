@@ -740,6 +740,20 @@ Implementation commit: `aa8bd0c`.
 
 Implementation commit: `7971ddd`.
 
+## 2026-09-16 — Read-only command-outcome lookup
+
+- Added a session-scoped `command_status` watcher request that retrieves only
+  terminal command results already cached during the current watcher lifetime.
+- Serialized lookup with command execution so it cannot race cache insertion;
+  a missing result remains unknown and never enters a write or retry path.
+- Added adapter validation for exact planned action, arguments, command UUID,
+  and bridge-session identity before returning a cached result.
+- Passed all 225 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, addresses, credentials, tokens, or
+  real match data.
+
+Implementation commit: `138ee49`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
