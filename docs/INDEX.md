@@ -40,6 +40,8 @@ do not belong in the repository.
 - [Turn-plan and execution contract](contracts/turn-plan.md)
 - [Public API inventory](contracts/public-api.md): M7 candidate surfaces,
   implementation boundaries, compatibility gaps, and current limits.
+- [CLI compatibility contract](contracts/cli.md): supported `civ5-turn`
+  envelopes and exits, plus explicitly provisional entry points.
 
 The Python implementation and tests remain authoritative for exact executable
 behavior. Contract documents define intended compatibility and rejection rules.

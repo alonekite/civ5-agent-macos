@@ -12,7 +12,7 @@ GitHub Issues and should link back to one milestone ID.
 | M4 | Ruleset knowledge view | Complete | M3 |
 | M5 | Factual turn journal | Implemented offline; live verification pending | M1, M2 |
 | M6 | Deterministic turn executor | Implemented offline; live verification pending | M2 |
-| M7 | Public API stabilization | In progress | M4, M5, M6 |
+| M7 | Public API stabilization | Complete | M4, M5, M6 |
 | M8 | 1.0 release readiness | Planned | M7 |
 
 ## M0 — Environment reconnaissance
@@ -230,8 +230,11 @@ implementation-only internals, and current limits. The session-aware watcher
 bridge client exposes live reads, verified individual actions, and cached-result
 lookups independently of M6 under ADR-0025. ADR-0026 defines the contract-tested
 `civ5_agent.api` aggregate surface, compatible error categories, and pre-1.0
-change policy. CLI JSON/exit compatibility and any demonstrated need for
-narrower knowledge or journal facades remain open.
+change policy. ADR-0027 stabilizes only the bounded `civ5-turn` envelopes and
+exit meanings while explicitly retaining all other command-line entry points as
+provisional. The current supported consumers are served by `KnowledgeIndex`,
+verified journal operations, and the aggregate surface; no demonstrated need
+justifies speculative selective queries. All M7 acceptance criteria are met.
 
 ## M8 — 1.0 release readiness
 

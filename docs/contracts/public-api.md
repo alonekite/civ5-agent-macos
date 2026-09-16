@@ -1,6 +1,6 @@
 # Public API Inventory
 
-Status: Supported aggregate pre-1.0 surface implemented; CLI freeze pending
+Status: Supported aggregate pre-1.0 surface implemented; bounded CLI classified
 
 ## Purpose
 
@@ -22,8 +22,8 @@ stable API by itself.
 | Bridge session | canonical UUIDv4 envelope | One watcher/direct-connection epoch; never a match identity |
 
 Existing schema compatibility rules remain authoritative. `civ5_agent.api` is
-the supported aggregate Python import path under ADR-0026; CLI compatibility is
-still provisional.
+the supported aggregate Python import path under ADR-0026; ADR-0027 separately
+stabilizes `civ5-turn` and explicitly classifies every other CLI as provisional.
 
 ## Candidate supported Python surface
 
@@ -71,10 +71,9 @@ must not become a planner.
 
 ## CLI surface
 
-Current entry points are listed in the CLI module document. Their output is
-machine-readable JSON where documented, but names and detailed error behavior
-remain provisional until M7 completes. `civ5-turn` is already bounded and
-watcher-only under ADR-0024.
+Current entry points are listed in the CLI module document. `civ5-turn` is the
+supported machine-readable pre-1.0 boundary under ADR-0027. Every other entry
+point is explicitly provisional even where its current output is JSON.
 
 ## Implementation-only surface
 
@@ -112,9 +111,10 @@ which retains `ConnectionError`. Wrapped failures preserve `__cause__`. CLI
 commands map errors to bounded JSON and nonzero exit status, but exact
 cross-command error codes are not frozen.
 
-## M7 work derived from this inventory
+## Facade assessment
 
-1. Decide whether existing knowledge and journal exports need narrower facades;
-   add selective queries only for demonstrated consumers.
-2. Freeze CLI names, JSON envelopes, and exit semantics or document deliberate
-   provisional exceptions before M8.
+Current supported consumers do not require narrower knowledge or journal
+facades. `KnowledgeIndex` supplies stable identifier/relation lookup, while
+journal verification, replay, and redacted export cover the supported factual
+history workflows. Selective queries remain deferred until a concrete consumer
+can define privacy, ordering, and compatibility requirements.

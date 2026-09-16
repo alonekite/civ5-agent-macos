@@ -49,8 +49,10 @@ missing plan content.
 ## Public interface
 
 Console scripts are declared in `pyproject.toml`; equivalent module execution is
-supported during development. JSON-producing commands should keep success and
-failure machine-readable.
+supported during development. `civ5-turn` is the sole supported machine-readable
+pre-1.0 CLI under ADR-0027. Its exact JSON envelopes and exit meanings are in
+the CLI compatibility contract. Other entry points are explicitly provisional;
+their safety and privacy invariants are not provisional.
 
 ## Inputs and outputs
 
@@ -93,13 +95,13 @@ The primary watch and command flows have bounded target-machine evidence.
 
 ## Current limitations
 
-The public CLI compatibility policy is not frozen before M7.
 `civ5-controller` is the legacy readiness/end-turn proof; it is not the future
-M6 tactical planner. M7 may rename it when the TurnPlan executor is public.
+M6 tactical planner and remains provisional.
 Cross-process recovery-report loading is not exposed without a separate bounded
 persistence contract.
 
 ## Planned extensions
 
-Stabilize names and error behavior in M7. Journal capture consumes validated
-in-memory results and never parses the independent M2 audit file.
+Assess provisional commands individually before 1.0 rather than freezing them
+as a group. Journal capture consumes validated in-memory results and never
+parses the independent M2 audit file.

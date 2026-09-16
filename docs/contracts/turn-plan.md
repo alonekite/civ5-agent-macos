@@ -97,8 +97,9 @@ without executing an action. `execute PLAN` delegates the decoded plan to the
 watcher adapter and prints the complete `ExecutionReport`. Neither operation
 connects directly to FireTuner, creates plan content, queries M4/M5, or weakens
 bridge validation. Exit status 0 means valid/completed, 1 means input or
-transport failure, and 2 means a valid non-completed execution report. The
-surface is provisional until M7 under ADR-0024.
+transport failure, and 2 means a valid non-completed execution report. ADR-0027
+stabilizes this bounded pre-1.0 surface; exact envelopes are defined by the CLI
+compatibility contract.
 
 ## Optional factual events
 

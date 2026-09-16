@@ -201,8 +201,9 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 - [x] Add a bridge-facing watcher client independent of M6 execution semantics
 - [x] Define and test the supported Python import surface and exception taxonomy
 - [x] Publish complete schema/version/size compatibility guarantees
-- [ ] Freeze or explicitly qualify CLI JSON and exit-status compatibility
-- [ ] Add selective journal or knowledge queries only for concrete consumers
+- [x] Freeze or explicitly qualify CLI JSON and exit-status compatibility
+- [x] Assess selective journal/knowledge facades and defer new queries because
+  no current supported consumer requires them
 
 LLM decision-making, working memory, strategic memory, and MCP integration are
 intentionally outside this repository's scope.

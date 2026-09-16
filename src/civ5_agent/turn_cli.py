@@ -11,6 +11,9 @@ from .turn_executor_adapter import WatcherTurnExecutor
 from .turn_plan import TurnPlan, TurnPlanError, turn_plan_from_dict, validate_turn_plan
 
 MAX_TURN_PLAN_FILE_BYTES = 64 * 1024
+EXIT_SUCCESS = 0
+EXIT_ERROR = 1
+EXIT_INCOMPLETE = 2
 
 
 def load_turn_plan(path: Path) -> TurnPlan:
@@ -61,7 +64,7 @@ def main(argv: list[str] | None = None) -> int:
                 "bridge_session_id": plan.bridge_session_id,
                 "action_count": len(plan.actions),
             }
-            exit_status = 0
+            exit_status = EXIT_SUCCESS
         else:
             report = executor.execute(plan)
             output = {
@@ -69,7 +72,9 @@ def main(argv: list[str] | None = None) -> int:
                 "operation": "execute",
                 "report": asdict(report),
             }
-            exit_status = 0 if report.status == "completed" else 2
+            exit_status = (
+                EXIT_SUCCESS if report.status == "completed" else EXIT_INCOMPLETE
+            )
     except (
         ConnectionError,
         OSError,
@@ -78,7 +83,7 @@ def main(argv: list[str] | None = None) -> int:
         ValueError,
     ) as error:
         output = {"ok": False, "error": str(error)}
-        exit_status = 1
+        exit_status = EXIT_ERROR
 
     print(json.dumps(output, allow_nan=False, sort_keys=True))
     return exit_status

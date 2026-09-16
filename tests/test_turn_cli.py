@@ -8,7 +8,14 @@ from pathlib import Path
 from unittest.mock import patch
 
 from civ5_agent.models import GameState
-from civ5_agent.turn_cli import MAX_TURN_PLAN_FILE_BYTES, load_turn_plan, main
+from civ5_agent.turn_cli import (
+    EXIT_ERROR,
+    EXIT_INCOMPLETE,
+    EXIT_SUCCESS,
+    MAX_TURN_PLAN_FILE_BYTES,
+    load_turn_plan,
+    main,
+)
 from civ5_agent.turn_executor_adapter import WatcherTurnExecutor
 from civ5_agent.turn_plan import (
     ExecutionReport,
@@ -110,7 +117,11 @@ class TurnPlanCliTest(unittest.TestCase):
         ) as output:
             status = main(["validate", str(self.write_plan(directory))])
 
-        self.assertEqual(status, 0)
+        self.assertEqual(status, EXIT_SUCCESS)
+        self.assertEqual(
+            set(json.loads(output.getvalue())),
+            {"ok", "operation", "plan_id", "bridge_session_id", "action_count"},
+        )
         self.assertTrue(json.loads(output.getvalue())["ok"])
         execute.assert_not_called()
 
@@ -145,7 +156,8 @@ class TurnPlanCliTest(unittest.TestCase):
             status = main(["execute", str(self.write_plan(directory))])
 
         rendered = json.loads(output.getvalue())
-        self.assertEqual(status, 0)
+        self.assertEqual(status, EXIT_SUCCESS)
+        self.assertEqual(set(rendered), {"ok", "operation", "report"})
         self.assertTrue(rendered["ok"])
         self.assertEqual(rendered["report"]["status"], "completed")
         self.assertEqual(execute.call_args.args[0], plan())
@@ -168,8 +180,10 @@ class TurnPlanCliTest(unittest.TestCase):
         ), redirect_stdout(StringIO()) as output:
             status = main(["execute", str(self.write_plan(directory))])
 
-        self.assertEqual(status, 2)
-        self.assertFalse(json.loads(output.getvalue())["ok"])
+        self.assertEqual(status, EXIT_INCOMPLETE)
+        rendered = json.loads(output.getvalue())
+        self.assertEqual(set(rendered), {"ok", "operation", "report"})
+        self.assertFalse(rendered["ok"])
 
     def test_invalid_file_fails_before_watcher_contact(self):
         with tempfile.TemporaryDirectory() as directory, patch(
@@ -179,8 +193,10 @@ class TurnPlanCliTest(unittest.TestCase):
             path.write_text("[]")
             status = main(["execute", str(path)])
 
-        self.assertEqual(status, 1)
-        self.assertFalse(json.loads(output.getvalue())["ok"])
+        self.assertEqual(status, EXIT_ERROR)
+        rendered = json.loads(output.getvalue())
+        self.assertEqual(set(rendered), {"ok", "error"})
+        self.assertFalse(rendered["ok"])
         executor.assert_not_called()
 
 

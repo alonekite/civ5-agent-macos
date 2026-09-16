@@ -33,6 +33,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0024](ADR-0024-use-bounded-watcher-only-turnplan-cli.md) | Use a bounded watcher-only TurnPlan CLI | Accepted |
 | [ADR-0025](ADR-0025-expose-session-aware-watcher-bridge-client.md) | Expose a session-aware watcher bridge client | Accepted |
 | [ADR-0026](ADR-0026-aggregate-pre1-public-api-and-errors.md) | Aggregate the pre-1.0 public API and error taxonomy | Accepted |
+| [ADR-0027](ADR-0027-stabilize-turn-cli-only.md) | Stabilize only the bounded TurnPlan CLI before 1.0 | Accepted |
 
 ## Template
 

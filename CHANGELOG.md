@@ -50,6 +50,8 @@ versioned releases. Development details belong in
   boundaries, contracts, milestones, risks, and verification matrix.
 - Aggregate pre-1.0 Python API with explicit validation, protocol, transport,
   and live-safety error categories plus published schema and size limits.
+- Supported pre-1.0 `civ5-turn` JSON envelopes and exit meanings; all other
+  command-line entry points are explicitly provisional.
 
 ### Security
 

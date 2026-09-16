@@ -8,11 +8,10 @@ development log.
 
 ## Dashboard
 
-- Current offline milestone: M7 — public API stabilization. M5 and M6 bounded
+- Current milestone: M8 — 1.0 release readiness. M5 and M6 bounded
   target-machine verification remain pending.
-- Active next deliverable: freeze or explicitly qualify CLI JSON/exit
-  compatibility, then assess whether demonstrated consumers need narrower
-  knowledge or journal facades.
+- Active next deliverable: audit the 1.0 release gaps and prepare the bounded
+  M5/M6 live-verification run without changing machine safety state.
 - Functional baseline: 247 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
@@ -108,6 +107,9 @@ development log.
   Public errors distinguish validation, protocol, transport-ambiguous, and
   live-safety failures while preserving compatible built-in catch behavior.
   Supported schema sets and byte/count limits are exported constants.
+- `civ5-turn` is the supported machine-readable pre-1.0 CLI with exact JSON
+  envelopes and exit meanings. All other entry points are explicitly
+  provisional without weakening their safety or privacy requirements.
 
 ## Evidence still optional
 
@@ -119,12 +121,12 @@ Future live tests require the user to start the game and explicitly authorize
 the documented `live_session prepare`/`restore` procedure. No background work
 may enable FireTuner, launch Civ V, or change the firewall.
 
-## Recommended offline order
+## Recommended order
 
-1. Freeze or explicitly qualify CLI names, JSON envelopes, and exit semantics.
-2. Add selective journal and knowledge queries only where the public API
-   inventory demonstrates a concrete need.
-3. Run bounded M5/M6 live verification when the user is present.
+1. Audit M8 documentation, packaging, compatibility, and risk gaps offline.
+2. Run bounded M5/M6 live verification when the user is present.
+3. Prepare a reproducible release candidate only after required live evidence
+   and high-impact risk disposition are complete.
 
 M5 live verification and M6 implementation are independent workstreams.
 
@@ -151,6 +153,8 @@ M5 live verification and M6 implementation are independent workstreams.
   independent of M6 orchestration.
 - ADR-0026: one aggregate pre-1.0 import surface and explicit error taxonomy
   define supported Python compatibility.
+- ADR-0027: only the bounded TurnPlan CLI is stable pre-1.0; all other command
+  entry points remain explicitly provisional.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.
