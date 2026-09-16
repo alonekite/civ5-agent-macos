@@ -724,6 +724,22 @@ Implementation commit: `1e85043`.
 
 Implementation commit: `aa8bd0c`.
 
+## 2026-09-16 — Watcher-owned TurnPlan execution adapter
+
+- Added a narrow M6 adapter that supplies the deterministic executor's state-
+  read and single-action capabilities through the existing private watcher
+  socket rather than opening a second FireTuner connection.
+- Preserved the plan's bridge-session identity and command UUID across the IPC
+  boundary, validated watcher responses, and treated unavailable initial state
+  as a safe pause rather than an invalid plan.
+- Added an end-to-end mocked watcher-protocol execution test plus changed-
+  session and timeout rejection tests.
+- Passed all 222 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, addresses, credentials, tokens, or
+  real match data.
+
+Implementation commit: `7971ddd`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
