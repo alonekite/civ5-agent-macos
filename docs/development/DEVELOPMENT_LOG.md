@@ -1023,6 +1023,28 @@ Implementation commit: `c1dc935`.
 
 Implementation commit: `f3fa05c`.
 
+## 2026-09-16 — Deferred-unit end-turn live evidence
+
+- Recorded the sanitized third combined M5/M6 target-machine attempt. The
+  named no-blocker guard invoked the stock control, but automated/deferred unit
+  processing changed several unit states and surfaced one ready worker without
+  advancing the turn.
+- Confirmed exact failure semantics: M6 retained distinct before/after state,
+  waited for the turn-advance postcondition, returned one failed step, and did
+  not retry. M5 captured the submission, failed result, verification error, and
+  private integrity/export evidence.
+- Corrected the second attempt's evidence wording: its missing background turn
+  transition alone could not establish whether the operator's later stock click
+  changed turns. The third attempt independently proved the same-turn branch.
+- Updated the release-gate procedure to prefer a minimal early-game state with
+  no automated or deferred unit tasks; a large saved match remains a valid
+  failure-path test but cannot reliably close the one-action success gate.
+- Documentation-link validation, diff checks, and sensitive-content scanning
+  passed. No private paths, identities, hashes, snapshots, or raw match data
+  were committed.
+
+Evidence commit: `41aa550`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
