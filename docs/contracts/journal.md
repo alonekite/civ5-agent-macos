@@ -50,6 +50,7 @@ interpret plan content or supply M6 execution state.
   records.
 - Use private local permissions and refuse unsafe symbolic-link targets.
 - Reading or replaying a journal never executes a command.
+- Verification returns only payload-free structural metadata and the chain head.
 - Journal state never authorizes M6 to resume, skip, retry, or replace an
   action; live state and bridge postconditions remain authoritative.
 - A journal write failure is separate from the result of an already verified
@@ -79,7 +80,8 @@ watcher composition records changed snapshots and grounded command results from
 memory. It records pre-execution submissions, unsuccessful results, and observed
 turn transitions without making persistence an execution precondition. This
 adapter accepts only validated FireTuner live state; the partial, unversioned
-database fallback is rejected as journal input. Replay/export remain pending.
+database fallback is rejected as journal input. Deterministic full-chain
+verification is implemented; replay/export remain pending.
 
 ## Out of scope
 

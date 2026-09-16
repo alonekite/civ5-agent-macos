@@ -2,10 +2,18 @@ import json
 import tempfile
 import threading
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
-from civ5_agent.journal import JournalCapture, JournalError, JournalStore
+from civ5_agent.journal import (
+    JournalCapture,
+    JournalError,
+    JournalStore,
+    verify_journal,
+)
 from civ5_agent.journal.codec import MAX_RECORD_BYTES, JournalCodecError, decode_record
+from civ5_agent.journal_cli import main as journal_main
 from civ5_agent.models import GameState
 
 MATCH_ID = "123e4567-e89b-42d3-a456-426614174010"
@@ -322,6 +330,45 @@ class JournalCaptureTest(unittest.TestCase):
             records = resumed.store.read_all()
             self.assertEqual(records[-1].kind, "session_binding")
             self.assertEqual(records[-1].bridge_session_id, SESSION_TWO)
+
+
+class JournalVerificationTest(unittest.TestCase):
+    def test_returns_deterministic_payload_free_summary(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "match.jsonl"
+            store = JournalStore.create(path, SESSION_ONE, match_id=MATCH_ID)
+            store.append(
+                "snapshot",
+                {"private_player_name": "not included in summary"},
+                bridge_session_id=SESSION_ONE,
+                turn=2,
+            )
+
+            verification = verify_journal(path)
+
+            self.assertEqual(verification.match_id, MATCH_ID)
+            self.assertEqual(verification.record_count, 2)
+            self.assertEqual(verification.first_turn, 2)
+            self.assertEqual(verification.last_turn, 2)
+            self.assertEqual(verification.bridge_session_count, 1)
+            self.assertEqual(
+                verification.kind_counts,
+                {"journal_started": 1, "snapshot": 1},
+            )
+            self.assertNotIn("private_player_name", str(verification.to_dict()))
+
+    def test_cli_reports_corruption_without_payload(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "match.jsonl"
+            path.write_text("broken\n")
+            output = StringIO()
+
+            with redirect_stdout(output):
+                status = journal_main(["verify", str(path)])
+
+            response = json.loads(output.getvalue())
+            self.assertEqual(status, 1)
+            self.assertFalse(response["ok"])
 
 
 if __name__ == "__main__":

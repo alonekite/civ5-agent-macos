@@ -19,11 +19,14 @@ Current commands:
 - `civ5-preflight`
 - `civ5-live-session`
 - `civ5-knowledge`
+- `civ5-journal`
 
 `civ5-watch` also accepts the paired opt-in arguments `--journal PATH` and
 `--journal-mode new|resume`. `new` refuses an existing path; `resume` explicitly
 binds the new bridge session to an existing declared match. Journal capture is
 restricted to `--transport tuner`; the partial database fallback is rejected.
+`civ5-journal verify PATH` validates the entire private journal and emits a
+payload-free JSON summary; it never executes actions or exports match contents.
 
 ## Non-responsibilities
 

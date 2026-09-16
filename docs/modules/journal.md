@@ -28,6 +28,8 @@ and grounded in-memory command results when the user supplies both `--journal`
 and `--journal-mode new|resume` with the FireTuner transport. The partial,
 unversioned database fallback is not a journal source. Public M7 compatibility
 is not yet implemented. See the [journal contract](../contracts/journal.md).
+`verify_journal` and `civ5-journal verify` read and validate the complete chain,
+then expose only structural counts, turn bounds, identities, and the head hash.
 
 ## Inputs and outputs
 
@@ -85,6 +87,6 @@ defend against complete authorized rewriting of the private file.
 
 ## Planned extensions
 
-Add deterministic verification/replay and privacy-preserving export, then expose
+Add deterministic replay and privacy-preserving export, then expose
 selective read APIs during M7. M5 and M6 may be implemented in either order; the
 current M5 priority is a schedule choice, not a dependency.

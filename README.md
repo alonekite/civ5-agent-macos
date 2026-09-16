@@ -145,6 +145,13 @@ The legacy `--transport database` fallback emits a deliberately partial,
 unversioned state and therefore rejects `--journal`; it is not admissible as a
 factual match-history source.
 
+Verify the complete sequence, identities, turn ordering, and hash chain without
+printing snapshot or command payloads:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.journal_cli verify /private/path/to/match.jsonl
+```
+
 While the long-running watcher is active it also owns a per-user, mode-0600
 Unix socket. This lets a second terminal submit the sole allowlisted write
 without opening a competing FireTuner connection:

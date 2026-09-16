@@ -151,6 +151,8 @@ No application-bundle modification is required.
   concurrency, permission, and reopen tests
 - [x] Correlate M2 audit and M5 journal by command UUID without parsing the audit
   file or coupling their failure behavior
+- [x] Add deterministic full-chain verification with a payload-free summary
+- [ ] Add deterministic replay and explicit privacy-preserving export
 
 The supported captured journal sequence supports future tactical/strategic
 history selection, replay, comparison, debugging, and audit. It is not a claim
