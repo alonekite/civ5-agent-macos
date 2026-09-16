@@ -249,10 +249,10 @@ Acceptance criteria:
 Current progress: the first release-gate audit is recorded in
 [M8 release readiness](RELEASE_READINESS.md). Public compatibility is complete through
 M7, and setup/security/recovery documentation exists. Blocking work is the
-bounded M5/M6 target-machine run, explicit disposition of open high-impact
-risks, application of the documented stable version transition, and final
-release evidence. Artifact automation and the release/upgrade/rollback runbook
-are complete.
+bounded M5/M6 target-machine run, application of the documented stable version
+transition, and final release evidence. Every high-impact risk now has an
+explicit controlled disposition; artifact automation and the
+release/upgrade/rollback runbook are complete.
 
 LLM interaction, working memory, strategic memory, and MCP are not M-series
 milestones. They require a separate future project plan.

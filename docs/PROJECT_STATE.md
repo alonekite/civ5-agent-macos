@@ -10,9 +10,9 @@ development log.
 
 - Current milestone: M8 — 1.0 release readiness. M5 and M6 bounded
   target-machine verification remain pending.
-- Active next deliverable: disposition the remaining high-impact release risks
-  without changing machine safety state. The bounded M5/M6 procedure is ready
-  to run when the user is present, and release/upgrade/rollback rules are fixed.
+- Active next deliverable: run the bounded M5/M6 target-machine gate when the
+  user is present. All offline M8 release controls, including high-impact risk
+  dispositions and release/upgrade/rollback rules, are now fixed.
 - Functional baseline: 254 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
@@ -125,9 +125,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Disposition every remaining high-impact release risk.
-2. Run bounded M5/M6 live verification when the user is present.
-3. Prepare a reproducible release candidate only after required live evidence
+1. Run bounded M5/M6 live verification when the user is present.
+2. Prepare a reproducible release candidate only after required live evidence
    and high-impact risk disposition are complete.
 
 M5 live verification and M6 implementation are independent workstreams.
