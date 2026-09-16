@@ -2,8 +2,8 @@
 
 Status: M4 structural contract implemented
 
-M7 retained the Python name `RulesetResolver` in the supported aggregate
-pre-1.0 API. ADR-0014 defines its architectural role as a structural knowledge
+M7 retained the Python name `RulesetResolver` in the supported aggregate API.
+ADR-0014 defines its architectural role as a structural knowledge
 view rather than an execution-layer planner.
 
 ## Input
@@ -42,6 +42,5 @@ never substitutes an inferred default or ignores an unsupported selection.
 ## Compatibility
 
 `RulesetResolver`, its structural models, and validation errors are part of the
-supported aggregate pre-1.0 API. Breaking changes during 0.x require a
-minor-version increment, compatibility note, contract updates, and tests under
-ADR-0026.
+supported stable aggregate API. Incompatible changes require a new major
+version, contract updates, compatibility notes, and tests under ADR-0030.

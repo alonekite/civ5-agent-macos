@@ -15,11 +15,11 @@ experiment evidence.
 | Required live verification | Complete: the final combined attempt added a successful command lifecycle and verified automatic turn advance to the earlier failure-path, integrity, replay, export, and restoration evidence | Preserve the [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) for regression use |
 | High-impact risks | Every high-impact risk has an explicit release disposition; R-003, R-004, R-006, and R-014 are controlled within the documented scope | Preserve the controls and reopen review if release scope changes |
 | Setup/security/recovery docs | README, security policy, reconciled live checklist, recoverable session manager, and release/upgrade/rollback runbook exist | Preserve these controls on the release candidate |
-| Public compatibility | M7 aggregate Python API and bounded `civ5-turn` contract are complete; stable-version transition steps are documented | Apply the stable version and compatibility wording on the final release commit |
-| Packaging | Editable installation and console scripts pass CI; wheel and sdist manifests, bounded inspection, and clean-environment install checks are implemented | Confirm final version/license metadata on the release candidate |
+| Public compatibility | ADR-0030 promotes the aggregate Python API and bounded `civ5-turn` contract to stable 1.0; other CLIs remain provisional | Preserve the declared boundary on the exact release candidate |
+| Packaging | Version 1.0.0 metadata, wheel and sdist manifests, bounded inspection, and clean-environment install checks are implemented | Validate final metadata and artifacts from the exact candidate commit |
 | Tests and scans | 260 tests pass locally on Python 3.11/default runtime; the prior batch passed GitHub Actions 3.11/3.13; tracked-source scans are clean; artifact inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run this batch in CI, then run the final warning-enabled suite and scans against the exact tagged release artifacts |
 | Reproducibility | CI builds each artifact twice and requires identical normalized content hashes; tag/version/hash rules are documented | Execute the runbook on the final candidate and publish selected archive hashes |
-| Release | No release tag exists; immutable annotated-tag, publication-verification, withdrawal, and rollback procedures are documented | Complete every blocking gate, update the changelog/version, and execute the runbook |
+| Release | Version and changelog are prepared for 1.0.0; no release tag exists; immutable annotated-tag, publication-verification, withdrawal, and rollback procedures are documented | Validate the exact candidate, obtain operator approval, and execute the tag/publish runbook |
 
 ## Completed live evidence
 

@@ -15,6 +15,11 @@ Can the stock Civ V `InGame` Lua runtime on an M4 Mac:
 This repository does not implement MCP or LLM decision-making. Its job is to
 provide safe, deterministic game I/O, ruleset knowledge, and verification.
 
+Release status: version `1.0.0` is being validated as the first stable release
+candidate. No stable tag or GitHub release has been published yet. The stable
+compatibility surfaces are `civ5_agent.api` and `civ5-turn`; other command-line
+entry points remain explicitly provisional.
+
 ## Documentation
 
 - [Project outline (中文)](docs/PROJECT_OUTLINE.zh-CN.md) — the fastest way to

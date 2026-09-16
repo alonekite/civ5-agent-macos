@@ -49,9 +49,9 @@ missing plan content.
 ## Public interface
 
 Console scripts are declared in `pyproject.toml`; equivalent module execution is
-supported during development. `civ5-turn` is the sole supported machine-readable
-pre-1.0 CLI under ADR-0027. Its exact JSON envelopes and exit meanings are in
-the CLI compatibility contract. Other entry points are explicitly provisional;
+supported during development. `civ5-turn` is the sole supported stable
+machine-readable CLI under ADR-0027 and ADR-0030. Its exact JSON envelopes and
+exit meanings are in the CLI compatibility contract. Other entry points are explicitly provisional;
 their safety and privacy invariants are not provisional.
 
 ## Inputs and outputs
@@ -101,6 +101,6 @@ persistence contract.
 
 ## Planned extensions
 
-Assess provisional commands individually before 1.0 rather than freezing them
-as a group. Journal capture consumes validated in-memory results and never
-parses the independent M2 audit file.
+Assess provisional commands individually when a demonstrated consumer requires
+stability rather than freezing them as a group. Journal capture consumes
+validated in-memory results and never parses the independent M2 audit file.

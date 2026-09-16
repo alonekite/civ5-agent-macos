@@ -1,10 +1,13 @@
 # Changelog
 
-All notable user-visible changes will be recorded here once the project begins
-versioned releases. Development details belong in
+All notable user-visible changes are recorded here. Development details belong in
 `docs/development/DEVELOPMENT_LOG.md`.
 
 ## Unreleased
+
+No changes yet.
+
+## 1.0.0 - 2026-09-16
 
 ### Added
 
@@ -48,9 +51,9 @@ versioned releases. Development details belong in
   constraints, excluding localized descriptions and AI priorities.
 - Structured documentation governance, architecture decisions, module
   boundaries, contracts, milestones, risks, and verification matrix.
-- Aggregate pre-1.0 Python API with explicit validation, protocol, transport,
+- Stable aggregate Python API with explicit validation, protocol, transport,
   and live-safety error categories plus published schema and size limits.
-- Supported pre-1.0 `civ5-turn` JSON envelopes and exit meanings; all other
+- Stable `civ5-turn` JSON envelopes and exit meanings; all other
   command-line entry points are explicitly provisional.
 - Bounded wheel/source inspection for package coverage, metadata, entry points,
   RECORD integrity, normalized reproducibility, unsafe members, and common
@@ -78,4 +81,25 @@ versioned releases. Development details belong in
 - Use Civ V's named no-end-turn-blocker enum instead of an incorrect numeric
   zero assumption, and inspect the blocker independently of UI clickability.
 
-No release has been tagged yet.
+### Compatibility
+
+- `civ5_agent.api` and the documented `civ5-turn` envelopes and exit meanings
+  are the stable 1.0 compatibility surfaces. Incompatible changes require a new
+  major version.
+- Live-state schemas 2–5, knowledge schemas 1–3, and journal, TurnPlan, and
+  execution-report schema 1 retain their documented compatibility rules.
+- Other command-line entry points remain provisional; their safety, privacy,
+  and write-verification guarantees are stable even when their presentation
+  changes.
+
+### Known limitations
+
+- Live operation is verified only for the original Civilization V: Campaign
+  Edition target on Apple Silicon macOS and requires the guarded FireTuner
+  procedure.
+- Free/steal technology modes, non-empty diplomacy, and non-zero late-game
+  science-victory branches have only partial or offline evidence.
+- Coordinate movement, LLM decision-making, working memory, strategic memory,
+  and MCP integration are outside this release.
+
+The `v1.0.0` tag has not been created yet.

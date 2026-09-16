@@ -245,12 +245,13 @@ Current progress: the cross-module inventory identifies versioned contracts,
 implementation-only internals, and current limits. The session-aware watcher
 bridge client exposes live reads, verified individual actions, and cached-result
 lookups independently of M6 under ADR-0025. ADR-0026 defines the contract-tested
-`civ5_agent.api` aggregate surface, compatible error categories, and pre-1.0
+`civ5_agent.api` aggregate surface, compatible error categories, and initial
 change policy. ADR-0027 stabilizes only the bounded `civ5-turn` envelopes and
 exit meanings while explicitly retaining all other command-line entry points as
 provisional. The current supported consumers are served by `KnowledgeIndex`,
 verified journal operations, and the aggregate surface; no demonstrated need
-justifies speculative selective queries. All M7 acceptance criteria are met.
+justifies speculative selective queries. ADR-0030 promotes the two supported
+surfaces to stable 1.0 compatibility. All M7 acceptance criteria are met.
 
 ## M8 — 1.0 release readiness
 

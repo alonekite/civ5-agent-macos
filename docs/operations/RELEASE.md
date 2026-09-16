@@ -17,8 +17,9 @@ commit, and explicitly creates and pushes the tag.
   the increment, but their safety and privacy guarantees remain mandatory.
 - Tags are annotated, immutable, and never reused. A faulty release is
   superseded by a new patch version rather than moving or deleting its tag.
-- The intended first stable version is `1.0.0`. Do not change the current
-  development version or create `v1.0.0` until every M8 blocking gate is met.
+- The first stable release candidate is version `1.0.0`. Do not create
+  `v1.0.0` until its exact commit passes every M8 gate and the operator
+  explicitly approves the tag.
 
 ## Release prerequisites
 

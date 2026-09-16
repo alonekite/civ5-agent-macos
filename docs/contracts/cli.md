@@ -1,15 +1,15 @@
 # CLI Compatibility Contract
 
-Status: `civ5-turn` supported pre-1.0; all other entry points explicitly provisional
+Status: `civ5-turn` stable in 1.0; all other entry points explicitly provisional
 
 ## Compatibility classes
 
-`civ5-turn` is the supported machine-readable pre-1.0 CLI. Its subcommand
-names, stdout envelopes, and exit meanings are compatibility-tested. A breaking
-change requires a minor-version increment and compatibility note while the
-package remains 0.x.
+`civ5-turn` is the supported stable machine-readable CLI. Its subcommand names,
+stdout envelopes, and exit meanings are compatibility-tested. An incompatible
+change requires a new package major version; backward-compatible capability
+uses a minor version and compatible fixes use a patch version under ADR-0030.
 
-The following commands remain operational previews and carry no pre-1.0 output
+The following commands remain operational previews and carry no stable output
 compatibility promise: `civ5-watch`, `civ5-command`, `civ5-controller`,
 `civ5-preflight`, `civ5-live-session`, `civ5-knowledge`, and `civ5-journal`.
 Their current safety, privacy, and write-verification requirements remain

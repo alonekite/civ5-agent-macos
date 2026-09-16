@@ -13,8 +13,8 @@ tests; discrepancies are defects that must be resolved explicitly.
 | [Ruleset knowledge view](resolver.md) | Structural M4 contract implemented | knowledge |
 | [Turn journal](journal.md) | M5 implemented; bounded live verification passed | journal |
 | [Turn plan and execution](turn-plan.md) | Schema 1 execution/recovery and bounded CLI implemented offline | controller/executor |
-| [Public Python API](public-api.md) | Aggregate pre-1.0 surface and error contract implemented | cross-module |
-| [CLI compatibility](cli.md) | `civ5-turn` supported pre-1.0; other entry points provisional | cli |
+| [Public Python API](public-api.md) | Stable 1.0 aggregate surface and error contract implemented | cross-module |
+| [CLI compatibility](cli.md) | `civ5-turn` stable in 1.0; other entry points provisional | cli |
 
 ## Contract rules
 

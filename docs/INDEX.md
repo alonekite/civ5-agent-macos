@@ -40,7 +40,7 @@ do not belong in the repository.
   SQLite families, exclusions, and the completed M3 classification.
 - [Journal contract](contracts/journal.md)
 - [Turn-plan and execution contract](contracts/turn-plan.md)
-- [Public API inventory](contracts/public-api.md): supported pre-1.0 aggregate
+- [Public API inventory](contracts/public-api.md): supported stable aggregate
   surface, implementation boundaries, error semantics, and current limits.
 - [CLI compatibility contract](contracts/cli.md): supported `civ5-turn`
   envelopes and exits, plus explicitly provisional entry points.

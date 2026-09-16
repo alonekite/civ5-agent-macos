@@ -173,7 +173,8 @@ ruleset identity, game speed, difficulty, map size, civilization, adopted
 policies, and active beliefs. It fails closed on missing or incompatible
 identifiers, returns detached entity values plus source provenance, and resolves
 unit/building class defaults and civilization replacements. M7 retained
-`RulesetResolver` in the supported aggregate pre-1.0 API.
+`RulesetResolver` in the supported aggregate API, and ADR-0030 promotes that
+surface to the stable 1.0 contract.
 
 It does not compose broad effective scalar values, compare candidates, predict
 outcomes, or choose actions. Those operations belong with future strategic,

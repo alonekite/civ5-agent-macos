@@ -10,9 +10,9 @@ development log.
 
 - Current milestone: M8 — 1.0 release readiness. The required M5/M6 bounded
   target-machine verification is complete.
-- Active next deliverable: produce a clean reproducible release candidate,
-  apply the documented stable-version transition, run final artifact scans and
-  hashes, and prepare the immutable tag.
+- Active next deliverable: validate the exact 1.0.0 release candidate with
+  local tests, CI, duplicate artifact builds, clean installs, scans, and hashes,
+  then request explicit approval before creating the immutable tag.
 - Functional baseline: 260 tests pass locally on Python 3.11/default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
@@ -115,11 +115,11 @@ development log.
 - `civ5_agent.bridge` now exposes a session-aware `Bridge` protocol and
   watcher-only client for validated reads, individual verified commands, and
   read-only result lookup independently of M6.
-- `civ5_agent.api` is the contract-tested aggregate pre-1.0 Python surface.
+- `civ5_agent.api` is the contract-tested stable 1.0 Python surface.
   Public errors distinguish validation, protocol, transport-ambiguous, and
   live-safety failures while preserving compatible built-in catch behavior.
   Supported schema sets and byte/count limits are exported constants.
-- `civ5-turn` is the supported machine-readable pre-1.0 CLI with exact JSON
+- `civ5-turn` is the supported stable machine-readable CLI with exact JSON
   envelopes and exit meanings. All other entry points are explicitly
   provisional without weakening their safety or privacy requirements.
 
@@ -135,10 +135,9 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Prepare the reproducible release candidate and apply the stable-version
-   transition on its exact commit.
-2. Run final tests, artifact scans, reproducibility checks, and archive hashes,
-   then execute the documented tag procedure only with operator approval.
+1. Validate the exact 1.0.0 candidate with final tests, artifact scans,
+   reproducibility checks, clean installs, archive hashes, and CI.
+2. Execute the documented tag procedure only with operator approval.
 
 M5 live verification and M6 implementation are independent workstreams.
 
@@ -163,14 +162,16 @@ M5 live verification and M6 implementation are independent workstreams.
   the watcher-owned CLI path.
 - ADR-0025: the public bridge client is session-aware, watcher-only, and
   independent of M6 orchestration.
-- ADR-0026: one aggregate pre-1.0 import surface and explicit error taxonomy
-  define supported Python compatibility.
-- ADR-0027: only the bounded TurnPlan CLI is stable pre-1.0; all other command
-  entry points remain explicitly provisional.
+- ADR-0026 established the aggregate import surface and explicit error taxonomy;
+  ADR-0030 advances its compatibility policy to stable 1.0.
+- ADR-0027: only the bounded TurnPlan CLI was stabilized before 1.0; all other
+  command entry points remain explicitly provisional.
 - ADR-0028: FireTuner programs are bounded before transport, and unknown
   post-submission outcomes are recorded and never retried automatically.
 - ADR-0029: readiness and writes use the game-defined no-end-turn-blocker
   semantics rather than a numeric zero assumption.
+- ADR-0030: the aggregate Python API and `civ5-turn` are stable in 1.0; other
+  command-line entry points remain provisional.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

@@ -1,14 +1,13 @@
 # Public API Inventory
 
-Status: Supported aggregate pre-1.0 surface implemented; bounded CLI classified
+Status: Stable 1.0 aggregate surface implemented; bounded CLI classified
 
 ## Purpose
 
 Identify which existing interfaces are candidates for supported external use,
 which versioned data contracts already carry compatibility guarantees, and
-which implementation details must remain private before the 1.0 surface is
-stabilized. This inventory does not turn every listed Python symbol into a
-stable API by itself.
+which implementation details remain private. This inventory does not turn every
+listed Python symbol into a stable API by itself.
 
 ## Existing versioned contracts
 
@@ -39,9 +38,9 @@ types.
 
 ## Supported aggregate import
 
-`civ5_agent.api.__all__` is contract-tested as the supported aggregate pre-1.0
-surface. It re-exports the documented module models, operations, errors, schema
-versions, supported schema sets, and byte/count limits. Raw FireTuner, IPC
+`civ5_agent.api.__all__` is contract-tested as the supported stable 1.0
+surface under ADR-0030. It re-exports the documented module models, operations,
+errors, schema versions, supported schema sets, and byte/count limits. Raw FireTuner, IPC
 server, watcher-handler, importer, and private codec helpers are deliberately
 absent.
 
@@ -74,8 +73,8 @@ must not become a planner.
 ## CLI surface
 
 Current entry points are listed in the CLI module document. `civ5-turn` is the
-supported machine-readable pre-1.0 boundary under ADR-0027. Every other entry
-point is explicitly provisional even where its current output is JSON.
+supported stable machine-readable boundary under ADR-0027 and ADR-0030. Every
+other entry point is explicitly provisional even where its current output is JSON.
 
 ## Implementation-only surface
 

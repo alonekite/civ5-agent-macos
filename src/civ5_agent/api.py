@@ -1,4 +1,4 @@
-"""Supported pre-1.0 Python import surface for the Civilization V core."""
+"""Supported stable Python import surface for the Civilization V core."""
 
 from . import __version__
 from .bridge import (
