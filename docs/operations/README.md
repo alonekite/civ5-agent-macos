@@ -42,10 +42,10 @@ process must not assume it can inherit that authorization.
 ## Release operations
 
 M8 release gates and current blockers are tracked in
-[M8 release readiness](../planning/RELEASE_READINESS.md). Reproducible packaging, version/tag rules,
-artifact scans, upgrade notes, and rollback procedures remain required. Until
-they are complete, `main` plus passing CI is the development baseline, not a
-stable release promise.
+[M8 release readiness](../planning/RELEASE_READINESS.md). The exact operator
+workflow is in [release, upgrade, and rollback](RELEASE.md). Until every gate is
+complete and an immutable version tag is published, `main` plus passing CI is
+the development baseline, not a stable release promise.
 
 The current artifact gate builds without runtime dependencies, validates wheel
 and source-archive paths and bounds, checks declared source coverage and wheel

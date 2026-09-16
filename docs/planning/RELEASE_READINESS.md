@@ -14,12 +14,12 @@ experiment evidence.
 |---|---|---|
 | Required live verification | M1/M2 bridge reads and four allowlisted actions are live-verified; the combined M5/M6 procedure is documented | Run the operator-present [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) |
 | High-impact risks | Safety, single-owner transport, and write read-back controls are implemented | Explicitly close or accept R-003, R-004, and R-006 using current evidence |
-| Setup/security/recovery docs | README, security policy, live checklist, and recoverable session manager exist | Reconcile the checklist with the combined M5/M6 run and add release rollback instructions |
-| Public compatibility | M7 aggregate Python API and bounded `civ5-turn` contract are complete | Add upgrade notes for the first stable version and confirm version metadata |
+| Setup/security/recovery docs | README, security policy, live checklist, recoverable session manager, and release/upgrade/rollback runbook exist | Reconcile the live checklist with the completed combined M5/M6 run |
+| Public compatibility | M7 aggregate Python API and bounded `civ5-turn` contract are complete; stable-version transition steps are documented | Apply the stable version and compatibility wording on the final release commit |
 | Packaging | Editable installation and console scripts pass CI; wheel and sdist manifests, bounded inspection, and clean-environment install checks are implemented | Confirm final version/license metadata on the release candidate |
 | Tests and scans | 254 tests pass on Python 3.11/3.13/default runtime; tracked-source scans are clean; artifact inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run the final warning-enabled suite and scans against the exact tagged release artifacts |
-| Reproducibility | CI builds each artifact twice and requires identical normalized content hashes | Define tag/version rules, publish archive hashes, and document that container timestamps may make compressed bytes differ despite identical contents |
-| Release | No release tag exists | Complete every blocking gate, update changelog, tag, and verify rollback from the tagged source |
+| Reproducibility | CI builds each artifact twice and requires identical normalized content hashes; tag/version/hash rules are documented | Execute the runbook on the final candidate and publish selected archive hashes |
+| Release | No release tag exists; immutable annotated-tag, publication-verification, withdrawal, and rollback procedures are documented | Complete every blocking gate, update the changelog/version, and execute the runbook |
 
 ## Blocking live evidence
 

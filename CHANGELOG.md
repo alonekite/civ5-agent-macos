@@ -55,6 +55,8 @@ versioned releases. Development details belong in
 - Bounded wheel/source inspection for package coverage, metadata, entry points,
   RECORD integrity, normalized reproducibility, unsafe members, and common
   private material.
+- Operator runbook for immutable version tags, inspected release artifacts,
+  clean-environment upgrades, withdrawal, and rollback.
 
 ### Security
 

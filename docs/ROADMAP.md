@@ -212,7 +212,7 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 - [ ] Run the combined M5/M6 procedure with the operator present
 - [ ] Disposition every open high-impact release risk
 - [x] Complete development wheel/sdist build, install, content, and scan checks
-- [ ] Add version/tag, upgrade, release, and rollback procedures
+- [x] Add version/tag, upgrade, release, and rollback procedures
 - [ ] Produce a clean release candidate with passing CI and artifact hashes
 
 LLM decision-making, working memory, strategic memory, and MCP integration are

@@ -57,6 +57,7 @@ behavior. Contract documents define intended compatibility and rejection rules.
 - [Bounded live-test checklist](LIVE_TEST_CHECKLIST.md)
 - [Experiment log](EXPERIMENT_LOG.md)
 - [Operations index](operations/README.md)
+- [Release, upgrade, and rollback](operations/RELEASE.md)
 - [Security policy](../SECURITY.md)
 
 An implementation is not described as live-verified unless the experiment log
