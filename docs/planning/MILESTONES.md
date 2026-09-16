@@ -199,8 +199,9 @@ provisional compatibility surface. M6 will not expand it into game strategy and
 depends only on bridge state/session/action contracts, not M4 knowledge or M5.
 The current choice to implement M5 first is project scheduling only. See
 ADR-0015 through ADR-0018, ADR-0022, and the turn-plan contract. Schema 1 plan,
-action, state-basis, and execution-report validation are implemented offline;
-ordered execution and recovery remain pending.
+action, state-basis, execution-report validation, and factual requirement
+inspection are implemented offline; ordered execution and recovery remain
+pending.
 
 ## M7 — Public API stabilization
 

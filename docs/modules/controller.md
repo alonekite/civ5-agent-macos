@@ -25,7 +25,9 @@ until M7 and supplies only the earlier readiness proof.
 The current legacy module provides state validation, mandatory-requirement
 reporting, and an opt-in end-turn path. `civ5_agent.turn_plan` now provides
 schema 1 TurnPlan/action/report models, canonical state digests, construction,
-and strict admission/report validation. Stable public naming is deferred to M7.
+and strict admission/report validation. `civ5_agent.turn_requirements` provides
+ordered factual requirements without selecting actions. Stable public naming is
+deferred to M7.
 
 ## Inputs and outputs
 
@@ -79,6 +81,6 @@ must not grow into a tactical or strategic planner.
 
 ## Planned extensions
 
-Implement requirement inspection and ordered execution, test interruption
-recovery independently of M5, and stabilize naming during M7. Tactical and
+Implement ordered execution, test interruption recovery independently of M5,
+and stabilize naming during M7. Tactical and
 strategic layers remain plan producers, not executor internals.

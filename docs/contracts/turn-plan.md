@@ -63,7 +63,7 @@ those copies never authorize resumption, skipping, or retrying an action.
 
 ## Turn requirements
 
-A requirement inspector may report factual blockers such as:
+`inspect_turn_requirements` reports factual blockers in deterministic order:
 
 - ordinary, free, or unsupported research choice required;
 - city production required for a specific observed city;
@@ -72,7 +72,10 @@ A requirement inspector may report factual blockers such as:
 
 Requirements may include observed stable identifiers and legal candidates
 already returned by the bridge. They do not select a candidate or create an
-action. Resolving a requirement belongs to the plan producer.
+action. Ordinary research candidates are included only in ordinary mode;
+free/unsupported modes never reuse them. City and unit requirements are sorted
+by observed stable ID, and the game-reported end-turn blocker remains a separate
+fact. Resolving any requirement belongs to the plan producer.
 
 ## ExecutionReport schema 1
 

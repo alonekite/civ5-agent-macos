@@ -170,6 +170,7 @@ execution-state store.
   command contracts
 - [x] Add bounded complete-plan admission and execution-report consistency
   validation
+- [x] Report deterministic factual turn requirements without choosing actions
 - [ ] Validate complete plans before writing and re-check live state before each
   action
 - [ ] Execute only ordered plan-listed actions through bridge postconditions

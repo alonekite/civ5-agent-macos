@@ -9,6 +9,7 @@ from typing import Literal
 from .ipc import default_socket_path, request
 from .identity import validate_bridge_session_id
 from .models import Command, GameState
+from .turn_requirements import inspect_turn_requirements
 from .validation import validate_live_state
 
 
@@ -20,37 +21,28 @@ class Decision:
 
 def decide(state: GameState) -> Decision:
     validate_live_state(state)
-    if not state.turn_active:
+    requirements = inspect_turn_requirements(state)
+    if not requirements:
+        return Decision("end_turn", "all observed mandatory choices are complete")
+    requirement = requirements[0]
+    if requirement.kind == "turn_inactive":
         return Decision("wait", "active player's turn is not active")
-    if state.schema_version >= 5 and state.research_choice["required"]:
-        mode = state.research_choice["mode"]
-        if mode == "free_technology":
+    if requirement.kind == "research_choice":
+        if requirement.mode == "free_technology":
             return Decision("manual_required", "choose free technology")
-        if mode == "unsupported":
+        if requirement.mode == "unsupported":
             return Decision("manual_required", "unsupported research choice")
         return Decision("manual_required", "choose research")
-    if state.schema_version < 5 and state.research is None:
-        return Decision("manual_required", "choose research")
-    without_production = [city for city in state.cities if not city.get("production")]
-    if without_production:
+    if requirement.kind == "city_production":
         return Decision("manual_required", "choose city production")
-    ready_units = [
-        unit
-        for unit in state.units
-        if (
-            unit.get("ready_to_move") is True
-            if state.schema_version >= 4
-            else int(unit.get("moves", 0)) > 0
-        )
-    ]
-    if ready_units:
+    if requirement.kind == "unit_orders":
         return Decision("manual_required", "issue unit orders")
-    if not state.can_end_turn:
+    if requirement.kind == "end_turn_blocked":
         return Decision(
             "manual_required",
-            f"Civ V end-turn blocker {state.end_turn_blocking_type}",
+            f"Civ V end-turn blocker {requirement.blocking_type}",
         )
-    return Decision("end_turn", "all observed mandatory choices are complete")
+    raise AssertionError(f"unsupported turn requirement: {requirement.kind}")
 
 
 def main() -> int:

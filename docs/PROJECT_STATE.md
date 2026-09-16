@@ -10,9 +10,9 @@ development log.
 
 - Current offline milestone: M6 — deterministic turn executor. M5 bounded
   target-machine verification remains pending.
-- Active next deliverable: implement factual requirement inspection and ordered
-  TurnPlan execution with fresh live-state checks before every action.
-- Functional baseline: 206 tests pass locally on Python 3.11 and the default
+- Active next deliverable: implement ordered TurnPlan execution with fresh
+  live-state checks before every action.
+- Functional baseline: 210 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -80,6 +80,9 @@ development log.
   that action and every preceding action were verified.
 - TurnPlan schema 1 binds canonical plan/session identities, turn, player, and a
   full validated initial-state digest to at most 64 strictly allowlisted actions.
+- Factual requirement inspection deterministically reports research, per-city
+  production, per-unit orders, inactive turns, and game-reported blockers
+  without selecting any response.
 
 ## Evidence still optional
 
