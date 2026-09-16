@@ -18,6 +18,7 @@ open until evidence justifies closing it; mitigation does not erase the risk.
 | R-011 | Public API leaks FireTuner-specific behavior | Medium | Medium | Controlled | M7 exposes implementation-neutral models/protocols through `civ5_agent.api`; the watcher-only adapter is explicit and raw FireTuner/IPC internals are excluded and contract-tested |
 | R-012 | Python version differences break CI after local success | Medium | Medium | Controlled | Keep Python 3.11 minimum; run GitHub Actions on 3.11 and 3.13; avoid newer-only syntax |
 | R-013 | Mutable snapshot fields are mistaken for a permanent save identity | Medium | High | Controlled by design | Use bridge-session identity for execution and explicit match identity for journals; prohibit automatic cross-session inference until target-verified evidence exists |
+| R-014 | FireTuner truncates an oversized Lua program and leaves a submitted write outcome unclear | High above target limit | High | Controlled by design; repeat live proof pending | Enforce a 1,000-byte pre-send maximum, keep every generated program below it, record/cache unknown outcomes without retry, and repeat the compact M5/M6 live gate |
 
 ## Review rules
 
@@ -54,6 +55,14 @@ rejections; the completed remainder inventory records excluded AI families;
 and repository plus release-artifact review remains mandatory. Any new
 knowledge family reopens field-level review under the same positive-allowlist
 rule.
+
+R-014 is **controlled by design**, not closed. The target-machine attempt
+proved that oversized Lua can be truncated after submission. ADR-0028 now
+rejects programs above 1,000 UTF-8 bytes before transport, tests every generated
+program against that limit, and preserves any post-submission uncertainty as a
+journal verification error plus a non-retryable watcher cache entry. The compact
+`end_turn` path still requires a successful target-machine repeat before the
+M5/M6 release gate can close.
 
 These dispositions bound the first stable release; they do not erase the
 underlying conditions or authorize additional game builds, actions, sources, or

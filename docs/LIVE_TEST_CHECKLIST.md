@@ -244,8 +244,9 @@ Success requires exit 0, `ok: true`, report status `completed`, exactly one
 successful `end_turn` step, and an observed turn advance in both the game and
 watcher. If the command exits 1 or 2, times out, or reports
 `recovery_required`, do not retry or create another write command. Preserve the
-private files and proceed directly to shutdown so the outcome can be analyzed
-without risking a duplicate action.
+private files and proceed directly to shutdown without manually ending the turn
+or otherwise changing the live state, so the outcome can be analyzed without
+risking a duplicate action or confounding the evidence.
 
 ### 6.5 Restore first, then verify journal artifacts offline
 

@@ -120,6 +120,10 @@ class WatcherBridgeClient:
     ) -> CommandResult:
         if not response.get("ok"):
             label = "lookup" if cached else "action"
+            if not cached and response.get("outcome_unknown") is True:
+                raise TransportError(
+                    str(response.get("error", "watcher action outcome is unknown"))
+                )
             raise ProtocolError(
                 str(response.get("error", f"watcher rejected {label}"))
             )

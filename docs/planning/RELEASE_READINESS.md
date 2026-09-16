@@ -12,12 +12,12 @@ experiment evidence.
 
 | Gate | Current evidence | Remaining work |
 |---|---|---|
-| Required live verification | M1/M2 bridge reads and four allowlisted actions are live-verified; the combined M5/M6 procedure is documented | Run the operator-present [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) |
-| High-impact risks | Every high-impact risk has an explicit release disposition; R-003, R-004, and R-006 are controlled within the documented scope | Preserve the controls and reopen review if release scope changes |
+| Required live verification | M1/M2 bridge actions are live-verified; the first combined M5/M6 attempt proved plan validation plus journal integrity/replay/export but exposed bounded-transport and exception-lifecycle defects that are fixed offline | Repeat the operator-present [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) and require a complete command lifecycle plus automatic turn advance |
+| High-impact risks | Every high-impact risk has an explicit release disposition; R-003, R-004, R-006, and R-014 are controlled within the documented scope | Repeat R-014 live proof, preserve the controls, and reopen review if release scope changes |
 | Setup/security/recovery docs | README, security policy, live checklist, recoverable session manager, and release/upgrade/rollback runbook exist | Reconcile the live checklist with the completed combined M5/M6 run |
 | Public compatibility | M7 aggregate Python API and bounded `civ5-turn` contract are complete; stable-version transition steps are documented | Apply the stable version and compatibility wording on the final release commit |
 | Packaging | Editable installation and console scripts pass CI; wheel and sdist manifests, bounded inspection, and clean-environment install checks are implemented | Confirm final version/license metadata on the release candidate |
-| Tests and scans | 254 tests pass on Python 3.11/3.13/default runtime; tracked-source scans are clean; artifact inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run the final warning-enabled suite and scans against the exact tagged release artifacts |
+| Tests and scans | 259 tests pass on Python 3.11/default runtime; the prior baseline passed Python 3.13 CI; tracked-source scans are clean; artifact inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run the current batch in Python 3.13 CI, then run the final warning-enabled suite and scans against the exact tagged release artifacts |
 | Reproducibility | CI builds each artifact twice and requires identical normalized content hashes; tag/version/hash rules are documented | Execute the runbook on the final candidate and publish selected archive hashes |
 | Release | No release tag exists; immutable annotated-tag, publication-verification, withdrawal, and rollback procedures are documented | Complete every blocking gate, update the changelog/version, and execute the runbook |
 
@@ -36,6 +36,12 @@ The required M8 live batch is deliberately narrow:
    matrix; never commit the journal, plan, report, export, audit log, or raw
    snapshot.
 
+The 2026-09-16 attempt did not satisfy this gate: M6 validation succeeded, but
+an oversized Lua program was truncated before action execution, and M5 lacked
+an exception-path terminal fact. ADR-0028 bounds every program, compacts
+`end_turn`, and preserves unknown outcomes without retry. Those changes have
+offline evidence only until the complete procedure is repeated.
+
 The operator must be present. Automation must not enable FireTuner, change the
 firewall, start the game, or infer plan content. Exact private-path setup,
 plan-authoring, single-execution, restoration, integrity, replay, export, and
@@ -53,10 +59,11 @@ Before release, each high-impact risk needs one of these explicit outcomes:
 
 Mere implementation or an unchecked roadmap item is not a disposition.
 
-The 2026-09-16 review in the risk register explicitly marks R-003, R-004, and
-R-006 controlled for the first stable release and states the evidence and scope
-limits. R-001, R-002, R-005, R-007, and R-013 were already controlled. No
-high-impact risk remains open; any scope change must reopen the affected row.
+The 2026-09-16 review in the risk register explicitly marks R-003, R-004,
+R-006, and R-014 controlled for the first stable release and states the evidence
+and scope limits. R-001, R-002, R-005, R-007, and R-013 were already controlled.
+R-014's release gate remains pending until its compact path passes the repeat
+live procedure; any scope change must reopen the affected row.
 
 ## Artifact rules
 

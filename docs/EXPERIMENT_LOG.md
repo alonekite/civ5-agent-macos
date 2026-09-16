@@ -909,3 +909,64 @@ effective scalar resolution.
 Planning note: ADR-0014 later superseded the proposed scalar-resolution step.
 M4 was closed as a structural knowledge view, and effective-rule analysis was
 moved to future consumer-driven strategic, tactical, and vertical skills.
+
+### 2026-09-16 — Combined M5/M6 release-gate attempt
+
+**Hypothesis**
+
+One guarded watcher can capture a verifiable private M5 journal while the M6
+CLI validates and executes one explicit, single-action `end_turn` TurnPlan.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the target Apple
+  Silicon Mac.
+- Normal single-player saved match.
+- Recoverable live-session guard with FireTuner enabled only behind the macOS
+  firewall and an explicit Civ V block-incoming rule.
+
+**Procedure**
+
+1. Prepared and live-preflighted the guarded session.
+2. Started one watcher with a new private journal and audit path; schema 5 read
+   successfully.
+3. Resolved production and unit requirements manually, authored an explicit
+   one-action `end_turn` TurnPlan, and validated it against the watcher.
+4. Executed the plan exactly once. After the reported failure, no automated
+   retry was attempted. The operator then ended the turn manually, and the
+   watcher observed the transition.
+5. Quit the game; the watcher failed closed as the listener disappeared. The
+   recoverable session manager restored and verified the original baseline.
+6. Verified the journal chain, replayed only structural counts, created a
+   redacted structural export, and checked private file permissions.
+
+**Observed result**
+
+- TurnPlan creation and read-only validation succeeded.
+- Execution failed before a command marker because the 2,069-byte generated
+  Lua was truncated by the target FireTuner and parsed as invalid syntax. The
+  automated action did not advance the turn.
+- The watcher later captured the manually caused turn transition.
+- The 23-record journal had a valid hash chain and contiguous replay: one start,
+  twenty snapshots, one command submission, and one turn transition. Its lack
+  of a terminal result or verification-error record exposed an exception-path
+  lifecycle gap.
+- Verification and redacted export reported matching structural counts. The
+  journal, export, and plan all had mode `600`.
+- Shutdown restoration proved FireTuner disabled, no TCP 4318 listener or agent
+  socket, firewall restored to disabled, and no Civ V rule, matching baseline.
+
+**Conclusion**
+
+inconclusive for the M5/M6 release gate. M5 storage integrity, replay, export,
+permissions, schema-5 capture, and observed transition worked live, but the
+failed command lifecycle was incomplete. M6 live plan validation worked, but
+execution did not reach the allowlisted game action. Neither milestone receives
+complete live-verification status from this attempt.
+
+**Next step**
+
+Bound every FireTuner program before send, compact `end_turn`, preserve
+post-submission uncertainty in the journal and M6 recovery path, pass offline
+regression/CI, then repeat the bounded combined session without manually
+changing state after any execution failure.

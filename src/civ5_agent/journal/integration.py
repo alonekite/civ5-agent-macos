@@ -4,6 +4,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Literal
 
+from ..identity import validate_command_id
 from ..models import GameState
 from ..validation import validate_live_state
 from .store import JournalStore
@@ -113,6 +114,30 @@ class JournalCapture:
                 turn=turn,
             )
         return True
+
+    def record_command_outcome_unknown(
+        self,
+        operation: str,
+        command_id: str,
+        turn: int,
+        message: str,
+    ) -> None:
+        if not isinstance(operation, str) or not operation:
+            raise ValueError("operation must be a non-empty string")
+        normalized_id = validate_command_id(command_id)
+        if not isinstance(message, str) or not message:
+            raise ValueError("message must be a non-empty string")
+        self.store.append(
+            "verification_error",
+            {
+                "id": normalized_id,
+                "operation": operation,
+                "stage": "execution_outcome_unknown",
+                "message": message[:1024],
+            },
+            bridge_session_id=self.bridge_session_id,
+            turn=turn,
+        )
 
 
 def _result_turn(result: dict[str, Any]) -> int | None:

@@ -31,12 +31,17 @@ Direct commands create one identity for their single connection.
 
 | Action | Arguments | Postcondition | Evidence |
 |---|---|---|---|
-| `end_turn` | none | turn number increases | Live-verified |
+| `end_turn` | none | turn number increases | Direct action live-verified; compact M6 path awaiting repeat live proof |
 | `choose_research` | `TECH_*` identifier | selected research matches identifier | Live-verified |
 | `set_city_production` | city ID, `unit\|building\|project`, matching stable ID | target city's production matches | Live-verified |
 | `skip_unit` | schema 4 owned unit ID | same unit/location/movement; `ready_to_move` becomes false | Live-verified |
 
 Coordinate movement is not implemented and is not part of the allowlist.
+
+The target FireTuner accepts only bounded Lua reliably. Every internal program
+is rejected before send above 1,000 UTF-8 bytes. `end_turn` additionally
+requires an active turn, zero game-reported blocker, no message processing, no
+already-sent multiplayer turn, and `UI.CanEndTurn()` before its sole write.
 
 ## Result
 
@@ -44,7 +49,9 @@ The internal result model can represent `pending|success|error`, but the public
 watcher client accepts only terminal `success|error`. It carries the command ID,
 a bounded message, and before/after state where available. A successful
 transport frame is not sufficient: `success` requires the action-specific
-postcondition.
+postcondition. A watcher failure after submission without a validated terminal
+result is an unknown transport outcome, remains absent from terminal result
+lookup, and must enter conservative recovery without retry.
 
 ## Retry behavior
 

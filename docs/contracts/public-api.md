@@ -95,6 +95,7 @@ them to use the supported core.
 |---|---:|
 | Local watcher request | 64 KiB |
 | Local watcher response | 4 MiB |
+| Internal FireTuner Lua program | 1,000 UTF-8 bytes |
 | TurnPlan actions | 64 |
 | TurnPlan JSON file | 64 KiB |
 | Command-result or execution-report message | 1,024 characters |

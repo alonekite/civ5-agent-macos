@@ -49,6 +49,10 @@ def make_control_handler(
         str,
         tuple[str, dict[str, object], dict[str, object]],
     ] = {}
+    uncertain_commands: dict[
+        str,
+        tuple[str, dict[str, object], dict[str, object]],
+    ] = {}
 
     def handle_request(request: dict[str, object]) -> dict[str, object]:
         operation = request.get("op")
@@ -172,12 +176,28 @@ def make_control_handler(
                             ),
                         }
                     return {**previous_response, "replayed": True}
+                uncertain = uncertain_commands.get(command.id)
+                if uncertain is not None:
+                    previous_operation, previous_arguments, previous_response = uncertain
+                    if (
+                        previous_operation != command.action
+                        or previous_arguments != command.args
+                    ):
+                        return {
+                            "ok": False,
+                            "error": (
+                                "command id was already used with different arguments"
+                            ),
+                        }
+                    return {**previous_response, "replayed": True}
                 journal_errors: list[str] = []
+                submission_turn: int | None = None
                 if journal_capture is not None:
                     try:
                         submission_state = validate_live_state(
                             client.read_game_state(state_id)
                         )
+                        submission_turn = submission_state.turn
                         journal_capture.record_command_submitted(
                             str(operation),
                             command.args,
@@ -191,34 +211,65 @@ def make_control_handler(
                             file=sys.stderr,
                             flush=True,
                         )
-                if operation == "end_turn":
-                    result = execute_end_turn(
-                        client,
-                        state_id,
-                        command,
-                        verify_timeout=verify_timeout,
+                try:
+                    if operation == "end_turn":
+                        result = execute_end_turn(
+                            client,
+                            state_id,
+                            command,
+                            verify_timeout=verify_timeout,
+                        )
+                    elif operation == "choose_research":
+                        result = execute_choose_research(
+                            client,
+                            state_id,
+                            command,
+                            verify_timeout=verify_timeout,
+                        )
+                    elif operation == "set_city_production":
+                        result = execute_city_production(
+                            client,
+                            state_id,
+                            command,
+                            verify_timeout=verify_timeout,
+                        )
+                    else:
+                        result = execute_skip_unit(
+                            client,
+                            state_id,
+                            command,
+                            verify_timeout=verify_timeout,
+                        )
+                except (ConnectionError, OSError, TimeoutError, ValueError) as error:
+                    if journal_capture is not None and submission_turn is not None:
+                        try:
+                            journal_capture.record_command_outcome_unknown(
+                                str(operation),
+                                command.id,
+                                submission_turn,
+                                str(error),
+                            )
+                        except (JournalError, OSError, ValueError) as journal_error:
+                            journal_errors.append(str(journal_error))
+                            print(
+                                f"Turn journal warning: {journal_error}",
+                                file=sys.stderr,
+                                flush=True,
+                            )
+                    response = {
+                        "ok": False,
+                        "bridge_session_id": session_id,
+                        "outcome_unknown": True,
+                        "error": str(error),
+                    }
+                    if journal_errors:
+                        response["journal_error"] = "; ".join(journal_errors)
+                    uncertain_commands[command.id] = (
+                        command.action,
+                        dict(command.args),
+                        dict(response),
                     )
-                elif operation == "choose_research":
-                    result = execute_choose_research(
-                        client,
-                        state_id,
-                        command,
-                        verify_timeout=verify_timeout,
-                    )
-                elif operation == "set_city_production":
-                    result = execute_city_production(
-                        client,
-                        state_id,
-                        command,
-                        verify_timeout=verify_timeout,
-                    )
-                else:
-                    result = execute_skip_unit(
-                        client,
-                        state_id,
-                        command,
-                        verify_timeout=verify_timeout,
-                    )
+                    return response
                 result_data = asdict(result)
                 response: dict[str, object] = {
                     "ok": True,

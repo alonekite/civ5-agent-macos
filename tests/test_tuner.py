@@ -25,6 +25,7 @@ from civ5_agent.tuner import (
     skip_unit_lua,
     snapshot_lua,
     snapshot_lua_programs,
+    MAX_LUA_PROGRAM_BYTES,
 )
 
 
@@ -432,12 +433,35 @@ class TunerProtocolTest(unittest.TestCase):
         lua = end_turn_lua()
         self.assertIn("UI.CanEndTurn()", lua)
         self.assertIn("Game.IsProcessingMessages()", lua)
-        self.assertIn("ENDTURN_BLOCKING_UNIT_NEEDS_ORDERS", lua)
-        self.assertIn("ENDTURN_BLOCKING_FOUND_RELIGION", lua)
-        self.assertIn("ENDTURN_BLOCKING_LEAGUE_CALL_FOR_VOTES", lua)
+        self.assertIn("b==0", lua)
         self.assertIn("Network.HasSentNetTurnComplete()", lua)
-        self.assertIn("not blocked", lua)
         self.assertEqual(lua.count("Game.DoControl"), 1)
+        self.assertLessEqual(len(lua.encode("utf-8")), MAX_LUA_PROGRAM_BYTES)
+
+    def test_all_generated_lua_programs_fit_firetuner_limit(self):
+        programs = (
+            *snapshot_lua_programs(),
+            end_turn_lua(),
+            choose_research_lua("TECH_" + "X" * 128),
+            city_production_lua(
+                2_147_483_647,
+                "building",
+                "BUILDING_" + "X" * 128,
+            ),
+            skip_unit_lua(2_147_483_647),
+        )
+        self.assertTrue(programs)
+        for program in programs:
+            with self.subTest(size=len(program.encode("utf-8"))):
+                self.assertLessEqual(
+                    len(program.encode("utf-8")),
+                    MAX_LUA_PROGRAM_BYTES,
+                )
+
+    def test_firetuner_rejects_oversized_lua_before_send(self):
+        client = FireTunerClient()
+        with self.assertRaisesRegex(ValueError, "exceeds"):
+            client.execute_collect(172, "x" * (MAX_LUA_PROGRAM_BYTES + 1))
 
     def test_choose_research_rejects_lua_injection(self):
         with self.assertRaisesRegex(ValueError, "must match"):

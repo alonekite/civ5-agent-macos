@@ -175,6 +175,55 @@ class WatchControlHandlerTest(unittest.TestCase):
         self.assertTrue(replay["replayed"])
         self.assertEqual(execute.call_count, 1)
 
+    def test_records_and_caches_unknown_outcome_without_retry(self):
+        class RecordingJournal:
+            def __init__(self):
+                self.unknown = []
+
+            def record_command_submitted(self, operation, arguments, command_id, turn):
+                pass
+
+            def record_command_outcome_unknown(
+                self, operation, command_id, turn, message
+            ):
+                self.unknown.append((operation, command_id, turn, message))
+
+        journal = RecordingJournal()
+        handler = make_control_handler(
+            self.client,
+            172,
+            threading.Lock(),
+            bridge_session_id=self.session_id,
+            journal_capture=journal,
+        )
+        request = {
+            "op": "end_turn",
+            "id": END_TURN_ID,
+            "bridge_session_id": self.session_id,
+        }
+        with patch(
+            "civ5_agent.watch.execute_end_turn",
+            side_effect=ValueError("FireTuner response was incomplete"),
+        ) as execute:
+            first = handler(request)
+            second = handler(request)
+
+        self.assertFalse(first["ok"])
+        self.assertTrue(first["outcome_unknown"])
+        self.assertTrue(second["replayed"])
+        self.assertEqual(len(journal.unknown), 1)
+        self.assertEqual(journal.unknown[0][0:3], ("end_turn", END_TURN_ID, 3))
+        self.assertEqual(execute.call_count, 1)
+        status = handler(
+            {
+                "op": "command_status",
+                "command_id": END_TURN_ID,
+                "bridge_session_id": self.session_id,
+            }
+        )
+        self.assertTrue(status["ok"])
+        self.assertFalse(status["found"])
+
     def test_rejects_non_uuid_command_id_before_execution(self):
         with patch("civ5_agent.watch.execute_end_turn") as execute:
             response = self.write({"op": "end_turn", "id": "not-a-uuid"})

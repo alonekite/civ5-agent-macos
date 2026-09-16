@@ -174,7 +174,9 @@ and observed turn transitions are included. It rejects partial database-fallback
 state and unvalidated snapshots. Deterministic verification, explicit private-
 payload replay, redacted structural export, and manual retention guidance are
 implemented under ADR-0021. All acceptance criteria are implemented offline;
-bounded target-machine capture/verify/export evidence remains pending.
+the first target-machine attempt confirmed capture/integrity/replay/export but
+exposed an exception-lifecycle gap. ADR-0028 fixes that gap offline; a complete
+live command lifecycle remains pending.
 
 ## M6 — Deterministic turn executor
 
@@ -211,7 +213,9 @@ reconciliation validates cached evidence and fresh state, completes a recovered
 final end-turn, and pauses after a recovered non-final success. CLI plan loading
 and explicit execution are implemented as a strict 64-KiB watcher-only JSON
 surface under ADR-0024. All M6 acceptance criteria are implemented offline;
-bounded target-machine verification remains pending.
+live plan validation is confirmed, but the first execution exposed target
+FireTuner truncation. ADR-0028 compacts and pre-bounds the action program
+offline; successful live execution remains pending.
 
 ## M7 — Public API stabilization
 

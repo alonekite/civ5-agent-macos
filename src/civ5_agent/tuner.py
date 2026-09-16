@@ -17,6 +17,7 @@ TAG_COMMAND = 3
 TAG_HANDSHAKE = 4
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 4318
+MAX_LUA_PROGRAM_BYTES = 1000
 
 
 @dataclass(frozen=True)
@@ -144,6 +145,7 @@ class FireTunerClient:
     def execute(self, state_index: int, lua: str) -> TunerMessage:
         if state_index < 0:
             raise ValueError("state_index must be non-negative")
+        _validate_lua_program(lua)
         self.send(TAG_COMMAND, f"CMD:{state_index}:{lua}")
         return self.receive()
 
@@ -165,6 +167,7 @@ class FireTunerClient:
             raise ValueError("state_index must be non-negative")
         if idle_timeout <= 0 or total_timeout <= 0:
             raise ValueError("timeouts must be positive")
+        _validate_lua_program(lua)
 
         connection = self._require_socket()
         original_timeout = connection.gettimeout()
@@ -330,41 +333,24 @@ def snapshot_lua() -> str:
 def end_turn_lua() -> str:
     """Return the sole allowlisted write program, including Civ V preconditions."""
     return (
-        'local p=Players[Game.GetActivePlayer()]; '
-        'local blocking=p:GetEndTurnBlockingType(); '
-        'local blocked=(blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_POLICY '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_RESEARCH '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_FREE_TECH '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_PRODUCTION '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_DIPLO_VOTE '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_FREE_ITEMS '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_FREE_POLICY '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_FOUND_PANTHEON '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_FOUND_RELIGION '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_ENHANCE_RELIGION '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_STEAL_TECH '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_MAYA_LONG_COUNT '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_FAITH_GREAT_PERSON '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_MINOR_QUEST '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_CITY_RANGE_ATTACK '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_LEAGUE_CALL_FOR_PROPOSALS '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_CHOOSE_ARCHAEOLOGY '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_LEAGUE_CALL_FOR_VOTES '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_CHOOSE_IDEOLOGY '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_UNIT_PROMOTION '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_STACKED_UNITS '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_UNIT_NEEDS_ORDERS '
-        'or blocking==EndTurnBlockingTypes.ENDTURN_BLOCKING_UNITS); '
-        'local alreadySent=PreGame.IsMultiplayerGame() '
-        'and Network.HasSentNetTurnComplete(); '
-        'local allowed=p:IsTurnActive() and not Game.IsProcessingMessages() '
-        'and not alreadySent '
-        'and not blocked and UI.CanEndTurn(); '
-        'if allowed then Game.DoControl(GameInfoTypes.CONTROL_ENDTURN); '
-        f'print("{COMMAND_MARKER}end_turn|accepted|"..blocking); '
-        f'else print("{COMMAND_MARKER}end_turn|blocked|"..blocking); end'
+        'local p=Players[Game.GetActivePlayer()];'
+        'local b=p:GetEndTurnBlockingType();'
+        'local s=PreGame.IsMultiplayerGame() and Network.HasSentNetTurnComplete();'
+        'local a=p:IsTurnActive() and b==0 and not Game.IsProcessingMessages() '
+        'and not s and UI.CanEndTurn();'
+        'if a then Game.DoControl(GameInfoTypes.CONTROL_ENDTURN);'
+        f'print("{COMMAND_MARKER}end_turn|accepted|"..b);'
+        f'else print("{COMMAND_MARKER}end_turn|blocked|"..b);end'
     )
+
+
+def _validate_lua_program(lua: str) -> None:
+    if not isinstance(lua, str) or not lua:
+        raise ValueError("Lua program must be a non-empty string")
+    if len(lua.encode("utf-8")) > MAX_LUA_PROGRAM_BYTES:
+        raise ValueError(
+            f"Lua program exceeds {MAX_LUA_PROGRAM_BYTES} byte FireTuner limit"
+        )
 
 
 def choose_research_lua(tech_type: str) -> str:

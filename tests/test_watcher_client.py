@@ -102,6 +102,20 @@ class WatcherBridgeClientTest(unittest.TestCase):
 
         send.assert_not_called()
 
+    def test_preserves_submitted_unknown_outcome_as_transport_error(self):
+        command = Command("end_turn", {}, id=COMMAND_ID)
+        response = {
+            "ok": False,
+            "bridge_session_id": SESSION_ID,
+            "outcome_unknown": True,
+            "error": "FireTuner response was incomplete",
+        }
+        with patch(
+            "civ5_agent.watcher_client.request",
+            return_value=response,
+        ), self.assertRaisesRegex(TransportError, "incomplete"):
+            WatcherBridgeClient().execute_command(command, SESSION_ID)
+
     def test_public_command_validation_normalizes_and_rejects_extra_fields(self):
         command = Command("choose_research", {"tech_type": "TECH_POTTERY"}, COMMAND_ID)
         self.assertEqual(validate_command(command), command)

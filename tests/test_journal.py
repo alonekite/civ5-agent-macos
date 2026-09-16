@@ -308,6 +308,24 @@ class JournalCaptureTest(unittest.TestCase):
                 records[-1].payload["stage"], "execution_or_postcondition"
             )
 
+    def test_records_unknown_command_outcome_as_verification_error(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "match.jsonl"
+            capture = JournalCapture.start(path, SESSION_ONE, "new")
+            capture.record_command_outcome_unknown(
+                "end_turn",
+                "123e4567-e89b-42d3-a456-426614174022",
+                5,
+                "FireTuner response was incomplete",
+            )
+
+            record = capture.store.read_all()[-1]
+            self.assertEqual(record.kind, "verification_error")
+            self.assertEqual(record.turn, 5)
+            self.assertEqual(
+                record.payload["stage"], "execution_outcome_unknown"
+            )
+
     def test_rejects_unvalidated_snapshot(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "match.jsonl"

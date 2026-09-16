@@ -60,6 +60,9 @@ interpret plan content or supply M6 execution state.
 - Command UUIDs may correlate a journal record with the independent M2 security
   audit, but M5 consumes the validated in-memory result and never parses the
   audit file as its input or source of truth.
+- A submitted command whose terminal outcome cannot be validated records a
+  `verification_error` with stage `execution_outcome_unknown`; it does not
+  invent a `command_result` or after-state.
 - Export is explicit and warns that even redacted chronology may be sensitive.
 
 ## Implemented storage decisions

@@ -48,6 +48,8 @@ or ruleset knowledge.
   programs; every part must identify the same turn and active player. Schemas
   2–4 remain readable.
 - Every successful write includes a proved postcondition.
+- Every FireTuner Lua program is at most 1,000 UTF-8 bytes; oversized programs
+  fail before transport contact.
 - Malformed, oversized, transient, and closing-state responses are bounded.
 
 ## Failure modes
@@ -58,6 +60,8 @@ are distinct errors where their recovery semantics differ. Supported callers
 can catch `ValidationError`, `ProtocolError`, `TransportError`, or `SafetyError`
 from the aggregate API. A malformed result after submitting a write is
 transport-ambiguous and must enter recovery rather than deterministic rejection.
+The watcher records and command-UUID-caches that uncertainty without presenting
+it as a terminal result or allowing an identical request to execute again.
 
 ## Security and privacy
 

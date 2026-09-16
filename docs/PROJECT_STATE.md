@@ -11,11 +11,12 @@ development log.
 - Current milestone: M8 — 1.0 release readiness. M5 and M6 bounded
   target-machine verification remain pending.
 - Active next deliverable: run the bounded M5/M6 target-machine gate when the
-  user is present. All offline M8 release controls, including high-impact risk
-  dispositions and release/upgrade/rollback rules, are now fixed.
-- Functional baseline: 254 tests pass locally on Python 3.11 and the default
-  runtime; the latest implementation batch passed GitHub Actions on Python 3.11
-  and 3.13.
+  user is present. The first attempt exposed FireTuner program truncation and a
+  missing exception-lifecycle fact; both are fixed offline under ADR-0028 and
+  require repeat live proof.
+- Functional baseline: 259 tests pass locally on Python 3.11 and the default
+  runtime; the previous pushed baseline passed GitHub Actions on Python 3.11
+  and 3.13, and this batch is awaiting CI.
 - Blocking issue: none.
 - User presence required next: only for the documented combined M5/M6 live
   release gate; offline release-procedure work can continue independently.
@@ -29,6 +30,9 @@ development log.
   the bundled FireTuner protocol without modifying the signed application.
 - A single watcher owns the live connection and brokers bounded commands over a
   private Unix socket.
+- Every generated FireTuner program is limited to 1,000 UTF-8 bytes before
+  transport; submitted commands with no terminal outcome are journaled and
+  cached as non-retryable uncertainty under ADR-0028.
 - Live schemas 2–5 read economy, culture, research, cities, units, diplomacy,
   early science-victory progress, unit readiness, and ordinary technology state
   within their documented evidence limits.
@@ -156,6 +160,8 @@ M5 live verification and M6 implementation are independent workstreams.
   define supported Python compatibility.
 - ADR-0027: only the bounded TurnPlan CLI is stable pre-1.0; all other command
   entry points remain explicitly provisional.
+- ADR-0028: FireTuner programs are bounded before transport, and unknown
+  post-submission outcomes are recorded and never retried automatically.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

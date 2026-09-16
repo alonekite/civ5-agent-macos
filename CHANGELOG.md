@@ -64,5 +64,14 @@ versioned releases. Development details belong in
 - Explicit action allowlist and write-after-read verification.
 - Private local IPC and audit permissions, bounded messages, UUID validation,
   and duplicate-command suppression.
+- FireTuner Lua programs are bounded before send; post-submission uncertainty
+  is journaled, mapped to conservative recovery, and duplicate-suppressed.
+
+### Fixed
+
+- Compacted `end_turn` below the target FireTuner command limit after a bounded
+  live test exposed truncation of the prior exhaustive expression.
+- Preserve failed post-submission command lifecycles as verification errors
+  instead of dropping them before journal capture.
 
 No release has been tagged yet.
