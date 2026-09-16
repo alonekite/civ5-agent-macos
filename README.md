@@ -152,6 +152,15 @@ printing snapshot or command payloads:
 PYTHONPATH=src python3 -m civ5_agent.journal_cli verify /private/path/to/match.jsonl
 ```
 
+Chronological replay preserves every validated record, including correction
+records, and never invokes a game action. Because it prints private payloads,
+the acknowledgement flag is mandatory:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.journal_cli replay \
+  /private/path/to/match.jsonl --include-private-payloads
+```
+
 While the long-running watcher is active it also owns a per-user, mode-0600
 Unix socket. This lets a second terminal submit the sole allowlisted write
 without opening a competing FireTuner connection:

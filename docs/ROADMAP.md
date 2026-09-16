@@ -152,7 +152,8 @@ No application-bundle modification is required.
 - [x] Correlate M2 audit and M5 journal by command UUID without parsing the audit
   file or coupling their failure behavior
 - [x] Add deterministic full-chain verification with a payload-free summary
-- [ ] Add deterministic replay and explicit privacy-preserving export
+- [x] Add deterministic append-order replay with an explicit private-payload gate
+- [ ] Add explicit privacy-preserving export
 
 The supported captured journal sequence supports future tactical/strategic
 history selection, replay, comparison, debugging, and audit. It is not a claim

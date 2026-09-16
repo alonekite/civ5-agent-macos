@@ -50,6 +50,8 @@ interpret plan content or supply M6 execution state.
   records.
 - Use private local permissions and refuse unsafe symbolic-link targets.
 - Reading or replaying a journal never executes a command.
+- Replay preserves validated append order, including correction records; it does
+  not infer a reconstructed game state or execution cursor.
 - Verification returns only payload-free structural metadata and the chain head.
 - Journal state never authorizes M6 to resume, skip, retry, or replace an
   action; live state and bridge postconditions remain authoritative.
@@ -81,7 +83,8 @@ memory. It records pre-execution submissions, unsuccessful results, and observed
 turn transitions without making persistence an execution precondition. This
 adapter accepts only validated FireTuner live state; the partial, unversioned
 database fallback is rejected as journal input. Deterministic full-chain
-verification is implemented; replay/export remain pending.
+verification and append-order factual replay are implemented; replay requires
+explicit private-payload acknowledgement. File export remains pending.
 
 ## Out of scope
 

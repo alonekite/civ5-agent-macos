@@ -27,6 +27,8 @@ binds the new bridge session to an existing declared match. Journal capture is
 restricted to `--transport tuner`; the partial database fallback is rejected.
 `civ5-journal verify PATH` validates the entire private journal and emits a
 payload-free JSON summary; it never executes actions or exports match contents.
+`civ5-journal replay PATH --include-private-payloads` emits the validated
+append-order record stream. The mandatory flag makes private output explicit.
 
 ## Non-responsibilities
 
@@ -89,7 +91,7 @@ M6 tactical planner. M7 may rename it when the TurnPlan executor is public.
 
 ## Planned extensions
 
-Add thin verify/export journal operations, then add an explicit TurnPlan
+Add a private file-export journal operation, then add an explicit TurnPlan
 execution entry point and stabilize names/error behavior in M7. Journal capture
 consumes validated in-memory results and never parses the independent M2 audit
 file.

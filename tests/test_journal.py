@@ -2,7 +2,7 @@ import json
 import tempfile
 import threading
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
 
@@ -10,6 +10,7 @@ from civ5_agent.journal import (
     JournalCapture,
     JournalError,
     JournalStore,
+    replay_journal,
     verify_journal,
 )
 from civ5_agent.journal.codec import MAX_RECORD_BYTES, JournalCodecError, decode_record
@@ -369,6 +370,53 @@ class JournalVerificationTest(unittest.TestCase):
             response = json.loads(output.getvalue())
             self.assertEqual(status, 1)
             self.assertFalse(response["ok"])
+
+
+class JournalReplayTest(unittest.TestCase):
+    def test_replays_verified_records_in_original_order_without_execution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "match.jsonl"
+            store = JournalStore.create(path, SESSION_ONE, match_id=MATCH_ID)
+            store.append(
+                "snapshot",
+                {"state": {"turn": 3, "private_player_name": "local"}},
+                bridge_session_id=SESSION_ONE,
+                turn=3,
+            )
+            store.append("correction", {"supersedes_sequence": 1})
+
+            events = replay_journal(path)
+
+            self.assertEqual([event.sequence for event in events], [0, 1, 2])
+            self.assertEqual(
+                [event.kind for event in events],
+                ["journal_started", "snapshot", "correction"],
+            )
+            self.assertEqual(events[1].payload["state"]["turn"], 3)
+            events[1].payload["state"]["turn"] = 99
+            self.assertEqual(store.read_all()[1].payload["state"]["turn"], 3)
+
+    def test_cli_requires_explicit_private_payload_acknowledgement(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "match.jsonl"
+            JournalStore.create(path, SESSION_ONE, match_id=MATCH_ID)
+            output = StringIO()
+
+            with redirect_stdout(output):
+                status = journal_main(
+                    ["replay", str(path), "--include-private-payloads"]
+                )
+
+            response = json.loads(output.getvalue())
+            self.assertEqual(status, 0)
+            self.assertTrue(response["ok"])
+            self.assertEqual(response["events"][0]["kind"], "journal_started")
+
+            with redirect_stdout(StringIO()), redirect_stderr(
+                StringIO()
+            ), self.assertRaises(SystemExit) as raised:
+                journal_main(["replay", str(path)])
+            self.assertEqual(raised.exception.code, 2)
 
 
 if __name__ == "__main__":

@@ -30,6 +30,8 @@ unversioned database fallback is not a journal source. Public M7 compatibility
 is not yet implemented. See the [journal contract](../contracts/journal.md).
 `verify_journal` and `civ5-journal verify` read and validate the complete chain,
 then expose only structural counts, turn bounds, identities, and the head hash.
+`replay_journal` returns detached events in validated append order; it preserves
+corrections as events and never derives executable state from them.
 
 ## Inputs and outputs
 
@@ -81,12 +83,12 @@ M2 command-audit file.
 
 ## Current limitations
 
-Replay/export, retention, compaction, and selective queries are not implemented.
+File export, retention, compaction, and selective queries are not implemented.
 The hash chain detects modification but is not a digital signature and does not
 defend against complete authorized rewriting of the private file.
 
 ## Planned extensions
 
-Add deterministic replay and privacy-preserving export, then expose
-selective read APIs during M7. M5 and M6 may be implemented in either order; the
+Add privacy-preserving file export, then expose selective read APIs during M7.
+M5 and M6 may be implemented in either order; the
 current M5 priority is a schedule choice, not a dependency.

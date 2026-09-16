@@ -9,9 +9,9 @@ development log.
 ## Dashboard
 
 - Current milestone: M5 — factual turn journal.
-- Active next deliverable: add deterministic journal replay and explicit
-  privacy-preserving export plus retention guidance.
-- Functional baseline: 193 tests pass locally on Python 3.11 and the default
+- Active next deliverable: add explicit privacy-preserving journal export plus
+  retention guidance.
+- Functional baseline: 195 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -70,6 +70,9 @@ development log.
   new bridge session. Reconnect never binds automatically.
 - `civ5-journal verify` checks the complete journal and returns only a
   payload-free structural and integrity summary.
+- `civ5-journal replay` returns the verified append-order factual record stream
+  without executing actions and requires explicit private-payload
+  acknowledgement.
 - A complete-turn plan requires a final explicit `end_turn`; `completed` means
   that action and every preceding action were verified.
 
@@ -85,10 +88,9 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended offline order
 
-1. Add deterministic journal replay plus retention guidance without weakening
-   append-only integrity.
-2. Add an explicit privacy-preserving export path and selective queries without
+1. Add an explicit privacy-preserving export path and retention guidance without
    weakening append-only integrity.
+2. Add selective queries without weakening append-only integrity.
 3. Separately finalize M6 TurnPlan and execution-report schemas against the
    bridge-session, live-state, and command contracts.
 4. Implement ordered execution, factual requirements, drift pauses, and
