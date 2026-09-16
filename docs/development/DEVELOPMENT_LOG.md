@@ -790,6 +790,22 @@ Implementation commit: `74fca9d`.
 
 Implementation commit: `4f93642`.
 
+## 2026-09-16 — M7 public API inventory
+
+- Catalogued existing live-state, knowledge, journal, TurnPlan, execution, and
+  session schema boundaries separately from provisional Python and CLI names.
+- Identified candidate exported symbols, implementation-only FireTuner/IPC/
+  SQLite internals, current byte/count limits, and the unresolved public error
+  taxonomy.
+- Derived the next M7 batches: a bridge-facing watcher client independent of
+  M6, supported import and exception contracts, complete compatibility limits,
+  and deliberate CLI stability decisions.
+- Corrected the knowledge overview so it no longer claims M6 consumes knowledge;
+  plan producers and decision-support consumers remain its clients.
+- Documentation link validation and sensitive-information scanning passed.
+
+Implementation commit: `a78d560`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
