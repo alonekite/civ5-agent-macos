@@ -20,6 +20,7 @@ open until evidence justifies closing it; mitigation does not erase the risk.
 | R-013 | Mutable snapshot fields are mistaken for a permanent save identity | Medium | High | Controlled by design | Use bridge-session identity for execution and explicit match identity for journals; prohibit automatic cross-session inference until target-verified evidence exists |
 | R-014 | FireTuner truncates an oversized Lua program and leaves a submitted write outcome unclear | High above target limit | High | Controlled by design | Enforce a 1,000-byte pre-send maximum, keep every generated program below it, record/cache unknown outcomes without retry; compact marker delivery is target-verified |
 | R-015 | A numeric end-turn blocker assumption disagrees with the target runtime | Medium without symbolic checks | Medium | Controlled | Compare the Lua enum symbol, expose the verified parsed value, inspect it independently of UI clickability, and require turn-advance postcondition; target guard is live-verified |
+| R-016 | A downstream tactical consumer couples to private internals or moves planning policy into the core | Medium | High | Controlled by boundary | ADR-0031, the stable downstream capability profile, aggregate API, private-internal exclusions, and structured capability request review preserve one-way dependency and strategy-neutral core evolution |
 
 ## Review rules
 
@@ -65,6 +66,15 @@ journal verification error plus a non-retryable watcher cache entry. The second
 attempt proved compact marker delivery and a complete deterministic-failure
 journal lifecycle. A later attempt proved the successful lifecycle and
 automatic turn advancement through the same M6 path.
+
+R-016 is **controlled by boundary**, not closed. ADR-0031 makes the tactical
+project a one-way consumer of stable public contracts, assigns tactical content
+and adapters outside the core, and requires strategy-neutral capability
+requests for missing facts or actions. The 1.0 downstream profile lists both
+available and absent capabilities, and public/private API tests plus release
+review prevent private implementation details from becoming an accidental
+integration contract. Every future public capability reopens compatibility and
+ownership review.
 
 These dispositions bound the first stable release; they do not erase the
 underlying conditions or authorize additional game builds, actions, sources, or

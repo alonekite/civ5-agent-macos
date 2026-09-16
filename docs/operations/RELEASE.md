@@ -33,8 +33,10 @@ Before preparing the release commit, require all of the following:
    datasets, journals, plans, reports, audit/recovery files, or match data;
 4. the changelog describes the stable compatibility surface and any known
    limitations;
-5. local warning-enabled tests and artifact checks pass on supported runtimes;
-6. GitHub Actions passes for the exact release commit.
+5. the downstream capability profile matches public exports, owning contracts,
+   absent capabilities, and the declared one-way integration boundary;
+6. local warning-enabled tests and artifact checks pass on supported runtimes;
+7. GitHub Actions passes for the exact release commit.
 
 Release work must not enable FireTuner, start Civilization V, or alter firewall
 state. If a live session is open, finish `live_session restore` and prove

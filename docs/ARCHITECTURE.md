@@ -78,7 +78,7 @@ It is not the target tactical policy for M6 and must not grow by choosing
 research, production, movement, targets, or strategy.
 
 M6 introduces a deterministic turn executor around an explicit versioned
-`TurnPlan`. A human or future tactical layer supplies every ordered action. The
+`TurnPlan`. A human or independent tactical layer supplies every ordered action. The
 executor validates the plan's bridge session, turn, player, and state basis,
 sends only the next allowlisted action, advances only after write-after-read
 proof, emits bounded factual events, and pauses rather than replans on drift or
@@ -184,6 +184,29 @@ authoritative.
 
 Do not expose arbitrary Lua execution to any executor or external decision
 system.
+
+## Downstream planning boundary
+
+The independent `civ5-short-term-tactical-layer` project is the first declared
+plan-producing consumer. Dependency direction is one way:
+
+```text
+long-term strategy -> short-term tactics -> this execution core -> Civ V
+```
+
+This core owns observable state, ruleset knowledge, stable identifiers,
+allowlisted mechanics, `TurnPlan`, execution, verification, and factual history.
+It does not own `StrategistDirective`, `TacticalPlan`, `ActionIntent`, domain
+reports, proposal scoring, Tactical Office arbitration, or consumer-side
+adapters. A downstream adapter may construct public core objects, but cannot
+broaden the allowlist, reinterpret results, open FireTuner, or bypass plan
+admission.
+
+Core 1.0.0 publishes a static capability profile through exported version,
+schema, allowlist, and limit constants. It does not yet publish a serialized
+capability manifest or selective tactical-history view. Missing reusable facts
+or mechanics follow the strategy-neutral capability request procedure and ship
+only in a newly versioned core release after their own verification.
 
 ## Session and match identity
 

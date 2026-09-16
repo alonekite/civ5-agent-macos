@@ -23,6 +23,9 @@ listed Python symbol into a stable API by itself.
 Existing schema compatibility rules remain authoritative. `civ5_agent.api` is
 the supported aggregate Python import path under ADR-0026; ADR-0027 separately
 stabilizes `civ5-turn` and explicitly classifies every other CLI as provisional.
+ADR-0031 defines how independent tactical consumers use this surface without
+creating an upward dependency; the exact 1.0 profile is in the
+[downstream integration contract](downstream-integration.md).
 
 ## Candidate supported Python surface
 
@@ -103,6 +106,19 @@ them to use the supported core.
 | Execution event-sink errors | 130 |
 | Journal record | 4 MiB |
 | Knowledge bundle | No fixed public byte limit; deterministic validation and source integrity are mandatory |
+
+## Capability discovery
+
+Version 1.0 does not expose a serialized capability manifest. A Python consumer
+may construct a detached compatibility profile from `__version__`,
+`ALLOWED_ACTIONS`, the supported-schema constants, individual schema versions,
+and exported limits. It must still validate the actual live state and command;
+capability presence never proves current legality.
+
+Per-action capability versions, optional-field flags, evidence levels, and a
+selective factual-history view are not part of 1.0. A downstream need for them
+follows the documented core capability request process rather than private
+module inspection.
 
 ## Error inventory
 

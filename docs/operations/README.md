@@ -63,3 +63,12 @@ CI repeats both builds, compares normalized content hashes, and clean-installs
 both artifact kinds. The generated `dist/` directories are ignored and must not
 be committed. Passing development artifacts are not a release until the exact
 candidate completes the remaining version, scan, hash, and tag steps.
+
+## Downstream capability maintenance
+
+The independent tactical layer consumes only the stable public core. Missing
+facts or mechanics are reviewed through the
+[core capability request process](CORE_CAPABILITY_REQUESTS.md); they are never
+implemented as tactical-project transport or write workarounds. Any accepted
+public capability ships in a newly versioned core release with owning-contract,
+offline-test, target-evidence, capability-profile, and changelog updates.

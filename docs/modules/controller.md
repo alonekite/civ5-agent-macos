@@ -51,6 +51,12 @@ contracts. Stable identifier shape, live capability, and action legality remain
 bridge responsibilities. M6 does not query ruleset knowledge or M5. Knowledge
 and journal must not depend on execution policy.
 
+Independent tactical consumers may produce explicit plan content and construct
+the public `TurnPlan` through their own adapter. Their `TacticalPlan`,
+`ActionIntent`, arbitration, and result-adapter types never become executor
+dependencies. Missing actions are core capability requests, not permission for
+a consumer-side lower-level command path.
+
 ## Invariants
 
 - Deterministic inputs and live observations produce deterministic execution

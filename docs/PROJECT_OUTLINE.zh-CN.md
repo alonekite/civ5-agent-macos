@@ -178,7 +178,13 @@ TurnPlan CLI 均已离线实现。执行核心会逐步重读、检查前后状�
 
 ## 六、未来决策与 LLM 系统放在哪里
 
-未来另建上层项目或独立包，统一设计：
+后续的短期战术层由独立项目 `civ5-short-term-tactical-layer` 负责。依赖只向下：
+战术层可使用本项目稳定公共契约，本执行核心不得导入或依赖战术项目。战术层拥有
+Tactical Office、领域报告、评估、提案、`TacticalPlan`、`ActionIntent` 及消费方
+适配器；本核心继续独占实时读取、规则知识、白名单、`TurnPlan`、执行、验证和事实
+journal。
+
+未来战略/战术项目统一设计：
 
 - context builder；
 - working memory；
@@ -193,7 +199,10 @@ M4 只提供结构化知识视图。
 
 working memory 会选择近期重要变化、对手已观测信息和近期意图；strategic memory 会维护获胜目标、科技/政策路线和扩张、外交、军事方向。它们与提示词、上下文预算、摘要、推断、过期和计划修订密切相关，因此不嵌入当前核心。
 
-未来 LLM 只能通过公共接口读取状态、知识和 journal，并提交候选意图。最终动作仍必须经过当前核心的白名单、合法性检查和写后回读。
+未来 LLM 只能通过上层项目和公共接口读取获准的状态、知识或历史视图，并提交候选
+内容。最终动作仍必须经过当前核心的白名单、合法性检查和写后回读。若上层缺少
+事实或动作，只能提交策略中立的 core capability request；不得在上层复制 FireTuner、
+Lua、命令执行或验证路径。
 
 ## 七、如何判断一项能力真的完成
 
@@ -227,5 +236,7 @@ CI 通过
 - [实验日志](EXPERIMENT_LOG.md)：目标机器上实际验证了什么。
 - [测试矩阵](testing/TEST_MATRIX.md)：每项能力拥有什么等级的证据。
 - [风险登记](planning/RISK_REGISTER.md)：哪些风险仍需监控。
+- [下游集成契约](contracts/downstream-integration.md)：1.0 能力、所有权和缺口。
+- [能力请求流程](operations/CORE_CAPABILITY_REQUESTS.md)：后续跨项目维护规则。
 
 当本文与更具体的契约、ADR 或实验记录冲突时，以更具体、更新且标明状态的文档为准。

@@ -44,6 +44,9 @@ do not belong in the repository.
   surface, implementation boundaries, error semantics, and current limits.
 - [CLI compatibility contract](contracts/cli.md): supported `civ5-turn`
   envelopes and exits, plus explicitly provisional entry points.
+- [Downstream tactical integration](contracts/downstream-integration.md): stable
+  1.0 capability profile, ownership boundary, absent capabilities, and consumer
+  compatibility rules.
 
 The Python implementation and tests remain authoritative for exact executable
 behavior. Contract documents define intended compatibility and rejection rules.
@@ -57,6 +60,8 @@ behavior. Contract documents define intended compatibility and rejection rules.
 - [Bounded live-test checklist](LIVE_TEST_CHECKLIST.md)
 - [Experiment log](EXPERIMENT_LOG.md)
 - [Operations index](operations/README.md)
+- [Core capability requests](operations/CORE_CAPABILITY_REQUESTS.md): required
+  request content, review sequence, rejection rules, and maintenance record.
 - [Release, upgrade, and rollback](operations/RELEASE.md)
 - [Security policy](../SECURITY.md)
 

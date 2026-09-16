@@ -62,6 +62,8 @@ No changes yet.
   clean-environment upgrades, withdrawal, and rollback.
 - Target-machine-verified M5 journal success lifecycle and deterministic M6
   one-action completion with automatic turn advancement.
+- Stable downstream tactical integration profile and strategy-neutral core
+  capability request process for future cross-project maintenance.
 
 ### Security
 
@@ -101,5 +103,5 @@ No changes yet.
   science-victory branches have only partial or offline evidence.
 - Coordinate movement, LLM decision-making, working memory, strategic memory,
   and MCP integration are outside this release.
-
-The `v1.0.0` tag has not been created yet.
+- Core 1.0.0 has no serialized capability manifest or selective tactical-history
+  query; consumers use the published static profile and fail closed on gaps.

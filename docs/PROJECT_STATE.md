@@ -10,9 +10,9 @@ development log.
 
 - Current milestone: M8 — 1.0 release readiness. The required M5/M6 bounded
   target-machine verification is complete.
-- Active next deliverable: validate the exact 1.0.0 release candidate with
-  local tests, CI, duplicate artifact builds, clean installs, scans, and hashes,
-  then request explicit approval before creating the immutable tag.
+- Active next deliverable: validate the revised exact 1.0.0 release candidate
+  after adding its downstream tactical boundary and maintenance contract, then
+  create the authorized immutable tag and release.
 - Functional baseline: 260 tests pass locally on Python 3.11/default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
@@ -68,6 +68,15 @@ development log.
 - Future tactical, strategic, and vertical-skill layers query knowledge and
   produce plans. They remain outside this repository together with LLM
   integration, working memory, strategic memory, and MCP.
+- `civ5-short-term-tactical-layer` is the first declared downstream plan
+  producer. It owns tactical context, domain reports, arbitration, tactical
+  plans, action intents, and consumer adapters; this core never imports it.
+- Core 1.0.0 publishes a static downstream capability profile through its
+  version, schema, allowlist, and limit constants. It does not publish a
+  serialized capability manifest or selective tactical-history view.
+- Missing downstream facts and mechanics use the strategy-neutral core
+  capability request procedure and ship only through a newly versioned core
+  release after required offline and target-machine evidence.
 - `bridge_session_id` identifies one connection-owner epoch for safe execution.
   Journal `match_id` identifies one declared history. Cross-session journal
   continuation is explicit and append-only; no permanent save ID is claimed.
@@ -135,9 +144,10 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Validate the exact 1.0.0 candidate with final tests, artifact scans,
+1. Validate the revised exact 1.0.0 candidate with final tests, artifact scans,
    reproducibility checks, clean installs, archive hashes, and CI.
-2. Execute the documented tag procedure only with operator approval.
+2. Create and push the authorized `v1.0.0` tag, require tag CI, then publish and
+   verify the GitHub release assets.
 
 M5 live verification and M6 implementation are independent workstreams.
 
@@ -172,6 +182,8 @@ M5 live verification and M6 implementation are independent workstreams.
   semantics rather than a numeric zero assumption.
 - ADR-0030: the aggregate Python API and `civ5-turn` are stable in 1.0; other
   command-line entry points remain provisional.
+- ADR-0031: downstream tactical integration is one-way; reusable capability
+  requests evolve the core without importing tactical policy or adapters.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

@@ -215,6 +215,8 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 - [x] Disposition every open high-impact release risk
 - [x] Complete development wheel/sdist build, install, content, and scan checks
 - [x] Add version/tag, upgrade, release, and rollback procedures
+- [x] Publish the downstream tactical boundary, 1.0 capability profile, and
+  core capability request process
 - [ ] Produce a clean release candidate with passing CI and artifact hashes
 
 LLM decision-making, working memory, strategic memory, and MCP integration are

@@ -54,6 +54,31 @@ Do not use one ambiguous “game identity.” Bridge-owned session identity targ
 live execution; journal-owned match identity groups declared history. Never
 infer cross-session continuity from mutable snapshot fields.
 
+## Downstream tactical consumer
+
+`civ5-short-term-tactical-layer` is the first declared downstream consumer of
+this core. Dependencies remain downward-only: that project may consume stable
+public core contracts, but this repository must never import, call, package, or
+require its code.
+
+This core does not own strategic directives, victory monitoring, Tactical
+Office arbitration, domain reports, assessments, proposals, tactical plans,
+action intents, or consumer-side plan/result adapters. Do not add those concepts
+to core runtime modules merely to simplify a downstream implementation.
+
+Downstream gaps enter this project as strategy-neutral core capability requests.
+Each request must identify the reusable observed fact or allowlisted mechanic,
+current public-API insufficiency, exact preconditions/postconditions and failure
+behavior, compatibility impact, offline fixtures, and target-machine evidence.
+Reject requests that embed tactical conclusions, hidden information, AI
+personality data, arbitrary Lua, or a second game-write path.
+
+When the stable public API, schemas, allowlist, result meanings, identities, or
+limits change, update the owning contract, downstream capability profile, tests,
+release notes, and semantic version together. A downstream document can request
+a capability but cannot override this repository's safety or compatibility
+contracts.
+
 ## Ruleset knowledge scope
 The knowledge module may cover technologies; policies and ideologies; units and
 promotions; great people; religions and beliefs; civilizations, leaders, traits,
@@ -134,6 +159,9 @@ integration in this repository.
   commit references; do not paste raw conversations or tool output.
 - Never commit generated game datasets, real match snapshots, private logs,
   local recovery files, credentials, or user-identifying absolute paths.
+- Use `docs/contracts/downstream-integration.md` for the published downstream
+  capability profile and `docs/operations/CORE_CAPABILITY_REQUESTS.md` for
+  cross-project capability intake and maintenance.
 
 ## Definition of done for MVP
 `python -m civ5_agent.watch` shows live game-state changes, and

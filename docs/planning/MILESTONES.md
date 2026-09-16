@@ -261,16 +261,20 @@ Acceptance criteria:
 - Give every high-impact risk an explicit controlled, accepted, or closed
   disposition with evidence and scope limits.
 - Provide setup, security, recovery, upgrade, and release documentation.
+- Publish the downstream ownership/capability boundary and future core
+  capability request procedure.
 - Run tests and sensitive-information scans on the release artifact.
 - Tag a reproducible version without generated game data or private logs.
 
 Current progress: the first release-gate audit is recorded in
 [M8 release readiness](RELEASE_READINESS.md). Public compatibility is complete through
 M7, and setup/security/recovery documentation exists. The bounded M5/M6
-target-machine run is complete. Remaining work is application of the documented
-stable version transition and final release evidence. Every high-impact risk
-has an explicit controlled disposition; artifact automation and the
-release/upgrade/rollback runbook are complete.
+target-machine run is complete. ADR-0031, the downstream integration contract,
+and the core capability request procedure define the first tactical consumer
+and future maintenance boundary. Remaining work is final validation, tagging,
+and publication evidence. Every high-impact risk has an explicit controlled
+disposition; artifact automation and the release/upgrade/rollback runbook are
+complete.
 
 LLM interaction, working memory, strategic memory, and MCP are not M-series
 milestones. They require a separate future project plan.

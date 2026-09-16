@@ -15,10 +15,16 @@ Can the stock Civ V `InGame` Lua runtime on an M4 Mac:
 This repository does not implement MCP or LLM decision-making. Its job is to
 provide safe, deterministic game I/O, ruleset knowledge, and verification.
 
-Release status: version `1.0.0` is being validated as the first stable release
-candidate. No stable tag or GitHub release has been published yet. The stable
-compatibility surfaces are `civ5_agent.api` and `civ5-turn`; other command-line
-entry points remain explicitly provisional.
+The independent `civ5-short-term-tactical-layer` project is the first declared
+downstream plan producer. It may consume this project's stable public contracts,
+but this execution core never depends on tactical-layer code or owns tactical
+judgment, action-intent content, or cross-domain arbitration. See the
+[downstream integration contract](docs/contracts/downstream-integration.md).
+
+Version `1.0.0` defines the first stable release. Immutable published source and
+artifacts are identified by the `v1.0.0` tag and corresponding GitHub release;
+the stable compatibility surfaces are `civ5_agent.api` and `civ5-turn`. Other
+command-line entry points remain explicitly provisional.
 
 ## Documentation
 
@@ -31,6 +37,9 @@ entry points remain explicitly provisional.
 - [Milestones](docs/planning/MILESTONES.md) and
   [verification matrix](docs/testing/TEST_MATRIX.md) — acceptance criteria and
   evidence level.
+- [Downstream integration](docs/contracts/downstream-integration.md) and
+  [capability requests](docs/operations/CORE_CAPABILITY_REQUESTS.md) — the 1.0
+  consumer boundary and future core-maintenance workflow.
 
 Status: the low-level MVP was verified end-to-end on the target Mac on
 2026-09-12. The watcher observed a live rich snapshot and the command CLI
@@ -60,7 +69,7 @@ Bridge storage / IPC
    ▼
 Explicit TurnPlan → deterministic turn executor → verified bridge actions
 
-Versioned ruleset knowledge → future strategy/tactics/vertical skills → TurnPlan
+Versioned ruleset knowledge → independent strategy/tactics/vertical skills → TurnPlan
 ```
 
 Verified transport on the target App Store build: bundled FireTuner over

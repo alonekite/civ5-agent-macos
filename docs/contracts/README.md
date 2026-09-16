@@ -15,6 +15,7 @@ tests; discrepancies are defects that must be resolved explicitly.
 | [Turn plan and execution](turn-plan.md) | Schema 1 execution/recovery and bounded CLI implemented offline | controller/executor |
 | [Public Python API](public-api.md) | Stable 1.0 aggregate surface and error contract implemented | cross-module |
 | [CLI compatibility](cli.md) | `civ5-turn` stable in 1.0; other entry points provisional | cli |
+| [Downstream tactical integration](downstream-integration.md) | Stable 1.0 capability and ownership profile | cross-module |
 
 ## Contract rules
 
