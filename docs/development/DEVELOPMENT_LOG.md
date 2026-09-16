@@ -978,6 +978,28 @@ Implementation commit: `9a4adf1`.
 
 Implementation commit: `a73f07f`.
 
+## 2026-09-16 — Bound FireTuner writes and preserve unknown outcomes
+
+- Recorded the sanitized result of the first combined M5/M6 target-machine
+  attempt: journal integrity, replay, redacted export, permissions, schema-5
+  capture, observed turn transition, and M6 plan validation worked, while the
+  oversized `end_turn` program was truncated before the action could execute.
+- Added ADR-0028, a 1,000-byte pre-send FireTuner program limit, a compact
+  fail-closed `end_turn` program, and regression coverage for every generated
+  read/write program.
+- Preserved submitted commands without a validated terminal result as journal
+  verification errors, watcher-lifetime non-retryable uncertainty, and M6
+  transport recovery rather than deterministic rejection.
+- Reconciled M5/M6 verification status, the command/journal/public contracts,
+  the release gate, risk R-014, milestones, project state, and the live-test
+  procedure without claiming the operator's manual turn advance as automated
+  success.
+- All 259 tests passed warning-enabled on Python 3.11 and the default Python
+  3.14 runtime. Documentation links, shell syntax, compilation, diff checks,
+  and sensitive-content scanning passed without private live artifacts.
+
+Implementation commit: `c1dc935`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
