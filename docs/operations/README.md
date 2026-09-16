@@ -61,5 +61,5 @@ python3.11 scripts/check_release_artifact.py dist/*.tar.gz
 
 CI repeats both builds, compares normalized content hashes, and clean-installs
 both artifact kinds. The generated `dist/` directories are ignored and must not
-be committed. Passing development artifacts are not a release until the
-remaining M8 gates are complete.
+be committed. Passing development artifacts are not a release until the exact
+candidate completes the remaining version, scan, hash, and tag steps.

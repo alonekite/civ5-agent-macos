@@ -10,8 +10,8 @@ GitHub Issues and should link back to one milestone ID.
 | M2 | Verified action layer | Complete | M1 |
 | M3 | Ruleset knowledge coverage | Complete | M1 |
 | M4 | Ruleset knowledge view | Complete | M3 |
-| M5 | Factual turn journal | Implemented offline; live verification pending | M1, M2 |
-| M6 | Deterministic turn executor | Implemented offline; live verification pending | M2 |
+| M5 | Factual turn journal | Complete | M1, M2 |
+| M6 | Deterministic turn executor | Complete | M2 |
 | M7 | Public API stabilization | Complete | M4, M5, M6 |
 | M8 | 1.0 release readiness | In progress | M7 |
 
@@ -177,8 +177,10 @@ implemented under ADR-0021. All acceptance criteria are implemented offline;
 the first target-machine attempt confirmed capture/integrity/replay/export but
 exposed an exception-lifecycle gap. ADR-0028 fixed that gap, and the second
 attempt live-verified a complete failed-command submission/result/verification
-lifecycle plus integrity/replay/export. A successful lifecycle and automatic
-turn transition in one run remain pending.
+lifecycle plus integrity/replay/export. A fourth attempt completed one explicit
+command, captured its successful result and automatic turn transition in the
+same private journal, and passed integrity, replay, export, permission, and
+exact-restoration checks. M5 acceptance is complete.
 
 ## M6 — Deterministic turn executor
 
@@ -220,11 +222,12 @@ FireTuner truncation. ADR-0028 compacts and pre-bounds the action program
 and the second attempt confirmed intact marker delivery plus stale-plan
 pre-write refusal. That attempt also exposed an incorrect numeric zero-blocker
 assumption. ADR-0029 now uses the game-defined no-blocker enum and checks the
-numeric blocker independently of UI clickability; successful live execution
-remains pending. A third attempt proved that corrected guard and actual stock
-control execution, then precisely failed when automated/deferred unit activity
-surfaced a new worker requirement without advancing. The remaining success test
-must use a minimal state without such unit automation.
+numeric blocker independently of UI clickability. A third attempt proved that
+corrected guard and actual stock control execution, then precisely failed when automated/deferred unit activity
+surfaced a new worker requirement without advancing. A fourth attempt completed
+a newly authored one-action plan and verified automatic one-turn advancement
+through the watcher path. M6 acceptance is complete; the earlier attempts
+remain useful failure-path evidence.
 
 ## M7 — Public API stabilization
 
@@ -262,10 +265,10 @@ Acceptance criteria:
 
 Current progress: the first release-gate audit is recorded in
 [M8 release readiness](RELEASE_READINESS.md). Public compatibility is complete through
-M7, and setup/security/recovery documentation exists. Blocking work is the
-bounded M5/M6 target-machine run, application of the documented stable version
-transition, and final release evidence. Every high-impact risk now has an
-explicit controlled disposition; artifact automation and the
+M7, and setup/security/recovery documentation exists. The bounded M5/M6
+target-machine run is complete. Remaining work is application of the documented
+stable version transition and final release evidence. Every high-impact risk
+has an explicit controlled disposition; artifact automation and the
 release/upgrade/rollback runbook are complete.
 
 LLM interaction, working memory, strategic memory, and MCP are not M-series

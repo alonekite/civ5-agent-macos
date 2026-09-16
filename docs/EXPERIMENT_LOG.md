@@ -1102,3 +1102,59 @@ orders. Manually resolve every research, production, and unit requirement, then
 let a newly authored one-action plan perform the sole final Next Turn control.
 An unchanged turn remains a verified failure and requires shutdown rather than
 another plan in the same session.
+
+### 2026-09-16 — Combined M5/M6 release-gate successful attempt
+
+**Hypothesis**
+
+A newly authored one-action `end_turn` plan can complete through the guarded
+watcher path, automatically advance exactly one turn, and leave a complete M5
+success lifecycle in the same private journal.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the target Apple
+  Silicon Mac.
+- Normal single-player match with schema-5 live state and no unresolved
+  requirement reported at plan-authoring time.
+- Fresh guarded FireTuner session, private M5 journal, and newly authored
+  schema-1 TurnPlan.
+
+**Procedure**
+
+1. Prepared and live-preflighted a fresh guarded session, then started one
+   schema-5 watcher with a new private journal and audit file.
+2. Confirmed the stock UI showed Next Turn, created one explicit `end_turn`
+   plan from the current watcher state, and passed read-only validation.
+3. Executed the plan exactly once and observed the game enter the next turn.
+4. Confirmed that the watcher emitted a new schema-5 snapshot for that turn.
+5. Quit the game, restored the recorded host baseline, then verified and
+   structurally inspected the private journal and redacted export offline.
+
+**Observed result**
+
+- M6 returned `completed` with reason `turn_ended`, one successful `end_turn`
+  step, distinct before/after state digests, and a verified one-turn advance.
+- The watcher captured validated schema-5 snapshots on both sides of the turn
+  transition.
+- The 12-record journal contained one start, eight snapshots, one command
+  submission, one successful command result, and one turn transition.
+- Full-chain verification passed, replay sequences were contiguous, and the
+  redacted export reported matching structural counts. Journal, plan, and
+  export permissions were all mode `600`.
+- Shutdown restoration proved FireTuner disabled, no TCP 4318 listener or agent
+  socket, firewall restored to disabled, and no Civ V rule, matching baseline.
+
+**Conclusion**
+
+confirmed. This run closes the required M5 and M6 target-machine gate: the
+deterministic executor completed an explicit plan and automatically advanced
+the turn, while the factual journal preserved the successful command lifecycle
+and observed transition with its integrity, replay, export, privacy, and
+recovery controls intact.
+
+**Next step**
+
+Proceed with the M8 reproducible release candidate, stable-version transition,
+final artifact scans and hashes, and the documented tag procedure. Additional
+live branches remain optional enhancement evidence rather than release blockers.

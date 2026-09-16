@@ -57,6 +57,8 @@ versioned releases. Development details belong in
   private material.
 - Operator runbook for immutable version tags, inspected release artifacts,
   clean-environment upgrades, withdrawal, and rollback.
+- Target-machine-verified M5 journal success lifecycle and deterministic M6
+  one-action completion with automatic turn advancement.
 
 ### Security
 

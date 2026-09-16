@@ -140,10 +140,11 @@ the optional write regression ran. Then update
 
 ## 6. M8 release gate: combined M5/M6 verification
 
-This is the next required target-machine session. It is separate from the
-schema regression above and is deliberately limited to a private journal plus
-one explicit `end_turn` TurnPlan. The operator must be present throughout. Do
-not run it from unattended automation, and never commit any generated file.
+This required target-machine gate passed on 2026-09-16 and is retained as the
+regression procedure. It is separate from the schema regression above and is
+deliberately limited to a private journal plus one explicit `end_turn`
+TurnPlan. The operator must be present throughout. Do not run it from unattended
+automation, and never commit any generated file.
 
 ### 6.1 Create private paths
 

@@ -89,6 +89,6 @@ has a direct fallback; the supported Python bridge client is watcher-only.
 
 ## Planned extensions
 
-Complete pending live checks and add only narrowly specified actions. The
-session envelope and public error semantics have offline tests; M5/M6
-composition must preserve their fail-closed behavior.
+Add only narrowly specified actions and optional live evidence for the branches
+listed above. The session envelope and public error semantics have offline
+tests; M5/M6 composition must preserve their fail-closed behavior.

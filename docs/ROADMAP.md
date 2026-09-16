@@ -154,7 +154,7 @@ No application-bundle modification is required.
 - [x] Add deterministic full-chain verification with a payload-free summary
 - [x] Add deterministic append-order replay with an explicit private-payload gate
 - [x] Add explicit privacy-preserving structural export and retention guidance
-- [ ] Verify capture, verification, replay, and export in a bounded real-game
+- [x] Verify capture, verification, replay, and export in a bounded real-game
   session
 
 The supported captured journal sequence supports future tactical/strategic
@@ -184,6 +184,8 @@ execution-state store.
 - [x] Add a session-scoped read-only watcher lookup for completed command UUIDs
 - [x] Add explicit ambiguous-outcome reconciliation and recovery tests
 - [x] Add bounded watcher-only CLI plan validation and execution
+- [x] Verify one explicit plan through successful automatic turn advancement on
+  the target Mac
 
 M6 reports requirements but never chooses how to satisfy them. Tactical and
 strategic layers are future plan producers and knowledge consumers, not
@@ -209,7 +211,7 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 
 - [x] Audit release gates and record current evidence and blockers
 - [x] Prepare the bounded combined M5/M6 target-machine verification procedure
-- [ ] Run the combined M5/M6 procedure with the operator present
+- [x] Run the combined M5/M6 procedure with the operator present
 - [x] Disposition every open high-impact release risk
 - [x] Complete development wheel/sdist build, install, content, and scan checks
 - [x] Add version/tag, upgrade, release, and rollback procedures

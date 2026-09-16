@@ -8,17 +8,16 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M8 — 1.0 release readiness. M5 and M6 bounded
-  target-machine verification remain pending.
-- Active next deliverable: repeat the bounded M5/M6 target-machine gate in a
-  minimal early-game state without automated/deferred unit orders. The third
-  attempt proved ADR-0029, actual control execution, changed-state failure
-  verification, full M5 failure lifecycle, and no retry, but did not advance.
+- Current milestone: M8 — 1.0 release readiness. The required M5/M6 bounded
+  target-machine verification is complete.
+- Active next deliverable: produce a clean reproducible release candidate,
+  apply the documented stable-version transition, run final artifact scans and
+  hashes, and prepare the immutable tag.
 - Functional baseline: 260 tests pass locally on Python 3.11/default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: only for the documented combined M5/M6 live
-  release gate; offline release-procedure work can continue independently.
+- User presence required next: no further game session is required for M8;
+  release/tag publication remains an explicit operator decision.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -48,11 +47,16 @@ development log.
   records, contiguous sequence numbers, explicit session bindings, SHA-256 hash
   chaining, file locking, `fsync`, bounded records, and fail-closed corruption
   detection.
+- M5's complete successful command lifecycle, automatic turn transition,
+  integrity verification, replay, structural export, permissions, and recovery
+  are target-machine verified.
 - M3 ruleset knowledge coverage and the M4 structural knowledge view are
   complete offline. Generated bundles remain local; AI flavor/personality and
   copyrighted presentation assets remain excluded.
 - The legacy `controller` is only a live-verified readiness/refusal and explicit
   end-turn proof. It is not tactical policy.
+- M6 is target-machine verified through one newly authored explicit plan that
+  completed and automatically advanced exactly one turn.
 
 ## Current architecture
 
@@ -131,9 +135,10 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Run bounded M5/M6 live verification when the user is present.
-2. Prepare a reproducible release candidate after the required live evidence
-   is recorded.
+1. Prepare the reproducible release candidate and apply the stable-version
+   transition on its exact commit.
+2. Run final tests, artifact scans, reproducibility checks, and archive hashes,
+   then execute the documented tag procedure only with operator approval.
 
 M5 live verification and M6 implementation are independent workstreams.
 

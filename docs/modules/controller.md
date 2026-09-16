@@ -1,6 +1,6 @@
 # Module: deterministic turn executor
 
-Status: M6 implemented offline; target-machine verification pending
+Status: M6 complete; bounded target-machine verification passed
 
 ## Responsibility
 
@@ -78,8 +78,9 @@ recording, but a journal failure cannot make a verified game action retryable.
 
 Unit tests cover readiness order, refusal paths, plan schema, drift, pause,
 no-journal operation, optional event-sink failure, conservative recovery, and
-ordered multi-action execution. Basic legacy refusal and end-turn execution are
-live-verified; bounded target-machine TurnPlan execution remains pending.
+ordered multi-action execution. Target-machine evidence covers validation,
+stale refusal, changed-state failure, and one newly authored plan that completed
+with verified automatic turn advancement.
 
 ## Current limitations
 
@@ -90,5 +91,6 @@ must not grow into a tactical or strategic planner.
 
 ## Planned extensions
 
-Complete bounded target-machine M6 verification. Tactical and strategic layers
-remain plan producers, not executor internals.
+Keep the bounded live procedure as a regression gate when execution semantics
+change. Tactical and strategic layers remain plan producers, not executor
+internals.

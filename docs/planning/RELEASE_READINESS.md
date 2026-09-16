@@ -12,16 +12,16 @@ experiment evidence.
 
 | Gate | Current evidence | Remaining work |
 |---|---|---|
-| Required live verification | Three combined attempts proved plan validation, journal controls, complete failed-command lifecycles, compact delivery, stale refusal, the corrected named-enum guard, actual control execution, and exact changed-state failure | Repeat the operator-present [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) in a minimal early-game state and require a successful lifecycle plus automatic turn advance |
+| Required live verification | Complete: the final combined attempt added a successful command lifecycle and verified automatic turn advance to the earlier failure-path, integrity, replay, export, and restoration evidence | Preserve the [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) for regression use |
 | High-impact risks | Every high-impact risk has an explicit release disposition; R-003, R-004, R-006, and R-014 are controlled within the documented scope | Preserve the controls and reopen review if release scope changes |
-| Setup/security/recovery docs | README, security policy, live checklist, recoverable session manager, and release/upgrade/rollback runbook exist | Reconcile the live checklist with the completed combined M5/M6 run |
+| Setup/security/recovery docs | README, security policy, reconciled live checklist, recoverable session manager, and release/upgrade/rollback runbook exist | Preserve these controls on the release candidate |
 | Public compatibility | M7 aggregate Python API and bounded `civ5-turn` contract are complete; stable-version transition steps are documented | Apply the stable version and compatibility wording on the final release commit |
 | Packaging | Editable installation and console scripts pass CI; wheel and sdist manifests, bounded inspection, and clean-environment install checks are implemented | Confirm final version/license metadata on the release candidate |
 | Tests and scans | 260 tests pass locally on Python 3.11/default runtime; the prior batch passed GitHub Actions 3.11/3.13; tracked-source scans are clean; artifact inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run this batch in CI, then run the final warning-enabled suite and scans against the exact tagged release artifacts |
 | Reproducibility | CI builds each artifact twice and requires identical normalized content hashes; tag/version/hash rules are documented | Execute the runbook on the final candidate and publish selected archive hashes |
 | Release | No release tag exists; immutable annotated-tag, publication-verification, withdrawal, and rollback procedures are documented | Complete every blocking gate, update the changelog/version, and execute the runbook |
 
-## Blocking live evidence
+## Completed live evidence
 
 The required M8 live batch is deliberately narrow:
 
@@ -36,18 +36,20 @@ The required M8 live batch is deliberately narrow:
    matrix; never commit the journal, plan, report, export, audit log, or raw
    snapshot.
 
-None of the three 2026-09-16 attempts satisfied this gate. The first exposed Lua
-truncation and a missing exception-path fact, fixed by ADR-0028. The second
+The first three 2026-09-16 attempts did not satisfy this gate. The first
+exposed Lua truncation and a missing exception-path fact, fixed by ADR-0028. The second
 proved compact marker delivery, complete deterministic-failure journaling, and
 stale-plan refusal, but exposed an incorrect numeric zero-blocker assumption.
 ADR-0029 now uses the game-defined enum and fail-closed requirement inspection.
 The third proved that correction and actual stock control execution, but the
 large saved match processed automated/deferred units and exposed a worker before
-the turn could advance. Automatic advancement and its successful journal
-lifecycle still require one clean minimal-state repeat.
+the turn could advance. The fourth attempt completed a newly authored one-action
+plan, automatically advanced one turn, recorded the successful command result
+and transition, and passed journal integrity, replay, export, permissions, and
+exact host restoration. The required live gate is complete.
 
-The operator must be present. Automation must not enable FireTuner, change the
-firewall, start the game, or infer plan content. Exact private-path setup,
+For any regression repeat, the operator must be present. Automation must not
+enable FireTuner, change the firewall, start the game, or infer plan content. Exact private-path setup,
 plan-authoring, single-execution, restoration, integrity, replay, export, and
 permission checks are fixed in section 6 of the bounded live-test checklist.
 
@@ -66,8 +68,8 @@ Mere implementation or an unchecked roadmap item is not a disposition.
 The 2026-09-16 review in the risk register explicitly marks R-003, R-004,
 R-006, and R-014 controlled for the first stable release and states the evidence
 and scope limits. R-001, R-002, R-005, R-007, and R-013 were already controlled.
-R-014's release gate remains pending until its compact path passes the repeat
-live procedure; any scope change must reopen the affected row.
+R-014's compact path passed the repeat live procedure; any scope change must
+reopen the affected row.
 
 ## Artifact rules
 

@@ -1,6 +1,6 @@
 # Module: journal
 
-Status: M5 implemented offline; bounded live verification pending
+Status: M5 complete; bounded target-machine verification passed
 
 ## Responsibility
 
@@ -80,9 +80,9 @@ Offline tests cover codec round trips, canonical UUID identities, private
 permissions, append/reopen, hash chaining, tampering, truncation, size bounds,
 concurrent appends, symlink refusal, correction targets, and unbound/duplicate
 session rejection. Adapter tests reject unvalidated snapshots and database-
-transport capture. Runtime integration must still prove the target-machine
-journal input comes from validated in-memory events rather than the independent
-M2 command-audit file.
+transport capture. Target-machine evidence covers validated in-memory snapshot,
+successful and failed command lifecycle, and turn-transition capture together
+with integrity, replay, export, private permissions, and exact restoration.
 
 ## Current limitations
 
@@ -92,7 +92,7 @@ defend against complete authorized rewriting of the private file.
 
 ## Planned extensions
 
-Run bounded target-machine verification, then expose selective read APIs during
-M7. Automatic retention remains intentionally absent; the source journal is
+Add selective read APIs only when a demonstrated consumer requires them.
+Automatic retention remains intentionally absent; the source journal is
 operator-controlled and a redacted export is not a backup. M5 and M6 remain
 independent.

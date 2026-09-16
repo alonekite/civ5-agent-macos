@@ -1,6 +1,6 @@
 # Turn-Journal Contract
 
-Status: M5 contract implemented offline; bounded live verification pending
+Status: M5 contract implemented; bounded target-machine verification passed
 
 ## Purpose
 
@@ -102,7 +102,8 @@ database fallback is rejected as journal input. Deterministic full-chain
 verification and append-order factual replay are implemented; replay requires
 explicit private-payload acknowledgement. Canonical structural export excludes
 payloads, timestamps, identities, hashes, and paths. Bounded live verification
-remains pending.
+covers complete successful and failed command lifecycles plus observed turn
+transitions.
 
 ## Out of scope
 
