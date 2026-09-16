@@ -693,6 +693,23 @@ Implementation commit: `d59d291`.
 
 Implementation commit: `066e95e`.
 
+## 2026-09-16 — Ordered TurnPlan execution core
+
+- Added an in-process executor over injected state-read and single-action bridge
+  capabilities, with no knowledge or journal dependency.
+- Re-read authoritative state before each action, matched each bridge result's
+  before-state to the executor observation, and carried the verified after-state
+  forward as the next basis.
+- Paused before writes for uncovered requirements, rejected state drift, kept
+  explicit bridge failure terminal, and classified connection loss after
+  submission as recovery-required without retry.
+- Required verified turn advance before a final end-turn can complete a plan.
+- Passed all 217 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, addresses, credentials, tokens, or
+  real match data.
+
+Implementation commit: `1e85043`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
