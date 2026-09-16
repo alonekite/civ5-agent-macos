@@ -14,6 +14,8 @@ do not belong in the repository.
 - [Milestones](planning/MILESTONES.md): completion criteria and dependencies.
 - [M8 release readiness](planning/RELEASE_READINESS.md): stable-release gates,
   evidence, and blockers.
+- [Verified unit movement plan](planning/UNIT_MOVEMENT_PLAN.md): M9 documentation,
+  code, offline verification, live-test, and release workstreams.
 
 ## Architecture and decisions
 

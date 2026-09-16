@@ -14,6 +14,7 @@ GitHub Issues and should link back to one milestone ID.
 | M6 | Deterministic turn executor | Complete | M2 |
 | M7 | Public API stabilization | Complete | M4, M5, M6 |
 | M8 | 1.0 release readiness | Complete | M7 |
+| M9 | Verified unit movement | Planned | M8, M2, M6 |
 
 ## M0 — Environment reconnaissance
 
@@ -277,3 +278,28 @@ disposition, and the release/upgrade/rollback runbook remains authoritative.
 
 LLM interaction, working memory, strategic memory, and MCP are not M-series
 milestones. They require a separate future project plan.
+
+## M9 — Verified unit movement
+
+Acceptance criteria:
+
+- Accept only an explicit unit identity and destination supplied by a caller;
+  never select a unit, destination, route, or tactical alternative.
+- Define and version the minimum visible read state, allowlisted command,
+  TurnPlan behavior, verified result, and downstream capability contract.
+- Reject stale, malformed, illegal, hidden-information-dependent, combat,
+  embarkation, automation, and other unsupported movement requests before
+  treating them as successful.
+- Bound generated Lua, preserve UUID duplicate suppression, and never retry an
+  ambiguous submission automatically.
+- Verify every accepted write through fresh state and distinguish success,
+  rejection, stale state, unexpected/partial displacement, and unknown outcome.
+- Pass the full offline matrix and a bounded operator-authorized target-machine
+  procedure, including exact host restoration.
+- Publish the capability only through a compatible semantic-versioned release
+  after updating the static downstream profile.
+
+Current status: planned. The owning execution order and evidence gates are in
+the [verified unit movement development plan](UNIT_MOVEMENT_PLAN.md). The
+initial scope is an explicit adjacent single-step move unless source research
+and ADR-0032 establish a different equally bounded contract.

@@ -47,7 +47,8 @@ No application-bundle modification is required.
 - [x] research selection (live-verified with `TECH_POTTERY`)
 - [x] city production (live-verified with `UNIT_SCOUT`)
 - [x] unit skip (live-verified through readiness with unchanged movement and location)
-- [ ] coordinate-based unit movement
+- [ ] coordinate-based unit movement (M9; see the bounded
+  [development plan](planning/UNIT_MOVEMENT_PLAN.md))
 - [x] legacy readiness/refusal and explicit end-turn proof (live-verified)
 
 ## M3 — Versioned ruleset knowledge
@@ -222,3 +223,16 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 
 LLM decision-making, working memory, strategic memory, and MCP integration are
 intentionally outside this repository's scope.
+
+## M9 — Verified unit movement
+
+- [x] Define the documentation, implementation, verification, and release plan
+- [x] Register the strategy-neutral `move_unit` core capability request
+- [ ] Research the stock Lua movement path and accept ADR-0032
+- [ ] Freeze movement, live-state, command, TurnPlan, and downstream contracts
+- [ ] Implement and test the minimum active-player-visible read model
+- [ ] Implement bounded allowlisted movement with read-after-write verification
+- [ ] Integrate explicit movement into deterministic TurnPlan execution
+- [ ] Complete the full offline verification gate
+- [ ] Complete bounded operator-authorized target-machine verification
+- [ ] Publish the verified capability in a compatible 1.1.0 release

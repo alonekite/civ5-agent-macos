@@ -8,15 +8,18 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M8 — 1.0 release readiness — is complete. The immutable
-  `v1.0.0` tag and GitHub release identify commit `676b029`.
-- Active next deliverable: none in this repository. Future work starts from a
-  concrete strategy-neutral core capability request or a verified defect.
+- Current milestone: M9 — verified unit movement — is planned. M8 and the
+  immutable 1.0.0 release remain complete.
+- Active next deliverable: execute
+  [CoreCapabilityRequest #1](https://github.com/alonekite/civ5-agent-macos/issues/1)
+  by inspecting the bundled stock movement path, then produce ADR-0032 and the
+  movement contracts before writing command code.
 - Functional baseline: 260 tests pass locally on Python 3.11/default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: none. A future capability that changes live
-  reads or writes may require a newly authorized bounded game session.
+- User presence required next: none for documentation, source research, or
+  offline implementation. M9 live verification will pause for explicit user
+  authorization and a controlled in-game state.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -143,10 +146,13 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Let the downstream tactical project integrate only through the published
-   1.0 public contracts and static capability profile.
-2. Route any missing reusable fact or mechanic through the core capability
-   request process; version, test, and live-verify it here before consumption.
+1. Execute the batches in
+   `docs/planning/UNIT_MOVEMENT_PLAN.md`, starting with the capability request,
+   source research, ADR-0032, and contracts.
+2. Implement offline read support before the write, then add the allowlisted
+   command, verification, and deterministic executor integration.
+3. Pause for the bounded operator-authorized live procedure before advertising
+   movement in the downstream profile or preparing 1.1.0.
 
 M5 live verification and M6 implementation are independent workstreams.
 
