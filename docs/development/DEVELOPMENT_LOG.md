@@ -661,6 +661,23 @@ Implementation commit: `58f0f6c`.
 
 Implementation commit: `3d389b0`.
 
+## 2026-09-16 — TurnPlan schema 1 admission boundary
+
+- Finalized bounded complete-turn plan, planned-action, execution-step, and
+  execution-report models under ADR-0022.
+- Bound plans to canonical plan/session UUIDs, turn, active player, and SHA-256
+  of the complete validated initial live state.
+- Added strict admission for the existing four-action allowlist, exact argument
+  shapes, unique command IDs, a 64-action limit, and one required final
+  `end_turn`.
+- Added mutually exclusive completed/paused/stale/failed/recovery report
+  invariants without adding game execution or M4/M5 dependencies.
+- Passed all 206 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, addresses, credentials, tokens, or
+  real match data.
+
+Implementation commit: `d59d291`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
