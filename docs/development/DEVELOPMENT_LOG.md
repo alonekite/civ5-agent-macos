@@ -859,6 +859,39 @@ Implementation commit: `81c58ab`.
 
 Implementation commit: `6577365`.
 
+## 2026-09-16 — M8 release-readiness audit
+
+- Audited M8 against live evidence, open high-impact risks, setup/security/
+  recovery documentation, packaging, artifact scans, reproducibility, and
+  release/tag requirements.
+- Added a canonical release-readiness checklist and moved M8 to in progress;
+  the combined M5/M6 live run, risk disposition, artifact automation, and
+  release procedures remain explicit blockers.
+- Reconciled current architecture, module, resolver, identity, operations,
+  README, roadmap, changelog, and risk-register language after M7 completion.
+- Documentation-link validation and the sensitive-content scan passed; no live
+  machine state was changed and no offline result was labeled live evidence.
+
+Implementation commit: `f4d487c`.
+
+## 2026-09-16 — Bounded wheel release gate
+
+- Added package description, README metadata, and the repository URL while
+  retaining the existing Python 3.11 minimum and console-script declarations.
+- Added a bounded pure-Python wheel inspector that verifies source coverage,
+  archive paths/types/sizes, metadata, entry points, RECORD hashes, and scans
+  contents for user paths, private addresses, email/MAC addresses, credentials,
+  tokens, and private keys.
+- Extended CI to build the wheel, inspect it, install it without dependencies
+  into a clean virtual environment, import the aggregate API, and start the
+  supported `civ5-turn` entry point on Python 3.11 and 3.13.
+- Built and inspected the real wheel locally, then clean-installed and imported
+  it with Python 3.11 and 3.14. All 251 tests passed warning-enabled on both
+  local runtimes; sensitive-data review found only deliberate synthetic scanner
+  fixtures and the intentional public license/repository attribution.
+
+Implementation commit: `d7e40e9`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
