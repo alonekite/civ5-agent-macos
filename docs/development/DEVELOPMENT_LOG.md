@@ -841,6 +841,24 @@ Implementation commit: `a680c16`.
 
 Implementation commit: `81c58ab`.
 
+## 2026-09-16 — Bounded CLI compatibility and M7 completion
+
+- Accepted ADR-0027 and stabilized only `civ5-turn` as the supported
+  machine-readable pre-1.0 CLI; every other entry point is explicitly
+  provisional while retaining mandatory safety and privacy behavior.
+- Defined exact validation, execution-report, and failure JSON envelopes plus
+  exit meanings for success, operation failure, and valid non-completion.
+- Added named exit constants and strengthened contract tests for exact envelope
+  keys and statuses.
+- Confirmed that current supported consumers need no speculative selective
+  knowledge or journal facade, completing all M7 acceptance criteria and moving
+  the active milestone to M8 release readiness.
+- Passed all 247 tests on Python 3.11 and the default Python 3.14 runtime. The
+  submitted diff contained no private paths, network addresses, credentials,
+  tokens, generated datasets, or real match records.
+
+Implementation commit: `6577365`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
