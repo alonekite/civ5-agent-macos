@@ -221,7 +221,10 @@ and the second attempt confirmed intact marker delivery plus stale-plan
 pre-write refusal. That attempt also exposed an incorrect numeric zero-blocker
 assumption. ADR-0029 now uses the game-defined no-blocker enum and checks the
 numeric blocker independently of UI clickability; successful live execution
-remains pending.
+remains pending. A third attempt proved that corrected guard and actual stock
+control execution, then precisely failed when automated/deferred unit activity
+surfaced a new worker requirement without advancing. The remaining success test
+must use a minimal state without such unit automation.
 
 ## M7 — Public API stabilization
 

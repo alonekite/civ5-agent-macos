@@ -996,8 +996,8 @@ lifecycle.
 3. Executed the plan once. The compact command returned a deterministic blocked
    marker and did not advance the turn.
 4. The operator then used the stock Next Turn control; it exposed a worker still
-   requiring orders without advancing. After resolving that unit, a retry of
-   the now-stale plan was rejected before any action step.
+   requiring orders. After resolving that unit, a retry of the now-stale plan
+   was rejected before any action step.
 5. Quit the game, restored the exact host baseline, then verified, structurally
    replayed, and redacted-exported the private journal.
 6. Inspected the bundled Brave New World `ActionInfoPanel.lua` and tutorial Lua
@@ -1017,8 +1017,10 @@ lifecycle.
   submission, one failed command result, and one verification error. Hash-chain
   verification, contiguous structural replay, redacted export, and mode `600`
   checks all passed.
-- No turn transition was recorded; the stock Next Turn click revealed a unit
-  requirement in the same turn.
+- No turn transition was recorded. Because the subsequent read that rejected
+  the stale plan was not itself a background journal snapshot, this attempt
+  alone does not prove whether the stock click changed turns before exposing
+  the worker. The third attempt later isolated and proved the same-turn branch.
 - Restoration returned FireTuner, listener, socket, firewall, and Civ V rule to
   the recorded baseline with no issues.
 
@@ -1037,3 +1039,66 @@ value for requirement inspection, test readiness independently of
 `UI.CanEndTurn()`, then repeat with a newly authored plan. Treat an unchanged
 turn or newly surfaced unit requirement as a verified failure and never retry
 the old plan.
+
+### 2026-09-16 — Combined M5/M6 release-gate third attempt
+
+**Hypothesis**
+
+ADR-0029's game-defined no-blocker guard can execute the final `end_turn` and
+prove automatic turn advancement in the saved-match test state.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the target Apple
+  Silicon Mac.
+- Normal single-player saved match with multiple units and some deferred or
+  automated unit activity.
+- Fresh guarded FireTuner session, private M5 journal, and newly authored
+  schema 1 TurnPlan.
+
+**Procedure**
+
+1. Prepared and live-preflighted a fresh guarded session, then started one
+   schema-5 watcher with a new journal.
+2. Manually resolved all visible requirements until the stock UI displayed
+   Next Turn.
+3. Created and validated a new single-action `end_turn` plan. Factual
+   inspection observed the game-defined no-blocker value and no ready unit.
+4. Executed exactly once and made no further game input while the 30-second
+   postcondition check ran.
+5. Quit without resolving the newly surfaced unit, restored the exact host
+   baseline, then performed a private, sanitized journal comparison and
+   structural export.
+
+**Observed result**
+
+- The named-enum Lua guard accepted the command and invoked the stock end-turn
+  control, proving ADR-0029's corrected guard on the target runtime.
+- The turn did not advance. During end-turn processing, five units changed
+  position, ten changed remaining movement, and one unit changed from not ready
+  to ready while the unit count stayed constant. The game selected that worker
+  and changed the blocker from no blocker to another blocker.
+- M6 returned a deterministic failed action after 30 seconds with distinct
+  before/after state digests. It did not report completion or retry.
+- The 11-record journal contained one start, seven snapshots, one command
+  submission, one failed command result, and one verification error. Integrity,
+  contiguous replay, redacted export, and journal/plan/export mode `600` checks
+  passed.
+- No turn transition occurred. Shutdown restored FireTuner, listener, socket,
+  firewall, and Civ V rule to the recorded baseline with no issues.
+
+**Conclusion**
+
+partial. The target live-verified the corrected named-enum guard, actual
+`Game.DoControl` execution, exact failed postcondition, changed after-state,
+full M5 failure lifecycle, and no-retry behavior. The saved match was unsuitable
+for a one-action success gate because end-turn processing first advanced
+automated/deferred unit work and exposed a new unit requirement.
+
+**Next step**
+
+Repeat only in a minimal early-game state with no automated or deferred unit
+orders. Manually resolve every research, production, and unit requirement, then
+let a newly authored one-action plan perform the sole final Next Turn control.
+An unchanged turn remains a verified failure and requires shutdown rather than
+another plan in the same session.

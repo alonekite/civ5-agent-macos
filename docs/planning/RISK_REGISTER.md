@@ -19,7 +19,7 @@ open until evidence justifies closing it; mitigation does not erase the risk.
 | R-012 | Python version differences break CI after local success | Medium | Medium | Controlled | Keep Python 3.11 minimum; run GitHub Actions on 3.11 and 3.13; avoid newer-only syntax |
 | R-013 | Mutable snapshot fields are mistaken for a permanent save identity | Medium | High | Controlled by design | Use bridge-session identity for execution and explicit match identity for journals; prohibit automatic cross-session inference until target-verified evidence exists |
 | R-014 | FireTuner truncates an oversized Lua program and leaves a submitted write outcome unclear | High above target limit | High | Controlled by design | Enforce a 1,000-byte pre-send maximum, keep every generated program below it, record/cache unknown outcomes without retry; compact marker delivery is target-verified |
-| R-015 | A numeric end-turn blocker assumption disagrees with the target runtime | Medium without symbolic checks | Medium | Controlled by design; repeat success pending | Compare the Lua enum symbol, expose the verified parsed value, inspect it independently of UI clickability, and require turn-advance postcondition |
+| R-015 | A numeric end-turn blocker assumption disagrees with the target runtime | Medium without symbolic checks | Medium | Controlled | Compare the Lua enum symbol, expose the verified parsed value, inspect it independently of UI clickability, and require turn-advance postcondition; target guard is live-verified |
 
 ## Review rules
 

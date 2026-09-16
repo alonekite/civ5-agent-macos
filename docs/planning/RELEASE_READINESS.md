@@ -12,7 +12,7 @@ experiment evidence.
 
 | Gate | Current evidence | Remaining work |
 |---|---|---|
-| Required live verification | Two combined attempts proved plan validation, journal controls, a complete failed-command lifecycle, compact marker delivery, and stale-plan refusal; ADR-0029 fixes the second attempt's no-blocker semantic error offline | Repeat the operator-present [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) with a new plan and require a successful lifecycle plus automatic turn advance |
+| Required live verification | Three combined attempts proved plan validation, journal controls, complete failed-command lifecycles, compact delivery, stale refusal, the corrected named-enum guard, actual control execution, and exact changed-state failure | Repeat the operator-present [M8 release-gate procedure](../LIVE_TEST_CHECKLIST.md#6-m8-release-gate-combined-m5m6-verification) in a minimal early-game state and require a successful lifecycle plus automatic turn advance |
 | High-impact risks | Every high-impact risk has an explicit release disposition; R-003, R-004, R-006, and R-014 are controlled within the documented scope | Preserve the controls and reopen review if release scope changes |
 | Setup/security/recovery docs | README, security policy, live checklist, recoverable session manager, and release/upgrade/rollback runbook exist | Reconcile the live checklist with the completed combined M5/M6 run |
 | Public compatibility | M7 aggregate Python API and bounded `civ5-turn` contract are complete; stable-version transition steps are documented | Apply the stable version and compatibility wording on the final release commit |
@@ -36,13 +36,15 @@ The required M8 live batch is deliberately narrow:
    matrix; never commit the journal, plan, report, export, audit log, or raw
    snapshot.
 
-Neither 2026-09-16 attempt satisfied this gate. The first exposed Lua
+None of the three 2026-09-16 attempts satisfied this gate. The first exposed Lua
 truncation and a missing exception-path fact, fixed by ADR-0028. The second
 proved compact marker delivery, complete deterministic-failure journaling, and
 stale-plan refusal, but exposed an incorrect numeric zero-blocker assumption.
 ADR-0029 now uses the game-defined enum and fail-closed requirement inspection.
-Automatic turn advancement and its successful journal lifecycle still require
-one clean repeat.
+The third proved that correction and actual stock control execution, but the
+large saved match processed automated/deferred units and exposed a worker before
+the turn could advance. Automatic advancement and its successful journal
+lifecycle still require one clean minimal-state repeat.
 
 The operator must be present. Automation must not enable FireTuner, change the
 firewall, start the game, or infer plan content. Exact private-path setup,

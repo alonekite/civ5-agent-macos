@@ -10,12 +10,12 @@ development log.
 
 - Current milestone: M8 — 1.0 release readiness. M5 and M6 bounded
   target-machine verification remain pending.
-- Active next deliverable: repeat the bounded M5/M6 target-machine gate with a
-  new plan. The second attempt proved compact marker delivery, a complete M5
-  failed-command lifecycle, and stale-plan refusal, then exposed the incorrect
-  numeric zero-blocker assumption fixed offline under ADR-0029.
-- Functional baseline: 260 tests pass locally on Python 3.11 and the default
-  runtime; GitHub Actions is pending for this batch.
+- Active next deliverable: repeat the bounded M5/M6 target-machine gate in a
+  minimal early-game state without automated/deferred unit orders. The third
+  attempt proved ADR-0029, actual control execution, changed-state failure
+  verification, full M5 failure lifecycle, and no retry, but did not advance.
+- Functional baseline: 260 tests pass locally on Python 3.11/default runtime
+  and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
 - User presence required next: only for the documented combined M5/M6 live
   release gate; offline release-procedure work can continue independently.

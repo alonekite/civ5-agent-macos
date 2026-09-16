@@ -168,6 +168,12 @@ Follow sections 1 and 2 exactly: quit the game first, run `live_session
 prepare`, start the game manually, enter a normal single-player match, and
 require a passing `preflight live` result.
 
+Prefer a minimal early-game state with very few units and no automated or
+deferred unit tasks. A large saved match can report no blocker before the stock
+end-turn control processes automated movements, then expose a new unit order
+without advancing. That is a valid failed action but cannot close this success
+gate.
+
 Start the watcher in this terminal and leave it running:
 
 ```bash
