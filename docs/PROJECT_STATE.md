@@ -10,9 +10,8 @@ development log.
 
 - Current offline milestone: M6 — deterministic turn executor. M5 bounded
   target-machine verification remains pending.
-- Active next deliverable: add explicit ambiguous-outcome recovery, then a
-  bounded CLI plan-loading surface.
-- Functional baseline: 225 tests pass locally on Python 3.11 and the default
+- Active next deliverable: add a bounded CLI plan-loading surface.
+- Functional baseline: 230 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -93,7 +92,10 @@ development log.
   identities without opening another FireTuner connection.
 - A session-scoped, read-only command-status request retrieves terminal results
   already cached by the current watcher. Missing results remain unknown and are
-  never automatically resubmitted; report reconciliation is still pending.
+  never automatically resubmitted.
+- Conservative report reconciliation validates cached evidence and fresh state.
+  A recovered final end-turn can complete; a recovered non-final success pauses
+  before the next action rather than automatically continuing the old plan.
 
 ## Evidence still optional
 
@@ -107,8 +109,7 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended offline order
 
-1. Implement explicit ambiguous-outcome recovery without knowledge or journal
-   dependencies, then expose bounded CLI plan loading.
+1. Expose bounded CLI plan loading without knowledge or journal dependencies.
 2. Run the bounded M5 live capture/verify/export test when the user is present.
 3. Add selective journal queries and stabilize public read/write,
    knowledge-query, journal, and execution APIs in M7.
@@ -130,6 +131,8 @@ M5 live verification and M6 implementation are independent workstreams.
   fail-closed corruption detection.
 - ADR-0021: supported file export is structural and redacted by default.
 - ADR-0022: complete-turn plans bind to one validated initial live-state basis.
+- ADR-0023: unknown actions reconcile through watcher-cache evidence and are
+  never automatically retried.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

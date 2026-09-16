@@ -206,8 +206,10 @@ requirements/drift, and never retries an ambiguous submission. Optional factual
 events are bounded and sink failures cannot alter execution. Watcher/CLI
 adaptation is implemented through the existing private watcher socket without
 opening another FireTuner connection. Its session-scoped read-only completed-
-command lookup never turns a cache miss into a retry. CLI plan loading and
-explicit report recovery remain pending.
+command lookup never turns a cache miss into a retry. Conservative report
+reconciliation validates cached evidence and fresh state, completes a recovered
+final end-turn, and pauses after a recovered non-final success. CLI plan loading
+remains pending.
 
 ## M7 — Public API stabilization
 

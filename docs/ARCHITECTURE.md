@@ -93,7 +93,9 @@ and plan-listed writes through the existing private Unix socket, preserving
 session and command identities without creating another FireTuner client.
 The same socket now supports a session-scoped read-only lookup of completed
 command UUIDs. A miss never executes or retries a command; full report
-reconciliation and CLI plan loading remain pending.
+reconciliation validates a hit against the prior basis and fresh live state.
+A recovered final end-turn can complete, while a recovered non-final action
+pauses before the next write under ADR-0023. CLI plan loading remains pending.
 
 M6 does not query the structural knowledge view. Stable identifier shape, live
 capability, and action legality are bridge command responsibilities. Knowledge

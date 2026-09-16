@@ -6,7 +6,7 @@ from pathlib import Path
 from .identity import validate_bridge_session_id
 from .ipc import default_socket_path, request
 from .models import CommandResult, GameState
-from .turn_executor import EventSink, execute_turn_plan
+from .turn_executor import EventSink, execute_turn_plan, reconcile_turn_plan
 from .turn_plan import ExecutionReport, PlannedAction, TurnPlan
 from .validation import validate_live_state
 
@@ -113,4 +113,16 @@ class WatcherTurnExecutor:
             self.read_state,
             self.execute_action,
             event_sink,
+        )
+
+    def reconcile(
+        self,
+        plan: TurnPlan,
+        report: ExecutionReport,
+    ) -> ExecutionReport:
+        return reconcile_turn_plan(
+            plan,
+            report,
+            self.read_state,
+            self.lookup_action_result,
         )

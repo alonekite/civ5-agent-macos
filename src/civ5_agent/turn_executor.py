@@ -26,6 +26,7 @@ from .validation import validate_live_state
 
 StateReader = Callable[[], tuple[str, GameState]]
 ActionExecutor = Callable[[PlannedAction, str], CommandResult]
+OutcomeLookup = Callable[[PlannedAction, str], CommandResult | None]
 EventSink = Callable[[ExecutionEvent], None]
 
 
@@ -90,6 +91,187 @@ def execute_turn_plan(
         return validate_execution_report(report, plan)
     except TurnPlanError:
         return report
+
+
+def reconcile_turn_plan(
+    plan: TurnPlan,
+    report: ExecutionReport,
+    read_state: StateReader,
+    lookup_result: OutcomeLookup,
+) -> ExecutionReport:
+    report = validate_execution_report(report, plan)
+    if report.status != "recovery_required":
+        raise TurnPlanError("only a recovery_required report can be reconciled")
+    if report.next_action_index >= len(plan.actions):
+        raise TurnPlanError("recovery report has no uncertain action")
+
+    index = report.next_action_index
+    action = plan.actions[index]
+    expected_before_digest = (
+        plan.state_basis_digest
+        if index == 0
+        else report.steps[-1].after_state_digest
+    )
+    if expected_before_digest is None:
+        raise TurnPlanError("recovery report lacks the last verified state basis")
+    try:
+        result = lookup_result(action, plan.bridge_session_id)
+    except (OSError, TimeoutError, ConnectionError, TypeError, ValueError) as error:
+        return _preserve_event_errors(
+            _report(
+                plan,
+                "recovery_required",
+                index,
+                report.steps,
+                "recovery_lookup_unavailable",
+                str(error),
+            ),
+            report,
+            plan,
+        )
+    if result is None:
+        return _preserve_event_errors(
+            _report(
+                plan,
+                "recovery_required",
+                index,
+                report.steps,
+                "command_result_unavailable",
+                "watcher has no terminal result for the uncertain command",
+            ),
+            report,
+            plan,
+        )
+    try:
+        step, after_state = _validated_step(
+            index,
+            action,
+            result,
+            expected_before_digest,
+        )
+    except (TypeError, ValueError) as error:
+        return _preserve_event_errors(
+            _report(
+                plan,
+                "recovery_required",
+                index,
+                report.steps,
+                "invalid_recovery_evidence",
+                str(error),
+            ),
+            report,
+            plan,
+        )
+
+    recovered_steps = (*report.steps, step)
+    if step.status == "error":
+        return _preserve_event_errors(
+            _report(
+                plan,
+                "failed",
+                index,
+                recovered_steps,
+                "action_failed",
+                step.message,
+            ),
+            report,
+            plan,
+        )
+    postcondition_error = _action_postcondition_error(plan, action, after_state)
+    if postcondition_error is not None:
+        return _preserve_event_errors(
+            _report(
+                plan,
+                "recovery_required",
+                index,
+                report.steps,
+                "invalid_recovery_evidence",
+                postcondition_error,
+            ),
+            report,
+            plan,
+        )
+
+    next_index = index + 1
+    try:
+        session_id, current_state = _read_validated_state(read_state)
+    except (OSError, TimeoutError, ConnectionError, TypeError, ValueError) as error:
+        return _preserve_event_errors(
+            _report(
+                plan,
+                "paused",
+                next_index,
+                recovered_steps,
+                "state_unavailable",
+                str(error),
+            ),
+            report,
+            plan,
+        )
+    if session_id != plan.bridge_session_id:
+        return _preserve_event_errors(
+            _report(
+                plan,
+                "stale",
+                next_index,
+                recovered_steps,
+                "bridge_session_changed",
+                "bridge session changed after cached result was recovered",
+            ),
+            report,
+            plan,
+        )
+    if action.action == "end_turn":
+        if current_state.turn <= plan.turn:
+            return _preserve_event_errors(
+                _report(
+                    plan,
+                    "stale",
+                    next_index,
+                    recovered_steps,
+                    "state_drift",
+                    "fresh state does not confirm the recovered turn advance",
+                ),
+                report,
+                plan,
+            )
+        return _preserve_event_errors(
+            _report(
+                plan,
+                "completed",
+                next_index,
+                recovered_steps,
+                "turn_ended",
+                "uncertain final end_turn was recovered and freshly confirmed",
+            ),
+            report,
+            plan,
+        )
+    if live_state_digest(current_state) != live_state_digest(after_state):
+        return _preserve_event_errors(
+            _report(
+                plan,
+                "stale",
+                next_index,
+                recovered_steps,
+                "state_drift",
+                "fresh state differs from the recovered action result",
+            ),
+            report,
+            plan,
+        )
+    return _preserve_event_errors(
+        _report(
+            plan,
+            "paused",
+            next_index,
+            recovered_steps,
+            "action_reconciled",
+            "uncertain action succeeded and fresh state matches its result",
+        ),
+        report,
+        plan,
+    )
 
 
 def _execute_turn_plan_core(
@@ -332,6 +514,24 @@ def _validated_step(
     )
 
 
+def _action_postcondition_error(
+    plan: TurnPlan,
+    action: PlannedAction,
+    after_state: GameState,
+) -> str | None:
+    if action.action == "end_turn":
+        if after_state.turn <= plan.turn:
+            return "end_turn result did not advance the turn"
+        return None
+    if (
+        after_state.turn != plan.turn
+        or after_state.active_player != plan.active_player
+        or not after_state.turn_active
+    ):
+        return "non-final action changed turn or active player"
+    return None
+
+
 def _uncovered_requirement(
     requirements: tuple[TurnRequirement, ...],
     remaining_actions: tuple[PlannedAction, ...],
@@ -408,6 +608,17 @@ def _report(
     if no_step:
         return report
     return validate_execution_report(report, plan)
+
+
+def _preserve_event_errors(
+    recovered: ExecutionReport,
+    previous: ExecutionReport,
+    plan: TurnPlan,
+) -> ExecutionReport:
+    return validate_execution_report(
+        replace(recovered, event_sink_errors=previous.event_sink_errors),
+        plan,
+    )
 
 
 class _EventEmitter:

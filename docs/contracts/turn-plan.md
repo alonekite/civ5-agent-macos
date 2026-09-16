@@ -79,9 +79,11 @@ cross-process checkpoint is a separate private M6 contract, not an M5 journal
 record.
 
 The current implementation keeps cursor and verified steps in the returned
-report only. Explicit reconciliation of a `recovery_required` report and a CLI
-plan-loading surface remain pending; the session-scoped cached-result lookup is
-the implemented recovery transport primitive.
+report only. Reconciliation under ADR-0023 validates cached terminal evidence
+against the last verified basis and fresh live state. A recovered final
+`end_turn` can complete; a recovered non-final success pauses at the next action
+so it cannot silently continue the old plan. Cache misses remain
+`recovery_required`. CLI plan loading remains pending.
 
 ## Optional factual events
 

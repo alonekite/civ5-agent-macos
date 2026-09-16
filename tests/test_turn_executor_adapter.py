@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from civ5_agent.models import GameState
 from civ5_agent.turn_executor_adapter import WatcherTurnExecutor
+from civ5_agent.turn_executor import execute_turn_plan
 from civ5_agent.turn_plan import PlannedAction, make_turn_plan
 
 SESSION_ID = "123e4567-e89b-42d3-a456-426614174050"
@@ -156,6 +157,47 @@ class WatcherTurnExecutorTest(unittest.TestCase):
             return_value=mismatched,
         ), self.assertRaisesRegex(ValueError, "action does not match"):
             WatcherTurnExecutor().lookup_action_result(action, SESSION_ID)
+
+    def test_reconciles_unknown_final_action_through_watcher_protocol(self):
+        before = state()
+        after = state(turn=5)
+        action = PlannedAction(COMMAND_ID, "end_turn", {})
+        plan = make_turn_plan(before, SESSION_ID, (action,), plan_id=PLAN_ID)
+        recovery = execute_turn_plan(
+            plan,
+            lambda: (SESSION_ID, before),
+            lambda *_: (_ for _ in ()).throw(TimeoutError("outcome unknown")),
+        )
+        responses = (
+            {
+                "ok": True,
+                "bridge_session_id": SESSION_ID,
+                "found": True,
+                "action": "end_turn",
+                "arguments": {},
+                "result": {
+                    "id": COMMAND_ID,
+                    "status": "success",
+                    "message": "verified",
+                    "before": asdict(before),
+                    "after": asdict(after),
+                },
+            },
+            {
+                "ok": True,
+                "bridge_session_id": SESSION_ID,
+                "state": asdict(after),
+            },
+        )
+        with patch(
+            "civ5_agent.turn_executor_adapter.request",
+            side_effect=responses,
+        ) as send:
+            report = WatcherTurnExecutor().reconcile(plan, recovery)
+
+        self.assertEqual(report.status, "completed")
+        self.assertEqual(send.call_args_list[0].args[0]["op"], "command_status")
+        self.assertEqual(send.call_args_list[1].args[0]["op"], "read_state")
 
 
 if __name__ == "__main__":

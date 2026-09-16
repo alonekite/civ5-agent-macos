@@ -2,7 +2,7 @@ import unittest
 from dataclasses import asdict, replace
 
 from civ5_agent.models import CommandResult, GameState
-from civ5_agent.turn_executor import execute_turn_plan
+from civ5_agent.turn_executor import execute_turn_plan, reconcile_turn_plan
 from civ5_agent.turn_plan import PlannedAction, make_turn_plan
 
 SESSION_ID = "123e4567-e89b-42d3-a456-426614174040"
@@ -207,6 +207,120 @@ class TurnExecutorTest(unittest.TestCase):
         self.assertEqual(report.status, "recovery_required")
         self.assertEqual(report.next_action_index, 0)
         self.assertEqual(attempts, [COMMAND_IDS[0]])
+
+    def test_reconciles_cached_final_end_turn_without_resubmission(self):
+        initial = state()
+        advanced = state(turn=5)
+        action = PlannedAction(COMMAND_IDS[0], "end_turn", {})
+        plan = make_turn_plan(initial, SESSION_ID, (action,), plan_id=PLAN_ID)
+        recovery = execute_turn_plan(
+            plan,
+            lambda: (SESSION_ID, initial),
+            lambda *_: (_ for _ in ()).throw(TimeoutError("outcome unknown")),
+        )
+        lookups = []
+
+        def lookup(candidate, session_id):
+            lookups.append((candidate.command_id, session_id))
+            return CommandResult(
+                id=candidate.command_id,
+                status="success",
+                message="verified",
+                before=asdict(initial),
+                after=asdict(advanced),
+            )
+
+        report = reconcile_turn_plan(
+            plan,
+            recovery,
+            lambda: (SESSION_ID, advanced),
+            lookup,
+        )
+
+        self.assertEqual(report.status, "completed")
+        self.assertEqual(report.next_action_index, 1)
+        self.assertEqual(lookups, [(COMMAND_IDS[0], SESSION_ID)])
+
+    def test_recovery_cache_miss_remains_unknown_without_write(self):
+        initial = state()
+        action = PlannedAction(COMMAND_IDS[0], "end_turn", {})
+        plan = make_turn_plan(initial, SESSION_ID, (action,), plan_id=PLAN_ID)
+        recovery = execute_turn_plan(
+            plan,
+            lambda: (SESSION_ID, initial),
+            lambda *_: (_ for _ in ()).throw(TimeoutError("outcome unknown")),
+        )
+        reads = []
+
+        report = reconcile_turn_plan(
+            plan,
+            recovery,
+            lambda: reads.append(True),
+            lambda *_: None,
+        )
+
+        self.assertEqual(report.status, "recovery_required")
+        self.assertEqual(report.reason_code, "command_result_unavailable")
+        self.assertEqual(reads, [])
+
+    def test_reconciles_nonfinal_action_then_pauses_at_next_action(self):
+        initial = state(units=[{**state().units[0], "moves": 60}])
+        ready = state()
+        actions = (
+            PlannedAction(COMMAND_IDS[0], "skip_unit", {"unit_id": 8}),
+            PlannedAction(COMMAND_IDS[1], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        recovery = execute_turn_plan(
+            plan,
+            lambda: (SESSION_ID, initial),
+            lambda *_: (_ for _ in ()).throw(TimeoutError("outcome unknown")),
+        )
+        cached = CommandResult(
+            id=COMMAND_IDS[0],
+            status="success",
+            message="verified",
+            before=asdict(initial),
+            after=asdict(ready),
+        )
+
+        report = reconcile_turn_plan(
+            plan,
+            recovery,
+            lambda: (SESSION_ID, ready),
+            lambda *_: cached,
+        )
+
+        self.assertEqual(report.status, "paused")
+        self.assertEqual(report.reason_code, "action_reconciled")
+        self.assertEqual(report.next_action_index, 1)
+        self.assertEqual(len(report.steps), 1)
+
+    def test_invalid_cached_result_keeps_recovery_required(self):
+        initial = state()
+        action = PlannedAction(COMMAND_IDS[0], "end_turn", {})
+        plan = make_turn_plan(initial, SESSION_ID, (action,), plan_id=PLAN_ID)
+        recovery = execute_turn_plan(
+            plan,
+            lambda: (SESSION_ID, initial),
+            lambda *_: (_ for _ in ()).throw(TimeoutError("outcome unknown")),
+        )
+        invalid = CommandResult(
+            id=COMMAND_IDS[1],
+            status="success",
+            before=asdict(initial),
+            after=asdict(state(turn=5)),
+        )
+
+        report = reconcile_turn_plan(
+            plan,
+            recovery,
+            lambda: (SESSION_ID, state(turn=5)),
+            lambda *_: invalid,
+        )
+
+        self.assertEqual(report.status, "recovery_required")
+        self.assertEqual(report.reason_code, "invalid_recovery_evidence")
 
     def test_bridge_error_result_is_failed_and_not_retried(self):
         initial = state()

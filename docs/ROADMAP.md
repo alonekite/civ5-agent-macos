@@ -182,7 +182,7 @@ execution-state store.
   FireTuner connection
 - [x] Add stale-state, missing-decision, interruption, and core no-retry tests
 - [x] Add a session-scoped read-only watcher lookup for completed command UUIDs
-- [ ] Add explicit ambiguous-outcome reconciliation and recovery tests
+- [x] Add explicit ambiguous-outcome reconciliation and recovery tests
 - [ ] Add bounded CLI plan loading
 
 M6 reports requirements but never chooses how to satisfy them. Tactical and
