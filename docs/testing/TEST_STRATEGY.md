@@ -52,5 +52,6 @@ must state the actual level instead of using “verified” without qualificatio
 ## Release gate
 
 Before a release: run all CI targets, scan tracked content and artifacts for
-secrets/local identifiers, validate documentation links, review open high-impact
-risks, and ensure every claimed live capability has experiment-log evidence.
+secrets/local identifiers, validate documentation links, confirm every
+high-impact risk disposition remains supported by evidence and scope, and
+ensure every claimed live capability has experiment-log evidence.

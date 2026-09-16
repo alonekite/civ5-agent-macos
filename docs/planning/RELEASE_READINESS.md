@@ -43,7 +43,7 @@ permission checks are fixed in section 6 of the bounded live-test checklist.
 
 ## High-impact risk disposition
 
-Before release, each open high-impact risk needs one of these explicit outcomes:
+Before release, each high-impact risk needs one of these explicit outcomes:
 
 - **controlled**: deterministic controls and sufficient evidence reduce the
   release risk while its underlying condition remains possible;

@@ -241,7 +241,8 @@ justifies speculative selective queries. All M7 acceptance criteria are met.
 Acceptance criteria:
 
 - Complete the required bounded live verification matrix.
-- Close or explicitly accept all high-impact risks.
+- Give every high-impact risk an explicit controlled, accepted, or closed
+  disposition with evidence and scope limits.
 - Provide setup, security, recovery, upgrade, and release documentation.
 - Run tests and sensitive-information scans on the release artifact.
 - Tag a reproducible version without generated game data or private logs.

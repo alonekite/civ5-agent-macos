@@ -126,8 +126,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 ## Recommended order
 
 1. Run bounded M5/M6 live verification when the user is present.
-2. Prepare a reproducible release candidate only after required live evidence
-   and high-impact risk disposition are complete.
+2. Prepare a reproducible release candidate after the required live evidence
+   is recorded.
 
 M5 live verification and M6 implementation are independent workstreams.
 
