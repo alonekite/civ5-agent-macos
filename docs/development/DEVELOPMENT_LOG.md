@@ -1089,6 +1089,27 @@ Evidence commit: `8ec902d`.
 
 Implementation commit: `3449464`.
 
+## 2026-09-16 — Define the downstream tactical integration boundary
+
+- Reviewed the architecture, boundaries, contracts, glossary, ownership map,
+  implementation plan, and current-state documentation in the independent
+  `civ5-short-term-tactical-layer` project.
+- Added ADR-0031 and a stable 1.0.0 downstream capability profile. They preserve
+  one-way dependency, assign planning and consumer adapters outside the core,
+  identify the exact public schemas/actions/limits available to consumers, and
+  explicitly list absent capabilities.
+- Added a strategy-neutral core capability request procedure for future facts,
+  history views, and allowlisted mechanics, including privacy, failure,
+  compatibility, offline-test, and target-machine evidence requirements.
+- Reconciled architecture, module, API, release, risk, milestone, roadmap,
+  verification, index, README, changelog, and repository-governance documents.
+- Both warning-enabled 260-test suites passed on Python 3.11 and the default
+  Python runtime. Documentation links, public capability constants, diff checks,
+  and added-content scans for local paths, user names, private addresses,
+  private keys, and common credentials passed without private artifacts.
+
+Implementation commit: `5534544`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
