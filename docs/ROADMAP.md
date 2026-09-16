@@ -194,5 +194,15 @@ Working memory and strategic memory will be designed together with a future LLM
 interaction layer outside this repository. They are not tasks on this roadmap.
 See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 
+## M7 — Public API stabilization
+
+- [x] Inventory versioned contracts, candidate public symbols, implementation
+  internals, size limits, and error gaps
+- [ ] Add a bridge-facing watcher client independent of M6 execution semantics
+- [ ] Define and test the supported Python import surface and exception taxonomy
+- [ ] Publish complete schema/version/size compatibility guarantees
+- [ ] Freeze or explicitly qualify CLI JSON and exit-status compatibility
+- [ ] Add selective journal or knowledge queries only for concrete consumers
+
 LLM decision-making, working memory, strategic memory, and MCP integration are
 intentionally outside this repository's scope.

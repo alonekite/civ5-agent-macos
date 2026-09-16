@@ -12,7 +12,7 @@ GitHub Issues and should link back to one milestone ID.
 | M4 | Ruleset knowledge view | Complete | M3 |
 | M5 | Factual turn journal | Implemented offline; live verification pending | M1, M2 |
 | M6 | Deterministic turn executor | Implemented offline; live verification pending | M2 |
-| M7 | Public API stabilization | Planned | M4, M5, M6 |
+| M7 | Public API stabilization | In progress | M4, M5, M6 |
 | M8 | 1.0 release readiness | Planned | M7 |
 
 ## M0 — Environment reconnaissance
@@ -224,6 +224,11 @@ Acceptance criteria:
 - Add contract tests for supported Python versions.
 - Separate public interfaces from FireTuner and local-database implementation
   details.
+
+Current progress: the cross-module inventory now identifies existing versioned
+contracts, candidate Python/CLI surfaces, implementation-only internals, current
+limits, and unresolved error-taxonomy and bridge-client gaps. No provisional
+import path has been declared stable merely by appearing in the inventory.
 
 ## M8 — 1.0 release readiness
 

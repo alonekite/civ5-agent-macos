@@ -2,7 +2,7 @@
 
 The knowledge module contains structured gameplay facts that are independent of
 a particular match. It supplies structural queries to future plan producers and
-narrow validation facts to the execution core; it is not an AI memory or a
+decision-support consumers; M6 does not query it. It is not an AI memory or a
 replacement for live state.
 
 ## Boundaries

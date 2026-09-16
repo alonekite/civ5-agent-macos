@@ -38,6 +38,8 @@ do not belong in the repository.
   SQLite families, exclusions, and the completed M3 classification.
 - [Journal contract](contracts/journal.md)
 - [Turn-plan and execution contract](contracts/turn-plan.md)
+- [Public API inventory](contracts/public-api.md): M7 candidate surfaces,
+  implementation boundaries, compatibility gaps, and current limits.
 
 The Python implementation and tests remain authoritative for exact executable
 behavior. Contract documents define intended compatibility and rejection rules.

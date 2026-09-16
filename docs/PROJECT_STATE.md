@@ -10,8 +10,8 @@ development log.
 
 - Current offline milestone: M7 — public API stabilization. M5 and M6 bounded
   target-machine verification remain pending.
-- Active next deliverable: inventory and stabilize the public read/write,
-  knowledge, journal, TurnPlan, and execution-report APIs.
+- Active next deliverable: define a bridge-facing watcher client independent of
+  M6, then establish the supported import and exception surface.
 - Functional baseline: 236 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
@@ -114,10 +114,11 @@ may enable FireTuner, launch Civ V, or change the firewall.
 ## Recommended offline order
 
 1. Inventory the provisional public interfaces and define M7 compatibility,
-   error, and size-limit guarantees.
-2. Add selective journal and knowledge queries only where the public API
+   error, and size-limit guarantees. (Inventory complete; guarantees pending.)
+2. Add the bridge-facing watcher client and supported import contract tests.
+3. Add selective journal and knowledge queries only where the public API
    inventory demonstrates a concrete need.
-3. Run bounded M5/M6 live verification when the user is present.
+4. Run bounded M5/M6 live verification when the user is present.
 
 M5 live verification and M6 implementation are independent workstreams.
 
