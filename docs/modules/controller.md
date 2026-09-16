@@ -1,6 +1,6 @@
 # Module: deterministic turn executor
 
-Status: M6 ordered core/events implemented offline; adapter/recovery pending
+Status: M6 ordered core/events and watcher adapter implemented offline; recovery pending
 
 ## Responsibility
 
@@ -31,6 +31,9 @@ deferred to M7.
 `civ5_agent.turn_executor` executes only plan-listed actions through injected
 read/action capabilities, verifies result state continuity, and returns bounded
 terminal reports without importing knowledge or journal modules.
+`civ5_agent.turn_executor_adapter.WatcherTurnExecutor` supplies those two
+capabilities through the existing per-user watcher socket. It does not open a
+second FireTuner connection.
 
 ## Inputs and outputs
 
@@ -78,13 +81,13 @@ ordered multi-action tests.
 
 ## Current limitations
 
-Watcher/CLI adaptation and explicit ambiguous-outcome reconciliation are not
+CLI plan loading and explicit ambiguous-outcome reconciliation are not
 implemented. The current `decide()` function
 mixes factual requirement reporting with the legacy end-turn recommendation and
 must not grow into a tactical or strategic planner.
 
 ## Planned extensions
 
-Add watcher/CLI adaptation and interruption recovery independently of M5, then
+Add CLI plan loading and interruption recovery independently of M5, then
 stabilize naming during M7. Tactical and
 strategic layers remain plan producers, not executor internals.

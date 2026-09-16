@@ -10,9 +10,9 @@ development log.
 
 - Current offline milestone: M6 — deterministic turn executor. M5 bounded
   target-machine verification remains pending.
-- Active next deliverable: add a watcher/CLI adapter and explicit
-  ambiguous-outcome recovery.
-- Functional baseline: 219 tests pass locally on Python 3.11 and the default
+- Active next deliverable: add explicit ambiguous-outcome recovery, then a
+  bounded CLI plan-loading surface.
+- Functional baseline: 222 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -88,6 +88,9 @@ development log.
   retries an action whose outcome became unknown.
 - Optional bounded execution events remain neutral until state continuity is
   verified; sink failures are reported but cannot affect execution.
+- The watcher execution adapter reads state and submits plan-listed actions over
+  the existing private watcher socket, preserving bridge session and command
+  identities without opening another FireTuner connection.
 
 ## Evidence still optional
 
@@ -101,8 +104,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended offline order
 
-1. Implement ordered execution, factual requirements, drift pauses, and
-   unambiguous recovery without knowledge or journal dependencies.
+1. Implement explicit ambiguous-outcome recovery without knowledge or journal
+   dependencies, then expose bounded CLI plan loading.
 2. Run the bounded M5 live capture/verify/export test when the user is present.
 3. Add selective journal queries and stabilize public read/write,
    knowledge-query, journal, and execution APIs in M7.

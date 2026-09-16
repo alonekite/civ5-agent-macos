@@ -99,11 +99,12 @@ def _execute_turn_plan_core(
 ) -> ExecutionReport:
     try:
         session_id, state = _read_validated_state(read_state)
+    except (OSError, TimeoutError, ConnectionError, TypeError, ValueError) as error:
+        return _report(plan, "paused", 0, (), "state_unavailable", str(error))
+    try:
         plan = validate_turn_plan(plan, state, session_id)
     except StaleTurnPlanError as error:
         return _report(plan, "stale", 0, (), "initial_state_stale", str(error))
-    except (OSError, TimeoutError, ConnectionError) as error:
-        return _report(plan, "paused", 0, (), "state_unavailable", str(error))
     except (TypeError, ValueError, TurnPlanError) as error:
         return _report(plan, "failed", 0, (), "invalid_plan", str(error), no_step=True)
 

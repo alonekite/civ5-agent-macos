@@ -178,8 +178,11 @@ execution-state store.
 - [x] Emit bounded factual progress, pause, divergence, recovery, and completion
   events for optional recording
 - [x] Require an explicit final `end_turn` action
-- [ ] Add stale-state, missing-decision, interruption, idempotency, and recovery
-  tests
+- [x] Adapt execution to the watcher-owned private IPC without opening another
+  FireTuner connection
+- [x] Add stale-state, missing-decision, interruption, and core no-retry tests
+- [ ] Add explicit ambiguous-outcome reconciliation and recovery tests
+- [ ] Add bounded CLI plan loading
 
 M6 reports requirements but never chooses how to satisfy them. Tactical and
 strategic layers are future plan producers and knowledge consumers, not

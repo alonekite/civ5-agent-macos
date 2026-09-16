@@ -1,6 +1,6 @@
 # Turn-Plan and Execution Contract
 
-Status: Schema 1 admission and ordered in-process execution implemented offline
+Status: Schema 1 admission, ordered execution, and watcher adaptation implemented offline
 
 ## Purpose
 
@@ -59,6 +59,13 @@ after-state becomes the next basis. Explicit bridge rejection is `failed`.
 Connection loss after submission is `recovery_required` and is never retried
 automatically.
 
+The watcher adapter implements the injected capabilities over the existing
+mode-0600 Unix socket. Reads obtain one validated state and its watcher-owned
+bridge-session identity. Writes preserve the plan's command UUID and session
+identity, send only the declared action arguments, and require a terminal
+`CommandResult` whose response session still matches. The adapter never connects
+directly to FireTuner and never weakens the core's validation or retry rules.
+
 ## Execution state
 
 M6 owns its execution cursor, verified action identities, bridge-session
@@ -68,8 +75,8 @@ cross-process checkpoint is a separate private M6 contract, not an M5 journal
 record.
 
 The current implementation keeps cursor and verified steps in the returned
-report only. Explicit reconciliation of a `recovery_required` report and a
-watcher/CLI adapter remain pending.
+report only. Explicit reconciliation of a `recovery_required` report and a CLI
+plan-loading surface remain pending.
 
 ## Optional factual events
 

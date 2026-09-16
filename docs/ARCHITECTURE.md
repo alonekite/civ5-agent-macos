@@ -88,8 +88,10 @@ plan's own verified mutations. The in-process ordered core instead requires
 each command result's before-state to match the latest observation and uses the
 verified after-state as the next basis. It never retries an unknown submission.
 Optional neutral lifecycle events are emitted through a bounded sink whose
-failure cannot affect execution. Watcher/CLI adaptation and explicit recovery
-remain pending.
+failure cannot affect execution. The watcher adapter now supplies state reads
+and plan-listed writes through the existing private Unix socket, preserving
+session and command identities without creating another FireTuner client.
+CLI plan loading and explicit recovery remain pending.
 
 M6 does not query the structural knowledge view. Stable identifier shape, live
 capability, and action legality are bridge command responsibilities. Knowledge
