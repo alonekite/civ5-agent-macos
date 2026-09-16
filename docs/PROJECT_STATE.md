@@ -8,16 +8,15 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M8 — 1.0 release readiness. The required M5/M6 bounded
-  target-machine verification is complete.
-- Active next deliverable: validate the revised exact 1.0.0 release candidate
-  after adding its downstream tactical boundary and maintenance contract, then
-  create the authorized immutable tag and release.
+- Current milestone: M8 — 1.0 release readiness — is complete. The immutable
+  `v1.0.0` tag and GitHub release identify commit `676b029`.
+- Active next deliverable: none in this repository. Future work starts from a
+  concrete strategy-neutral core capability request or a verified defect.
 - Functional baseline: 260 tests pass locally on Python 3.11/default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: no further game session is required for M8;
-  release/tag publication remains an explicit operator decision.
+- User presence required next: none. A future capability that changes live
+  reads or writes may require a newly authorized bounded game session.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -144,10 +143,10 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Validate the revised exact 1.0.0 candidate with final tests, artifact scans,
-   reproducibility checks, clean installs, archive hashes, and CI.
-2. Create and push the authorized `v1.0.0` tag, require tag CI, then publish and
-   verify the GitHub release assets.
+1. Let the downstream tactical project integrate only through the published
+   1.0 public contracts and static capability profile.
+2. Route any missing reusable fact or mechanic through the core capability
+   request process; version, test, and live-verify it here before consumption.
 
 M5 live verification and M6 implementation are independent workstreams.
 

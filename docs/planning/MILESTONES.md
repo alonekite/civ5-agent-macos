@@ -13,7 +13,7 @@ GitHub Issues and should link back to one milestone ID.
 | M5 | Factual turn journal | Complete | M1, M2 |
 | M6 | Deterministic turn executor | Complete | M2 |
 | M7 | Public API stabilization | Complete | M4, M5, M6 |
-| M8 | 1.0 release readiness | In progress | M7 |
+| M8 | 1.0 release readiness | Complete | M7 |
 
 ## M0 — Environment reconnaissance
 
@@ -266,15 +266,14 @@ Acceptance criteria:
 - Run tests and sensitive-information scans on the release artifact.
 - Tag a reproducible version without generated game data or private logs.
 
-Current progress: the first release-gate audit is recorded in
-[M8 release readiness](RELEASE_READINESS.md). Public compatibility is complete through
-M7, and setup/security/recovery documentation exists. The bounded M5/M6
-target-machine run is complete. ADR-0031, the downstream integration contract,
-and the core capability request procedure define the first tactical consumer
-and future maintenance boundary. Remaining work is final validation, tagging,
-and publication evidence. Every high-impact risk has an explicit controlled
-disposition; artifact automation and the release/upgrade/rollback runbook are
-complete.
+M8 completed on 2026-09-16. The exact release commit passed local and GitHub
+Actions testing, duplicate artifact inspection, normalized-content comparison,
+clean wheel/sdist installation, and sensitive-content review. The immutable
+`v1.0.0` tag and published GitHub assets were downloaded and matched their
+recorded SHA-256 hashes. ADR-0031, the downstream integration contract, and the
+core capability request procedure define the first tactical consumer and future
+maintenance boundary. Every high-impact risk has an explicit controlled
+disposition, and the release/upgrade/rollback runbook remains authoritative.
 
 LLM interaction, working memory, strategic memory, and MCP are not M-series
 milestones. They require a separate future project plan.

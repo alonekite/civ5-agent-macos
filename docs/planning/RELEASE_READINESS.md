@@ -1,6 +1,6 @@
 # M8 Release Readiness
 
-Status: In progress
+Status: Complete for 1.0.0
 
 Last reviewed: 2026-09-16
 
@@ -17,10 +17,10 @@ experiment evidence.
 | Setup/security/recovery docs | README, security policy, reconciled live checklist, recoverable session manager, and release/upgrade/rollback runbook exist | Preserve these controls on the release candidate |
 | Public compatibility | ADR-0030 promotes the aggregate Python API and bounded `civ5-turn` contract to stable 1.0; other CLIs remain provisional | Preserve the declared boundary on the exact release candidate |
 | Downstream integration | ADR-0031 plus the stable 1.0 tactical integration profile define one-way dependency, ownership, capability discovery, known gaps, and strategy-neutral request intake | Keep consumer-specific policy and adapters out of release artifacts and core runtime |
-| Packaging | Version 1.0.0 metadata, wheel and sdist manifests, bounded inspection, and clean-environment install checks are implemented | Validate final metadata and artifacts from the exact candidate commit |
-| Tests and scans | 260 tests pass locally on Python 3.11/default runtime; the prior batch passed GitHub Actions 3.11/3.13; tracked-source scans are clean; artifact inspection checks source coverage, metadata, entry points, RECORD integrity, unsafe members, paths, private addresses, and common credentials | Run this batch in CI, then run the final warning-enabled suite and scans against the exact tagged release artifacts |
-| Reproducibility | CI builds each artifact twice and requires identical normalized content hashes; tag/version/hash rules are documented | Execute the runbook on the final candidate and publish selected archive hashes |
-| Release | Version, changelog, immutable annotated-tag procedure, publication verification, withdrawal, and rollback are documented for 1.0.0 | For every publication, validate the exact candidate, require explicit operator authorization, and execute the tag/publish runbook without moving a published tag |
+| Packaging | The selected 1.0.0 wheel and sdist passed bounded inspection and separate clean Python 3.11 installation/import/CLI checks | Preserve the artifact gate for every later release |
+| Tests and scans | 260 tests passed warning-enabled on Python 3.11/default runtime; exact-commit and tag GitHub Actions passed on 3.11/3.13; tracked-source and artifact scans were clean | Re-run all gates when source or release scope changes |
+| Reproducibility | Two independent wheel builds and two sequential sdist builds had matching normalized content hashes; selected archive hashes are published | Preserve archive hashes and repeat the comparison for every release |
+| Release | Immutable `v1.0.0` points to `676b029`; the GitHub release contains exactly the inspected wheel and sdist, and downloaded assets matched the published SHA-256 values | Never move the tag or replace its assets; use a new semantic version for changes |
 
 ## Completed live evidence
 

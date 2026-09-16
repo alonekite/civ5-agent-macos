@@ -217,7 +217,8 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 - [x] Add version/tag, upgrade, release, and rollback procedures
 - [x] Publish the downstream tactical boundary, 1.0 capability profile, and
   core capability request process
-- [ ] Produce a clean release candidate with passing CI and artifact hashes
+- [x] Publish the clean `v1.0.0` release after exact-commit and tag CI, duplicate
+  artifact inspection, clean installs, and downloaded-asset hash verification
 
 LLM decision-making, working memory, strategic memory, and MCP integration are
 intentionally outside this repository's scope.

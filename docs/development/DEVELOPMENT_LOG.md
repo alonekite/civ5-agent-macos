@@ -1110,6 +1110,19 @@ Implementation commit: `3449464`.
 
 Implementation commit: `5534544`.
 
+## 2026-09-16 — Publish 1.0.0
+
+- Published the immutable annotated `v1.0.0` tag at `676b029` after the exact
+  commit and tag runs both passed GitHub Actions on Python 3.11 and 3.13.
+- Built two independent wheels and two sequential source archives; both pairs
+  matched by normalized content, passed bounded artifact inspection, and the
+  selected wheel and sdist passed separate clean Python 3.11 installations.
+- Published exactly the inspected wheel and sdist with SHA-256 hashes in the
+  GitHub release notes, downloaded both assets again, and confirmed their
+  hashes matched. The release is neither a draft nor a prerelease.
+- No live-game setting, FireTuner state, firewall rule, private game data, or
+  generated local dataset was changed or published during release work.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
