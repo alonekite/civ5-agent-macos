@@ -892,6 +892,26 @@ Implementation commit: `f4d487c`.
 
 Implementation commit: `d7e40e9`.
 
+## 2026-09-16 — Source artifact and normalized reproducibility gate
+
+- Added an explicit source-distribution manifest containing release
+  documentation, scripts, package sources, and tests while excluding local
+  caches, generated game data, journals, databases, and logs.
+- Extended artifact inspection to bounded tar archives, rejected links and
+  unexpected members, and required packaged source and license bytes to match
+  the checked-out project rather than checking filenames alone.
+- Added normalized member/content hashes and two-build comparison for both
+  wheel and source archives; compressed archive hashes remain separate because
+  container timestamps may differ.
+- Extended CI to double-build and compare both artifacts, then install each in
+  a separate clean environment. Local double builds had identical normalized
+  content, the source artifact clean-installed successfully, and all 254 tests
+  passed warning-enabled on Python 3.11 and 3.14.
+- Sensitive-data review found no private material outside deliberate synthetic
+  scanner fixtures; public license and repository attribution remain explicit.
+
+Implementation commit: `dd5f74a`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
