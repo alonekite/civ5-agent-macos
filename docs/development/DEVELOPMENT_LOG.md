@@ -1067,6 +1067,28 @@ Evidence commit: `41aa550`.
 
 Evidence commit: `8ec902d`.
 
+## 2026-09-16 — Prepare the 1.0.0 release candidate
+
+- Advanced both declared package-version locations from 0.1.0 to 1.0.0 and
+  moved the completed change set into the dated 1.0.0 changelog section with
+  explicit compatibility and known-limitations notes.
+- Added ADR-0030. The supported `civ5_agent.api` aggregate namespace and
+  bounded `civ5-turn` interface are now the stable package surfaces; all other
+  command-line entry points remain provisional while retaining mandatory
+  safety, privacy, and write-verification controls.
+- Reconciled the public contracts, architecture, project dashboard, milestone,
+  release-readiness, operations, test-matrix, index, and README wording without
+  rewriting the historical ADR-0026/0027 decisions.
+- Both warning-enabled 260-test suites passed on Python 3.11 and the default
+  Python 3.14 runtime. Documentation links, version equality, diff checks, and
+  added-content scans for private paths, user names, private addresses, live
+  identities, long hashes, private keys, and common credentials passed.
+- No release tag or GitHub release was created; final candidate CI, duplicate
+  artifact builds, clean installations, archive hashes, and explicit operator
+  tag approval remain separate gates.
+
+Implementation commit: `3449464`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
