@@ -30,6 +30,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0021](ADR-0021-export-redacted-journal-structure.md) | Export only redacted journal structure by default | Accepted |
 | [ADR-0022](ADR-0022-bind-turn-plans-to-live-state-basis.md) | Bind complete-turn plans to one live-state basis | Accepted |
 | [ADR-0023](ADR-0023-reconcile-unknown-actions-with-watcher-cache.md) | Reconcile unknown actions without automatic retry | Accepted |
+| [ADR-0024](ADR-0024-use-bounded-watcher-only-turnplan-cli.md) | Use a bounded watcher-only TurnPlan CLI | Accepted |
 
 ## Template
 

@@ -1,6 +1,6 @@
 # Turn-Plan and Execution Contract
 
-Status: Schema 1 admission, ordered execution, and watcher adaptation implemented offline
+Status: Schema 1 admission, execution, recovery, and bounded CLI implemented offline
 
 ## Purpose
 
@@ -83,7 +83,22 @@ report only. Reconciliation under ADR-0023 validates cached terminal evidence
 against the last verified basis and fresh live state. A recovered final
 `end_turn` can complete; a recovered non-final success pauses at the next action
 so it cannot silently continue the old plan. Cache misses remain
-`recovery_required`. CLI plan loading remains pending.
+`recovery_required`.
+
+## File and CLI boundary
+
+`civ5-turn` accepts a local schema 1 plan file no larger than 64 KiB. The root
+and every action must contain exactly the documented fields; unknown fields,
+non-finite JSON constants, malformed identifiers, invalid arguments, and more
+than 64 actions fail before watcher contact.
+
+`validate PLAN` performs structural decoding and fresh watcher-state admission
+without executing an action. `execute PLAN` delegates the decoded plan to the
+watcher adapter and prints the complete `ExecutionReport`. Neither operation
+connects directly to FireTuner, creates plan content, queries M4/M5, or weakens
+bridge validation. Exit status 0 means valid/completed, 1 means input or
+transport failure, and 2 means a valid non-completed execution report. The
+surface is provisional until M7 under ADR-0024.
 
 ## Optional factual events
 

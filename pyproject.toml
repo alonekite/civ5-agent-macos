@@ -11,6 +11,7 @@ civ5-preflight = "civ5_agent.preflight:main"
 civ5-live-session = "civ5_agent.live_session:main"
 civ5-knowledge = "civ5_agent.knowledge.import_sqlite:main"
 civ5-journal = "civ5_agent.journal_cli:main"
+civ5-turn = "civ5_agent.turn_cli:main"
 
 [build-system]
 requires = ["setuptools>=68"]

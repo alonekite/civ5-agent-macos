@@ -8,10 +8,11 @@ development log.
 
 ## Dashboard
 
-- Current offline milestone: M6 — deterministic turn executor. M5 bounded
-  target-machine verification remains pending.
-- Active next deliverable: add a bounded CLI plan-loading surface.
-- Functional baseline: 230 tests pass locally on Python 3.11 and the default
+- Current offline milestone: M7 — public API stabilization. M5 and M6 bounded
+  target-machine verification remain pending.
+- Active next deliverable: inventory and stabilize the public read/write,
+  knowledge, journal, TurnPlan, and execution-report APIs.
+- Functional baseline: 236 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -96,6 +97,9 @@ development log.
 - Conservative report reconciliation validates cached evidence and fresh state.
   A recovered final end-turn can complete; a recovered non-final success pauses
   before the next action rather than automatically continuing the old plan.
+- `civ5-turn validate` strictly loads a bounded schema 1 plan and checks it
+  against fresh watcher state without writing. `civ5-turn execute` is the
+  explicit watcher-only execution entry point and returns the complete report.
 
 ## Evidence still optional
 
@@ -109,10 +113,11 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended offline order
 
-1. Expose bounded CLI plan loading without knowledge or journal dependencies.
-2. Run the bounded M5 live capture/verify/export test when the user is present.
-3. Add selective journal queries and stabilize public read/write,
-   knowledge-query, journal, and execution APIs in M7.
+1. Inventory the provisional public interfaces and define M7 compatibility,
+   error, and size-limit guarantees.
+2. Add selective journal and knowledge queries only where the public API
+   inventory demonstrates a concrete need.
+3. Run bounded M5/M6 live verification when the user is present.
 
 M5 live verification and M6 implementation are independent workstreams.
 
@@ -133,6 +138,8 @@ M5 live verification and M6 implementation are independent workstreams.
 - ADR-0022: complete-turn plans bind to one validated initial live-state basis.
 - ADR-0023: unknown actions reconcile through watcher-cache evidence and are
   never automatically retried.
+- ADR-0024: TurnPlan files are bounded, exact-field, and executable only through
+  the watcher-owned CLI path.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

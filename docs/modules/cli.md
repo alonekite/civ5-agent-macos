@@ -20,6 +20,7 @@ Current commands:
 - `civ5-live-session`
 - `civ5-knowledge`
 - `civ5-journal`
+- `civ5-turn`
 
 `civ5-watch` also accepts the paired opt-in arguments `--journal PATH` and
 `--journal-mode new|resume`. `new` refuses an existing path; `resume` explicitly
@@ -31,6 +32,11 @@ payload-free JSON summary; it never executes actions or exports match contents.
 append-order record stream. The mandatory flag makes private output explicit.
 `civ5-journal export SOURCE DESTINATION` exclusively creates a mode-0600
 structural export with private payloads and correlatable metadata removed.
+`civ5-turn validate PLAN` strictly loads at most 64 KiB of schema 1 JSON and
+checks it against fresh watcher state without writing. `civ5-turn execute PLAN`
+is the explicit write operation and delegates the complete plan to the
+watcher-owned executor. It never opens a direct FireTuner connection or creates
+missing plan content.
 
 ## Non-responsibilities
 
@@ -90,9 +96,10 @@ The primary watch and command flows have bounded target-machine evidence.
 The public CLI compatibility policy is not frozen before M7.
 `civ5-controller` is the legacy readiness/end-turn proof; it is not the future
 M6 tactical planner. M7 may rename it when the TurnPlan executor is public.
+Cross-process recovery-report loading is not exposed without a separate bounded
+persistence contract.
 
 ## Planned extensions
 
-Add an explicit TurnPlan execution entry point and stabilize names/error
-behavior in M7. Journal capture consumes validated in-memory results and never
-parses the independent M2 audit file.
+Stabilize names and error behavior in M7. Journal capture consumes validated
+in-memory results and never parses the independent M2 audit file.

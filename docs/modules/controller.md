@@ -1,6 +1,6 @@
 # Module: deterministic turn executor
 
-Status: M6 core, watcher adapter, and conservative recovery implemented offline
+Status: M6 implemented offline; target-machine verification pending
 
 ## Responsibility
 
@@ -83,12 +83,12 @@ ordered multi-action tests.
 
 ## Current limitations
 
-CLI plan loading and automatic continuation after recovered non-final actions
-are not implemented. The current `decide()` function
+Automatic continuation after recovered non-final actions is deliberately not
+implemented. The current `decide()` function
 mixes factual requirement reporting with the legacy end-turn recommendation and
 must not grow into a tactical or strategic planner.
 
 ## Planned extensions
 
-Add bounded CLI plan loading, then stabilize naming during M7. Tactical and
-strategic layers remain plan producers, not executor internals.
+Stabilize naming during M7. Tactical and strategic layers remain plan
+producers, not executor internals.

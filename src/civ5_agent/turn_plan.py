@@ -152,6 +152,29 @@ def validate_turn_plan(
     state: GameState,
     bridge_session_id: str,
 ) -> TurnPlan:
+    normalized = validate_turn_plan_structure(plan)
+    try:
+        current_session = validate_bridge_session_id(bridge_session_id)
+    except ValueError as error:
+        raise TurnPlanError(str(error)) from error
+    if normalized.bridge_session_id != current_session:
+        raise StaleTurnPlanError("TurnPlan targets a different bridge session")
+    validated = validate_live_state(state)
+    if not validated.turn_active:
+        raise StaleTurnPlanError("active player's turn is not active")
+    if normalized.turn != validated.turn:
+        raise StaleTurnPlanError("TurnPlan targets a different turn")
+    if normalized.active_player != validated.active_player:
+        raise StaleTurnPlanError("TurnPlan targets a different active player")
+    if not hmac.compare_digest(
+        normalized.state_basis_digest,
+        live_state_digest(validated),
+    ):
+        raise StaleTurnPlanError("TurnPlan state basis does not match live state")
+    return normalized
+
+
+def validate_turn_plan_structure(plan: TurnPlan) -> TurnPlan:
     if not isinstance(plan, TurnPlan):
         raise TurnPlanError("plan must be a TurnPlan")
     if (
@@ -162,29 +185,17 @@ def validate_turn_plan(
         raise TurnPlanError("unsupported TurnPlan schema_version")
     try:
         validate_plan_id(plan.plan_id)
-        target_session = validate_bridge_session_id(plan.bridge_session_id)
-        current_session = validate_bridge_session_id(bridge_session_id)
+        validate_bridge_session_id(plan.bridge_session_id)
     except ValueError as error:
         raise TurnPlanError(str(error)) from error
-    if target_session != current_session:
-        raise StaleTurnPlanError("TurnPlan targets a different bridge session")
-    validated = validate_live_state(state)
     for field in ("turn", "active_player"):
         value = getattr(plan, field)
         if isinstance(value, bool) or not isinstance(value, int) or value < 0:
             raise TurnPlanError(f"{field} must be a non-negative integer")
-    if not validated.turn_active:
-        raise StaleTurnPlanError("active player's turn is not active")
-    if plan.turn != validated.turn:
-        raise StaleTurnPlanError("TurnPlan targets a different turn")
-    if plan.active_player != validated.active_player:
-        raise StaleTurnPlanError("TurnPlan targets a different active player")
     if not isinstance(plan.state_basis_digest, str) or not _DIGEST_PATTERN.fullmatch(
         plan.state_basis_digest
     ):
         raise TurnPlanError("state_basis_digest must be lowercase SHA-256")
-    if not hmac.compare_digest(plan.state_basis_digest, live_state_digest(validated)):
-        raise StaleTurnPlanError("TurnPlan state basis does not match live state")
     if not isinstance(plan.actions, tuple):
         raise TurnPlanError("actions must be a tuple")
     if not plan.actions or len(plan.actions) > MAX_PLAN_ACTIONS:
@@ -210,6 +221,52 @@ def validate_turn_plan(
         active_player=plan.active_player,
         state_basis_digest=plan.state_basis_digest,
         actions=tuple(normalized_actions),
+    )
+
+
+def turn_plan_from_dict(values: object) -> TurnPlan:
+    if not isinstance(values, dict):
+        raise TurnPlanError("TurnPlan JSON root must be an object")
+    expected = {
+        "schema_version",
+        "plan_id",
+        "bridge_session_id",
+        "turn",
+        "active_player",
+        "state_basis_digest",
+        "actions",
+    }
+    if set(values) != expected:
+        raise TurnPlanError(f"TurnPlan fields must be exactly {sorted(expected)}")
+    raw_actions = values["actions"]
+    if not isinstance(raw_actions, list):
+        raise TurnPlanError("TurnPlan actions must be a JSON array")
+    if not raw_actions or len(raw_actions) > MAX_PLAN_ACTIONS:
+        raise TurnPlanError(f"actions must contain 1 to {MAX_PLAN_ACTIONS} items")
+    actions = []
+    action_fields = {"command_id", "action", "arguments"}
+    for raw_action in raw_actions:
+        if not isinstance(raw_action, dict) or set(raw_action) != action_fields:
+            raise TurnPlanError(
+                f"PlannedAction fields must be exactly {sorted(action_fields)}"
+            )
+        actions.append(
+            PlannedAction(
+                command_id=raw_action["command_id"],
+                action=raw_action["action"],
+                arguments=raw_action["arguments"],
+            )
+        )
+    return validate_turn_plan_structure(
+        TurnPlan(
+            schema_version=values["schema_version"],
+            plan_id=values["plan_id"],
+            bridge_session_id=values["bridge_session_id"],
+            turn=values["turn"],
+            active_player=values["active_player"],
+            state_basis_digest=values["state_basis_digest"],
+            actions=tuple(actions),
+        )
     )
 
 

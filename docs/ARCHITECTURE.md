@@ -95,7 +95,9 @@ The same socket now supports a session-scoped read-only lookup of completed
 command UUIDs. A miss never executes or retries a command; full report
 reconciliation validates a hit against the prior basis and fresh live state.
 A recovered final end-turn can complete, while a recovered non-final action
-pauses before the next write under ADR-0023. CLI plan loading remains pending.
+pauses before the next write under ADR-0023. The bounded `civ5-turn` CLI loads
+strict schema 1 JSON and reaches M6 only through the watcher adapter under
+ADR-0024; it does not plan actions or open a direct FireTuner connection.
 
 M6 does not query the structural knowledge view. Stable identifier shape, live
 capability, and action legality are bridge command responsibilities. Knowledge

@@ -197,9 +197,22 @@ PYTHONPATH=src python3 -m civ5_agent.controller
 It conservatively reports one of: wait, research required, production required,
 unit orders required, or ready to end turn. Add `--execute` only for the legacy
 explicit end-turn proof. M6 schema 1 now validates bounded complete-turn plans,
-their initial live-state basis, and execution-report consistency; ordered
-execution remains pending. It will not choose research, production, movement,
+their initial live-state basis, and execution-report consistency. Ordered
+watcher-owned execution, conservative no-retry recovery, and the bounded CLI are
+implemented offline. It will not choose research, production, movement,
 tactics, or strategy.
+
+Validate an explicit schema 1 plan against fresh watcher state without writing,
+or explicitly execute it, with:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.turn_cli validate plan.json
+PYTHONPATH=src python3 -m civ5_agent.turn_cli execute plan.json
+```
+
+Plan files are limited to 64 KiB and exact contract fields. The CLI uses only
+the existing private watcher socket and does not open a second FireTuner
+connection.
 
 ## Versioned ruleset knowledge
 

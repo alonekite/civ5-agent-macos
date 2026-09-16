@@ -11,7 +11,7 @@ GitHub Issues and should link back to one milestone ID.
 | M3 | Ruleset knowledge coverage | Complete | M1 |
 | M4 | Ruleset knowledge view | Complete | M3 |
 | M5 | Factual turn journal | Implemented offline; live verification pending | M1, M2 |
-| M6 | Deterministic turn executor | In progress | M2 |
+| M6 | Deterministic turn executor | Implemented offline; live verification pending | M2 |
 | M7 | Public API stabilization | Planned | M4, M5, M6 |
 | M8 | 1.0 release readiness | Planned | M7 |
 
@@ -209,7 +209,9 @@ opening another FireTuner connection. Its session-scoped read-only completed-
 command lookup never turns a cache miss into a retry. Conservative report
 reconciliation validates cached evidence and fresh state, completes a recovered
 final end-turn, and pauses after a recovered non-final success. CLI plan loading
-remains pending.
+and explicit execution are implemented as a strict 64-KiB watcher-only JSON
+surface under ADR-0024. All M6 acceptance criteria are implemented offline;
+bounded target-machine verification remains pending.
 
 ## M7 — Public API stabilization
 
