@@ -15,8 +15,8 @@ development log.
   missing exception-lifecycle fact; both are fixed offline under ADR-0028 and
   require repeat live proof.
 - Functional baseline: 259 tests pass locally on Python 3.11 and the default
-  runtime; the previous pushed baseline passed GitHub Actions on Python 3.11
-  and 3.13, and this batch is awaiting CI.
+  runtime; the current pushed batch passed GitHub Actions on Python 3.11 and
+  3.13.
 - Blocking issue: none.
 - User presence required next: only for the documented combined M5/M6 live
   release gate; offline release-procedure work can continue independently.

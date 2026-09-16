@@ -995,8 +995,9 @@ Implementation commit: `a73f07f`.
   procedure without claiming the operator's manual turn advance as automated
   success.
 - All 259 tests passed warning-enabled on Python 3.11 and the default Python
-  3.14 runtime. Documentation links, shell syntax, compilation, diff checks,
-  and sensitive-content scanning passed without private live artifacts.
+  3.14 runtime and in GitHub Actions on Python 3.11/3.13. Documentation links,
+  shell syntax, compilation, artifact checks, clean installs, diff checks, and
+  sensitive-content scanning passed without private live artifacts.
 
 Implementation commit: `c1dc935`.
 
