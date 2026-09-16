@@ -1123,6 +1123,29 @@ Implementation commit: `5534544`.
 - No live-game setting, FireTuner state, firewall rule, private game data, or
   generated local dataset was changed or published during release work.
 
+## 2026-09-17 — Plan verified unit movement
+
+- Added M9 and an ordered unit-movement plan covering documentation, stock-source
+  research, contracts, minimum read state, allowlisted write/verification,
+  deterministic execution, offline tests, bounded live evidence, and a future
+  compatible release.
+- Bounded the first design target to a caller-selected adjacent single step.
+  The tactical layer retains unit, destination, route, purpose, and alternative
+  selection; the core retains legality, bounded submission, and read-after-write
+  result authority.
+- Registered the strategy-neutral work as GitHub CoreCapabilityRequest #1 and
+  made unsupported capability the required downstream behavior until a released
+  profile advertises verified support.
+- Updated the five-hour heartbeat automation to follow the M9 plan's first
+  unfinished safe batch, ignore weekly quota, stop before 85% five-hour use,
+  require complete tested commits, and pause for explicit authorization before
+  any real-game operation.
+- Documentation-link tests, diff checks, and added-content scans passed. The
+  only user-name match is the intentional public repository URL; no private
+  path, address, credential, match state, or generated data was added.
+
+Planning commit: `1de7f36`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
