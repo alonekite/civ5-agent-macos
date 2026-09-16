@@ -171,12 +171,13 @@ execution-state store.
 - [x] Add bounded complete-plan admission and execution-report consistency
   validation
 - [x] Report deterministic factual turn requirements without choosing actions
-- [ ] Validate complete plans before writing and re-check live state before each
+- [x] Validate complete plans before writing and re-check live state before each
   action
-- [ ] Execute only ordered plan-listed actions through bridge postconditions
+- [x] Execute only ordered plan-listed actions through terminal bridge results
+  and before/after state continuity
 - [ ] Emit bounded factual progress, pause, divergence, recovery, and completion
   events for optional recording
-- [ ] Require an explicit final `end_turn` action
+- [x] Require an explicit final `end_turn` action
 - [ ] Add stale-state, missing-decision, interruption, idempotency, and recovery
   tests
 

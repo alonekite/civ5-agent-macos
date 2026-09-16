@@ -256,12 +256,14 @@ def validate_execution_report(
         ):
             raise TurnPlanError("completed report requires every action to succeed")
     elif report.status == "failed":
-        if (
-            len(errors) != 1
-            or normalized_steps[-1] is not errors[0]
-            or report.next_action_index != errors[0].index
-            or any(step.status != "success" for step in normalized_steps[:-1])
-        ):
+        valid_pre_execution_failure = not normalized_steps and report.next_action_index == 0
+        valid_action_failure = bool(normalized_steps) and (
+            len(errors) == 1
+            and normalized_steps[-1] is errors[0]
+            and report.next_action_index == errors[0].index
+            and all(step.status == "success" for step in normalized_steps[:-1])
+        )
+        if not (valid_pre_execution_failure or valid_action_failure):
             raise TurnPlanError("failed report requires one final failed step")
     elif errors or report.next_action_index != len(normalized_steps):
         raise TurnPlanError(

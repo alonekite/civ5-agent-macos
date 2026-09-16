@@ -84,7 +84,10 @@ may record its events. A complete-turn plan must list `end_turn` last and is not
 Schema 1 admission is implemented under ADR-0022. The complete validated
 initial live state is canonically hashed; a session, turn, player, or digest
 mismatch rejects the plan before writing. The digest is not reapplied after the
-plan's own verified mutations. Ordered execution remains pending.
+plan's own verified mutations. The in-process ordered core instead requires
+each command result's before-state to match the latest observation and uses the
+verified after-state as the next basis. It never retries an unknown submission.
+Watcher/CLI adaptation and explicit recovery remain pending.
 
 M6 does not query the structural knowledge view. Stable identifier shape, live
 capability, and action legality are bridge command responsibilities. Knowledge

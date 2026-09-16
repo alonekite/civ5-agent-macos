@@ -1,6 +1,6 @@
 # Module: deterministic turn executor
 
-Status: M6 schema 1 admission implemented; execution pending; legacy proof retained
+Status: M6 ordered core implemented offline; adapter/events/recovery pending
 
 ## Responsibility
 
@@ -28,6 +28,9 @@ schema 1 TurnPlan/action/report models, canonical state digests, construction,
 and strict admission/report validation. `civ5_agent.turn_requirements` provides
 ordered factual requirements without selecting actions. Stable public naming is
 deferred to M7.
+`civ5_agent.turn_executor` executes only plan-listed actions through injected
+read/action capabilities, verifies result state continuity, and returns bounded
+terminal reports without importing knowledge or journal modules.
 
 ## Inputs and outputs
 
@@ -75,12 +78,13 @@ ordered multi-action tests.
 
 ## Current limitations
 
-Ordered plan execution is not implemented. The current `decide()` function
+Watcher/CLI adaptation, optional event emission, and explicit ambiguous-outcome
+reconciliation are not implemented. The current `decide()` function
 mixes factual requirement reporting with the legacy end-turn recommendation and
 must not grow into a tactical or strategic planner.
 
 ## Planned extensions
 
-Implement ordered execution, test interruption recovery independently of M5,
-and stabilize naming during M7. Tactical and
+Add optional factual events, watcher/CLI adaptation, and interruption recovery
+independently of M5, then stabilize naming during M7. Tactical and
 strategic layers remain plan producers, not executor internals.

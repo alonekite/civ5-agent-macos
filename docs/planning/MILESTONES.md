@@ -200,8 +200,10 @@ depends only on bridge state/session/action contracts, not M4 knowledge or M5.
 The current choice to implement M5 first is project scheduling only. See
 ADR-0015 through ADR-0018, ADR-0022, and the turn-plan contract. Schema 1 plan,
 action, state-basis, execution-report validation, and factual requirement
-inspection are implemented offline; ordered execution and recovery remain
-pending.
+inspection are implemented offline. The ordered in-process core re-reads before
+every action, proves bridge-result state continuity, pauses on uncovered
+requirements/drift, and never retries an ambiguous submission. Optional factual
+events, watcher/CLI adaptation, and explicit recovery remain pending.
 
 ## M7 — Public API stabilization
 

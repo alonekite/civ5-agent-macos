@@ -10,9 +10,9 @@ development log.
 
 - Current offline milestone: M6 — deterministic turn executor. M5 bounded
   target-machine verification remains pending.
-- Active next deliverable: implement ordered TurnPlan execution with fresh
-  live-state checks before every action.
-- Functional baseline: 210 tests pass locally on Python 3.11 and the default
+- Active next deliverable: add bounded optional execution events, then a
+  watcher/CLI adapter and explicit ambiguous-outcome recovery.
+- Functional baseline: 217 tests pass locally on Python 3.11 and the default
   runtime; the latest implementation batch passed GitHub Actions on Python 3.11
   and 3.13.
 - Blocking issue: none.
@@ -83,6 +83,9 @@ development log.
 - Factual requirement inspection deterministically reports research, per-city
   production, per-unit orders, inactive turns, and game-reported blockers
   without selecting any response.
+- The ordered M6 core re-reads before each action, enforces continuity with the
+  prior verified after-state, pauses on drift/missing requirements, and never
+  retries an action whose outcome became unknown.
 
 ## Evidence still optional
 

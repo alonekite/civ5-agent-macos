@@ -1,6 +1,6 @@
 # Turn-Plan and Execution Contract
 
-Status: Schema 1 models and admission validation implemented; execution pending
+Status: Schema 1 admission and ordered in-process execution implemented offline
 
 ## Purpose
 
@@ -50,6 +50,15 @@ no M5 `match_id` and do not require journal or knowledge access.
   command identity, M6-owned execution state, and freshly read game state.
 - Operate correctly when no journal is configured or available.
 
+The in-process executor implements these transitions through two narrow injected
+capabilities: read `(bridge_session_id, GameState)` and execute one validated
+`PlannedAction` to obtain a terminal bridge `CommandResult`. The core imports
+neither M4 nor M5. Before each action it compares fresh live state to the last
+verified basis. A result's before-state must equal that observation; its
+after-state becomes the next basis. Explicit bridge rejection is `failed`.
+Connection loss after submission is `recovery_required` and is never retried
+automatically.
+
 ## Execution state
 
 M6 owns its execution cursor, verified action identities, bridge-session
@@ -57,6 +66,10 @@ identity, last live-state basis, and current execution status. The first
 implementation may keep this state only for the executor lifetime. Any later
 cross-process checkpoint is a separate private M6 contract, not an M5 journal
 record.
+
+The current implementation keeps cursor and verified steps in the returned
+report only. Explicit reconciliation of a `recovery_required` report and a
+watcher/CLI adapter remain pending.
 
 The journal may contain historical copies of plans and execution events, but
 those copies never authorize resumption, skipping, or retrying an action.
