@@ -929,6 +929,23 @@ Implementation commit: `dd5f74a`.
 
 Implementation commit: `35aadc7`.
 
+## 2026-09-16 — Stable release, upgrade, and rollback runbook
+
+- Defined synchronized package-version locations, semantic increment rules,
+  immutable annotated tags, and the explicit first-stable `1.0.0` transition
+  without changing the current development version or creating a tag.
+- Added exact release prerequisites, double artifact builds, normalized-content
+  comparison, clean-environment installs, SHA-256 publication checks, and
+  exact-commit/tag verification.
+- Documented clean-environment upgrade, separation of package rollback from
+  host safety restoration, immutable journal/knowledge handling, release
+  withdrawal, and patch-version recovery.
+- Reconciled the documentation index, operations index, roadmap, milestones,
+  release gates, project dashboard, and changelog. Documentation and artifact
+  contract tests passed, and the diff contained no private material.
+
+Implementation commit: `75d87a5`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
