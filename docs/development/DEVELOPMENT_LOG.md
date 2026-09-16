@@ -710,6 +710,20 @@ Implementation commit: `066e95e`.
 
 Implementation commit: `1e85043`.
 
+## 2026-09-16 — Optional bounded executor events
+
+- Added schema 1 factual events for plan receipt, action start, neutral bridge-
+  result receipt, deterministic rejection, unknown outcome, and terminal status.
+- Avoided claiming action success before the core validates before/after state
+  continuity.
+- Kept the event sink optional and independent of M5; bounded sink failures are
+  returned in the report and cannot block, alter, or retry an action.
+- Passed all 219 tests on Python 3.11 and the default Python 3.14 runtime; the
+  submitted diff contained no local paths, addresses, credentials, tokens, or
+  real match data.
+
+Implementation commit: `aa8bd0c`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
