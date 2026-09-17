@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-09-16.
+Last updated: 2026-09-17.
 
 This is the short durable handoff for current work. Detailed completed history
 belongs in module documents, milestones, the experiment log, and the
@@ -8,12 +8,12 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M9 — verified unit movement — is planned. M8 and the
+- Current milestone: M9 — verified unit movement — is in progress. M8 and the
   immutable 1.0.0 release remain complete.
-- Active next deliverable: execute
+- Active next deliverable: freeze the movement, live-state, command, TurnPlan,
+  and downstream contracts, then define the bounded verification procedure for
   [CoreCapabilityRequest #1](https://github.com/alonekite/civ5-agent-macos/issues/1)
-  by inspecting the bundled stock movement path, then produce ADR-0032 and the
-  movement contracts before writing command code.
+  before writing command code.
 - Functional baseline: 260 tests pass locally on Python 3.11/default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
@@ -59,6 +59,11 @@ development log.
   end-turn proof. It is not tactical policy.
 - M6 is target-machine verified through one newly authored explicit plan that
   completed and automatically advanced exactly one turn.
+- M9 source reconnaissance is complete. ADR-0032 selects the stock
+  `UI.SelectUnit` plus `Game.SelectionListMove` network-backed path for one
+  explicit adjacent ordinary move and rejects direct `PushMission`. This is a
+  design decision only; movement remains unimplemented and unsupported pending
+  contracts, offline tests, and target-machine verification.
 
 ## Current architecture
 

@@ -21,6 +21,7 @@ open until evidence justifies closing it; mitigation does not erase the risk.
 | R-014 | FireTuner truncates an oversized Lua program and leaves a submitted write outcome unclear | High above target limit | High | Controlled by design | Enforce a 1,000-byte pre-send maximum, keep every generated program below it, record/cache unknown outcomes without retry; compact marker delivery is target-verified |
 | R-015 | A numeric end-turn blocker assumption disagrees with the target runtime | Medium without symbolic checks | Medium | Controlled | Compare the Lua enum symbol, expose the verified parsed value, inspect it independently of UI clickability, and require turn-advance postcondition; target guard is live-verified |
 | R-016 | A downstream tactical consumer couples to private internals or moves planning policy into the core | Medium | High | Controlled by boundary | ADR-0031, the stable downstream capability profile, aggregate API, private-internal exclusions, and structured capability request review preserve one-way dependency and strategy-neutral core evolution |
+| R-017 | Selection drift or deferred mission processing moves the wrong unit or produces unexpected movement | Medium | High | Open for M9 | ADR-0032 requires exact selection verification, a visible adjacent empty target, no special movement modes, fresh before/after state, bounded polling, UUID no-retry behavior, and a controlled target-machine test |
 
 ## Review rules
 
@@ -79,3 +80,15 @@ ownership review.
 These dispositions bound the first stable release; they do not erase the
 underlying conditions or authorize additional game builds, actions, sources, or
 knowledge fields.
+
+## M9 high-impact disposition — 2026-09-17
+
+R-017 is **open** until target-machine evidence exists. Source inspection shows
+that ordinary human movement depends on the UI head selection and deferred
+network-message processing. ADR-0032 narrows the first capability to one
+caller-selected adjacent, visible, empty, non-city destination; requires exact
+selection confirmation plus identity-and-coordinate read-back; and prohibits
+automatic retry after uncertainty. Offline tests can prove validation,
+generation, polling, and recovery behavior, but only a bounded live experiment
+can show that this sequence moves exactly the requested unit on the supported
+Campaign Edition build. M9 and the 1.1.0 release remain blocked on that proof.

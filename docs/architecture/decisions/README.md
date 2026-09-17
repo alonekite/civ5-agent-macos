@@ -38,6 +38,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0029](ADR-0029-use-game-defined-no-end-turn-blocker.md) | Use the game-defined no-end-turn blocker | Accepted |
 | [ADR-0030](ADR-0030-promote-supported-surfaces-to-stable-1.0.md) | Promote the supported surfaces to stable 1.0 | Accepted; advances ADR-0026/0027 compatibility policy |
 | [ADR-0031](ADR-0031-bound-downstream-tactical-integration.md) | Bound downstream tactical integration and core evolution | Accepted |
+| [ADR-0032](ADR-0032-use-selected-unit-network-path-for-adjacent-movement.md) | Use the selected-unit network path for adjacent movement | Accepted |
 
 ## Template
 

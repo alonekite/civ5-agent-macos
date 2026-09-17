@@ -299,7 +299,10 @@ Acceptance criteria:
 - Publish the capability only through a compatible semantic-versioned release
   after updating the static downstream profile.
 
-Current status: planned. The owning execution order and evidence gates are in
-the [verified unit movement development plan](UNIT_MOVEMENT_PLAN.md). The
-initial scope is an explicit adjacent single-step move unless source research
-and ADR-0032 establish a different equally bounded contract.
+Current status: in progress. D0 and the C0/D1 source-research batch are
+complete. ADR-0032 selects the stock selected-unit network path for an explicit
+adjacent ordinary move; it rejects direct mission submission and retains exact
+fresh-state verification. Contracts and the verification procedure are next,
+and no movement command is implemented or advertised yet. The owning execution
+order and evidence gates are in the
+[verified unit movement development plan](UNIT_MOVEMENT_PLAN.md).

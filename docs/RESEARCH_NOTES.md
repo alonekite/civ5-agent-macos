@@ -19,9 +19,9 @@ Current working conclusions:
   connection in `CLOSE_WAIT`; prefer one persistent client connection.
 
 Open questions:
-1. Does the implemented unit-specific `skip_unit` action work on this build?
-2. Which additional victory-progress fields are stable enough to add?
-3. What is the smallest safe coordinate-movement API with reliable read-back?
+1. Which additional victory-progress fields are stable enough to add?
+2. Does the selected-unit movement path retain the exact selection and produce
+   the expected adjacent displacement on the target Campaign Edition runtime?
 
 Resolved since the initial notes:
 
@@ -37,3 +37,45 @@ Resolved since the initial notes:
   pre-contact diplomacy, and science-victory values. Non-empty diplomacy and
   non-zero science projects remain optional enhancement evidence.
 - Unit skip is live-verified using `IsReadyToMove()` rather than spent movement.
+
+## 2026-09-17 — Unit-movement source reconnaissance
+
+Evidence level: source inspection only. Nothing in this section is a live
+movement verification.
+
+The installed Brave New World UI uses the selected-unit path for ordinary
+right-click movement. `DLC/Expansion2/UI/InGame/WorldView/WorldView.lua` calls
+`Game.SelectionListMove(plot, bAlt, bShift, bCtrl)`, and other bundled UI code
+uses `UI.SelectUnit(unit)` plus `UI.GetHeadSelectedUnit()` to establish and read
+the selected unit. Bundled uses of `Map.PlotDirection(x, y, direction)` and
+`Map.PlotDistance(x1, y1, x2, y2)` also confirm stock adjacent-plot primitives.
+
+Strings in the installed target executable and expansion library corroborate
+the presence of `SelectionListMove`, `SelectUnit`, `GetHeadSelectedUnit`, and
+movement predicates. They also include a protocol-error diagnostic for calling
+`PushMission` on a human-controlled unit outside network-message dispatch.
+
+For implementation detail only, the public
+[`Gedemon/Civ5-DLL`](https://github.com/Gedemon/Civ5-DLL) mirror was inspected
+at commit `aa29e80751f541ae04858b6d2a2c7dcca454201e`. No source or data was copied
+into this repository. The released source shows that:
+
+- `CvGame::selectionListMove` resolves the head-selected active-player unit and
+  sends a network mission (or a swap when the destination permits one);
+- direct `CvLuaUnit::lPushMission` reaches the path that warns when a human
+  unit mission is invoked outside network-message dispatch;
+- `CvLuaUnit::lGeneratePath` raises `NYI`;
+- `CvLuaUnit::lCanMoveOrAttackInto` fails to assign its native result before
+  returning the initialized false value in that source revision;
+- `CvLuaUnit::lCanMoveThrough` does return its native predicate result, but it
+  is not by itself a complete destination/stacking contract.
+
+These findings select the stock network-backed `SelectionListMove` route for
+the first experiment and reject direct `PushMission`. They also justify a
+conservative first slice: one caller-chosen adjacent, currently visible, empty,
+non-city plot; no attack, swap, air movement, embark/disembark, automation, or
+multi-step path. The command must select the exact active-player unit, verify
+the head selection, submit one non-queued move, and prove from a fresh read that
+the same unit reached the exact destination. ADR-0032 owns the decision. The
+method remains unsupported until its contracts, offline tests, and bounded
+target-machine evidence pass.
