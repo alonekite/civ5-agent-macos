@@ -1380,6 +1380,24 @@ Planning commit: `2f4bc54`.
 
 Decision commit: `a526974`.
 
+## 2026-09-17 — Freeze worker-build contracts
+
+- Added the owning worker-build contract and froze schema 7 current-plot
+  context, current build, and bounded factual build/improvement candidates.
+- Defined the exact four-field `worker_build` request, conservative admission,
+  selected-unit stock dispatch, and separate active-build and
+  completed-improvement success branches.
+- Kept TurnPlan schema 1 and the existing result, report, event, journal, and
+  stable CLI envelopes unchanged; core 1.1.0 continues to reject the action.
+- Updated module, public API, downstream, roadmap, milestone, project-state,
+  and verification-matrix documents. Implementation begins only after the D3
+  offline and bounded-live procedures are frozen.
+- All 297 tests passed. Documentation links, diff checks, and changed-file
+  sensitive-content scans passed. No game, FireTuner, firewall, or live write
+  operation ran.
+
+Contract commit: `dd03351`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
