@@ -1286,6 +1286,30 @@ Implementation commit: `629f0a8`.
 
 Implementation commit: `ed7daea`.
 
+## 2026-09-17 — Record the bounded movement live gate
+
+- Completed C6 on the target Campaign Edition build with one guarded schema 6
+  watcher, one source-coordinate pre-send rejection, and one separately
+  authorized adjacent ordinary move.
+- The accepted move reached the exact admitted target in the same active turn,
+  reduced movement points, produced a fresh watcher snapshot, and caused no
+  observed combat, capture, swap, embark/disembark, prompt, or movement by
+  another unit.
+- Confirmed the private command audit remained mode `600` and restored
+  FireTuner, listener, agent socket, firewall, and Civ V rule to the recorded
+  host baseline.
+- Reconciled the experiment log, verification matrix, Chinese live ledger,
+  project dashboard, milestone/roadmap, risk R-017, bridge and public contracts,
+  downstream compatibility forecast, and changelog. Development head is now
+  live-verified but remains absent from the released 1.0.0 profile until D4/C7
+  completes the planned 1.1.0 release.
+- All 297 warning-enabled tests passed on Python 3.11 and the default runtime.
+  Documentation links, diff checks, and tracked-content scans passed; no raw
+  snapshot, private path, local address, credential, real identifier, map
+  coordinate, UUID, or private audit data was committed.
+
+Evidence commit: `15a54b1`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
