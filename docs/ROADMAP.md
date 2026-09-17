@@ -236,3 +236,21 @@ intentionally outside this repository's scope.
 - [x] Complete the full offline verification gate
 - [x] Complete bounded operator-authorized target-machine verification
 - [x] Publish the verified capability in a compatible 1.1.0 release
+
+## M10 — Verified worker build
+
+- [x] Define the documentation, implementation, verification, and release plan
+- [x] Normalize the conversation-submitted strategy-neutral capability request
+- [x] Register the request as GitHub Issue #2
+- [ ] Research candidate enumeration, stock dispatch, exclusions, and exact
+  active/completed postconditions; accept ADR-0033
+- [ ] Freeze worker-build, live-state, command, TurnPlan, and downstream
+  contracts
+- [ ] Freeze the offline and bounded target-machine verification procedures
+- [ ] Implement and test schema 7 current-plot build state
+- [ ] Implement bounded allowlisted worker build with read-after-write
+  verification
+- [ ] Integrate the explicit action into deterministic TurnPlan execution
+- [ ] Complete the full offline verification gate
+- [ ] Complete bounded operator-authorized target-machine verification
+- [ ] Publish the verified capability in a compatible 1.2.0 release

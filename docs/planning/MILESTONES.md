@@ -15,6 +15,7 @@ GitHub Issues and should link back to one milestone ID.
 | M7 | Public API stabilization | Complete | M4, M5, M6 |
 | M8 | 1.0 release readiness | Complete | M7 |
 | M9 | Verified unit movement | Complete | M8, M2, M6 |
+| M10 | Verified worker build | Planning | M9, M2, M6 |
 
 ## M0 — Environment reconnaissance
 
@@ -313,3 +314,33 @@ the exact-commit and tag CI, duplicate artifacts, clean installs, immutable
 tag, GitHub Release, and downloaded-asset verification all passed. The owning
 execution order and evidence gates are in
 the [verified unit movement development plan](UNIT_MOVEMENT_PLAN.md).
+
+## M10 — Verified worker build
+
+Acceptance criteria:
+
+- Accept only an exact active-player unit and ordinary `BUILD_*` identifier
+  supplied by a caller; never select a worker, plot, improvement, route, or
+  tactical alternative.
+- Limit the first slice to a worker already on the target plot and a contract-
+  approved ordinary improvement with an exact observable result.
+- Define and version the minimum visible current-plot state, conservative
+  per-unit candidates, allowlisted command, TurnPlan behavior, verified result,
+  and downstream capability contract.
+- Reject stale, malformed, unavailable, hidden-information-dependent, repair,
+  route, feature-removal-only, water, consuming, automated, and other
+  unsupported requests before treating them as successful.
+- Verify both multi-turn active-build and immediate-completion outcomes through
+  fresh state; never retry an ambiguous submission automatically.
+- Pass the full offline matrix and a bounded operator-authorized target-machine
+  procedure, including exact host restoration.
+- Publish the capability only through a compatible semantic-versioned release
+  after updating the static downstream profile.
+
+Current status: planning. The conversation-submitted request is registered as
+[GitHub Issue #2](https://github.com/alonekite/civ5-agent-macos/issues/2) and
+normalized in the [verified worker build development plan](WORKER_BUILD_PLAN.md).
+Bundled BNW UI inspection identifies a candidate stock action path. C0/D1 must
+settle selection-independent candidate enumeration, exact allowlist exclusions,
+transport size, and immediate-
+completion verification before ADR-0033 or command code is accepted.

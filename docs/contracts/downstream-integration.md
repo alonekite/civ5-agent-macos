@@ -111,6 +111,21 @@ Their absence is a compatibility result, not permission for a consumer-side
 workaround. New reusable facts and mechanics follow the core capability request
 process.
 
+### Accepted future request: ordinary worker build
+
+M10 has accepted a strategy-neutral request for one caller-selected ordinary
+`BUILD_*` action by a worker already standing on the intended plot. It remains
+absent from core 1.1.0 and must not be emitted by consumers yet. The tactical
+layer retains worker, plot, improvement, ordering, and purpose selection; the
+core request is limited to visible current-plot facts, conservative per-unit
+candidates, exact dispatch, and factual verification.
+
+Until a compatible release advertises the finalized schema and action, a
+consumer must report this domain as unsupported and emit no worker-build plan
+action. Direct FireTuner access or another consumer-side write path is not a
+fallback. See the [M10 worker-build development
+plan](../planning/WORKER_BUILD_PLAN.md).
+
 ## 1.1.0 movement capability
 
 The accepted M9 contract defines live-state schema 6 and an allowlisted

@@ -16,6 +16,9 @@ do not belong in the repository.
   evidence, and blockers.
 - [Verified unit movement plan](planning/UNIT_MOVEMENT_PLAN.md): M9 documentation,
   code, offline verification, live-test, and release workstreams.
+- [Verified worker build plan](planning/WORKER_BUILD_PLAN.md): accepted M10
+  capability request, boundary, research questions, staged implementation,
+  verification, and 1.2.0 release gates.
 
 ## Architecture and decisions
 
@@ -51,7 +54,7 @@ do not belong in the repository.
 - [CLI compatibility contract](contracts/cli.md): supported `civ5-turn`
   envelopes and exits, plus explicitly provisional entry points.
 - [Downstream tactical integration](contracts/downstream-integration.md): stable
-  1.0 capability profile, ownership boundary, absent capabilities, and consumer
+  1.1 capability profile, ownership boundary, absent capabilities, and consumer
   compatibility rules.
 
 The Python implementation and tests remain authoritative for exact executable

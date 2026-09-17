@@ -8,16 +8,18 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M9 — verified unit movement — is complete. M8 and the
-  immutable 1.0.0 release remain complete.
-- Active next deliverable: none in this repository. The stable 1.1.0 movement
-  capability is available to the downstream tactical project; future gaps use
-  the core capability request process.
+- Current milestone: M10 — verified worker build — is in planning. M9 and the
+  immutable 1.1.0 release remain complete.
+- Active next deliverable: complete M10 C0/D1 for registered GitHub Issue #2:
+  settle conservative per-unit candidate enumeration, stock dispatch,
+  exclusions, transport size, and exact active/completed postconditions before
+  command code.
 - Functional baseline: 297 tests pass locally on Python 3.11/default runtime
   and in exact-commit/tag GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: no. C6, D4, C7, publication, and downloaded-asset
-  verification are complete.
+- User presence required next: no. Source research, request registration, ADR,
+  contract, and offline work do not require the game. A later C6 write requires
+  the operator and separate confirmation.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -103,6 +105,13 @@ development log.
   commit; exact-commit and tag CI passed on Python 3.11/3.13, duplicate wheel
   and sdist contents matched, clean installations passed, and the two published
   assets matched their recorded SHA-256 values after download.
+- M10 planning has started from a downstream capability request. The first
+  slice is one caller-selected ordinary `BUILD_*` action for a worker already
+  on the target plot. Bundled BNW UI source identifies
+  `Game.CanHandleAction`/`Game.HandleAction`, `action.MissionData`,
+  `unit:GetBuildType`, and plot build-turn APIs as the candidate stock path;
+  this is source evidence only. R-018 blocks command code until per-unit
+  read-only enumeration and immediate-completion verification are resolved.
 
 ## Current architecture
 
@@ -190,13 +199,11 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Execute the batches in
-   `docs/planning/UNIT_MOVEMENT_PLAN.md`, starting with the capability request,
-   source research, ADR-0032, and contracts.
-2. Pause for the bounded operator-authorized live procedure before advertising
-   movement in the downstream profile or preparing 1.1.0.
-
-M5 live verification and M6 implementation are independent workstreams.
+1. Complete C0/D1 source/runtime research and accept ADR-0033 only when the
+   candidate, dispatch, exclusions, size, and two success branches are exact.
+2. Freeze D2/D3 contracts and verification before implementing C1–C4.
+3. Complete C5 offline evidence, then pause for separately authorized C6 live
+   verification before advertising the action or preparing 1.2.0.
 
 ## Recent governing decisions
 

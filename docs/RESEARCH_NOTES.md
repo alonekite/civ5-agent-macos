@@ -20,8 +20,11 @@ Current working conclusions:
 
 Open questions:
 1. Which additional victory-progress fields are stable enough to add?
-2. Does the selected-unit movement path retain the exact selection and produce
-   the expected adjacent displacement on the target Campaign Edition runtime?
+2. Can `unit:CanBuild(unit:GetPlot(), build_id)` conservatively enumerate an
+   exact unit's current-plot ordinary builds on the target runtime without
+   changing UI selection?
+3. Can exact selected-unit worker dispatch and both active-build and immediate-
+   completion verification fit the bounded FireTuner path?
 
 Resolved since the initial notes:
 
@@ -79,3 +82,29 @@ the head selection, submit one non-queued move, and prove from a fresh read that
 the same unit reached the exact destination. ADR-0032 owns the decision. The
 method remains unsupported until its contracts, offline tests, and bounded
 target-machine evidence pass.
+
+## 2026-09-17 — Worker-build source reconnaissance
+
+Evidence level: bundled-source inspection only. Nothing in this section is a
+live worker-build verification.
+
+The installed BNW
+`DLC/Expansion2/UI/InGame/WorldView/UnitPanel.lua` enumerates
+`GameInfoActions` and identifies build buttons through
+`ActionSubTypes.ACTIONSUBTYPE_BUILD`. It stores `action.MissionData` as the
+numeric build identifier, uses `Game.CanHandleAction(action_index, 0, 1)` for
+visibility and `Game.CanHandleAction(action_index)` for current executability,
+then sends the selected button through `Game.HandleAction(action_index)`.
+
+The same file reads ongoing work with `unit:GetBuildType()` and obtains timing
+through `plot:GetBuildTurnsLeft` and `plot:GetBuildTurnsTotal`. Its recommended
+action branch calls `unit:IsActionRecommended`; M10 explicitly excludes that
+recommendation signal because selection belongs downstream.
+
+This identifies the likely stock dispatch and progress APIs but leaves two
+material gaps. `Game.CanHandleAction` is tied to the selected-unit context, so
+read-only candidate enumeration must not silently select each unit. Also, a
+one-turn build may complete before `GetBuildType()` can expose it, so success
+must have a separately specified exact plot-result branch. M10 C0/D1 must
+resolve both gaps, define a narrow ordinary-improvement allowlist, and prove the
+generated command fits the 1,000-byte limit before command implementation.
