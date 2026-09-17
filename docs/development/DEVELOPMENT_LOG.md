@@ -1146,6 +1146,29 @@ Implementation commit: `5534544`.
 
 Planning commit: `1de7f36`.
 
+## 2026-09-17 — Decide the adjacent movement boundary
+
+- Inspected the installed Brave New World UI and target binary read-only, then
+  used the public released SDK mirror as corroborating reference rather than
+  copied code or target-runtime proof.
+- Accepted ADR-0032: the first movement slice uses exact unit selection plus
+  the stock network-backed `SelectionListMove` path for one caller-selected
+  adjacent, visible, empty, non-city plot. Direct `PushMission`, attacks,
+  swaps, embarkation, air movement, automation, and multi-step paths remain
+  outside the slice.
+- Recorded the released bindings that make `GeneratePath` and
+  `CanMoveOrAttackInto` unsuitable as authoritative admission checks, and kept
+  exact fresh identity-and-coordinate read-back as the success authority.
+- Added open risk R-017 for selection drift and deferred mission behavior;
+  target-machine evidence remains required before support or release is
+  claimed.
+- Updated M9 planning, roadmap, milestone, and project-state documents. All 260
+  warning-enabled offline tests and documentation links passed. Added-content
+  scans found no private path, local address, credential, match state, or
+  generated game data; the public repository and reference URLs are intentional.
+
+Decision commit: `4bf347f`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
