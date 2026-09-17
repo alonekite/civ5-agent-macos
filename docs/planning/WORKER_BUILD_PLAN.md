@@ -1,6 +1,6 @@
 # Verified Worker Build Development Plan
 
-Status: D0–D3 and C0/D1 complete; C1 schema 7 implementation is next
+Status: D0–D3, C0/D1, and C1 complete; C2 allowlisted command is next
 
 Target milestone: M10
 
@@ -205,10 +205,19 @@ close the live gate, while the other remains fully covered offline.
 
 ### C1 — Implement schema 7 read state
 
+Status: complete offline. Development head emits nine coherent parts and
+exports schema/limit constants without adding `worker_build` to the allowlist.
+
 Expose only the contract-approved current-plot context, current build, and
 bounded ordinary-build candidates. Validate identifiers, ordering, uniqueness,
 unit association, legacy compatibility, multi-part consistency, and payload
 bounds. No read operation may change UI selection.
+
+Outcome: two 688/895-byte read programs use active-team resource visibility,
+never select a unit, and emit exact current-plot/current-build/candidate facts.
+Parser and validation enforce mandatory parts, unit binding, identifier and
+count limits, exact nested shape, nulls, stable sorting, duplicates, and schema
+2–6 compatibility. WB-S01–S06 and schema 7 movement compatibility pass offline.
 
 ### C2 — Implement the allowlisted command
 

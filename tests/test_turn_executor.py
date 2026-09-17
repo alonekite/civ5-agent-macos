@@ -56,9 +56,10 @@ def movement_state(
     targets=({"x": 10, "y": 12},),
     turn=4,
     blocker=3,
+    schema_version=6,
 ):
-    return GameState(
-        schema_version=6,
+    result = GameState(
+        schema_version=schema_version,
         turn=turn,
         active_player=0,
         gold=12,
@@ -95,6 +96,25 @@ def movement_state(
             }
         ],
     )
+    if schema_version >= 7:
+        result.units[0].update(
+            {
+                "current_plot": {
+                    "terrain_type": "TERRAIN_GRASS",
+                    "feature_type": None,
+                    "resource_type": None,
+                    "improvement_type": None,
+                    "route_type": None,
+                    "owner_id": 0,
+                    "is_hills": False,
+                    "is_water": False,
+                    "is_fresh_water": False,
+                },
+                "current_build_type": None,
+                "ordinary_build_actions": [],
+            }
+        )
+    return result
 
 
 class FakeBridge:
@@ -127,7 +147,7 @@ class FakeBridge:
 
 class TurnExecutorTest(unittest.TestCase):
     def test_executes_explicit_move_then_end_turn_with_factual_events(self):
-        initial = movement_state()
+        initial = movement_state(schema_version=7)
         moved = movement_state(
             x=10,
             y=12,
@@ -135,6 +155,7 @@ class TurnExecutorTest(unittest.TestCase):
             ready=False,
             targets=(),
             blocker=-1,
+            schema_version=7,
         )
         advanced = movement_state(
             x=10,
@@ -144,6 +165,7 @@ class TurnExecutorTest(unittest.TestCase):
             targets=(),
             turn=5,
             blocker=-1,
+            schema_version=7,
         )
         actions = (
             PlannedAction(

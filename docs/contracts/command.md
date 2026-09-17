@@ -35,7 +35,7 @@ Direct commands create one identity for their single connection.
 | `choose_research` | `TECH_*` identifier | selected research matches identifier | Live-verified |
 | `set_city_production` | city ID, `unit\|building\|project`, matching stable ID | target city's production matches | Live-verified |
 | `skip_unit` | schema 4 owned unit ID | same unit/location/movement; `ready_to_move` becomes false | Live-verified |
-| `move_unit` | schema 6 owned unit ID and exact bounded `x`, `y` | same unit reaches exact destination in same active turn with lower movement | Live-verified; added in 1.1.0 |
+| `move_unit` | schema 6+ owned unit ID, admitted target, and exact bounded `x`, `y` | same unit reaches exact destination in same active turn with lower movement | Live-verified on schema 6; added in 1.1.0; schema 7 compatibility covered offline |
 
 Core 1.1.0 includes the approved M9 `move_unit` action with exact arguments
 `unit_id`, `x`, and `y`. It is absent from core 1.0.0. Its downstream profile

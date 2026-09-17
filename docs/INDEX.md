@@ -44,7 +44,7 @@ do not belong in the repository.
   in the 1.1.0 compatibility profile.
 - [Worker-build contract](contracts/worker-build.md): frozen M10 schema 7,
   exact command, dual postcondition, executor, compatibility, and evidence
-  boundary; not yet implemented or live-verified.
+  boundary; C1 reads implemented offline, write and live evidence pending.
 - [Session and match identity contract](contracts/session-identity.md)
 - [Knowledge contract](KNOWLEDGE.md)
 - [Ruleset knowledge-view contract](contracts/resolver.md)

@@ -7,8 +7,16 @@ from .models import GameState
 
 
 TECH_TYPE_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
-SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5, 6})
+TERRAIN_TYPE_PATTERN = re.compile(r"TERRAIN_[A-Z0-9_]+\Z")
+FEATURE_TYPE_PATTERN = re.compile(r"FEATURE_[A-Z0-9_]+\Z")
+RESOURCE_TYPE_PATTERN = re.compile(r"RESOURCE_[A-Z0-9_]+\Z")
+IMPROVEMENT_TYPE_PATTERN = re.compile(r"IMPROVEMENT_[A-Z0-9_]+\Z")
+ROUTE_TYPE_PATTERN = re.compile(r"ROUTE_[A-Z0-9_]+\Z")
+BUILD_TYPE_PATTERN = re.compile(r"BUILD_[A-Z0-9_]+\Z")
+SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5, 6, 7})
 MAX_MAP_COORDINATE = 65_535
+MAX_BUILD_IDENTIFIER_LENGTH = 64
+MAX_ORDINARY_WORKER_BUILDS_PER_UNIT = 32
 NO_END_TURN_BLOCKING_TYPE = -1
 
 
@@ -149,6 +157,8 @@ def validate_live_state(state: GameState) -> GameState:
                 )
             if state.schema_version >= 6:
                 _validate_ordinary_move_targets(unit)
+            if state.schema_version >= 7:
+                _validate_worker_state(unit)
 
     diplomacy_players: set[int] = set()
     for relation in state.diplomacy:
@@ -308,6 +318,105 @@ def _validate_ordinary_move_targets(unit: dict[str, object]) -> None:
         raise StateValidationError(
             f"unit {unit.get('id')} ordinary_move_targets contain duplicates"
         )
+
+
+def _validate_worker_state(unit: dict[str, object]) -> None:
+    unit_id = unit.get("id")
+    plot = unit.get("current_plot")
+    expected_plot_fields = {
+        "terrain_type",
+        "feature_type",
+        "resource_type",
+        "improvement_type",
+        "route_type",
+        "owner_id",
+        "is_hills",
+        "is_water",
+        "is_fresh_water",
+    }
+    if not isinstance(plot, dict) or set(plot) != expected_plot_fields:
+        raise StateValidationError(f"unit {unit_id} has malformed current_plot")
+    _validate_worker_identifier(
+        plot["terrain_type"], TERRAIN_TYPE_PATTERN, "terrain_type", unit_id
+    )
+    for field, pattern in (
+        ("feature_type", FEATURE_TYPE_PATTERN),
+        ("resource_type", RESOURCE_TYPE_PATTERN),
+        ("improvement_type", IMPROVEMENT_TYPE_PATTERN),
+        ("route_type", ROUTE_TYPE_PATTERN),
+    ):
+        value = plot[field]
+        if value is not None:
+            _validate_worker_identifier(value, pattern, field, unit_id)
+    owner_id = plot["owner_id"]
+    if owner_id is not None and (
+        not isinstance(owner_id, int)
+        or isinstance(owner_id, bool)
+        or owner_id < 0
+    ):
+        raise StateValidationError(f"unit {unit_id} has invalid plot owner_id")
+    for field in ("is_hills", "is_water", "is_fresh_water"):
+        if not isinstance(plot[field], bool):
+            raise StateValidationError(f"unit {unit_id} has invalid plot {field}")
+
+    current_build = unit.get("current_build_type")
+    if current_build is not None:
+        _validate_worker_identifier(
+            current_build, BUILD_TYPE_PATTERN, "current_build_type", unit_id
+        )
+
+    actions = unit.get("ordinary_build_actions")
+    if not isinstance(actions, list):
+        raise StateValidationError(
+            f"unit {unit_id} has invalid ordinary_build_actions"
+        )
+    if len(actions) > MAX_ORDINARY_WORKER_BUILDS_PER_UNIT:
+        raise StateValidationError(
+            f"unit {unit_id} has too many ordinary_build_actions"
+        )
+    normalized: list[tuple[str, str]] = []
+    for action in actions:
+        if not isinstance(action, dict) or set(action) != {
+            "build_type",
+            "improvement_type",
+        }:
+            raise StateValidationError(
+                f"unit {unit_id} has malformed ordinary build action"
+            )
+        build_type = action["build_type"]
+        improvement_type = action["improvement_type"]
+        _validate_worker_identifier(
+            build_type, BUILD_TYPE_PATTERN, "build_type", unit_id
+        )
+        _validate_worker_identifier(
+            improvement_type,
+            IMPROVEMENT_TYPE_PATTERN,
+            "improvement_type",
+            unit_id,
+        )
+        normalized.append((build_type, improvement_type))
+    if normalized != sorted(normalized):
+        raise StateValidationError(
+            f"unit {unit_id} ordinary_build_actions are not sorted"
+        )
+    if len({build_type for build_type, _ in normalized}) != len(normalized):
+        raise StateValidationError(
+            f"unit {unit_id} ordinary_build_actions contain duplicate builds"
+        )
+
+
+def _validate_worker_identifier(
+    value: object,
+    pattern: re.Pattern[str],
+    field: str,
+    unit_id: object,
+) -> None:
+    if (
+        not isinstance(value, str)
+        or len(value) > MAX_BUILD_IDENTIFIER_LENGTH
+        or not pattern.fullmatch(value)
+    ):
+        raise StateValidationError(f"unit {unit_id} has invalid {field}")
 
 
 def _validate_records(records: list[dict[str, object]], kind: str) -> None:

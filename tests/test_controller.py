@@ -1,3 +1,4 @@
+import copy
 import unittest
 
 from civ5_agent.controller import Decision, decide
@@ -81,6 +82,39 @@ def schema_six_state(**changes):
         {"x": 8, "y": 12},
         {"x": 10, "y": 12},
     ]
+    for key, value in changes.items():
+        setattr(state, key, value)
+    return state
+
+
+def schema_seven_state(**changes):
+    state = schema_six_state(schema_version=7)
+    state.units[0].update(
+        {
+            "current_plot": {
+                "terrain_type": "TERRAIN_GRASS",
+                "feature_type": None,
+                "resource_type": None,
+                "improvement_type": None,
+                "route_type": "ROUTE_ROAD",
+                "owner_id": 0,
+                "is_hills": False,
+                "is_water": False,
+                "is_fresh_water": True,
+            },
+            "current_build_type": None,
+            "ordinary_build_actions": [
+                {
+                    "build_type": "BUILD_FARM",
+                    "improvement_type": "IMPROVEMENT_FARM",
+                },
+                {
+                    "build_type": "BUILD_TRADING_POST",
+                    "improvement_type": "IMPROVEMENT_TRADING_POST",
+                },
+            ],
+        }
+    )
     for key, value in changes.items():
         setattr(state, key, value)
     return state
@@ -318,6 +352,94 @@ class StateValidationTest(unittest.TestCase):
                     candidate.units[0].pop("ordinary_move_targets")
                 else:
                     candidate.units[0]["ordinary_move_targets"] = targets
+                with self.assertRaises(StateValidationError):
+                    validate_live_state(candidate)
+
+    def test_schema_seven_validates_current_plot_and_current_build(self):
+        state = schema_seven_state()
+        self.assertIs(validate_live_state(state), state)
+
+        invalid_changes = (
+            ("terrain_type", "GRASS"),
+            ("feature_type", "FEATURE_"),
+            ("resource_type", "RESOURCE_" + "X" * 65),
+            ("improvement_type", 4),
+            ("route_type", "BUILD_ROAD"),
+            ("owner_id", True),
+            ("owner_id", -1),
+            ("is_hills", 0),
+            ("is_water", "false"),
+            ("is_fresh_water", None),
+        )
+        for field, value in invalid_changes:
+            with self.subTest(field=field, value=value):
+                candidate = copy.deepcopy(schema_seven_state())
+                candidate.units[0]["current_plot"][field] = value
+                with self.assertRaises(StateValidationError):
+                    validate_live_state(candidate)
+
+        for current_build in ("BUILD_", "IMPROVEMENT_FARM", 3, "BUILD_" + "X" * 65):
+            with self.subTest(current_build=current_build):
+                candidate = copy.deepcopy(schema_seven_state())
+                candidate.units[0]["current_build_type"] = current_build
+                with self.assertRaises(StateValidationError):
+                    validate_live_state(candidate)
+
+        missing = copy.deepcopy(schema_seven_state())
+        missing.units[0]["current_plot"].pop("route_type")
+        with self.assertRaisesRegex(StateValidationError, "malformed current_plot"):
+            validate_live_state(missing)
+
+        extra = copy.deepcopy(schema_seven_state())
+        extra.units[0]["current_plot"]["score"] = 1
+        with self.assertRaisesRegex(StateValidationError, "malformed current_plot"):
+            validate_live_state(extra)
+
+    def test_schema_seven_validates_bounded_sorted_worker_actions(self):
+        invalid_actions = (
+            None,
+            [
+                {
+                    "build_type": "BUILD_TRADING_POST",
+                    "improvement_type": "IMPROVEMENT_TRADING_POST",
+                },
+                {
+                    "build_type": "BUILD_FARM",
+                    "improvement_type": "IMPROVEMENT_FARM",
+                },
+            ],
+            [
+                {
+                    "build_type": "BUILD_FARM",
+                    "improvement_type": "IMPROVEMENT_FARM",
+                },
+                {
+                    "build_type": "BUILD_FARM",
+                    "improvement_type": "IMPROVEMENT_TRADING_POST",
+                },
+            ],
+            [{"build_type": "BUILD_FARM"}],
+            [
+                {
+                    "build_type": "IMPROVEMENT_FARM",
+                    "improvement_type": "IMPROVEMENT_FARM",
+                }
+            ],
+            [
+                {
+                    "build_type": f"BUILD_{index:02d}",
+                    "improvement_type": f"IMPROVEMENT_{index:02d}",
+                }
+                for index in range(33)
+            ],
+        )
+        for actions in invalid_actions:
+            with self.subTest(actions=actions):
+                candidate = copy.deepcopy(schema_seven_state())
+                if actions is None:
+                    candidate.units[0].pop("ordinary_build_actions")
+                else:
+                    candidate.units[0]["ordinary_build_actions"] = actions
                 with self.assertRaises(StateValidationError):
                     validate_live_state(candidate)
 

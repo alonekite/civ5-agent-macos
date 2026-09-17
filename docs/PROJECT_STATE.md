@@ -8,11 +8,13 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M10 — verified worker build — is entering implementation.
+- Current milestone: M10 — verified worker build — is implementing the write
+  path after completing its read model offline.
   M9 and the immutable 1.1.0 release remain complete.
-- Active next deliverable: implement M10 C1 schema 7 current-plot context,
-  current build, and bounded worker-build candidates with WB-S01–S06 coverage.
-- Functional baseline: 297 tests pass locally on Python 3.11/default runtime
+- Active next deliverable: implement M10 C2 exact allowlisted `worker_build`
+  admission, bounded stock dispatch, and marker handling without yet claiming
+  success from a marker.
+- Functional baseline: 307 tests pass locally on Python 3.11/default runtime
   and in exact-commit/tag GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
 - User presence required next: no. Source research, request registration, ADR,
@@ -125,6 +127,13 @@ development log.
   source pre-send rejection, and one separately authorized candidate write
   after C1–C5. Either exact success branch may close C6; no retry or second
   branch write is allowed.
+- M10 C1 is complete offline. Schema 7 now emits and validates exact per-unit
+  current-plot facts, nullable current build, and up to 32 sorted factual
+  build/improvement candidates through two selection-free 688/895-byte Lua
+  programs. Resources use active-team visibility; identifiers, nested shape,
+  part identity, unit binding, ordering, duplicates, counts, privacy, and
+  schema 2–6 compatibility are covered. The existing movement action remains
+  operational on matching schema 6+ states. No worker write action exists yet.
 
 ## Current architecture
 
@@ -212,8 +221,9 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Implement C1 schema 7 reads and WB-S01–S06 tests without command code.
-2. Implement C2–C4 strictly against the frozen contracts and verification IDs.
+1. Implement C2 allowlisted submission and WB-C01–C04 without accepting any
+   marker as verified success.
+2. Implement C3–C4 strictly against the frozen contracts and verification IDs.
 3. Complete C5 offline evidence, then pause for separately authorized C6 live
    verification before advertising the action or preparing 1.2.0.
 

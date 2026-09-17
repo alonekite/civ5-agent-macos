@@ -29,6 +29,50 @@ from civ5_agent.tuner import (
     snapshot_lua_programs,
     MAX_LUA_PROGRAM_BYTES,
 )
+from civ5_agent.validation import validate_live_state
+
+
+def _schema_seven_messages():
+    header = (
+        "CIV5_AGENT_SNAPSHOT|7|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+        "1|TECH_POTTERY|6|35|true|false|8"
+    )
+    messages = [TunerMessage(-1, header)]
+    for part in ("cities", "units", "diplomacy", "victory", "technologies"):
+        payload = f"CIV5_AGENT_PART|{part}|2|0"
+        if part == "units":
+            payload += (
+                "\nCIV5_AGENT_UNIT|8|Worker|UNIT_WORKER|"
+                "9|12|120|0|100|0|0|0|true"
+            )
+        elif part == "victory":
+            payload += "\nCIV5_AGENT_VICTORY|science|true|0|0|0|0|0"
+        elif part == "technologies":
+            payload += (
+                "\nCIV5_AGENT_RESEARCH_CHOICE|false|normal"
+                "\nCIV5_AGENT_TECHNOLOGY|researched|TECH_AGRICULTURE"
+                "\nCIV5_AGENT_TECHNOLOGY|researchable|TECH_WRITING"
+            )
+        messages.append(TunerMessage(-1, payload))
+    messages.extend(
+        (
+            TunerMessage(-1, "CIV5_AGENT_PART|move_targets|2|0"),
+            TunerMessage(
+                -1,
+                "CIV5_AGENT_PART|worker_context|2|0\n"
+                "CIV5_AGENT_WORKER_CONTEXT|8|TERRAIN_GRASS|||"
+                "|ROUTE_ROAD|0|false|false|true|",
+            ),
+            TunerMessage(
+                -1,
+                "CIV5_AGENT_PART|worker_builds|2|0\n"
+                "CIV5_AGENT_WORKER_BUILD|8|BUILD_TRADING_POST|"
+                "IMPROVEMENT_TRADING_POST\n"
+                "CIV5_AGENT_WORKER_BUILD|8|BUILD_FARM|IMPROVEMENT_FARM",
+            ),
+        )
+    )
+    return messages
 
 
 class TunerProtocolTest(unittest.TestCase):
@@ -431,6 +475,142 @@ class TunerProtocolTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "incomplete.*move_targets"):
             parse_snapshot((TunerMessage(-1, header), *parts))
 
+    def test_parses_schema_seven_worker_context_and_sorted_builds(self):
+        state = parse_snapshot(tuple(_schema_seven_messages()))
+
+        self.assertEqual(state.schema_version, 7)
+        self.assertEqual(
+            state.units[0]["current_plot"],
+            {
+                "terrain_type": "TERRAIN_GRASS",
+                "feature_type": None,
+                "resource_type": None,
+                "improvement_type": None,
+                "route_type": "ROUTE_ROAD",
+                "owner_id": 0,
+                "is_hills": False,
+                "is_water": False,
+                "is_fresh_water": True,
+            },
+        )
+        self.assertIsNone(state.units[0]["current_build_type"])
+        self.assertEqual(
+            state.units[0]["ordinary_build_actions"],
+            [
+                {
+                    "build_type": "BUILD_FARM",
+                    "improvement_type": "IMPROVEMENT_FARM",
+                },
+                {
+                    "build_type": "BUILD_TRADING_POST",
+                    "improvement_type": "IMPROVEMENT_TRADING_POST",
+                },
+            ],
+        )
+        self.assertIs(validate_live_state(state), state)
+
+    def test_schema_seven_requires_both_worker_parts(self):
+        for missing_part in ("worker_context", "worker_builds"):
+            with self.subTest(missing_part=missing_part):
+                messages = [
+                    message
+                    for message in _schema_seven_messages()
+                    if f"CIV5_AGENT_PART|{missing_part}|" not in message.payload
+                ]
+                with self.assertRaisesRegex(ValueError, f"incomplete.*{missing_part}"):
+                    parse_snapshot(tuple(messages))
+
+    def test_schema_seven_rejects_unbound_or_duplicate_worker_records(self):
+        messages = _schema_seven_messages()
+        context_index = next(
+            index
+            for index, message in enumerate(messages)
+            if "CIV5_AGENT_PART|worker_context|" in message.payload
+        )
+        build_index = next(
+            index
+            for index, message in enumerate(messages)
+            if "CIV5_AGENT_PART|worker_builds|" in message.payload
+        )
+
+        before_part = list(messages)
+        before_part.insert(
+            context_index,
+            TunerMessage(
+                -1,
+                "CIV5_AGENT_WORKER_CONTEXT|9|TERRAIN_GRASS||||-1|"
+                "false|false|false|",
+            ),
+        )
+        with self.assertRaisesRegex(ValueError, "before its part"):
+            parse_snapshot(tuple(before_part))
+
+        duplicate_context = list(messages)
+        duplicate_context.insert(
+            context_index + 1,
+            TunerMessage(
+                -1,
+                "CIV5_AGENT_WORKER_CONTEXT|8|TERRAIN_GRASS|||||-1|"
+                "false|false|false|",
+            ),
+        )
+        with self.assertRaisesRegex(ValueError, "duplicate worker context"):
+            parse_snapshot(tuple(duplicate_context))
+
+        unknown_build = list(messages)
+        unknown_build[build_index] = TunerMessage(
+            -1,
+            messages[build_index].payload
+            + "\nCIV5_AGENT_WORKER_BUILD|99|BUILD_FARM|IMPROVEMENT_FARM",
+        )
+        with self.assertRaisesRegex(ValueError, "unknown unit"):
+            parse_snapshot(tuple(unknown_build))
+
+        duplicate_build = list(messages)
+        duplicate_build[build_index] = TunerMessage(
+            -1,
+            messages[build_index].payload
+            + "\nCIV5_AGENT_WORKER_BUILD|8|BUILD_FARM|IMPROVEMENT_MINE",
+        )
+        with self.assertRaisesRegex(ValueError, "duplicate worker build"):
+            parse_snapshot(tuple(duplicate_build))
+
+    def test_schema_seven_rejects_malformed_worker_identifiers_and_values(self):
+        replacements = (
+            ("TERRAIN_GRASS", "GRASS"),
+            ("ROUTE_ROAD", "ROUTE_"),
+            ("|0|false|false|true|", "|-2|false|false|true|"),
+            ("BUILD_FARM", "BUILD_" + "X" * 65),
+            ("IMPROVEMENT_FARM", "FARM"),
+        )
+        for old, new in replacements:
+            with self.subTest(new=new):
+                messages = [
+                    TunerMessage(message.tag, message.payload.replace(old, new, 1))
+                    for message in _schema_seven_messages()
+                ]
+                with self.assertRaises(ValueError):
+                    parse_snapshot(tuple(messages))
+
+    def test_schema_seven_rejects_too_many_worker_build_records(self):
+        messages = _schema_seven_messages()
+        build_index = next(
+            index
+            for index, message in enumerate(messages)
+            if "CIV5_AGENT_PART|worker_builds|" in message.payload
+        )
+        extra = "".join(
+            f"\nCIV5_AGENT_WORKER_BUILD|8|BUILD_TEST_{index:02d}|"
+            f"IMPROVEMENT_TEST_{index:02d}"
+            for index in range(31)
+        )
+        messages[build_index] = TunerMessage(
+            -1,
+            messages[build_index].payload + extra,
+        )
+        with self.assertRaisesRegex(ValueError, "too many worker builds"):
+            parse_snapshot(tuple(messages))
+
     def test_rejects_records_before_header_and_duplicate_headers(self):
         with self.assertRaisesRegex(ValueError, "before snapshot header"):
             parse_snapshot(
@@ -522,18 +702,21 @@ class TunerProtocolTest(unittest.TestCase):
             ":ChangeGold",
             ":PushResearch",
             "SelectionListGameNetMessage",
+            "UI.SelectUnit",
+            "Game.HandleAction",
+            "IsActionRecommended",
         ):
             self.assertNotIn(forbidden, lua)
 
     def test_snapshot_programs_fit_verified_firetuner_command_limit(self):
         programs = snapshot_lua_programs()
-        self.assertEqual(len(programs), 7)
+        self.assertEqual(len(programs), 9)
         self.assertTrue(all(len(program.encode("utf-8")) < 900 for program in programs))
 
     def test_read_game_state_collects_every_snapshot_program(self):
         header = TunerMessage(
             -1,
-            "CIV5_AGENT_SNAPSHOT|6|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "CIV5_AGENT_SNAPSHOT|7|2|0|7|4|5|9|0|1|33|0|Test|Test|"
             "-1||-1|-1|true|true|-1",
         )
         part_names = (
@@ -543,6 +726,8 @@ class TunerProtocolTest(unittest.TestCase):
             "victory",
             "technologies",
             "move_targets",
+            "worker_context",
+            "worker_builds",
         )
         part_messages = [
             TunerMessage(-1, f"CIV5_AGENT_PART|{name}|2|0")
@@ -567,7 +752,7 @@ class TunerProtocolTest(unittest.TestCase):
             state = client.read_game_state(172)
 
         self.assertEqual(state.turn, 2)
-        self.assertEqual(execute.call_count, 7)
+        self.assertEqual(execute.call_count, 9)
         self.assertEqual(
             [call.args for call in execute.call_args_list],
             [(172, program) for program in snapshot_lua_programs()],
@@ -595,7 +780,7 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertIn('projectCount("PROJECT_SS_ENGINE")', lua)
 
     def test_snapshot_lua_emits_only_conservative_ordinary_move_targets(self):
-        lua = snapshot_lua_programs()[-1]
+        lua = snapshot_lua_programs()[6]
         for required in (
             "u:IsReadyToMove()",
             "u:MovesLeft()>0",
@@ -614,6 +799,60 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertNotIn("CanMoveOrAttackInto", lua)
         self.assertNotIn("PushMission", lua)
         self.assertNotIn("SelectionListMove", lua)
+
+    def test_snapshot_lua_reads_worker_context_with_active_team_visibility(self):
+        lua = snapshot_lua_programs()[7]
+        for required in (
+            "q:GetTerrainType()",
+            "q:GetFeatureType()",
+            "q:GetResourceType(t)",
+            "q:GetImprovementType()",
+            "q:GetRouteType()",
+            "q:GetOwner()",
+            "q:IsHills()",
+            "q:IsWater()",
+            "q:IsFreshWater()",
+            "u:GetBuildType()",
+        ):
+            self.assertIn(required, lua)
+        self.assertNotIn("GetResourceType()", lua)
+        self.assertNotIn("UI.", lua)
+
+    def test_snapshot_lua_emits_only_conservative_ordinary_worker_builds(self):
+        lua = snapshot_lua_programs()[8]
+        for required in (
+            "p:IsTurnActive()",
+            "not Game.IsProcessingMessages()",
+            "u:IsReadyToMove()",
+            "u:MovesLeft()>0",
+            "not u:IsBusy()",
+            "not u:IsAutomated()",
+            "not u:IsDelayedDeath()",
+            "not u:IsEmbarked()",
+            "u:GetBuildType()",
+            "not q:IsWater()",
+            "q:GetFeatureType()<0",
+            "q:GetImprovementType()<0",
+            "a.SubType==ActionSubTypes.ACTIONSUBTYPE_BUILD",
+            "a.Type==b.Type",
+            "b.ImprovementType",
+            'b.ImprovementType~=""',
+            "not b.RouteType",
+            "not b.Repair",
+            "not b.RemoveRoute",
+            "not b.Water",
+            "not b.Kill",
+            "u:CanBuild(q,b.ID,false,true)",
+        ):
+            self.assertIn(required, lua)
+        for forbidden in (
+            "IsActionRecommended",
+            "Game.CanHandleAction",
+            "Game.HandleAction",
+            "UI.SelectUnit",
+            "PushMission",
+        ):
+            self.assertNotIn(forbidden, lua)
 
     def test_end_turn_is_narrow_and_preconditioned(self):
         lua = end_turn_lua()

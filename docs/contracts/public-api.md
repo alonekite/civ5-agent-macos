@@ -13,7 +13,7 @@ listed Python symbol into a stable API by itself.
 
 | Area | Version boundary | Current compatibility |
 |---|---|---|
-| Live state | `GameState.schema_version` | Schemas 2–6 supported in 1.1.0; frozen schema 7 worker extension is not implemented |
+| Live state | `GameState.schema_version` | Schemas 2–6 supported in 1.1.0; schema 7 worker reads implemented offline on development head |
 | Knowledge | `KnowledgeBundle.schema_version` | Schemas 1–3 readable; current importer emits schema 3 |
 | Journal | journal record `schema_version` | Schema 1 only; unknown versions fail closed |
 | Turn plan | `TurnPlan.schema_version` | Schema 1 complete-turn plans only |
@@ -134,8 +134,11 @@ The frozen M10 compatibility forecast adds schema 7, `worker_build`,
 `MAX_ORDINARY_WORKER_BUILDS_PER_UNIT = 32` in a future compatible release. It
 adds no public model class and does not change `CommandResult`, TurnPlan,
 execution-report/event, journal, or stable CLI envelope schemas. None of these
-forecast values is exported by core 1.1.0; consumers must not probe private
-modules for them. See the worker-build contract.
+forecast values is exported by core 1.1.0. Development head now exports the two
+limits and includes schema 7 in the supported schema set for C1 read testing,
+but still omits `worker_build` from `ALLOWED_ACTIONS`. Consumers must require
+the complete future capability rather than treat the read model alone as write
+support. See the worker-build contract.
 
 ## Error inventory
 

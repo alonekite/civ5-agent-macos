@@ -1,6 +1,7 @@
 # Worker-Build Contract
 
-Status: Frozen M10 D2 contract; not implemented or live-verified
+Status: Frozen M10 contract; C1 read model implemented offline, write and live
+evidence pending
 
 Expected compatibility release: 1.2.0, only after the offline and bounded live
 gates pass
@@ -12,8 +13,9 @@ chooses one active-player unit, its exact current plot, and one exact ordinary
 `BUILD_*` candidate from fresh state. The bridge validates, submits through the
 stock selected-unit action path, and proves one of two exact factual outcomes.
 
-This contract applies ADR-0033. It is absent from core 1.1.0 and must not be
-used until a later compatible release advertises schema 7 and `worker_build`.
+This contract applies ADR-0033. Development head implements schema 7 reads but
+not `worker_build`. The capability is absent from core 1.1.0 and must not be
+used until a later compatible release advertises both schema 7 and the action.
 
 ## Schema 7 live-state input
 
@@ -227,7 +229,9 @@ The planned backward-compatible additions are:
 - unchanged `CommandResult`, execution-report/event, journal, and stable
   `civ5-turn` envelope schemas.
 
-These changes require at least package version 1.2.0. They remain planned, not
-implemented, until C1–C4 pass. They remain absent from the stable downstream
-profile until C5 offline reconciliation and C6 bounded target-machine evidence
-pass. A failed live gate leaves core 1.1.0 as the latest advertised capability.
+These changes require at least package version 1.2.0. C1 now implements only
+the first and third bullets' read/schema limits on development head; the action
+and executor integration remain absent until C2–C4 pass. The complete
+capability remains absent from the stable downstream profile until C5 offline
+reconciliation and C6 bounded target-machine evidence pass. A failed live gate
+leaves core 1.1.0 as the latest advertised capability.

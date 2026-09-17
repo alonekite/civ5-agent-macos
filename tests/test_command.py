@@ -70,9 +70,17 @@ def game_state(turn, gold):
     )
 
 
-def movement_state(*, x=9, y=12, moves=120, unit_type="UNIT_WARRIOR", turn=3):
+def movement_state(
+    *,
+    x=9,
+    y=12,
+    moves=120,
+    unit_type="UNIT_WARRIOR",
+    turn=3,
+    schema_version=6,
+):
     state = GameState(
-        schema_version=6,
+        schema_version=schema_version,
         turn=turn,
         active_player=0,
         gold=0,
@@ -108,6 +116,24 @@ def movement_state(*, x=9, y=12, moves=120, unit_type="UNIT_WARRIOR", turn=3):
             "ordinary_move_targets": [{"x": 10, "y": 12}] if (x, y) == (9, 12) else [],
         }
     ]
+    if schema_version >= 7:
+        state.units[0].update(
+            {
+                "current_plot": {
+                    "terrain_type": "TERRAIN_GRASS",
+                    "feature_type": None,
+                    "resource_type": None,
+                    "improvement_type": None,
+                    "route_type": None,
+                    "owner_id": 0,
+                    "is_hills": False,
+                    "is_water": False,
+                    "is_fresh_water": False,
+                },
+                "current_build_type": None,
+                "ordinary_build_actions": [],
+            }
+        )
     return state
 
 
@@ -413,6 +439,26 @@ class MoveUnitTest(unittest.TestCase):
         self.assertEqual(result.after["units"][0]["moves"], 60)
         write.assert_called_once_with(172, 8, 9, 12, 10, 12)
 
+    def test_schema_seven_preserves_existing_move_unit_behavior(self):
+        client = _FakeClient(
+            [
+                movement_state(schema_version=7),
+                movement_state(x=10, y=12, moves=60, schema_version=7),
+            ],
+            move_result=("accepted", 8, 10, 12),
+        )
+        with patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1]
+        ):
+            result = execute_move_unit(
+                client,
+                172,
+                Command("move_unit", {"unit_id": 8, "x": 10, "y": 12}),
+                verify_timeout=1.0,
+            )
+        self.assertEqual(result.status, "success")
+        self.assertEqual(result.after["schema_version"], 7)
+
     def test_rejects_game_marker_mismatch_without_polling(self):
         client = _FakeClient(
             [movement_state()], move_result=("accepted", 9, 10, 12)
@@ -472,7 +518,7 @@ class MoveUnitTest(unittest.TestCase):
                 verify_timeout=1.0,
             )
         self.assertEqual(result.status, "error")
-        self.assertIn("schema 6", result.message)
+        self.assertIn("live-state schema", result.message)
 
     def test_rejects_uncontracted_read_back_states(self):
         vanished = movement_state()

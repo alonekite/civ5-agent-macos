@@ -148,3 +148,9 @@ move reached the exact target with lower movement and no observed extra side
 effect. Audit privacy and exact host restoration also passed. The development
 head may therefore call the capability live-verified, and the 1.1.0 downstream
 profile advertises this exact bounded capability.
+
+Schema 7 retains the complete schema 6 movement fields. Development head
+therefore admits `move_unit` with matching schema 6+ before/after states rather
+than pinning the released action to exactly version 6. This forward-compatible
+change is covered offline; it does not broaden movement targets or replace the
+existing schema 6 target-machine evidence.

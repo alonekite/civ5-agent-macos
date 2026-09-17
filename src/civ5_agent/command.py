@@ -307,11 +307,11 @@ def execute_move_unit(
 
     before_state = validate_live_state(client.read_game_state(state_id))
     before = asdict(before_state)
-    if before_state.schema_version != 6:
+    if before_state.schema_version < 6:
         return CommandResult(
             command.id,
             "error",
-            "move_unit requires a fresh schema 6 state",
+            "move_unit requires a fresh schema 6+ state",
             before,
             before,
         )
@@ -370,11 +370,11 @@ def execute_move_unit(
         except ValueError:
             continue
         after = asdict(after_state)
-        if after_state.schema_version != 6:
+        if after_state.schema_version != before_state.schema_version:
             return CommandResult(
                 command.id,
                 "error",
-                "move_unit read-back changed from schema 6",
+                "move_unit read-back changed live-state schema",
                 before,
                 after,
             )

@@ -545,8 +545,11 @@ def _move_unit_postcondition_error(
     before_state: GameState,
     after_state: GameState,
 ) -> str | None:
-    if before_state.schema_version != 6 or after_state.schema_version != 6:
-        return "move_unit result requires schema 6 before and after states"
+    if (
+        before_state.schema_version < 6
+        or after_state.schema_version != before_state.schema_version
+    ):
+        return "move_unit result requires matching schema 6+ states"
     unit_id = action.arguments["unit_id"]
     target = {"x": action.arguments["x"], "y": action.arguments["y"]}
     before_unit = next(

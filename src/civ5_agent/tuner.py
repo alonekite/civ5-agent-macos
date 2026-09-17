@@ -10,7 +10,17 @@ from urllib.parse import unquote
 
 from .models import GameState
 from .preflight import require_safe_tuner_session
-from .validation import MAX_MAP_COORDINATE
+from .validation import (
+    BUILD_TYPE_PATTERN,
+    FEATURE_TYPE_PATTERN,
+    IMPROVEMENT_TYPE_PATTERN,
+    MAX_BUILD_IDENTIFIER_LENGTH,
+    MAX_MAP_COORDINATE,
+    MAX_ORDINARY_WORKER_BUILDS_PER_UNIT,
+    RESOURCE_TYPE_PATTERN,
+    ROUTE_TYPE_PATTERN,
+    TERRAIN_TYPE_PATTERN,
+)
 
 
 HEADER = struct.Struct("<Ii")
@@ -42,11 +52,13 @@ class LuaState:
 STATE_MARKER = "CIV5_AGENT_STATE:"
 STATE_PATTERN = re.compile(r"CIV5_AGENT_STATE:(-?\d+):(-?\d+):(-?\d+)")
 SNAPSHOT_MARKER = "CIV5_AGENT_SNAPSHOT|"
-SNAPSHOT_SCHEMA_VERSION = 6
+SNAPSHOT_SCHEMA_VERSION = 7
 PART_MARKER = "CIV5_AGENT_PART|"
 CITY_MARKER = "CIV5_AGENT_CITY|"
 UNIT_MARKER = "CIV5_AGENT_UNIT|"
 MOVE_TARGET_MARKER = "CIV5_AGENT_MOVE_TARGET|"
+WORKER_CONTEXT_MARKER = "CIV5_AGENT_WORKER_CONTEXT|"
+WORKER_BUILD_MARKER = "CIV5_AGENT_WORKER_BUILD|"
 DIPLOMACY_MARKER = "CIV5_AGENT_DIPLOMACY|"
 VICTORY_MARKER = "CIV5_AGENT_VICTORY|"
 TECHNOLOGY_MARKER = "CIV5_AGENT_TECHNOLOGY|"
@@ -316,6 +328,37 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         f'print("{MOVE_TARGET_MARKER}"..u:GetID().."|"..q:GetX().."|"..q:GetY())'
         'end end end end'
     )
+    worker_context = (
+        'local i=Game.GetActivePlayer();local p=Players[i];local t=p:GetTeam();'
+        f'print("{PART_MARKER}worker_context|"..Game.GetGameTurn().."|"..i);'
+        'local function k(a,n)local v=a[n];return v and v.Type or""end;'
+        'for u in p:Units()do local q=u:GetPlot();local b=u:GetBuildType();'
+        f'print("{WORKER_CONTEXT_MARKER}"..u:GetID().."|"'
+        '..k(GameInfo.Terrains,q:GetTerrainType()).."|"'
+        '..k(GameInfo.Features,q:GetFeatureType()).."|"'
+        '..k(GameInfo.Resources,q:GetResourceType(t)).."|"'
+        '..k(GameInfo.Improvements,q:GetImprovementType()).."|"'
+        '..k(GameInfo.Routes,q:GetRouteType()).."|"..q:GetOwner().."|"'
+        '..tostring(q:IsHills()).."|"..tostring(q:IsWater()).."|"'
+        '..tostring(q:IsFreshWater()).."|"..k(GameInfo.Builds,b))end'
+    )
+    worker_builds = (
+        'local i=Game.GetActivePlayer();local p=Players[i];'
+        f'print("{PART_MARKER}worker_builds|"..Game.GetGameTurn().."|"..i);'
+        'local ok=p:IsTurnActive()and not Game.IsProcessingMessages();'
+        'for u in p:Units()do local q=u:GetPlot();local c=u:GetBuildType();'
+        'if ok and u:IsReadyToMove()and u:MovesLeft()>0 and not u:IsBusy()'
+        'and not u:IsAutomated()and not u:IsDelayedDeath()and not u:IsEmbarked()'
+        'and c<0 and q and not q:IsWater()and q:GetFeatureType()<0 '
+        'and q:GetImprovementType()<0 then for a in GameInfoActions()do '
+        'if a.SubType==ActionSubTypes.ACTIONSUBTYPE_BUILD then '
+        'local b=GameInfo.Builds[a.MissionData];if b and a.Type==b.Type '
+        'and b.ImprovementType and b.ImprovementType~="" and not b.RouteType and not b.Repair '
+        'and not b.RemoveRoute and not b.Water and not b.Kill '
+        'and u:CanBuild(q,b.ID,false,true)then '
+        f'print("{WORKER_BUILD_MARKER}"..u:GetID().."|"..b.Type.."|"'
+        '..b.ImprovementType)end end end end end'
+    )
     diplomacy = (
         'local pid=Game.GetActivePlayer();local p=Players[pid];local myTeam=Teams[p:GetTeam()];'
         + _escape_lua()
@@ -359,7 +402,17 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         'if m=="normal" then q=(r==nil or r<0)and a end;'
         f'print("{RESEARCH_CHOICE_MARKER}"..tostring(q).."|"..m)'
     )
-    return header, cities, units, diplomacy, victory, technologies, move_targets
+    return (
+        header,
+        cities,
+        units,
+        diplomacy,
+        victory,
+        technologies,
+        move_targets,
+        worker_context,
+        worker_builds,
+    )
 
 
 def snapshot_lua() -> str:
@@ -547,6 +600,8 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     researchable_technologies: list[str] = []
     research_choice: dict[str, object] | None = None
     move_targets: dict[int, list[dict[str, int]]] = {}
+    worker_context: dict[int, dict[str, object]] = {}
+    worker_builds: dict[int, list[dict[str, str]]] = {}
     parts: set[str] = set()
 
     for message in messages:
@@ -556,7 +611,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     raise ValueError("multiple snapshot headers in one response")
                 fields = line.split(SNAPSHOT_MARKER, 1)[1].split("|")
                 schema_version = int(fields[0])
-                if schema_version not in {2, 3, 4, 5, SNAPSHOT_SCHEMA_VERSION}:
+                if schema_version not in {2, 3, 4, 5, 6, SNAPSHOT_SCHEMA_VERSION}:
                     raise ValueError(f"unsupported snapshot schema: {schema_version}")
                 expected_fields = 18 if schema_version == 2 else 20
                 if len(fields) != expected_fields:
@@ -611,6 +666,8 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     "victory",
                     "technologies",
                     "move_targets",
+                    "worker_context",
+                    "worker_builds",
                 }:
                     raise ValueError(f"malformed snapshot part: {line!r}")
                 part, turn, active_player = fields
@@ -618,9 +675,15 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     raise ValueError(
                         "technologies part requires a schema 5+ snapshot header"
                     )
-                if part == "move_targets" and snapshot.schema_version != 6:
+                if part == "move_targets" and snapshot.schema_version < 6:
                     raise ValueError(
-                        "move_targets part requires a schema 6 snapshot header"
+                        "move_targets part requires a schema 6+ snapshot header"
+                    )
+                if part in {"worker_context", "worker_builds"} and (
+                    snapshot.schema_version < 7
+                ):
+                    raise ValueError(
+                        f"{part} part requires a schema 7+ snapshot header"
                     )
                 if part in parts:
                     raise ValueError(f"duplicate snapshot part: {part}")
@@ -660,7 +723,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                 if snapshot is None:
                     raise ValueError("unit record appeared before snapshot header")
                 fields = line.split(UNIT_MARKER, 1)[1].split("|")
-                expected_fields = {2: 6, 3: 11, 4: 12, 5: 12, 6: 12}[
+                expected_fields = {2: 6, 3: 11, 4: 12, 5: 12, 6: 12, 7: 12}[
                     snapshot.schema_version
                 ]
                 if len(fields) != expected_fields:
@@ -687,9 +750,9 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     unit["ready_to_move"] = _parse_lua_bool(fields[11])
                 units.append(unit)
             elif MOVE_TARGET_MARKER in line:
-                if snapshot is None or snapshot.schema_version != 6:
+                if snapshot is None or snapshot.schema_version < 6:
                     raise ValueError(
-                        "move target requires a schema 6 snapshot header"
+                        "move target requires a schema 6+ snapshot header"
                     )
                 fields = line.split(MOVE_TARGET_MARKER, 1)[1].split("|")
                 if len(fields) != 3:
@@ -710,8 +773,78 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                 if len(targets) >= 6:
                     raise ValueError(f"too many move targets for unit {unit_id}")
                 targets.append(target)
+            elif WORKER_CONTEXT_MARKER in line:
+                if snapshot is None or snapshot.schema_version < 7:
+                    raise ValueError(
+                        "worker context requires a schema 7+ snapshot header"
+                    )
+                if "worker_context" not in parts:
+                    raise ValueError("worker context appeared before its part")
+                fields = line.split(WORKER_CONTEXT_MARKER, 1)[1].split("|")
+                if len(fields) != 11:
+                    raise ValueError(f"malformed worker context record: {line!r}")
+                unit_id = int(fields[0])
+                if unit_id < 0 or unit_id in worker_context:
+                    raise ValueError(f"invalid or duplicate worker context: {unit_id}")
+                _require_worker_identifier(
+                    fields[1], TERRAIN_TYPE_PATTERN, "terrain"
+                )
+                nullable_identifiers = (
+                    (fields[2], FEATURE_TYPE_PATTERN, "feature"),
+                    (fields[3], RESOURCE_TYPE_PATTERN, "resource"),
+                    (fields[4], IMPROVEMENT_TYPE_PATTERN, "improvement"),
+                    (fields[5], ROUTE_TYPE_PATTERN, "route"),
+                    (fields[10], BUILD_TYPE_PATTERN, "current build"),
+                )
+                for value, pattern, name in nullable_identifiers:
+                    if value:
+                        _require_worker_identifier(value, pattern, name)
+                owner = int(fields[6])
+                if owner < -1:
+                    raise ValueError(f"invalid worker plot owner: {owner}")
+                worker_context[unit_id] = {
+                    "current_plot": {
+                        "terrain_type": fields[1],
+                        "feature_type": fields[2] or None,
+                        "resource_type": fields[3] or None,
+                        "improvement_type": fields[4] or None,
+                        "route_type": fields[5] or None,
+                        "owner_id": owner if owner >= 0 else None,
+                        "is_hills": _parse_lua_bool(fields[7]),
+                        "is_water": _parse_lua_bool(fields[8]),
+                        "is_fresh_water": _parse_lua_bool(fields[9]),
+                    },
+                    "current_build_type": fields[10] or None,
+                }
+            elif WORKER_BUILD_MARKER in line:
+                if snapshot is None or snapshot.schema_version < 7:
+                    raise ValueError(
+                        "worker build requires a schema 7+ snapshot header"
+                    )
+                if "worker_builds" not in parts:
+                    raise ValueError("worker build appeared before its part")
+                fields = line.split(WORKER_BUILD_MARKER, 1)[1].split("|")
+                if len(fields) != 3:
+                    raise ValueError(f"malformed worker build record: {line!r}")
+                unit_id = int(fields[0])
+                if unit_id < 0:
+                    raise ValueError(f"invalid worker build unit: {unit_id}")
+                _require_worker_identifier(fields[1], BUILD_TYPE_PATTERN, "build")
+                _require_worker_identifier(
+                    fields[2], IMPROVEMENT_TYPE_PATTERN, "improvement"
+                )
+                actions = worker_builds.setdefault(unit_id, [])
+                if any(action["build_type"] == fields[1] for action in actions):
+                    raise ValueError(
+                        f"duplicate worker build for unit {unit_id}: {fields[1]}"
+                    )
+                if len(actions) >= MAX_ORDINARY_WORKER_BUILDS_PER_UNIT:
+                    raise ValueError(f"too many worker builds for unit {unit_id}")
+                actions.append(
+                    {"build_type": fields[1], "improvement_type": fields[2]}
+                )
             elif DIPLOMACY_MARKER in line:
-                if snapshot is None or snapshot.schema_version not in {3, 4, 5, 6}:
+                if snapshot is None or snapshot.schema_version < 3:
                     raise ValueError(
                         "diplomacy record requires a schema 3+ snapshot header"
                     )
@@ -730,7 +863,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     }
                 )
             elif VICTORY_MARKER in line:
-                if snapshot is None or snapshot.schema_version not in {3, 4, 5, 6}:
+                if snapshot is None or snapshot.schema_version < 3:
                     raise ValueError(
                         "victory record requires a schema 3+ snapshot header"
                     )
@@ -797,12 +930,16 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
             expected_parts.add("technologies")
         if snapshot.schema_version >= 6:
             expected_parts.add("move_targets")
+        if snapshot.schema_version >= 7:
+            expected_parts.update({"worker_context", "worker_builds"})
         if parts != expected_parts:
             missing = ", ".join(sorted(expected_parts - parts))
             raise ValueError(f"incomplete snapshot parts: {missing}")
     if snapshot.schema_version >= 5 and research_choice is None:
         raise ValueError("schema 5+ snapshot omitted research choice")
     if snapshot.schema_version >= 6:
+        if len({unit["id"] for unit in units}) != len(units):
+            raise ValueError("snapshot contains duplicate unit ids")
         unit_ids = {unit["id"] for unit in units}
         unknown_ids = set(move_targets) - unit_ids
         if unknown_ids:
@@ -814,6 +951,36 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
             unit["ordinary_move_targets"] = sorted(
                 move_targets.get(unit["id"], []),
                 key=lambda target: (target["x"], target["y"]),
+            )
+    if snapshot.schema_version >= 7:
+        unit_ids = {unit["id"] for unit in units}
+        missing_context = unit_ids - set(worker_context)
+        unknown_context = set(worker_context) - unit_ids
+        unknown_builds = set(worker_builds) - unit_ids
+        if missing_context:
+            raise ValueError(
+                "worker context missing unit: "
+                + ", ".join(str(value) for value in sorted(missing_context))
+            )
+        if unknown_context:
+            raise ValueError(
+                "worker context references unknown unit: "
+                + ", ".join(str(value) for value in sorted(unknown_context))
+            )
+        if unknown_builds:
+            raise ValueError(
+                "worker build references unknown unit: "
+                + ", ".join(str(value) for value in sorted(unknown_builds))
+            )
+        for unit in units:
+            context = worker_context[unit["id"]]
+            unit.update(context)
+            unit["ordinary_build_actions"] = sorted(
+                worker_builds.get(unit["id"], []),
+                key=lambda action: (
+                    action["build_type"],
+                    action["improvement_type"],
+                ),
             )
     snapshot.cities = cities
     snapshot.units = units
@@ -831,6 +998,15 @@ def _parse_lua_bool(value: str) -> bool:
     if value == "false":
         return False
     raise ValueError(f"invalid Lua boolean: {value!r}")
+
+
+def _require_worker_identifier(
+    value: str,
+    pattern: re.Pattern[str],
+    name: str,
+) -> None:
+    if len(value) > MAX_BUILD_IDENTIFIER_LENGTH or not pattern.fullmatch(value):
+        raise ValueError(f"invalid worker {name} identifier: {value!r}")
 
 
 def parse_end_turn_response(messages: tuple[TunerMessage, ...]) -> tuple[bool, int]:
