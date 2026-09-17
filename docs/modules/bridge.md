@@ -80,21 +80,24 @@ target-machine evidence. Schema 6 ordinary movement targets have offline-only
 parser, validation, legacy compatibility, privacy, and Lua-bound evidence. The
 offline suite covers framing, segmented-snapshot
 consistency, validation, IPC bounds, generated action code, retries, and
-postconditions. See the verification matrix.
+postconditions. The schema 6 movement write has offline-only pre-admission,
+game-side guard, Lua-bound, and exact postcondition evidence. See the
+verification matrix.
 
 ## Current limitations
 
 Schema 5 free-technology and steal-technology modes remain offline-only. Schema
 4's non-empty diplomacy and late-game victory branches remain unverified.
-The schema 6 read model is not yet target-verified, and the coordinate movement
-write is not implemented. The standalone legacy command CLI still
-has a direct fallback; the supported Python bridge client is watcher-only.
+The schema 6 read model and coordinate movement write are not yet target-
+verified. TurnPlan requirement coverage and recovery remain pending. The
+standalone legacy command CLI still has a direct fallback; the supported Python
+bridge client is watcher-only.
 
 ## Planned extensions
 
-Implement the approved M9 narrowly allowlisted adjacent ordinary move on the
-schema 6 read basis. Until its offline and live gates pass, keep it out of
-`ALLOWED_ACTIONS` and the released capability profile. Add only
+Integrate the approved M9 action with the deterministic executor and complete
+its remaining offline/live gates. Keep it out of the released capability
+profile until those gates pass. Add only
 narrowly specified actions and optional live evidence for the other branches
 listed above. The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

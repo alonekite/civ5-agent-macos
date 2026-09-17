@@ -231,7 +231,7 @@ intentionally outside this repository's scope.
 - [x] Research the stock Lua movement path and accept ADR-0032
 - [x] Freeze movement, live-state, command, TurnPlan, and downstream contracts
 - [x] Implement and test the minimum active-player-visible read model
-- [ ] Implement bounded allowlisted movement with read-after-write verification
+- [x] Implement bounded allowlisted movement with read-after-write verification
 - [ ] Integrate explicit movement into deterministic TurnPlan execution
 - [ ] Complete the full offline verification gate
 - [ ] Complete bounded operator-authorized target-machine verification

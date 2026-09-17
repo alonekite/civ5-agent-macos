@@ -16,6 +16,7 @@ from civ5_agent.tuner import (
     city_production_lua,
     end_turn_lua,
     parse_lua_states,
+    parse_move_unit_response,
     parse_game_state,
     parse_end_turn_response,
     parse_choose_research_response,
@@ -23,6 +24,7 @@ from civ5_agent.tuner import (
     parse_skip_unit_response,
     parse_snapshot,
     skip_unit_lua,
+    move_unit_lua,
     snapshot_lua,
     snapshot_lua_programs,
     MAX_LUA_PROGRAM_BYTES,
@@ -476,6 +478,21 @@ class TunerProtocolTest(unittest.TestCase):
             (False, 8),
         )
 
+    def test_parses_move_unit_submission_result(self):
+        self.assertEqual(
+            parse_move_unit_response(
+                (
+                    TunerMessage(
+                        -1,
+                        "InGame: CIV5_AGENT_COMMAND|move_unit|accepted|8|10|12",
+                    ),
+                )
+            ),
+            ("accepted", 8, 10, 12),
+        )
+        with self.assertRaisesRegex(ValueError, "did not return"):
+            parse_move_unit_response((TunerMessage(-1, "Lua error"),))
+
     def test_snapshot_lua_contains_no_game_write_calls(self):
         lua = snapshot_lua()
         for forbidden in (
@@ -597,6 +614,7 @@ class TunerProtocolTest(unittest.TestCase):
                 "BUILDING_" + "X" * 128,
             ),
             skip_unit_lua(2_147_483_647),
+            move_unit_lua(2_147_483_647, 65_535, 65_535, 65_535, 65_535),
         )
         self.assertTrue(programs)
         for program in programs:
@@ -614,6 +632,44 @@ class TunerProtocolTest(unittest.TestCase):
     def test_choose_research_rejects_lua_injection(self):
         with self.assertRaisesRegex(ValueError, "must match"):
             choose_research_lua('TECH_POTTERY; Game.DoControl(1)')
+
+    def test_move_unit_repeats_guards_and_uses_stock_selected_path_once(self):
+        lua = move_unit_lua(8, 9, 12, 10, 12)
+        for required in (
+            "p:GetUnitByID(8)",
+            "Map.GetPlot(10,12)",
+            "u:GetX()~=9",
+            "u:GetY()~=12",
+            "Map.PlotDistance(9,12,10,12)~=1",
+            "u:IsReadyToMove()",
+            "u:MovesLeft()<=0",
+            "u:IsBusy()",
+            "u:IsAutomated()",
+            "u:IsDelayedDeath()",
+            "DomainTypes.DOMAIN_AIR",
+            "u:IsEmbarked()",
+            "q:IsVisible(t,false)",
+            "q:IsCity()",
+            "q:GetNumUnits()~=0",
+            "s:IsWater()~=q:IsWater()",
+            "u:CanMoveThrough(q)",
+            "UI.ClearSelectionList()",
+            "UI.SelectUnit(u)",
+            "UI.GetHeadSelectedUnit()",
+        ):
+            self.assertIn(required, lua)
+        self.assertEqual(lua.count("Game.SelectionListMove"), 1)
+        self.assertNotIn("PushMission", lua)
+        self.assertLessEqual(len(lua.encode("utf-8")), MAX_LUA_PROGRAM_BYTES)
+
+    def test_move_unit_rejects_invalid_numeric_inputs(self):
+        for arguments in (
+            (True, 1, 1, 2, 2),
+            (8, -1, 1, 2, 2),
+            (8, 1, 1, 65_536, 2),
+        ):
+            with self.subTest(arguments=arguments), self.assertRaises(ValueError):
+                move_unit_lua(*arguments)
 
     def test_choose_research_uses_stock_network_api_and_checks_availability(self):
         lua = choose_research_lua("TECH_POTTERY")

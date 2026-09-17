@@ -226,6 +226,27 @@ class FireTunerClient:
         messages = self.execute_collect(state_id, skip_unit_lua(unit_id))
         return parse_skip_unit_response(messages)
 
+    def request_move_unit(
+        self,
+        state_id: int,
+        unit_id: int,
+        source_x: int,
+        source_y: int,
+        target_x: int,
+        target_y: int,
+    ) -> tuple[str, int, int, int]:
+        messages = self.execute_collect(
+            state_id,
+            move_unit_lua(
+                unit_id,
+                source_x,
+                source_y,
+                target_x,
+                target_y,
+            ),
+        )
+        return parse_move_unit_response(messages)
+
     def _require_socket(self) -> socket.socket:
         if self._socket is None:
             raise RuntimeError("FireTuner client is not connected")
@@ -444,6 +465,54 @@ def skip_unit_lua(unit_id: int) -> str:
         'GameMessageTypes.GAMEMESSAGE_PUSH_MISSION,GameInfoTypes.MISSION_SKIP,'
         f'{unit_id},0,0,false); '
         f'print("{COMMAND_MARKER}skip_unit|accepted|{unit_id}"); end end'
+    )
+
+
+def move_unit_lua(
+    unit_id: int,
+    source_x: int,
+    source_y: int,
+    target_x: int,
+    target_y: int,
+) -> str:
+    """Build one adjacent ordinary movement request with repeated live guards."""
+    if not isinstance(unit_id, int) or isinstance(unit_id, bool) or unit_id < 0:
+        raise ValueError("unit_id must be a non-negative integer")
+    for name, value in (
+        ("source_x", source_x),
+        ("source_y", source_y),
+        ("target_x", target_x),
+        ("target_y", target_y),
+    ):
+        if (
+            not isinstance(value, int)
+            or isinstance(value, bool)
+            or not 0 <= value <= MAX_MAP_COORDINATE
+        ):
+            raise ValueError(
+                f"{name} must be an integer from 0 to {MAX_MAP_COORDINATE}"
+            )
+    return (
+        'local p=Players[Game.GetActivePlayer()];local t=p:GetTeam();'
+        f'local u=p:GetUnitByID({unit_id});local q=Map.GetPlot({target_x},{target_y});'
+        'local s=u and u:GetPlot()or nil;'
+        f'local function r(a)print("{COMMAND_MARKER}move_unit|"..a.."|{unit_id}|{target_x}|{target_y}")end;'
+        'if not u then r("invalid_unit");'
+        'elseif not q or not s or '
+        f'u:GetX()~={source_x} or u:GetY()~={source_y} or '
+        f'Map.PlotDistance({source_x},{source_y},{target_x},{target_y})~=1 then '
+        'r("invalid_target");'
+        'elseif not p:IsTurnActive()or Game.IsProcessingMessages()or '
+        'not u:IsReadyToMove()or u:MovesLeft()<=0 or u:IsBusy()or '
+        'u:IsAutomated()or u:IsDelayedDeath()or '
+        'u:GetDomainType()==DomainTypes.DOMAIN_AIR or u:IsEmbarked()or '
+        'not q:IsVisible(t,false)or q:IsCity()or q:GetNumUnits()~=0 or '
+        's:IsWater()~=q:IsWater()or not u:CanMoveThrough(q)then '
+        'r("blocked");'
+        'else UI.ClearSelectionList();UI.SelectUnit(u);local h=UI.GetHeadSelectedUnit();'
+        f'if not h or h:GetID()~={unit_id} then r("selection_failed");'
+        'else Game.SelectionListMove(q,false,false,false);'
+        'r("accepted");end end'
     )
 
 
@@ -814,6 +883,27 @@ def parse_skip_unit_response(messages: tuple[TunerMessage, ...]) -> tuple[str, i
             return match.group(1), int(match.group(2))
     details = _summarize_messages(messages)
     raise ValueError(f"skip_unit did not return a command marker ({details})")
+
+
+def parse_move_unit_response(
+    messages: tuple[TunerMessage, ...],
+) -> tuple[str, int, int, int]:
+    pattern = re.compile(
+        r"CIV5_AGENT_COMMAND\|move_unit\|"
+        r"(accepted|blocked|invalid_unit|invalid_target|selection_failed)"
+        r"\|(\d+)\|(\d+)\|(\d+)"
+    )
+    for message in messages:
+        match = pattern.search(message.payload)
+        if match:
+            return (
+                match.group(1),
+                int(match.group(2)),
+                int(match.group(3)),
+                int(match.group(4)),
+            )
+    details = _summarize_messages(messages)
+    raise ValueError(f"move_unit did not return a command marker ({details})")
 
 
 def _summarize_messages(messages: tuple[TunerMessage, ...]) -> str:

@@ -133,6 +133,11 @@ class TurnPlanTest(unittest.TestCase):
         )
         bad = (
             PlannedAction(COMMAND_ONE, "arbitrary_lua", {}),
+            PlannedAction(
+                COMMAND_ONE,
+                "move_unit",
+                {"unit_id": 8, "x": 10, "y": 12},
+            ),
             PlannedAction(COMMAND_ONE, "end_turn", {"extra": True}),
             PlannedAction(COMMAND_ONE, "choose_research", {"tech_type": "Pottery"}),
             PlannedAction(

@@ -10,6 +10,7 @@ from civ5_agent.command import (
     execute_choose_research,
     execute_city_production,
     execute_end_turn,
+    execute_move_unit,
     execute_skip_unit,
     main,
 )
@@ -24,12 +25,14 @@ class _FakeClient:
         research_result=("blocked", -1),
         production_result=("blocked", -1, ""),
         skip_result=("blocked", -1),
+        move_result=("blocked", -1, -1, -1),
     ):
         self.states = iter(states)
         self.end_turn_result = end_turn_result
         self.research_result = research_result
         self.production_result = production_result
         self.skip_result = skip_result
+        self.move_result = move_result
 
     def read_game_state(self, state_id):
         state = next(self.states)
@@ -49,6 +52,11 @@ class _FakeClient:
     def request_skip_unit(self, state_id, unit_id):
         return self.skip_result
 
+    def request_move_unit(
+        self, state_id, unit_id, source_x, source_y, target_x, target_y
+    ):
+        return self.move_result
+
 
 def game_state(turn, gold):
     return GameState(
@@ -60,6 +68,47 @@ def game_state(turn, gold):
         can_end_turn=True,
         end_turn_blocking_type=-1,
     )
+
+
+def movement_state(*, x=9, y=12, moves=120, unit_type="UNIT_WARRIOR", turn=3):
+    state = GameState(
+        schema_version=6,
+        turn=turn,
+        active_player=0,
+        gold=0,
+        score=0,
+        current_era=0,
+        turn_active=True,
+        can_end_turn=True,
+        end_turn_blocking_type=-1,
+        victory={
+            "science_enabled": True,
+            "apollo": 0,
+            "booster": 0,
+            "cockpit": 0,
+            "stasis_chamber": 0,
+            "engine": 0,
+        },
+        research_choice={"required": False, "mode": "normal"},
+    )
+    state.units = [
+        {
+            "id": 8,
+            "name": "Warrior",
+            "type": unit_type,
+            "x": x,
+            "y": y,
+            "moves": moves,
+            "damage": 0,
+            "max_hit_points": 100,
+            "combat_strength": 8,
+            "ranged_strength": 0,
+            "range": 1,
+            "ready_to_move": moves > 0,
+            "ordinary_move_targets": [{"x": 10, "y": 12}] if (x, y) == (9, 12) else [],
+        }
+    ]
+    return state
 
 
 class EndTurnTest(unittest.TestCase):
@@ -295,6 +344,117 @@ class SkipUnitTest(unittest.TestCase):
 
         self.assertEqual(result.status, "error")
         self.assertIn("unchanged movement", result.message)
+
+
+class MoveUnitTest(unittest.TestCase):
+    def test_rejects_legacy_state_before_writing(self):
+        client = _FakeClient([game_state(3, 0)])
+        with patch.object(client, "request_move_unit") as write:
+            result = execute_move_unit(
+                client, 172, Command("move_unit", {"unit_id": 8, "x": 10, "y": 12})
+            )
+        self.assertEqual(result.status, "error")
+        self.assertIn("schema 6", result.message)
+        write.assert_not_called()
+
+    def test_rejects_unknown_unit_or_unlisted_target_before_writing(self):
+        cases = (
+            ({"unit_id": 99, "x": 10, "y": 12}, "not owned"),
+            ({"unit_id": 8, "x": 11, "y": 12}, "not an admitted"),
+        )
+        for arguments, message in cases:
+            with self.subTest(arguments=arguments):
+                client = _FakeClient([movement_state()])
+                with patch.object(client, "request_move_unit") as write:
+                    result = execute_move_unit(
+                        client, 172, Command("move_unit", arguments)
+                    )
+                self.assertEqual(result.status, "error")
+                self.assertIn(message, result.message)
+                write.assert_not_called()
+
+    def test_success_requires_exact_destination_and_lower_movement(self):
+        client = _FakeClient(
+            [movement_state(), movement_state(x=10, y=12, moves=60)],
+            move_result=("accepted", 8, 10, 12),
+        )
+        with patch.object(
+            client, "request_move_unit", wraps=client.request_move_unit
+        ) as write, patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1]
+        ):
+            result = execute_move_unit(
+                client,
+                172,
+                Command("move_unit", {"unit_id": 8, "x": 10, "y": 12}),
+                verify_timeout=1.0,
+            )
+        self.assertEqual(result.status, "success")
+        self.assertEqual((result.after["units"][0]["x"], result.after["units"][0]["y"]), (10, 12))
+        self.assertEqual(result.after["units"][0]["moves"], 60)
+        write.assert_called_once_with(172, 8, 9, 12, 10, 12)
+
+    def test_rejects_game_marker_mismatch_without_polling(self):
+        client = _FakeClient(
+            [movement_state()], move_result=("accepted", 9, 10, 12)
+        )
+        result = execute_move_unit(
+            client, 172, Command("move_unit", {"unit_id": 8, "x": 10, "y": 12})
+        )
+        self.assertEqual(result.status, "error")
+        self.assertIn("rejected", result.message)
+
+    def test_rejects_uncontracted_read_back_states(self):
+        vanished = movement_state()
+        vanished.units = []
+        changed_player = movement_state(x=10, y=12, moves=60)
+        changed_player.active_player = 1
+        inactive = movement_state(x=10, y=12, moves=60)
+        inactive.turn_active = False
+        cases = (
+            (movement_state(x=10, y=12, moves=120), "without lower"),
+            (movement_state(x=11, y=12, moves=60), "unexpectedly"),
+            (movement_state(x=9, y=12, moves=60), "unexpectedly"),
+            (movement_state(x=10, y=12, moves=60, unit_type="UNIT_SPEARMAN"), "lost or transformed"),
+            (vanished, "lost or transformed"),
+            (movement_state(x=10, y=12, moves=60, turn=4), "changed turn"),
+            (changed_player, "changed turn"),
+            (inactive, "changed turn"),
+        )
+        for after, message in cases:
+            with self.subTest(message=message):
+                client = _FakeClient(
+                    [movement_state(), after],
+                    move_result=("accepted", 8, 10, 12),
+                )
+                with patch("civ5_agent.command.time.sleep"), patch(
+                    "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1]
+                ):
+                    result = execute_move_unit(
+                        client,
+                        172,
+                        Command("move_unit", {"unit_id": 8, "x": 10, "y": 12}),
+                        verify_timeout=1.0,
+                    )
+                self.assertEqual(result.status, "error")
+                self.assertIn(message, result.message)
+
+    def test_accepted_but_unchanged_state_times_out(self):
+        client = _FakeClient(
+            [movement_state(), movement_state()],
+            move_result=("accepted", 8, 10, 12),
+        )
+        with patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1, 1.1]
+        ):
+            result = execute_move_unit(
+                client,
+                172,
+                Command("move_unit", {"unit_id": 8, "x": 10, "y": 12}),
+                verify_timeout=1.0,
+            )
+        self.assertEqual(result.status, "error")
+        self.assertIn("did not reach", result.message)
 
 
 class CommandCliSessionTest(unittest.TestCase):

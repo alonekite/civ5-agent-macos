@@ -35,12 +35,13 @@ Direct commands create one identity for their single connection.
 | `choose_research` | `TECH_*` identifier | selected research matches identifier | Live-verified |
 | `set_city_production` | city ID, `unit\|building\|project`, matching stable ID | target city's production matches | Live-verified |
 | `skip_unit` | schema 4 owned unit ID | same unit/location/movement; `ready_to_move` becomes false | Live-verified |
+| `move_unit` | schema 6 owned unit ID and exact bounded `x`, `y` | same unit reaches exact destination in same active turn with lower movement | Offline-only; not released or live-verified |
 
-The approved M9 contract reserves `move_unit` with exact arguments `unit_id`,
-`x`, and `y`, but coordinate movement is not implemented and is not part of the
-current allowlist. It enters the allowlist only with schema 6 support and the
-offline gates in the [unit-movement contract](unit-movement.md); it is labeled
-live-verified only after the bounded target-machine procedure passes.
+Development head includes the approved M9 `move_unit` action with exact
+arguments `unit_id`, `x`, and `y`. This is an unreleased offline capability,
+not part of core 1.0.0 and not live-verified. It enters the released downstream
+profile only after the remaining executor, offline, and bounded target-machine
+gates in the [unit-movement contract](unit-movement.md) pass.
 
 The target FireTuner accepts only bounded Lua reliably. Every internal program
 is rejected before send above 1,000 UTF-8 bytes. `end_turn` additionally

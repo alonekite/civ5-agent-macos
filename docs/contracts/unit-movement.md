@@ -1,6 +1,6 @@
 # Unit-Movement Contract
 
-Status: Schema 6 read model implemented offline; write not implemented or live-verified
+Status: Schema 6 read and bounded write implemented offline; not live-verified
 
 Expected compatibility release: 1.1.0
 
@@ -70,7 +70,8 @@ present in that unit's `ordinary_move_targets`. Missing, stale, malformed, or
 legacy state is rejection, not permission to probe the game.
 
 The single bounded Lua program then re-resolves the active player, exact unit,
-source plot, and target plot and repeats the contract predicate. It clears the
+source plot, and target plot, rejects any change from the Python-observed source
+coordinates, and repeats the contract predicate. It clears the
 selection, selects only that unit, and confirms the head-selected unit ID
 before calling `Game.SelectionListMove(target, false, false, false)`. It does
 not call `PushMission`, queue a mission, choose another unit/target, restore the
@@ -136,8 +137,10 @@ must not be committed. Fixtures use synthetic coordinates and identities.
 ## Evidence gate
 
 Parser/validation, legacy-schema, target ordering/bounds/privacy, read-only Lua,
-and segmented-size tests pass offline. Remaining support requires exhaustive
-command and Lua-bound tests, executor and recovery tests, one safe offline negative
-matrix, and the bounded target-machine procedure in the live-test checklist.
+command arguments, repeated game-side guards, 1,000-byte pre-send bound, exact
+postcondition, rejection, unexpected-state, and timeout tests pass offline.
+Remaining support requires executor and recovery integration, the reconciled
+full offline matrix, and the bounded target-machine procedure in the live-test
+checklist.
 Until that evidence passes, documentation and the downstream profile must call
 the capability planned or absent, never supported or live-verified.

@@ -10,10 +10,10 @@ development log.
 
 - Current milestone: M9 — verified unit movement — is in progress. M8 and the
   immutable 1.0.0 release remain complete.
-- Active next deliverable: implement and exhaustively test the bounded
-  `move_unit` bridge command and exact read-after-write verification for
+- Active next deliverable: integrate the bounded `move_unit` action into
+  deterministic TurnPlan requirement coverage and recovery for
   [CoreCapabilityRequest #1](https://github.com/alonekite/civ5-agent-macos/issues/1).
-- Functional baseline: 260 tests pass locally on Python 3.11/default runtime
+- Functional baseline: 278 tests pass locally on the default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
 - User presence required next: none for documentation, source research, or
@@ -61,8 +61,9 @@ development log.
 - M9 source reconnaissance is complete. ADR-0032 selects the stock
   `UI.SelectUnit` plus `Game.SelectionListMove` network-backed path for one
   explicit adjacent ordinary move and rejects direct `PushMission`. This is a
-  design decision only; movement remains unimplemented and unsupported pending
-  contracts, offline tests, and target-machine verification.
+  path. The write is implemented on development head with offline-only evidence;
+  it remains unsupported pending executor integration, full offline gates, and
+  target-machine verification.
 - M9's unit-movement contract is frozen: schema 6 will expose only zero to six
   conservative adjacent `ordinary_move_targets` per owned unit; `move_unit`
   takes exact unit/coordinate arguments and requires identity, destination, and
@@ -71,8 +72,13 @@ development log.
 - The schema 6 read model is implemented offline. A seventh read-only segment
   emits active-player-visible `ordinary_move_targets`; parser and validation
   enforce six-target, coordinate, identity, ordering, part-consistency, and
-  legacy-schema bounds. No movement write exists yet, and schema 6 has no
-  target-machine evidence.
+  legacy-schema bounds. Schema 6 still has no target-machine evidence.
+- The C2/C3 movement command is implemented offline. It requires a fresh schema
+  6 target admission, repeats source coordinates and conservative legality on
+  the game side, verifies exact selection before one `SelectionListMove`, and
+  accepts success only when the same unit reaches the exact destination in the
+  same active turn with lower movement points. Marker acceptance, unchanged or
+  unexpected state, transformation, turn drift, and timeout are not success.
 
 ## Current architecture
 
@@ -163,8 +169,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 1. Execute the batches in
    `docs/planning/UNIT_MOVEMENT_PLAN.md`, starting with the capability request,
    source research, ADR-0032, and contracts.
-2. Implement offline read support before the write, then add the allowlisted
-   command, verification, and deterministic executor integration.
+2. Complete deterministic executor integration, then reconcile the full M9
+   offline gate before requesting a live test.
 3. Pause for the bounded operator-authorized live procedure before advertising
    movement in the downstream profile or preparing 1.1.0.
 

@@ -16,6 +16,7 @@ from .command import (
     execute_choose_research,
     execute_city_production,
     execute_end_turn,
+    execute_move_unit,
     execute_skip_unit,
 )
 from .identity import (
@@ -101,6 +102,7 @@ def make_control_handler(
             "choose_research",
             "set_city_production",
             "skip_unit",
+            "move_unit",
         }:
             try:
                 requested_session_id = validate_bridge_session_id(
@@ -140,6 +142,12 @@ def make_control_handler(
                     if operation == "choose_research"
                     else {"unit_id": request.get("unit_id")}
                     if operation == "skip_unit"
+                    else {
+                        "unit_id": request.get("unit_id"),
+                        "x": request.get("x"),
+                        "y": request.get("y"),
+                    }
+                    if operation == "move_unit"
                     else {
                         "city_id": request.get("city_id"),
                         "kind": request.get("kind"),
@@ -233,8 +241,15 @@ def make_control_handler(
                             command,
                             verify_timeout=verify_timeout,
                         )
-                    else:
+                    elif operation == "skip_unit":
                         result = execute_skip_unit(
+                            client,
+                            state_id,
+                            command,
+                            verify_timeout=verify_timeout,
+                        )
+                    else:
+                        result = execute_move_unit(
                             client,
                             state_id,
                             command,

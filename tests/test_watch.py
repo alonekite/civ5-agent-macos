@@ -14,6 +14,7 @@ from civ5_agent.watch import main, make_control_handler
 END_TURN_ID = "123e4567-e89b-42d3-a456-426614174000"
 SKIP_ID = "123e4567-e89b-42d3-a456-426614174001"
 AUDIT_ID = "123e4567-e89b-42d3-a456-426614174002"
+MOVE_ID = "123e4567-e89b-42d3-a456-426614174003"
 
 
 class _FakeClient:
@@ -108,6 +109,35 @@ class WatchControlHandlerTest(unittest.TestCase):
         command = execute.call_args.args[2]
         self.assertEqual(command.action, "skip_unit")
         self.assertEqual(command.args, {"unit_id": 8})
+
+    def test_forwards_move_unit_identifier_and_coordinates(self):
+        result = CommandResult(id=MOVE_ID, status="success")
+        with patch("civ5_agent.watch.execute_move_unit", return_value=result) as execute:
+            response = self.write(
+                {"op": "move_unit", "id": MOVE_ID, "unit_id": 8, "x": 10, "y": 12}
+            )
+        self.assertTrue(response["ok"])
+        command = execute.call_args.args[2]
+        self.assertEqual(command.action, "move_unit")
+        self.assertEqual(command.args, {"unit_id": 8, "x": 10, "y": 12})
+
+    def test_replays_move_unit_uuid_without_executing_twice(self):
+        result = CommandResult(id=MOVE_ID, status="success")
+        request = {
+            "op": "move_unit",
+            "id": MOVE_ID,
+            "unit_id": 8,
+            "x": 10,
+            "y": 12,
+        }
+        with patch(
+            "civ5_agent.watch.execute_move_unit", return_value=result
+        ) as execute:
+            first = self.write(request)
+            replay = self.write(request)
+        self.assertTrue(first["ok"])
+        self.assertTrue(replay["replayed"])
+        self.assertEqual(execute.call_count, 1)
 
     def test_audits_command_result(self):
         result = CommandResult(id=AUDIT_ID, status="success")

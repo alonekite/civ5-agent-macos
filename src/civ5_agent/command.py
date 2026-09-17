@@ -13,7 +13,7 @@ from .ipc import default_socket_path, request
 from .models import Command, CommandResult
 from .preflight import UnsafeSessionError, require_safe_tuner_session
 from .tuner import DEFAULT_HOST, DEFAULT_PORT, FireTunerClient, _find_state
-from .validation import validate_live_state
+from .validation import MAX_MAP_COORDINATE, validate_live_state
 
 
 def execute_end_turn(
@@ -280,11 +280,173 @@ def execute_skip_unit(
     )
 
 
+def execute_move_unit(
+    client: FireTunerClient,
+    state_id: int,
+    command: Command,
+    *,
+    verify_timeout: float = 10.0,
+    poll_interval: float = 0.1,
+) -> CommandResult:
+    unit_id = command.args.get("unit_id")
+    target_x = command.args.get("x")
+    target_y = command.args.get("y")
+    if isinstance(unit_id, bool) or not isinstance(unit_id, int) or unit_id < 0:
+        return CommandResult(command.id, "error", "move_unit requires unit_id")
+    for name, value in (("x", target_x), ("y", target_y)):
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, int)
+            or not 0 <= value <= MAX_MAP_COORDINATE
+        ):
+            return CommandResult(
+                command.id,
+                "error",
+                f"move_unit {name} must be an integer from 0 to {MAX_MAP_COORDINATE}",
+            )
+
+    before_state = validate_live_state(client.read_game_state(state_id))
+    before = asdict(before_state)
+    if before_state.schema_version != 6:
+        return CommandResult(
+            command.id,
+            "error",
+            "move_unit requires a fresh schema 6 state",
+            before,
+            before,
+        )
+    before_unit = next(
+        (unit for unit in before_state.units if unit.get("id") == unit_id), None
+    )
+    if before_unit is None:
+        return CommandResult(
+            command.id,
+            "error",
+            f"unit {unit_id} is not owned by the active player",
+            before,
+            before,
+        )
+    if {"x": target_x, "y": target_y} not in before_unit["ordinary_move_targets"]:
+        return CommandResult(
+            command.id,
+            "error",
+            f"destination ({target_x}, {target_y}) is not an admitted ordinary move target for unit {unit_id}",
+            before,
+            before,
+        )
+
+    source_x = before_unit["x"]
+    source_y = before_unit["y"]
+    before_moves = before_unit["moves"]
+    before_type = before_unit["type"]
+    status, returned_unit_id, returned_x, returned_y = client.request_move_unit(
+        state_id,
+        unit_id,
+        source_x,
+        source_y,
+        target_x,
+        target_y,
+    )
+    if (
+        status != "accepted"
+        or returned_unit_id != unit_id
+        or returned_x != target_x
+        or returned_y != target_y
+    ):
+        return CommandResult(
+            command.id,
+            "error",
+            f"Civ V rejected move for unit {unit_id} to ({target_x}, {target_y}) ({status})",
+            before,
+            before,
+        )
+
+    deadline = time.monotonic() + verify_timeout
+    after_state = before_state
+    while time.monotonic() < deadline:
+        time.sleep(poll_interval)
+        try:
+            after_state = validate_live_state(client.read_game_state(state_id))
+        except ValueError:
+            continue
+        after = asdict(after_state)
+        if after_state.schema_version != 6:
+            return CommandResult(
+                command.id,
+                "error",
+                "move_unit read-back changed from schema 6",
+                before,
+                after,
+            )
+        if (
+            after_state.turn != before_state.turn
+            or after_state.active_player != before_state.active_player
+            or after_state.turn_active is not True
+        ):
+            return CommandResult(
+                command.id,
+                "error",
+                "move_unit read-back changed turn, active player, or active-turn state",
+                before,
+                after,
+            )
+        after_unit = next(
+            (unit for unit in after_state.units if unit.get("id") == unit_id), None
+        )
+        if after_unit is None or after_unit.get("type") != before_type:
+            return CommandResult(
+                command.id,
+                "error",
+                f"move_unit read-back lost or transformed unit {unit_id}",
+                before,
+                after,
+            )
+        after_position = (after_unit.get("x"), after_unit.get("y"))
+        after_moves = after_unit.get("moves")
+        if after_position == (target_x, target_y):
+            if isinstance(after_moves, int) and after_moves < before_moves:
+                return CommandResult(
+                    command.id,
+                    "success",
+                    f"verified unit {unit_id} moved ({source_x}, {source_y}) -> ({target_x}, {target_y})",
+                    before,
+                    after,
+                )
+            return CommandResult(
+                command.id,
+                "error",
+                f"unit {unit_id} reached the destination without lower movement points",
+                before,
+                after,
+            )
+        if after_position != (source_x, source_y) or after_moves != before_moves:
+            return CommandResult(
+                command.id,
+                "error",
+                f"unit {unit_id} changed unexpectedly while verifying move_unit",
+                before,
+                after,
+            )
+    return CommandResult(
+        command.id,
+        "error",
+        f"move request was accepted but unit {unit_id} did not reach ({target_x}, {target_y}) within {verify_timeout}s",
+        before,
+        asdict(after_state),
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Submit a verified, allowlisted Civ V action")
     parser.add_argument(
         "action",
-        choices=["end_turn", "choose_research", "set_city_production", "skip_unit"],
+        choices=[
+            "end_turn",
+            "choose_research",
+            "set_city_production",
+            "skip_unit",
+            "move_unit",
+        ],
     )
     parser.add_argument("values", nargs="*")
     parser.add_argument("--host", default=DEFAULT_HOST)
@@ -309,6 +471,8 @@ def main() -> int:
         parser.error("set_city_production requires CITY_ID KIND ITEM_TYPE")
     if args.action == "skip_unit" and len(args.values) != 1:
         parser.error("skip_unit requires UNIT_ID")
+    if args.action == "move_unit" and len(args.values) != 3:
+        parser.error("move_unit requires UNIT_ID X Y")
 
     command_args: dict[str, object] = {}
     if args.action == "choose_research":
@@ -329,6 +493,12 @@ def main() -> int:
         except ValueError:
             parser.error("UNIT_ID must be an integer")
         command_args = {"unit_id": unit_id}
+    elif args.action == "move_unit":
+        try:
+            unit_id, target_x, target_y = (int(value) for value in args.values)
+        except ValueError:
+            parser.error("UNIT_ID, X, and Y must be integers")
+        command_args = {"unit_id": unit_id, "x": target_x, "y": target_y}
 
     command = Command(
         action=args.action,
@@ -406,8 +576,12 @@ def main() -> int:
                 result = execute_city_production(
                     client, state_id, command, verify_timeout=args.verify_timeout
                 )
-            else:
+            elif args.action == "skip_unit":
                 result = execute_skip_unit(
+                    client, state_id, command, verify_timeout=args.verify_timeout
+                )
+            else:
+                result = execute_move_unit(
                     client, state_id, command, verify_timeout=args.verify_timeout
                 )
     except (

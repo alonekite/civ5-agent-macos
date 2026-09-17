@@ -17,7 +17,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | `choose_research` | Stock UI matched | Yes | Yes | Confirmed |
 | `set_city_production` | Stock UI matched | Yes | Yes | Confirmed |
 | `skip_unit` | Stock behavior inspected | Yes | Yes | Confirmed with readiness and unchanged movement/location |
-| Coordinate movement | ADR-0032 and schema/command/result contract accepted | Planned: schema 6, validation, Lua bound, exact postcondition, recovery, and TurnPlan coverage | No | Contract frozen; not implemented or supported |
+| Coordinate movement | ADR-0032 and schema/command/result contract accepted | Schema 6 admission, exact arguments, repeated game-side guards, Lua bound, marker parsing, exact destination/lower-movement verification, rejection, unexpected-state, timeout, watcher forwarding, UUID caching/no-retry composition; TurnPlan coverage/recovery pending | No | Bridge command implemented offline; not released or supported |
 | Schema 6 ordinary movement targets | Bundled adjacent/visibility/unit predicates inspected; read-only segment is below the FireTuner limit | Parser, required part, unit binding, sorting, duplicate/count/coordinate rejection, conservative predicate inspection, legacy compatibility, and aggregate constant tests | No | Read model implemented offline; no target-machine support claim |
 | Safety preflight/shutdown | Yes | Yes | Yes | Confirmed |
 | Local IPC bounds and permissions | Yes | Yes | Indirectly | Confirmed offline |

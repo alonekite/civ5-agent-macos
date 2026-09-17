@@ -22,6 +22,9 @@ TURN_PLAN_SCHEMA_VERSION = 1
 EXECUTION_REPORT_SCHEMA_VERSION = 1
 MAX_PLAN_ACTIONS = 64
 MAX_EVENT_SINK_ERRORS = MAX_PLAN_ACTIONS * 2 + 2
+_TURN_PLAN_ACTIONS = frozenset(
+    {"end_turn", "choose_research", "set_city_production", "skip_unit"}
+)
 _DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}\Z")
 _REPORT_STATUSES = frozenset(
     {"completed", "paused", "stale", "failed", "recovery_required"}
@@ -407,6 +410,10 @@ def validate_execution_event(event: ExecutionEvent) -> ExecutionEvent:
 def _validate_planned_action(action: PlannedAction) -> PlannedAction:
     if not isinstance(action, PlannedAction):
         raise TurnPlanError("every action must be a PlannedAction")
+    if action.action not in _TURN_PLAN_ACTIONS:
+        raise TurnPlanError(
+            f"action is not enabled for TurnPlan execution: {action.action!r}"
+        )
     try:
         command = validate_command(
             Command(

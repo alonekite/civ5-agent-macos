@@ -1,11 +1,12 @@
 # Verified Unit Movement Development Plan
 
-Status: Approved implementation plan; capability not yet implemented
+Status: Approved implementation plan; implementation in progress
 
-Progress: D0–D3 and C0–C1 are complete as of 2026-09-17. ADR-0032 selects the
+Progress: D0–D3 and C0–C3 are complete as of 2026-09-17. ADR-0032 selects the
 stock selected-unit network path, and schema 6 now implements the bounded
-per-unit read model offline. C2/C3 command submission and verification are
-next; no movement command is implemented or advertised yet.
+per-unit read model offline. The bounded command and exact read-after-write
+verification now pass offline tests; C4 deterministic TurnPlan integration is
+next. No live or released support is advertised yet.
 
 Target milestone: M9
 
@@ -231,7 +232,7 @@ committed, and pushed before the next begins:
 2. C0/D1 source research, risk, and ADR-0032 (complete 2026-09-17);
 3. D2 contracts and D3 verification design (complete 2026-09-17);
 4. C1 read-model implementation and tests (complete 2026-09-17);
-5. C2/C3 bridge command and verification with offline tests;
+5. C2/C3 bridge command and verification with offline tests (complete 2026-09-17);
 6. C4 executor, watcher, journal composition, API, and CLI integration;
 7. C5 full offline gate and documentation reconciliation;
 8. C6 operator-assisted live verification;

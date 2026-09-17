@@ -6,6 +6,7 @@ from typing import Any
 from .errors import ValidationError
 from .identity import validate_command_id
 from .models import Command
+from .validation import MAX_MAP_COORDINATE
 
 _TECH_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
 _PRODUCTION_PATTERNS = {
@@ -14,7 +15,7 @@ _PRODUCTION_PATTERNS = {
     "project": re.compile(r"PROJECT_[A-Z0-9_]+\Z"),
 }
 ALLOWED_ACTIONS = frozenset(
-    {"end_turn", "choose_research", "set_city_production", "skip_unit"}
+    {"end_turn", "choose_research", "set_city_production", "skip_unit", "move_unit"}
 )
 MAX_COMMAND_MESSAGE_LENGTH = 1024
 
@@ -60,11 +61,26 @@ def validate_command(command: Command) -> Command:
         item_type = arguments["item_type"]
         if not isinstance(item_type, str) or not pattern.fullmatch(item_type):
             raise CommandValidationError(f"{kind} item_type has an invalid format")
-    else:
+    elif command.action == "skip_unit":
         _require_fields(arguments, {"unit_id"}, command.action)
         unit_id = arguments["unit_id"]
         if isinstance(unit_id, bool) or not isinstance(unit_id, int) or unit_id < 0:
             raise CommandValidationError("unit_id must be a non-negative integer")
+    else:
+        _require_fields(arguments, {"unit_id", "x", "y"}, command.action)
+        unit_id = arguments["unit_id"]
+        if isinstance(unit_id, bool) or not isinstance(unit_id, int) or unit_id < 0:
+            raise CommandValidationError("unit_id must be a non-negative integer")
+        for field in ("x", "y"):
+            value = arguments[field]
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, int)
+                or not 0 <= value <= MAX_MAP_COORDINATE
+            ):
+                raise CommandValidationError(
+                    f"{field} must be an integer from 0 to {MAX_MAP_COORDINATE}"
+                )
     return Command(action=command.action, args=arguments, id=command_id)
 
 

@@ -14,7 +14,7 @@ GitHub Issues and should link back to one milestone ID.
 | M6 | Deterministic turn executor | Complete | M2 |
 | M7 | Public API stabilization | Complete | M4, M5, M6 |
 | M8 | 1.0 release readiness | Complete | M7 |
-| M9 | Verified unit movement | Planned | M8, M2, M6 |
+| M9 | Verified unit movement | In progress | M8, M2, M6 |
 
 ## M0 — Environment reconnaissance
 
@@ -299,10 +299,11 @@ Acceptance criteria:
 - Publish the capability only through a compatible semantic-versioned release
   after updating the static downstream profile.
 
-Current status: in progress. D0, C0/D1 source research, D2 contracts, and D3
-verification design and C1 read-model implementation are complete. ADR-0032
-selects the stock selected-unit network path for an explicit adjacent ordinary
-move; schema 6 now emits and validates the bounded per-unit target set offline.
-C2/C3 command submission and verification are next, and no movement command is
-implemented or advertised yet. The owning execution order and evidence gates are in the
+Current status: in progress. D0, C0/D1 source research, D2 contracts, D3
+verification design, and C1–C3 read/command/verification implementation are
+complete. ADR-0032 selects the stock selected-unit network path for an explicit
+adjacent ordinary move; schema 6 emits and validates the bounded per-unit target
+set offline, and the development-head bridge now admits, submits, and exactly
+verifies the narrow write offline. C4 TurnPlan integration is next. No live or
+released support is advertised yet. The owning execution order and evidence gates are in the
 [verified unit movement development plan](UNIT_MOVEMENT_PLAN.md).
