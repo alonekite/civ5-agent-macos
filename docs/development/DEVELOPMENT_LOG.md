@@ -1216,6 +1216,32 @@ Contract commit: `e6e74a0`.
 
 Implementation commit: `cde1b55`.
 
+## 2026-09-17 — Implement bounded movement submission and verification
+
+- Added the exact `move_unit(unit_id, x, y)` command schema with strict integer,
+  boolean, field, and coordinate bounds on development head.
+- Required a fresh validated schema 6 snapshot, exact active-player unit, and a
+  destination already present in that unit's conservative
+  `ordinary_move_targets` before generating a write.
+- Added a 973-byte worst-case tested Lua program that rechecks the observed
+  source coordinates and all narrow ordinary-move guards, selects and verifies
+  the exact unit, and calls `Game.SelectionListMove` once without `PushMission`.
+- Added exact write-after-read success requiring the same turn, player, active
+  turn, unit ID/type, destination, and strictly lower movement points. Marker
+  acceptance, unchanged state, unexpected displacement or movement spend,
+  disappearance, transformation, turn drift, schema drift, and timeout remain
+  errors.
+- Routed the direct bridge command through watcher duplicate suppression,
+  uncertainty handling, audit/journal composition, and the provisional command
+  CLI. Kept TurnPlan admission closed until the separate C4 executor batch.
+- All 278 warning-enabled offline tests passed on the default runtime, including
+  Unix-socket IPC tests outside the sandbox. Documentation links, diff checks,
+  and tracked-content scans passed; no private path, local address, credential,
+  real match state, or generated game data was added. No game, FireTuner, or
+  firewall operation ran.
+
+Implementation commit: `0d886f2`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
