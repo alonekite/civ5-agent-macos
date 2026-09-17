@@ -1,12 +1,12 @@
 # Downstream Tactical Integration Contract
 
-Status: Stable capability profile for 1.0.0
+Status: Stable capability profile for 1.1.0
 
 ## Purpose
 
 Define the supported boundary between this execution core and independent plan
 producers such as `civ5-short-term-tactical-layer`. This document describes
-what core 1.0.0 exposes, who owns each concept, how a consumer detects
+what core 1.1.0 exposes, who owns each concept, how a consumer detects
 compatibility, and which capabilities remain absent. It does not define
 tactical policy or authorize a downstream game connection.
 
@@ -37,22 +37,22 @@ Consumer terms such as `CoreCapabilities` and `VerifiedActionResult` may be
 useful adapter views, but they do not replace or redefine the core's exported
 objects, status meanings, or success conditions.
 
-## Core 1.0.0 capability profile
+## Core 1.1.0 capability profile
 
 The stable aggregate API exposes the facts needed to construct this static
 release profile:
 
-| Capability | Core 1.0.0 value |
+| Capability | Core 1.1.0 value |
 |---|---|
-| Package/API identity | `civ5-agent-macos` 1.0.0; `civ5_agent.api` |
-| Live-state schemas | 2, 3, 4, 5 |
+| Package/API identity | `civ5-agent-macos` 1.1.0; `civ5_agent.api` |
+| Live-state schemas | 2, 3, 4, 5, 6 |
 | Knowledge schemas | 1, 2, 3 |
 | Journal schema | 1 |
 | `TurnPlan` schema | 1 |
 | `ExecutionReport` and `ExecutionEvent` schema | 1 |
 | Plan action limit | 64 |
 | Plan execution | Complete-turn plans with explicit final `end_turn` |
-| Actions | `choose_research`, `set_city_production`, `skip_unit`, `end_turn` |
+| Actions | `choose_research`, `set_city_production`, `skip_unit`, `move_unit`, `end_turn` |
 | Live execution identity | `bridge_session_id`, turn, active player, full state digest |
 | Result states | `completed`, `paused`, `stale`, `failed`, `recovery_required` |
 | Unknown outcome | Conservative reconciliation; never automatic retry |
@@ -62,15 +62,15 @@ their individual contracts. A consumer must compare package and contract
 versions, required action names, and required fields explicitly. A greater
 schema or package number never implies an absent field or action.
 
-## Capability discovery in 1.0.0
+## Capability discovery in 1.1.0
 
-Core 1.0.0 does not define a serialized capability-manifest wire contract.
+Core 1.1.0 does not define a serialized capability-manifest wire contract.
 Python consumers may construct a detached compatibility profile from
 `__version__`, `ALLOWED_ACTIONS`, the exported supported-schema sets, schema
 constants, and limit constants. They must not inspect private modules or infer
 per-field availability from a package version alone.
 
-The 1.0.0 profile does not export per-action capability versions, field-level
+The 1.1.0 profile does not export per-action capability versions, field-level
 feature flags, or target-evidence labels. Consumers that require those values
 must use a reviewed static compatibility matrix or submit a capability request
 for a future public manifest. Absence of a manifest never permits optimistic
@@ -92,17 +92,17 @@ an assessment into verified success.
 
 ## Factual history boundary
 
-The journal is not an execution dependency. Core 1.0.0 exposes verification,
+The journal is not an execution dependency. Core 1.1.0 exposes verification,
 full private replay, and redacted structural export, but no bounded selective
 tactical-history query. Consumers must not parse journal storage or treat it as
 an execution cursor. A future history view requires its own privacy, ordering,
 provenance, bounds, compatibility, and no-write contract.
 
-## Capabilities absent from 1.0.0
+## Capabilities absent from 1.1.0
 
 - serialized capability manifest;
 - selective factual history view;
-- coordinate movement, pathing, combat, and worker-task actions;
+- autonomous/path movement, combat, and worker-task actions;
 - city founding, policy, religion, purchase, citizen, trade-route, diplomacy,
   espionage, and great-person actions;
 - tactical scoring, candidate selection, planning, memory, or strategy.
@@ -111,23 +111,21 @@ Their absence is a compatibility result, not permission for a consumer-side
 workaround. New reusable facts and mechanics follow the core capability request
 process.
 
-## Planned 1.1.0 movement delta
+## 1.1.0 movement capability
 
 The accepted M9 contract defines live-state schema 6 and an allowlisted
 `move_unit(unit_id, x, y)` action for one explicit adjacent ordinary move.
-Development head implements and target-verifies the schema 6 read model and
-bounded bridge command path; TurnPlan integration is covered offline. The
-released profile remains absent until 1.1.0.
+Core 1.1.0 implements and target-verifies the schema 6 read model and bounded
+bridge command path; TurnPlan integration is covered offline.
 Each owned unit exposes only the bounded
 `ordinary_move_targets` that the core is prepared to admit under that contract.
 This does not add path selection,
 terrain assessment, combat, worker tasks, or tactical recommendations.
 
-This section is a compatibility forecast, not a 1.0.0 capability and not a live
-support claim. Consumers must continue to report movement as absent until a
-released package advertises both schema 6 and `move_unit` through the stable
-aggregate constants. The tactical layer remains responsible for selecting the
-unit, destination, ordering, and any replanning.
+Consumers must require package version 1.1.0 or later, schema 6, and
+`move_unit` in the stable aggregate constants before constructing this action.
+The tactical layer remains responsible for selecting the unit, destination,
+ordering, and any replanning.
 
 ## Compatibility and maintenance
 

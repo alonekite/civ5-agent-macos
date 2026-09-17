@@ -202,7 +202,7 @@ adapters. A downstream adapter may construct public core objects, but cannot
 broaden the allowlist, reinterpret results, open FireTuner, or bypass plan
 admission.
 
-Core 1.0.0 publishes a static capability profile through exported version,
+Core 1.1.0 publishes a static capability profile through exported version,
 schema, allowlist, and limit constants. It does not yet publish a serialized
 capability manifest or selective tactical-history view. Missing reusable facts
 or mechanics follow the strategy-neutral capability request procedure and ship

@@ -308,6 +308,7 @@ verifies the narrow write. Schema 1 TurnPlans now preserve exact
 movement ordering, requirement coverage, continuity, events, and conservative
 recovery. The bounded operator-assisted C6 target-machine procedure passed with
 one safe pre-send rejection, one authorized exact adjacent move, private audit,
-and exact host restoration. D4/C7 release stabilization is next; no released
-support is advertised yet. The owning execution order and evidence gates are in
+and exact host restoration. D4 compatibility reconciliation is complete, and
+the 1.1.0 release candidate is entering C7 exact-commit and artifact gates. The
+owning execution order and evidence gates are in
 the [verified unit movement development plan](UNIT_MOVEMENT_PLAN.md).

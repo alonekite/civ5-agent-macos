@@ -89,15 +89,13 @@ verification matrix.
 
 Schema 5 free-technology and steal-technology modes remain offline-only. Schema
 4's non-empty diplomacy and late-game victory branches remain unverified.
-The schema 6 read model and coordinate movement write are target-verified on
-development head but remain unreleased pending 1.1.0. The standalone legacy
-command CLI still has a direct fallback; the supported Python bridge client is
-watcher-only.
+The schema 6 read model and coordinate movement write are target-verified and
+part of the 1.1.0 compatibility surface. The standalone legacy command CLI
+still has a direct fallback; the supported Python bridge client is watcher-only.
 
 ## Planned extensions
 
-Complete D4/C7 stabilization and the planned 1.1.0 release. Keep the verified
-development-head capability out of the released profile until that release.
-Add only narrowly specified actions and optional live evidence for the other branches
+Maintain the 1.1.0 movement contract and add only narrowly specified actions
+and optional live evidence for the other branches
 listed above. The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

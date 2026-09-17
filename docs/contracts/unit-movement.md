@@ -1,8 +1,8 @@
 # Unit-Movement Contract
 
-Status: Schema 6 read and bounded write live-verified; unreleased
+Status: Stable 1.1.0 capability; live-verified
 
-Expected compatibility release: 1.1.0
+Compatibility release: 1.1.0
 
 ## Purpose
 
@@ -12,8 +12,8 @@ caller selects one active-player unit and one exact destination from fresh
 state. The bridge remains the sole authority for admission, submission, and
 write-after-read verification.
 
-This contract applies ADR-0032. It does not advertise movement in the current
-1.0.0 capability profile.
+This contract applies ADR-0032. Movement is absent from the historical 1.0.0
+profile and present in the 1.1.0 profile.
 
 ## Live-state input
 
@@ -146,5 +146,5 @@ The bounded target-machine procedure passed on 2026-09-17: a source-coordinate
 request was rejected before submission, and one separately authorized adjacent
 move reached the exact target with lower movement and no observed extra side
 effect. Audit privacy and exact host restoration also passed. The development
-head may therefore call the capability live-verified, but the released
-downstream profile must continue to report it absent until 1.1.0 completes.
+head may therefore call the capability live-verified, and the 1.1.0 downstream
+profile advertises this exact bounded capability.

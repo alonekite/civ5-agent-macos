@@ -17,7 +17,7 @@ requirement inspection, and deterministic execution. The implementation in `mode
 | 3 | Compatibility-tested | Score, era, exact city progress, unit condition, met-major diplomacy, science-victory progress |
 | 4 | Live-verified for early-game branches | Schema 3 fields plus unit readiness and coherent segmented collection |
 | 5 | Live-verified for ordinary research | Schema 4 plus researched/researchable technology sets and research-choice mode; free/steal modes remain offline-only |
-| 6 | Bounded target-machine verification passed; unreleased | Schema 5 plus bounded per-unit `ordinary_move_targets`; released support begins with 1.1.0 |
+| 6 | Live-verified; added in 1.1.0 | Schema 5 plus bounded per-unit `ordinary_move_targets` |
 
 ## Stable requirements
 

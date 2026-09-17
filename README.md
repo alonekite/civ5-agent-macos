@@ -21,9 +21,10 @@ but this execution core never depends on tactical-layer code or owns tactical
 judgment, action-intent content, or cross-domain arbitration. See the
 [downstream integration contract](docs/contracts/downstream-integration.md).
 
-Version `1.0.0` defines the first stable release. Immutable published source and
-artifacts are identified by the `v1.0.0` tag and corresponding GitHub release;
-the stable compatibility surfaces are `civ5_agent.api` and `civ5-turn`. Other
+Version `1.1.0` adds target-verified adjacent ordinary unit movement to the
+stable core while retaining the 1.0 contracts. Immutable published source and
+artifacts are identified by matching version tags and GitHub releases; the
+stable compatibility surfaces are `civ5_agent.api` and `civ5-turn`. Other
 command-line entry points remain explicitly provisional.
 
 ## Documentation
@@ -38,7 +39,7 @@ command-line entry points remain explicitly provisional.
   [verification matrix](docs/testing/TEST_MATRIX.md) — acceptance criteria and
   evidence level.
 - [Downstream integration](docs/contracts/downstream-integration.md) and
-  [capability requests](docs/operations/CORE_CAPABILITY_REQUESTS.md) — the 1.0
+  [capability requests](docs/operations/CORE_CAPABILITY_REQUESTS.md) — the stable
   consumer boundary and future core-maintenance workflow.
 
 Status: the low-level MVP was verified end-to-end on the target Mac on

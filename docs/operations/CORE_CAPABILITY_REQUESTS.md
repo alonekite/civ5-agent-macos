@@ -6,7 +6,7 @@ Status: Accepted maintenance procedure
 
 Provide a repeatable intake path when a downstream tactical or strategic
 consumer needs a live fact, knowledge relation, allowlisted action, or public
-history view that core 1.0.0 does not expose.
+history view that the current stable core does not expose.
 
 ## Required request content
 

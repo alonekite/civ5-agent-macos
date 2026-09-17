@@ -1,6 +1,6 @@
 # Public API Inventory
 
-Status: Stable 1.0 aggregate surface implemented; bounded CLI classified
+Status: Stable 1.1 aggregate surface implemented; bounded CLI classified
 
 ## Purpose
 
@@ -24,7 +24,7 @@ Existing schema compatibility rules remain authoritative. `civ5_agent.api` is
 the supported aggregate Python import path under ADR-0026; ADR-0027 separately
 stabilizes `civ5-turn` and explicitly classifies every other CLI as provisional.
 ADR-0031 defines how independent tactical consumers use this surface without
-creating an upward dependency; the exact 1.0 profile is in the
+creating an upward dependency; the exact 1.1 profile is in the
 [downstream integration contract](downstream-integration.md).
 
 ## Candidate supported Python surface
@@ -41,7 +41,7 @@ types.
 
 ## Supported aggregate import
 
-`civ5_agent.api.__all__` is contract-tested as the supported stable 1.0
+`civ5_agent.api.__all__` is contract-tested as the supported stable 1.1
 surface under ADR-0030. It re-exports the documented module models, operations,
 errors, schema versions, supported schema sets, and byte/count limits. Raw FireTuner, IPC
 server, watcher-handler, importer, and private codec helpers are deliberately
@@ -110,24 +110,22 @@ them to use the supported core.
 
 ## Capability discovery
 
-Version 1.0 does not expose a serialized capability manifest. A Python consumer
+Version 1.1 does not expose a serialized capability manifest. A Python consumer
 may construct a detached compatibility profile from `__version__`,
 `ALLOWED_ACTIONS`, the supported-schema constants, individual schema versions,
 and exported limits. It must still validate the actual live state and command;
 capability presence never proves current legality.
 
 Per-action capability versions, optional-field flags, evidence levels, and a
-selective factual-history view are not part of 1.0. A downstream need for them
+selective factual-history view are not part of 1.1. A downstream need for them
 follows the documented core capability request process rather than private
 module inspection.
 
-M9 is specified as a backward-compatible 1.1.0 addition. Development head now
-includes schema 6 in the supported live-state set and exports
-`MAX_MAP_COORDINATE = 65_535`; this read surface has offline and target-machine
-evidence but is not part of tagged core 1.0.0. Development head also includes
-`move_unit` in `ALLOWED_ACTIONS` with offline bridge/TurnPlan verification and
-one bounded target-machine proof; D4/C7 and the 1.1.0 release remain pending. The
-approved semantics are in the unit-movement contract.
+Core 1.1.0 adds schema 6 to the supported live-state set and exports
+`MAX_MAP_COORDINATE = 65_535`. It also adds `move_unit` to `ALLOWED_ACTIONS`.
+The read and direct write have offline and bounded target-machine evidence;
+TurnPlan integration has the complete offline evidence required by the M9
+contract. The approved semantics are in the unit-movement contract.
 
 ## Error inventory
 

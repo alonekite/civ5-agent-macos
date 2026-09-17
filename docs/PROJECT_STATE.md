@@ -10,8 +10,8 @@ development log.
 
 - Current milestone: M9 — verified unit movement — is in progress. M8 and the
   immutable 1.0.0 release remain complete.
-- Active next deliverable: reconcile D4 compatibility evidence and execute C7
-  stabilization for the planned 1.1.0 release of
+- Active next deliverable: validate the exact 1.1.0 release candidate, duplicate
+  artifacts, clean installs, and exact-commit CI for
   [CoreCapabilityRequest #1](https://github.com/alonekite/civ5-agent-macos/issues/1).
 - Functional baseline: 297 tests pass locally on Python 3.11/default runtime
   and in GitHub Actions on Python 3.11/3.13.
@@ -31,12 +31,12 @@ development log.
 - Every generated FireTuner program is limited to 1,000 UTF-8 bytes before
   transport; submitted commands with no terminal outcome are journaled and
   cached as non-retryable uncertainty under ADR-0028.
-- Live schemas 2–5 read economy, culture, research, cities, units, diplomacy,
+- Live schemas 2–6 read economy, culture, research, cities, units, diplomacy,
   early science-victory progress, unit readiness, and ordinary technology state
   within their documented evidence limits.
-- The allowlisted `end_turn`, `choose_research`, `set_city_production`, and
-  `skip_unit` actions validate arguments and live capability, then prove their
-  postconditions by re-reading state.
+- The allowlisted `end_turn`, `choose_research`, `set_city_production`,
+  `skip_unit`, and bounded adjacent `move_unit` actions validate arguments and
+  live capability, then prove their postconditions by re-reading state.
 - Command UUIDs, watcher-lifetime duplicate suppression, bounded IPC, private
   M2 audit logs, live preflight, and recoverable FireTuner/firewall sessions are
   implemented.
@@ -61,8 +61,8 @@ development log.
   `UI.SelectUnit` plus `Game.SelectionListMove` network-backed path for one
   explicit adjacent ordinary move and rejects direct `PushMission`. This is a
   path. The complete read/write/executor path is implemented on development
-  head and now has bounded target-machine evidence; it remains unreleased
-  pending D4/C7 stabilization and the 1.1.0 release.
+  head and now has bounded target-machine evidence. It is included in the
+  prepared 1.1.0 compatibility profile pending exact release-candidate gates.
 - M9's unit-movement contract is frozen: schema 6 exposes only zero to six
   conservative adjacent `ordinary_move_targets` per owned unit; `move_unit`
   takes exact unit/coordinate arguments and requires identity, destination, and
@@ -113,7 +113,7 @@ development log.
 - `civ5-short-term-tactical-layer` is the first declared downstream plan
   producer. It owns tactical context, domain reports, arbitration, tactical
   plans, action intents, and consumer adapters; this core never imports it.
-- Core 1.0.0 publishes a static downstream capability profile through its
+- Core 1.1.0 publishes a static downstream capability profile through its
   version, schema, allowlist, and limit constants. It does not publish a
   serialized capability manifest or selective tactical-history view.
 - Missing downstream facts and mechanics use the strategy-neutral core
@@ -166,7 +166,7 @@ development log.
 - `civ5_agent.bridge` now exposes a session-aware `Bridge` protocol and
   watcher-only client for validated reads, individual verified commands, and
   read-only result lookup independently of M6.
-- `civ5_agent.api` is the contract-tested stable 1.0 Python surface.
+- `civ5_agent.api` is the contract-tested stable 1.1 Python surface.
   Public errors distinguish validation, protocol, transport-ambiguous, and
   live-safety failures while preserving compatible built-in catch behavior.
   Supported schema sets and byte/count limits are exported constants.

@@ -8,15 +8,15 @@ tests; discrepancies are defects that must be resolved explicitly.
 |---|---|---|
 | [Live state](live-state.md) | Evolving; schemas 2–6 supported on development head with documented evidence and release limits | bridge |
 | [Commands](command.md) | Evolving, core writes live-verified | bridge |
-| [Unit movement](unit-movement.md) | Schema 6 read/write/executor offline gate and bounded live gate complete; 1.1.0 release pending | bridge/executor |
+| [Unit movement](unit-movement.md) | Stable 1.1.0 schema 6 read/write/executor contract; offline and bounded live gates complete | bridge/executor |
 | [Session and match identity](session-identity.md) | Bridge session and journal match binding implemented offline | bridge/application/journal |
 | [Knowledge bundle](../KNOWLEDGE.md) | Evolving, implemented | knowledge |
 | [Ruleset knowledge view](resolver.md) | Structural M4 contract implemented | knowledge |
 | [Turn journal](journal.md) | M5 implemented; bounded live verification passed | journal |
 | [Turn plan and execution](turn-plan.md) | Schema 1 execution/recovery and bounded CLI implemented offline | controller/executor |
-| [Public Python API](public-api.md) | Stable 1.0 aggregate surface and error contract implemented | cross-module |
-| [CLI compatibility](cli.md) | `civ5-turn` stable in 1.0; other entry points provisional | cli |
-| [Downstream tactical integration](downstream-integration.md) | Stable 1.0 capability and ownership profile | cross-module |
+| [Public Python API](public-api.md) | Stable 1.1 aggregate surface and error contract implemented | cross-module |
+| [CLI compatibility](cli.md) | `civ5-turn` stable since 1.0; other entry points provisional | cli |
+| [Downstream tactical integration](downstream-integration.md) | Stable 1.1 capability and ownership profile | cross-module |
 
 ## Contract rules
 

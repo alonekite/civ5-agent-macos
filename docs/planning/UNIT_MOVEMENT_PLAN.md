@@ -1,6 +1,6 @@
 # Verified Unit Movement Development Plan
 
-Status: Approved implementation plan; D4/C7 release stabilization in progress
+Status: Approved implementation plan; 1.1.0 release candidate in progress
 
 Progress: D0–D3 and C0–C6 are complete as of 2026-09-17. ADR-0032 selects the
 stock selected-unit network path, and schema 6 now implements the bounded
@@ -8,8 +8,9 @@ per-unit read model offline. The bounded command and exact read-after-write
 verification, deterministic TurnPlan integration, and full offline gate now
 pass. C6 operator-assisted target-machine verification passed, including the
 safe negative branch, one explicitly authorized exact move, private audit, and
-host restoration. The capability is live-verified on development head but is
-not released or advertised in the 1.0.0 profile; D4/C7 is next.
+host restoration. The capability is live-verified and included in the prepared
+1.1.0 profile; exact-commit CI, duplicate artifacts, clean installs, operator
+tag approval, tag CI, publication, and downloaded-asset verification remain.
 
 Target milestone: M9
 

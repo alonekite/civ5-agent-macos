@@ -35,13 +35,11 @@ Direct commands create one identity for their single connection.
 | `choose_research` | `TECH_*` identifier | selected research matches identifier | Live-verified |
 | `set_city_production` | city ID, `unit\|building\|project`, matching stable ID | target city's production matches | Live-verified |
 | `skip_unit` | schema 4 owned unit ID | same unit/location/movement; `ready_to_move` becomes false | Live-verified |
-| `move_unit` | schema 6 owned unit ID and exact bounded `x`, `y` | same unit reaches exact destination in same active turn with lower movement | Live-verified on development head; not released |
+| `move_unit` | schema 6 owned unit ID and exact bounded `x`, `y` | same unit reaches exact destination in same active turn with lower movement | Live-verified; added in 1.1.0 |
 
-Development head includes the approved M9 `move_unit` action with exact
-arguments `unit_id`, `x`, and `y`. This is an unreleased, live-verified
-development-head capability, not part of core 1.0.0. It enters the released
-downstream profile only after D4/C7 stabilization and the planned 1.1.0 release
-in the [unit-movement contract](unit-movement.md).
+Core 1.1.0 includes the approved M9 `move_unit` action with exact arguments
+`unit_id`, `x`, and `y`. It is absent from core 1.0.0. Its downstream profile
+and evidence are defined by the [unit-movement contract](unit-movement.md).
 
 The target FireTuner accepts only bounded Lua reliably. Every internal program
 is rejected before send above 1,000 UTF-8 bytes. `end_turn` additionally

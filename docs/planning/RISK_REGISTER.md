@@ -92,5 +92,5 @@ read-back; and prohibits automatic retry after uncertainty. The bounded C6
 experiment then rejected the source coordinate before submission and moved
 exactly the authorized unit to the admitted target with lower movement and no
 observed side effect. This closes the live-evidence blocker; the risk remains
-monitored because selection and mission processing are runtime behavior. M9 now
-proceeds through D4/C7 release stabilization.
+monitored because selection and mission processing are runtime behavior. The
+1.1.0 release candidate carries the mitigation into its compatibility profile.
