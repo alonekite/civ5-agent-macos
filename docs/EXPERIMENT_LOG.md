@@ -1158,3 +1158,56 @@ recovery controls intact.
 Proceed with the M8 reproducible release candidate, stable-version transition,
 final artifact scans and hashes, and the documented tag procedure. Additional
 live branches remain optional enhancement evidence rather than release blockers.
+
+### 2026-09-17 — Schema 6 adjacent movement live proof
+
+**Hypothesis**
+
+The guarded watcher can expose a conservative schema 6 ordinary-movement target,
+reject a source-coordinate request before sending a game write, and execute one
+separately authorized adjacent move with an exact read-after-write proof.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the target Apple
+  Silicon Mac.
+- Normal single-player opening state with one active owned land unit and a
+  manually inspected adjacent empty land target.
+- Fresh guarded FireTuner session, one watcher, and a private command audit
+  outside the repository.
+
+**Procedure**
+
+1. Prepared the guarded firewall/FireTuner session and passed live preflight.
+2. Started one watcher and confirmed a validated schema 6 snapshot containing
+   at least one bounded `ordinary_move_targets` entry.
+3. Submitted the selected unit's current source as a destination and observed
+   pre-send admission rejection with unchanged location and movement points.
+4. Re-read live state, confirmed the chosen target was still admitted, obtained
+   explicit user authorization, and submitted exactly one adjacent move.
+5. Observed the game UI and watcher after-state, then quit the game, confirmed
+   the private audit mode, and restored the recorded host baseline.
+
+**Observed result**
+
+- The source-coordinate negative case returned an error before game submission;
+  before/after state showed unchanged unit location and movement points.
+- The authorized command moved exactly the selected unit to exactly the selected
+  adjacent target in the same active turn and reduced its movement points.
+- The watcher emitted the corresponding fresh after-state. No combat, capture,
+  swap, embark/disembark, prompt, or movement by another unit occurred.
+- The private audit file had mode `600`.
+- Shutdown restoration proved FireTuner disabled, no TCP 4318 listener or agent
+  socket, firewall restored to disabled, and no Civ V rule, matching baseline.
+
+**Conclusion**
+
+Confirmed. C6 supplies target-machine evidence for schema 6 conservative
+ordinary-movement targets and the direct verified `move_unit` path on the
+supported Campaign Edition build. The capability remains unreleased until the
+D4/C7 compatibility, artifact, tag, and publication gates complete.
+
+**Next step**
+
+Reconcile the public contracts and downstream capability forecast with this live
+evidence, then perform D4/C7 stabilization for the planned 1.1.0 release.

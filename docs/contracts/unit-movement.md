@@ -1,6 +1,6 @@
 # Unit-Movement Contract
 
-Status: Schema 6 read and bounded write implemented offline; not live-verified
+Status: Schema 6 read and bounded write live-verified; unreleased
 
 Expected compatibility release: 1.1.0
 
@@ -17,7 +17,7 @@ This contract applies ADR-0032. It does not advertise movement in the current
 
 ## Live-state input
 
-M9 schema 6 is implemented offline. It retains every schema 5 field and adds the
+M9 schema 6 is implemented and target-verified. It retains every schema 5 field and adds the
 following required field to every owned-unit record:
 
 ```json
@@ -142,7 +142,9 @@ postcondition, rejection, unexpected-state, and timeout tests pass offline.
 Executor requirement coverage, ordered multi-move continuity, factual events,
 watcher forwarding, journal composition, CLI/API compatibility, and conservative
 cached recovery also pass offline. The full offline matrix is reconciled.
-Remaining support requires the bounded target-machine procedure in the
-live-test checklist.
-Until that evidence passes, documentation and the downstream profile must call
-the capability planned or absent, never supported or live-verified.
+The bounded target-machine procedure passed on 2026-09-17: a source-coordinate
+request was rejected before submission, and one separately authorized adjacent
+move reached the exact target with lower movement and no observed extra side
+effect. Audit privacy and exact host restoration also passed. The development
+head may therefore call the capability live-verified, but the released
+downstream profile must continue to report it absent until 1.1.0 completes.

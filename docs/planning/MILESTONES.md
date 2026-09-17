@@ -300,12 +300,14 @@ Acceptance criteria:
   after updating the static downstream profile.
 
 Current status: in progress. D0, C0/D1 source research, D2 contracts, D3
-verification design, and C1–C5 read/command/verification/executor/offline-gate work are
-complete. ADR-0032 selects the stock selected-unit network path for an explicit
+verification design, and C1–C6 read/command/verification/executor/offline/live-
+gate work are complete. ADR-0032 selects the stock selected-unit network path for an explicit
 adjacent ordinary move; schema 6 emits and validates the bounded per-unit target
 set offline, and the development-head bridge now admits, submits, and exactly
-verifies the narrow write offline. Schema 1 TurnPlans now preserve exact
+verifies the narrow write. Schema 1 TurnPlans now preserve exact
 movement ordering, requirement coverage, continuity, events, and conservative
-recovery. The bounded operator-assisted C6 target-machine procedure is next. No
-live or released support is advertised yet. The owning execution order and evidence gates are in the
-[verified unit movement development plan](UNIT_MOVEMENT_PLAN.md).
+recovery. The bounded operator-assisted C6 target-machine procedure passed with
+one safe pre-send rejection, one authorized exact adjacent move, private audit,
+and exact host restoration. D4/C7 release stabilization is next; no released
+support is advertised yet. The owning execution order and evidence gates are in
+the [verified unit movement development plan](UNIT_MOVEMENT_PLAN.md).

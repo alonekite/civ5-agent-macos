@@ -76,27 +76,28 @@ API. Local broker and audit files use private permissions.
 
 Read, end turn, research selection, city production, schema 4 early-game state,
 schema 5 ordinary technology state, and the game-side effect of unit skip have
-target-machine evidence. Schema 6 ordinary movement targets have offline-only
-parser, validation, legacy compatibility, privacy, and Lua-bound evidence. The
-offline suite covers framing, segmented-snapshot
+target-machine evidence. Schema 6 ordinary movement targets have parser,
+validation, legacy compatibility, privacy, Lua-bound, and bounded target-machine
+evidence. The offline suite covers framing, segmented-snapshot
 consistency, validation, IPC bounds, generated action code, retries, and
-postconditions. The schema 6 movement write has offline-only pre-admission,
-game-side guard, Lua-bound, and exact postcondition evidence. See the
+postconditions. The schema 6 movement write has offline pre-admission,
+game-side guard, Lua-bound, and exact-postcondition coverage plus one bounded
+target-machine success and safe negative rejection. See the
 verification matrix.
 
 ## Current limitations
 
 Schema 5 free-technology and steal-technology modes remain offline-only. Schema
 4's non-empty diplomacy and late-game victory branches remain unverified.
-The schema 6 read model and coordinate movement write are not yet target-
-verified. The bounded live procedure remains pending. The standalone legacy
+The schema 6 read model and coordinate movement write are target-verified on
+development head but remain unreleased pending 1.1.0. The standalone legacy
 command CLI still has a direct fallback; the supported Python bridge client is
 watcher-only.
 
 ## Planned extensions
 
-Complete the approved M9 action's bounded live gate. Keep it out of the
-released capability profile until that gate passes. Add only
-narrowly specified actions and optional live evidence for the other branches
+Complete D4/C7 stabilization and the planned 1.1.0 release. Keep the verified
+development-head capability out of the released profile until that release.
+Add only narrowly specified actions and optional live evidence for the other branches
 listed above. The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

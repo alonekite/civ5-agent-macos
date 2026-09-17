@@ -234,5 +234,5 @@ intentionally outside this repository's scope.
 - [x] Implement bounded allowlisted movement with read-after-write verification
 - [x] Integrate explicit movement into deterministic TurnPlan execution
 - [x] Complete the full offline verification gate
-- [ ] Complete bounded operator-authorized target-machine verification
+- [x] Complete bounded operator-authorized target-machine verification
 - [ ] Publish the verified capability in a compatible 1.1.0 release

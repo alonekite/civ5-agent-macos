@@ -13,7 +13,7 @@ listed Python symbol into a stable API by itself.
 
 | Area | Version boundary | Current compatibility |
 |---|---|---|
-| Live state | `GameState.schema_version` | Schemas 2–6 supported on development head; schema 6 awaits target evidence and a 1.1 release |
+| Live state | `GameState.schema_version` | Schemas 2–6 supported on development head; schema 6 is target-verified and awaits a 1.1 release |
 | Knowledge | `KnowledgeBundle.schema_version` | Schemas 1–3 readable; current importer emits schema 3 |
 | Journal | journal record `schema_version` | Schema 1 only; unknown versions fail closed |
 | Turn plan | `TurnPlan.schema_version` | Schema 1 complete-turn plans only |
@@ -123,10 +123,10 @@ module inspection.
 
 M9 is specified as a backward-compatible 1.1.0 addition. Development head now
 includes schema 6 in the supported live-state set and exports
-`MAX_MAP_COORDINATE = 65_535`; this read surface has offline evidence but is not
-part of tagged core 1.0.0 and is not yet live-verified. Development head also
-includes `move_unit` in `ALLOWED_ACTIONS` with offline bridge and TurnPlan
-verification; target-machine evidence and the 1.1.0 release remain pending. The
+`MAX_MAP_COORDINATE = 65_535`; this read surface has offline and target-machine
+evidence but is not part of tagged core 1.0.0. Development head also includes
+`move_unit` in `ALLOWED_ACTIONS` with offline bridge/TurnPlan verification and
+one bounded target-machine proof; D4/C7 and the 1.1.0 release remain pending. The
 approved semantics are in the unit-movement contract.
 
 ## Error inventory

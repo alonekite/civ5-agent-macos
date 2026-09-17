@@ -17,7 +17,7 @@ requirement inspection, and deterministic execution. The implementation in `mode
 | 3 | Compatibility-tested | Score, era, exact city progress, unit condition, met-major diplomacy, science-victory progress |
 | 4 | Live-verified for early-game branches | Schema 3 fields plus unit readiness and coherent segmented collection |
 | 5 | Live-verified for ordinary research | Schema 4 plus researched/researchable technology sets and research-choice mode; free/steal modes remain offline-only |
-| 6 | Implemented offline; target evidence pending | Schema 5 plus bounded per-unit `ordinary_move_targets`; no live support claim until target-machine evidence passes |
+| 6 | Bounded target-machine verification passed; unreleased | Schema 5 plus bounded per-unit `ordinary_move_targets`; released support begins with 1.1.0 |
 
 ## Stable requirements
 
@@ -77,7 +77,7 @@ existing field silently.
 
 ## Session metadata
 
-Schemas 2–5 do not expose a stable save or match identifier, and their state
+Schemas 2–6 do not expose a stable save or match identifier, and their state
 payload does not contain the bridge connection epoch. Per ADR-0017, the bridge
 now attaches a separate `bridge_session_id` beside the unchanged payload rather
 than pretending that mutable state fields identify a match. M6 targets that

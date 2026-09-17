@@ -10,13 +10,14 @@ development log.
 
 - Current milestone: M9 — verified unit movement — is in progress. M8 and the
   immutable 1.0.0 release remain complete.
-- Active next deliverable: perform the bounded operator-assisted C6 live test for
+- Active next deliverable: reconcile D4 compatibility evidence and execute C7
+  stabilization for the planned 1.1.0 release of
   [CoreCapabilityRequest #1](https://github.com/alonekite/civ5-agent-macos/issues/1).
 - Functional baseline: 297 tests pass locally on Python 3.11/default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: yes. M9 live verification requires explicit
-  authorization immediately before one controlled movement write.
+- User presence required next: no. The bounded C6 live write and exact host
+  restoration are complete; D4/C7 is an offline release-engineering batch.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -60,17 +61,20 @@ development log.
   `UI.SelectUnit` plus `Game.SelectionListMove` network-backed path for one
   explicit adjacent ordinary move and rejects direct `PushMission`. This is a
   path. The complete read/write/executor path is implemented on development
-  head with offline-only evidence; it remains unsupported pending
-  target-machine verification.
+  head and now has bounded target-machine evidence; it remains unreleased
+  pending D4/C7 stabilization and the 1.1.0 release.
 - M9's unit-movement contract is frozen: schema 6 exposes only zero to six
   conservative adjacent `ordinary_move_targets` per owned unit; `move_unit`
   takes exact unit/coordinate arguments and requires identity, destination, and
-  decreased-movement read-back. The bounded live procedure is ready but must run
-  only with the user present and explicitly authorizing the single write.
-- The schema 6 read model is implemented offline. A seventh read-only segment
-  emits active-player-visible `ordinary_move_targets`; parser and validation
+  decreased-movement read-back. The bounded live procedure passed with a
+  separately authorized single write, a safe pre-send rejection, private audit,
+  and exact host restoration.
+- The schema 6 read model is implemented and covered offline. A seventh
+  read-only segment emits active-player-visible `ordinary_move_targets`; parser and validation
   enforce six-target, coordinate, identity, ordering, part-consistency, and
-  legacy-schema bounds. Schema 6 still has no target-machine evidence.
+  legacy-schema bounds. A target watcher emitted schema 6 and exposed the
+  manually confirmed conservative adjacent target used by the successful C6
+  write.
 - The C2/C3 movement command is implemented offline. It requires a fresh schema
   6 target admission, repeats source coordinates and conservative legality on
   the game side, verifies exact selection before one `SelectionListMove`, and
@@ -89,6 +93,12 @@ development log.
   reads, unchanged/partial/unexpected results, timeout, duplicate and unknown
   outcomes, multi-action continuity, recovery, CLI/API compatibility, and
   generated-program bounds. Release-artifact checks remain enforced in CI.
+- C6 target-machine verification is complete. A source-coordinate request was
+  rejected before submission with unchanged state; one separately authorized
+  adjacent move reached the exact target in the same turn with lower movement,
+  produced a fresh watcher snapshot, and caused no observed extra side effect.
+  The private audit was mode `600`, and shutdown restored the exact host
+  baseline.
 
 ## Current architecture
 
