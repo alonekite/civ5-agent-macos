@@ -42,6 +42,9 @@ do not belong in the repository.
   verification, and ownership boundary; schema 6 read/write/executor path has
   passed the offline gate and bounded target-machine evidence and is included
   in the 1.1.0 compatibility profile.
+- [Worker-build contract](contracts/worker-build.md): frozen M10 schema 7,
+  exact command, dual postcondition, executor, compatibility, and evidence
+  boundary; not yet implemented or live-verified.
 - [Session and match identity contract](contracts/session-identity.md)
 - [Knowledge contract](KNOWLEDGE.md)
 - [Ruleset knowledge-view contract](contracts/resolver.md)

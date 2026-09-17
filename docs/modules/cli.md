@@ -104,3 +104,5 @@ persistence contract.
 Assess provisional commands individually when a demonstrated consumer requires
 stability rather than freezing them as a group. Journal capture consumes
 validated in-memory results and never parses the independent M2 audit file.
+M10 may add a provisional operator-facing worker-build command, but supported
+downstream integration remains the unchanged schema 1 `civ5-turn` plan surface.

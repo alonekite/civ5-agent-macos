@@ -22,8 +22,9 @@ A `TurnPlan` contains:
 
 Each action contains a unique canonical UUIDv4 `command_id`, one of
 `choose_research`, `set_city_production`, `skip_unit`, `move_unit`, or
-`end_turn`, and the
-exact arguments defined by the command contract. Extra fields, unknown actions,
+`end_turn` in core 1.1.0. The frozen M10 extension adds `worker_build` only in a
+future compatible implementation. Every action uses the exact arguments
+defined by the command contract. Extra fields, unknown actions,
 arbitrary predicates/code, duplicate command IDs, and malformed stable IDs are
 rejected. A complete plan contains exactly one final `end_turn`.
 
@@ -32,12 +33,17 @@ initial digest is not re-applied after earlier verified actions intentionally
 change state; fresh live state is still read before every action. Plans contain
 no M5 `match_id` and do not require journal or knowledge access.
 
-Development head adds `move_unit` to the action allowlist without changing
-TurnPlan schema 1. Tagged 1.0 packages continue to reject it, so consumers must
+Core 1.1 adds `move_unit` to the action allowlist without changing TurnPlan
+schema 1. Tagged 1.0 packages continue to reject it, so consumers must
 check the package version and `ALLOWED_ACTIONS` rather than infer action
 availability from the plan schema. Its exact arguments and result authority are
-defined in the [unit-movement contract](unit-movement.md); release and live
-support remain pending.
+defined in the [unit-movement contract](unit-movement.md).
+
+The frozen M10 contract similarly keeps TurnPlan schema 1 and plans exact
+`worker_build` arguments `unit_id`, `x`, `y`, and `build_type`. Core 1.1 rejects
+that action. A future compatible package may admit it only when schema 7 and the
+bridge action are implemented together. Exact semantics are defined by the
+[worker-build contract](worker-build.md).
 
 ## Execution behavior
 
@@ -60,6 +66,10 @@ support remain pending.
 - Treat `move_unit` as covering `unit_orders` only for
   its exact unit ID. If movement leaves that unit ready and no remaining move or
   skip covers it, pause rather than choosing another destination.
+- Treat a future `worker_build` as covering `unit_orders` only for its exact
+  unit ID. Preserve all four arguments through the bridge. If verified work
+  leaves that unit ready and no later explicit move, build, or skip covers it,
+  pause rather than choosing another action.
 
 The in-process executor implements these transitions through two narrow injected
 capabilities: read `(bridge_session_id, GameState)` and execute one validated
@@ -141,6 +151,12 @@ by observed stable ID, and the game-reported end-turn blocker remains a separate
 fact. A blocker is reported whenever its numeric value differs from the public
 target-build `NO_END_TURN_BLOCKING_TYPE` value, even if `UI.CanEndTurn()` is
 true. Resolving any requirement belongs to the plan producer.
+
+Schema 7 does not change `TurnRequirement`: `unit_orders` continues to carry
+only the exact unit ID. Plan producers obtain the already validated
+`ordinary_build_actions` from that unit's `GameState` record. This avoids a
+second candidate representation and does not turn factual candidates into a
+recommendation.
 
 ## ExecutionReport schema 1
 

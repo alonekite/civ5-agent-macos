@@ -13,7 +13,7 @@ listed Python symbol into a stable API by itself.
 
 | Area | Version boundary | Current compatibility |
 |---|---|---|
-| Live state | `GameState.schema_version` | Schemas 2–6 supported on development head; schema 6 is target-verified and awaits a 1.1 release |
+| Live state | `GameState.schema_version` | Schemas 2–6 supported in 1.1.0; frozen schema 7 worker extension is not implemented |
 | Knowledge | `KnowledgeBundle.schema_version` | Schemas 1–3 readable; current importer emits schema 3 |
 | Journal | journal record `schema_version` | Schema 1 only; unknown versions fail closed |
 | Turn plan | `TurnPlan.schema_version` | Schema 1 complete-turn plans only |
@@ -93,14 +93,16 @@ The following are not candidates for external compatibility guarantees:
 Public modules may delegate to these implementations, but callers must not need
 them to use the supported core.
 
-## Current size limits
+## Current and frozen forecast size limits
 
 | Boundary | Limit |
 |---|---:|
 | Local watcher request | 64 KiB |
 | Local watcher response | 4 MiB |
 | Internal FireTuner Lua program | 1,000 UTF-8 bytes |
-| Map coordinate in schema 6 / planned movement command | 0–65,535 inclusive |
+| Map coordinate in schema 6+ / movement and frozen worker-build commands | 0–65,535 inclusive |
+| Frozen M10 worker build/improvement identifier | 64 characters |
+| Frozen M10 ordinary worker-build candidates per unit | 32 |
 | TurnPlan actions | 64 |
 | TurnPlan JSON file | 64 KiB |
 | Command-result or execution-report message | 1,024 characters |
@@ -126,6 +128,14 @@ Core 1.1.0 adds schema 6 to the supported live-state set and exports
 The read and direct write have offline and bounded target-machine evidence;
 TurnPlan integration has the complete offline evidence required by the M9
 contract. The approved semantics are in the unit-movement contract.
+
+The frozen M10 compatibility forecast adds schema 7, `worker_build`,
+`MAX_BUILD_IDENTIFIER_LENGTH = 64`, and
+`MAX_ORDINARY_WORKER_BUILDS_PER_UNIT = 32` in a future compatible release. It
+adds no public model class and does not change `CommandResult`, TurnPlan,
+execution-report/event, journal, or stable CLI envelope schemas. None of these
+forecast values is exported by core 1.1.0; consumers must not probe private
+modules for them. See the worker-build contract.
 
 ## Error inventory
 

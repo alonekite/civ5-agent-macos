@@ -18,6 +18,7 @@ requirement inspection, and deterministic execution. The implementation in `mode
 | 4 | Live-verified for early-game branches | Schema 3 fields plus unit readiness and coherent segmented collection |
 | 5 | Live-verified for ordinary research | Schema 4 plus researched/researchable technology sets and research-choice mode; free/steal modes remain offline-only |
 | 6 | Live-verified; added in 1.1.0 | Schema 5 plus bounded per-unit `ordinary_move_targets` |
+| 7 | Contract frozen; not implemented | Schema 6 plus current unit-plot context, current build, and bounded ordinary worker-build candidates |
 
 ## Stable requirements
 
@@ -25,7 +26,8 @@ requirement inspection, and deterministic execution. The implementation in `mode
 - Turn and active-player identity are non-negative integers.
 - A schema 4 read contains all four non-header parts exactly once; schema 5 adds
   a mandatory `technologies` part, and schema 6 adds a mandatory
-  `move_targets` part. Each part's turn and active-player identity must match
+  `move_targets` part. Schema 7 adds mandatory `worker_context` and
+  `worker_builds` parts. Each part's turn and active-player identity must match
   the header.
 - Lists use stable in-game identifiers and reject duplicates where identity must
   be unique.
@@ -71,13 +73,30 @@ schema.
 Collection uses a seventh independently bounded read-only Lua segment. All
 seven parts must identify the same turn and active player.
 
-Readers retain schema 2, 3, 4, and 5 support. A future
+Readers retain schema 2–6 support. A future
 breaking shape change increments `schema_version`; it does not reinterpret an
 existing field silently.
 
+## Frozen schema 7 worker state
+
+Schema 7 requires every unit to carry an exact `current_plot` object, nullable
+`current_build_type`, and zero to 32 sorted `ordinary_build_actions`. Candidate
+objects bind one stable `BUILD_*` to its exact resulting `IMPROVEMENT_*`.
+Identifiers are prefix-validated and limited to 64 characters. Resources are
+looked up for the active team so hidden resources remain `null`.
+
+The complete field shape, ordinary-build predicate, null meanings, candidate
+ordering, privacy boundary, and command relationship are frozen by the
+[worker-build contract](worker-build.md). Schema 7 is not implemented or
+live-verified yet and is not part of the stable 1.1.0 profile.
+
+Collection will use two additional independently bounded read-only Lua
+segments, for nine total schema 7 segments. Schema 2–6 compatibility remains
+unchanged.
+
 ## Session metadata
 
-Schemas 2–6 do not expose a stable save or match identifier, and their state
+Schemas 2–7 do not expose a stable save or match identifier, and their state
 payload does not contain the bridge connection epoch. Per ADR-0017, the bridge
 now attaches a separate `bridge_session_id` beside the unchanged payload rather
 than pretending that mutable state fields identify a match. M6 targets that

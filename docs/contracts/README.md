@@ -6,9 +6,10 @@ tests; discrepancies are defects that must be resolved explicitly.
 
 | Contract | Status | Owning module |
 |---|---|---|
-| [Live state](live-state.md) | Evolving; schemas 2–6 supported on development head with documented evidence and release limits | bridge |
+| [Live state](live-state.md) | Evolving; schemas 2–6 supported, schema 7 worker extension frozen but not implemented | bridge |
 | [Commands](command.md) | Evolving, core writes live-verified | bridge |
 | [Unit movement](unit-movement.md) | Stable 1.1.0 schema 6 read/write/executor contract; offline and bounded live gates complete | bridge/executor |
+| [Worker build](worker-build.md) | Frozen M10 schema 7/read/write/executor contract; implementation and evidence pending | bridge/executor |
 | [Session and match identity](session-identity.md) | Bridge session and journal match binding implemented offline | bridge/application/journal |
 | [Knowledge bundle](../KNOWLEDGE.md) | Evolving, implemented | knowledge |
 | [Ruleset knowledge view](resolver.md) | Structural M4 contract implemented | knowledge |

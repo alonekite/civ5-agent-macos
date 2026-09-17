@@ -41,6 +41,18 @@ Core 1.1.0 includes the approved M9 `move_unit` action with exact arguments
 `unit_id`, `x`, and `y`. It is absent from core 1.0.0. Its downstream profile
 and evidence are defined by the [unit-movement contract](unit-movement.md).
 
+## Frozen future action
+
+| Action | Arguments | Postcondition | Evidence |
+|---|---|---|---|
+| `worker_build` | planned schema 7 owned unit ID, exact bounded `x`, `y`, and bounded `BUILD_*` | same unit/plot with lower movement and either exact active build or exact completed paired improvement | Frozen for M10; not implemented or live-verified |
+
+M10 freezes the future `worker_build` action with exact arguments `unit_id`,
+`x`, `y`, and `build_type`. It is not in the current implementation allowlist
+or core 1.1.0. Its exact admission, ordinary-build exclusions, stock dispatch,
+dual success postcondition, recovery, and compatibility rules are defined by
+the [worker-build contract](worker-build.md).
+
 The target FireTuner accepts only bounded Lua reliably. Every internal program
 is rejected before send above 1,000 UTF-8 bytes. `end_turn` additionally
 requires an active turn, the game-defined `NO_ENDTURN_BLOCKING_TYPE`, no message

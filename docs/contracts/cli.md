@@ -64,6 +64,13 @@ envelopes remain unchanged; tagged core 1.0.0 rejects the action. The
 provisional `civ5-command` accepts positional unit/coordinate arguments for
 operator testing, but its spelling is not a stable integration surface.
 
+M10 likewise adds no stable subcommand or envelope field. The frozen future
+contract permits exact `worker_build` actions inside existing schema 1 plans;
+core 1.1 rejects them. Once implemented and released, `validate` and `execute`
+retain the same stdout and exit meanings. A provisional `civ5-command`
+worker-build spelling may be added for operator testing but is not a supported
+integration interface.
+
 ## Non-goals
 
 This contract does not stabilize error prose, absolute socket paths, Python

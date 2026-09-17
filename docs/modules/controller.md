@@ -104,3 +104,13 @@ unit remains ready and no later explicit move or skip covers it, execution
 pauses. Keep the bounded live procedure as a regression gate when execution
 semantics change. Tactical and strategic layers remain plan producers, not
 executor internals.
+
+## Frozen worker-build extension
+
+M10 D2 keeps TurnPlan schema 1 and defines a future exact `worker_build`
+action carrying unit ID, source coordinates, and stable build identifier. It
+covers only that unit's factual order requirement and remains subject to fresh
+schema 7 bridge admission. The executor neither queries knowledge nor chooses a
+build or alternate plot. If verified work leaves the unit ready without a
+remaining explicit action, execution pauses. Core 1.1 still rejects this action;
+implementation and evidence are pending.

@@ -126,6 +126,25 @@ action. Direct FireTuner access or another consumer-side write path is not a
 fallback. See the [M10 worker-build development
 plan](../planning/WORKER_BUILD_PLAN.md).
 
+M10 D2 freezes the compatibility forecast without making it available. A
+future consumer will require all of package 1.2.0 or later, schema 7 in the
+supported schema set, `worker_build` in `ALLOWED_ACTIONS`, and the exact
+schema/limit constants published by the aggregate API. Greater version numbers
+alone remain insufficient.
+
+The frozen action carries exactly `unit_id`, `x`, `y`, and `build_type`. The
+unit's schema 7 record supplies current-plot facts, current build, and zero to
+32 factual `{build_type, improvement_type}` candidates. Coordinates identify
+the exact caller-authorized plot. Candidate order is not a recommendation, and
+the consumer must preserve the paired expected improvement without deriving a
+different one.
+
+Only a core `success` backed by the worker-build contract's active-build or
+completed-improvement postcondition is success. An accepted marker, selection
+change, timeout, or missing evidence is not. The consumer preserves failures
+and unknown outcomes and replans only from a later fresh state. See the
+[worker-build contract](worker-build.md).
+
 ## 1.1.0 movement capability
 
 The accepted M9 contract defines live-state schema 6 and an allowlisted

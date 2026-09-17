@@ -244,7 +244,7 @@ intentionally outside this repository's scope.
 - [x] Register the request as GitHub Issue #2
 - [x] Research candidate enumeration, stock dispatch, exclusions, and exact
   active/completed postconditions; accept ADR-0033
-- [ ] Freeze worker-build, live-state, command, TurnPlan, and downstream
+- [x] Freeze worker-build, live-state, command, TurnPlan, and downstream
   contracts
 - [ ] Freeze the offline and bounded target-machine verification procedures
 - [ ] Implement and test schema 7 current-plot build state

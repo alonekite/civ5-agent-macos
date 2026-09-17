@@ -47,6 +47,10 @@ or ruleset knowledge.
 - Schema 6 is collected as bounded header/city/unit/diplomacy/victory/technology/
   move-target programs; every part must identify the same turn and active
   player. Schemas 2–5 remain readable.
+- The frozen schema 7 extension adds bounded worker-context and worker-build
+  segments without changing selection; it is not implemented yet. Its future
+  action remains unavailable until schema, command, and verification ship
+  together.
 - Every successful write includes a proved postcondition.
 - Every FireTuner Lua program is at most 1,000 UTF-8 bytes; oversized programs
   fail before transport contact.
@@ -95,7 +99,8 @@ still has a direct fallback; the supported Python bridge client is watcher-only.
 
 ## Planned extensions
 
-Maintain the 1.1.0 movement contract and add only narrowly specified actions
-and optional live evidence for the other branches
-listed above. The session envelope and public error semantics have offline
+Maintain the 1.1.0 movement contract. M10 next implements the frozen schema 7
+current-plot/candidate read model and exact `worker_build` contract without
+adding policy or a second write path. Optional evidence for other branches
+remains separate. The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

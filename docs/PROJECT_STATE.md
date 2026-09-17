@@ -8,11 +8,11 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M10 — verified worker build — is in contract design. M9 and the
-  immutable 1.1.0 release remain complete.
-- Active next deliverable: complete M10 D2 by freezing schema 7 worker context
-  and candidates, command, verification, TurnPlan, public API, CLI, and
-  downstream contracts before command code.
+- Current milestone: M10 — verified worker build — is in verification design.
+  M9 and the immutable 1.1.0 release remain complete.
+- Active next deliverable: complete M10 D3 by freezing the offline matrix and
+  finite operator-assisted schema 7/worker-build live procedure before command
+  code.
 - Functional baseline: 297 tests pass locally on Python 3.11/default runtime
   and in exact-commit/tag GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
@@ -114,6 +114,12 @@ development log.
   require the same unit/plot and lower movement. Prototype read segments and
   the worst-case compact write fit the 1,000-byte design limit; final generated
   strings remain subject to executable tests and later live evidence.
+- M10 D2 is complete. The new owning worker-build contract freezes schema 7
+  current-plot facts, current build, up to 32 bounded candidate pairs, the
+  exact four-field `worker_build` action, both success branches, executor
+  coverage/recovery, stable CLI behavior, public constants, and downstream
+  absent-capability behavior. Core 1.1 implementation and profile remain
+  unchanged.
 
 ## Current architecture
 
@@ -201,9 +207,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Freeze D2 contracts for schema 7, command/verification, TurnPlan, public
-   surfaces, and downstream compatibility.
-2. Freeze D3 offline and bounded-live verification before implementing C1–C4.
+1. Freeze D3 offline and bounded-live verification before implementing C1–C4.
+2. Implement C1–C4 strictly against the frozen contracts.
 3. Complete C5 offline evidence, then pause for separately authorized C6 live
    verification before advertising the action or preparing 1.2.0.
 
@@ -240,6 +245,9 @@ may enable FireTuner, launch Civ V, or change the firewall.
   command-line entry points remain provisional.
 - ADR-0031: downstream tactical integration is one-way; reusable capability
   requests evolve the core without importing tactical policy or adapters.
+- ADR-0032: adjacent movement uses the exact selected-unit stock network path.
+- ADR-0033: ordinary worker builds separate selection-free unit legality from
+  exact selected-unit stock action dispatch and dual factual verification.
 
 See `docs/architecture/decisions/README.md` for the complete decision index and
 `docs/development/DEVELOPMENT_LOG.md` for chronological history.

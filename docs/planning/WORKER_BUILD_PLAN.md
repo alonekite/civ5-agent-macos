@@ -1,6 +1,6 @@
 # Verified Worker Build Development Plan
 
-Status: D0 and C0/D1 complete; D2 contract work is next
+Status: D0, C0/D1, and D2 complete; D3 verification design is next
 
 Target milestone: M10
 
@@ -31,9 +31,10 @@ The first slice is intentionally narrower than all Civ V worker behavior:
   water builds, special/consuming builds, and tactical recommendations are
   excluded until separately requested and verified.
 
-The public action name is provisional until D2. `worker_build(unit_id, build)`
-is preferred over `start_worker_build`, because an eligible build may complete
-immediately and therefore never remain observable as an active build.
+The frozen action is `worker_build(unit_id, x, y, build_type)`. Coordinates
+preserve the exact caller-authorized plot; `worker_build` is preferred over
+`start_worker_build` because an eligible build may complete immediately and
+therefore never remain observable as an active build.
 
 ## Capability request
 
@@ -44,10 +45,11 @@ immediately and therefore never remain observable as an active build.
    its current build; and one verified exact worker-build action.
 3. **Current insufficiency:** core 1.1.0 can read and move a unit, but exposes no
    worker-build candidates and admits no construction action.
-4. **Proposed identifiers and shape:** exact integer `unit_id`, stable
-   `BUILD_*` string, current unit coordinates as a freshness guard, and a
-   bounded sorted candidate list associated with that exact unit. Final field
-   names and limits belong to D2.
+4. **Identifiers and shape:** exact integer `unit_id`, exact bounded `x` and
+   `y`, stable `build_type`, and a sorted list of at most 32
+   `{build_type, improvement_type}` candidates associated with that unit.
+   Schema 7 field names and the 64-character identifier limit are frozen by
+   D2.
 5. **Live preconditions/postconditions:** the active turn, player, bridge
    session, state basis, unit identity, current coordinates, unit ownership,
    capability, movement/readiness, current build, and candidate membership must
@@ -159,6 +161,9 @@ measured 994 bytes; final strings still require executable bound tests.
 
 ### D2 — Freeze contracts
 
+Status: complete. The owning contract is
+`docs/contracts/worker-build.md`.
+
 1. Add `docs/contracts/worker-build.md` as the owning semantic contract.
 2. Update live-state, command, TurnPlan, bridge, controller, public API, CLI,
    and downstream contracts.
@@ -167,6 +172,14 @@ measured 994 bytes; final strings still require executable bound tests.
 
 Exit: one authoritative contract defines every accepted and rejected state;
 the capability is still not advertised as implemented or live-verified.
+
+Outcome: schema 7 adds mandatory current-plot context, current build, and up to
+32 sorted ordinary-build candidate pairs per unit. Stable build/improvement
+identifiers are capped at 64 characters. `worker_build` carries exact unit,
+coordinates, and build type; success requires lower movement plus either the
+exact active build or exact completed paired improvement. TurnPlan schema 1,
+result/report/event schemas, journal schema, and stable CLI envelopes remain
+unchanged. Core 1.1 continues to reject the action.
 
 ### D3 — Freeze verification before the write
 
