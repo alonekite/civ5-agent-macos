@@ -99,6 +99,37 @@ class WatcherTurnExecutorTest(unittest.TestCase):
         ), self.assertRaisesRegex(TransportError, "session changed"):
             adapter.execute_action(action, SESSION_ID)
 
+    def test_forwards_explicit_move_arguments_through_watcher_protocol(self):
+        action = PlannedAction(
+            COMMAND_ID,
+            "move_unit",
+            {"unit_id": 8, "x": 10, "y": 12},
+        )
+        response = {
+            "ok": True,
+            "bridge_session_id": SESSION_ID,
+            "result": {
+                "id": COMMAND_ID,
+                "status": "success",
+                "message": "verified",
+                "before": asdict(state()),
+                "after": asdict(state()),
+            },
+        }
+        with patch(
+            "civ5_agent.watcher_client.request",
+            return_value=response,
+        ) as send:
+            result = WatcherTurnExecutor().execute_action(action, SESSION_ID)
+
+        self.assertEqual(result.id, COMMAND_ID)
+        payload = send.call_args.args[0]
+        self.assertEqual(payload["op"], "move_unit")
+        self.assertEqual(
+            {key: payload[key] for key in ("unit_id", "x", "y")},
+            {"unit_id": 8, "x": 10, "y": 12},
+        )
+
     def test_malformed_post_write_result_requires_recovery(self):
         before = state()
         action = PlannedAction(COMMAND_ID, "end_turn", {})

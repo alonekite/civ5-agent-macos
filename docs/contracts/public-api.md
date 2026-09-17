@@ -125,9 +125,9 @@ M9 is specified as a backward-compatible 1.1.0 addition. Development head now
 includes schema 6 in the supported live-state set and exports
 `MAX_MAP_COORDINATE = 65_535`; this read surface has offline evidence but is not
 part of tagged core 1.0.0 and is not yet live-verified. Development head also
-includes `move_unit` in `ALLOWED_ACTIONS` with offline bridge verification;
-TurnPlan integration, target-machine evidence, and the 1.1.0 release remain
-pending. The approved semantics are in the unit-movement contract.
+includes `move_unit` in `ALLOWED_ACTIONS` with offline bridge and TurnPlan
+verification; target-machine evidence and the 1.1.0 release remain pending. The
+approved semantics are in the unit-movement contract.
 
 ## Error inventory
 

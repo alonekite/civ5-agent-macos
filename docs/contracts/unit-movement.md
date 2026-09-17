@@ -139,8 +139,10 @@ must not be committed. Fixtures use synthetic coordinates and identities.
 Parser/validation, legacy-schema, target ordering/bounds/privacy, read-only Lua,
 command arguments, repeated game-side guards, 1,000-byte pre-send bound, exact
 postcondition, rejection, unexpected-state, and timeout tests pass offline.
-Remaining support requires executor and recovery integration, the reconciled
-full offline matrix, and the bounded target-machine procedure in the live-test
+Executor requirement coverage, ordered multi-move continuity, factual events,
+watcher forwarding, journal composition, CLI decoding, and conservative cached
+recovery also pass offline. Remaining support requires the reconciled full
+offline matrix and the bounded target-machine procedure in the live-test
 checklist.
 Until that evidence passes, documentation and the downstream profile must call
 the capability planned or absent, never supported or live-verified.

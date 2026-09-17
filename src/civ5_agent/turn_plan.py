@@ -23,7 +23,13 @@ EXECUTION_REPORT_SCHEMA_VERSION = 1
 MAX_PLAN_ACTIONS = 64
 MAX_EVENT_SINK_ERRORS = MAX_PLAN_ACTIONS * 2 + 2
 _TURN_PLAN_ACTIONS = frozenset(
-    {"end_turn", "choose_research", "set_city_production", "skip_unit"}
+    {
+        "end_turn",
+        "choose_research",
+        "set_city_production",
+        "skip_unit",
+        "move_unit",
+    }
 )
 _DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}\Z")
 _REPORT_STATUSES = frozenset(

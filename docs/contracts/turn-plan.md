@@ -21,7 +21,8 @@ A `TurnPlan` contains:
 - one to 64 ordered `PlannedAction` values.
 
 Each action contains a unique canonical UUIDv4 `command_id`, one of
-`choose_research`, `set_city_production`, `skip_unit`, or `end_turn`, and the
+`choose_research`, `set_city_production`, `skip_unit`, `move_unit`, or
+`end_turn`, and the
 exact arguments defined by the command contract. Extra fields, unknown actions,
 arbitrary predicates/code, duplicate command IDs, and malformed stable IDs are
 rejected. A complete plan contains exactly one final `end_turn`.
@@ -31,11 +32,12 @@ initial digest is not re-applied after earlier verified actions intentionally
 change state; fresh live state is still read before every action. Plans contain
 no M5 `match_id` and do not require journal or knowledge access.
 
-M9 will add `move_unit` to the action allowlist without changing TurnPlan
-schema 1. Older 1.0 packages continue to reject it, so consumers must check the
-package version and `ALLOWED_ACTIONS` rather than infer action availability from
-the plan schema. Its exact arguments and result authority are frozen in the
-[unit-movement contract](unit-movement.md), but it is not currently accepted.
+Development head adds `move_unit` to the action allowlist without changing
+TurnPlan schema 1. Tagged 1.0 packages continue to reject it, so consumers must
+check the package version and `ALLOWED_ACTIONS` rather than infer action
+availability from the plan schema. Its exact arguments and result authority are
+defined in the [unit-movement contract](unit-movement.md); release and live
+support remain pending.
 
 ## Execution behavior
 
@@ -55,7 +57,7 @@ the plan schema. Its exact arguments and result authority are frozen in the
 - Never infer that an interrupted action succeeded; recovery must reconcile its
   command identity, M6-owned execution state, and freshly read game state.
 - Operate correctly when no journal is configured or available.
-- When M9 is implemented, treat `move_unit` as covering `unit_orders` only for
+- Treat `move_unit` as covering `unit_orders` only for
   its exact unit ID. If movement leaves that unit ready and no remaining move or
   skip covers it, pause rather than choosing another destination.
 

@@ -81,6 +81,24 @@ class TurnPlanTest(unittest.TestCase):
         self.assertEqual(plan.actions[0].arguments["unit_id"], 8)
         self.assertEqual(validate_turn_plan(plan, state, SESSION_ID), plan)
 
+    def test_accepts_exact_move_unit_action_in_schema_one(self):
+        state = ready_state()
+        plan = make_turn_plan(
+            state,
+            SESSION_ID,
+            (
+                PlannedAction(
+                    COMMAND_ONE,
+                    "move_unit",
+                    {"unit_id": 8, "x": 10, "y": 12},
+                ),
+                self.end_turn(),
+            ),
+            plan_id=PLAN_ID,
+        )
+        self.assertEqual(plan.actions[0].action, "move_unit")
+        self.assertEqual(plan.actions[0].arguments, {"unit_id": 8, "x": 10, "y": 12})
+
     def test_rejects_stale_session_turn_player_and_state_basis(self):
         state = ready_state()
         plan = make_turn_plan(
@@ -133,11 +151,6 @@ class TurnPlanTest(unittest.TestCase):
         )
         bad = (
             PlannedAction(COMMAND_ONE, "arbitrary_lua", {}),
-            PlannedAction(
-                COMMAND_ONE,
-                "move_unit",
-                {"unit_id": 8, "x": 10, "y": 12},
-            ),
             PlannedAction(COMMAND_ONE, "end_turn", {"extra": True}),
             PlannedAction(COMMAND_ONE, "choose_research", {"tech_type": "Pottery"}),
             PlannedAction(

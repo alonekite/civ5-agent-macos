@@ -139,6 +139,44 @@ class WatchControlHandlerTest(unittest.TestCase):
         self.assertTrue(replay["replayed"])
         self.assertEqual(execute.call_count, 1)
 
+    def test_move_unit_lifecycle_is_available_to_journal_composition(self):
+        class RecordingJournal:
+            def __init__(self):
+                self.submitted = []
+                self.results = []
+
+            def record_command_submitted(self, operation, arguments, command_id, turn):
+                self.submitted.append((operation, arguments, command_id, turn))
+
+            def record_command_result(self, operation, arguments, result):
+                self.results.append((operation, arguments, result))
+
+        journal = RecordingJournal()
+        handler = make_control_handler(
+            self.client,
+            172,
+            threading.Lock(),
+            bridge_session_id=self.session_id,
+            journal_capture=journal,
+        )
+        result = CommandResult(id=MOVE_ID, status="success")
+        with patch("civ5_agent.watch.execute_move_unit", return_value=result):
+            response = handler(
+                {
+                    "op": "move_unit",
+                    "id": MOVE_ID,
+                    "unit_id": 8,
+                    "x": 10,
+                    "y": 12,
+                    "bridge_session_id": self.session_id,
+                }
+            )
+
+        self.assertTrue(response["ok"])
+        expected = {"unit_id": 8, "x": 10, "y": 12}
+        self.assertEqual(journal.submitted[0][0:3], ("move_unit", expected, MOVE_ID))
+        self.assertEqual(journal.results[0][0:2], ("move_unit", expected))
+
     def test_audits_command_result(self):
         result = CommandResult(id=AUDIT_ID, status="success")
         with tempfile.TemporaryDirectory() as directory:

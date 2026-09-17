@@ -47,6 +47,56 @@ def state(**changes):
     return GameState(**values)
 
 
+def movement_state(
+    *,
+    x=9,
+    y=12,
+    moves=120,
+    ready=True,
+    targets=({"x": 10, "y": 12},),
+    turn=4,
+    blocker=3,
+):
+    return GameState(
+        schema_version=6,
+        turn=turn,
+        active_player=0,
+        gold=12,
+        score=10,
+        current_era=0,
+        turn_active=True,
+        can_end_turn=blocker == -1,
+        end_turn_blocking_type=blocker,
+        research={"id": 1, "type": "TECH_POTTERY", "progress": 0, "cost": 40},
+        research_choice={"required": False, "mode": "normal"},
+        victory={
+            "science_enabled": True,
+            "apollo": 0,
+            "booster": 0,
+            "cockpit": 0,
+            "stasis_chamber": 0,
+            "engine": 0,
+        },
+        units=[
+            {
+                "id": 8,
+                "name": "Warrior",
+                "type": "UNIT_WARRIOR",
+                "x": x,
+                "y": y,
+                "moves": moves,
+                "damage": 0,
+                "max_hit_points": 100,
+                "combat_strength": 8,
+                "ranged_strength": 0,
+                "range": 1,
+                "ready_to_move": ready,
+                "ordinary_move_targets": list(targets),
+            }
+        ],
+    )
+
+
 class FakeBridge:
     def __init__(self, states):
         self.states = states
@@ -76,6 +126,283 @@ class FakeBridge:
 
 
 class TurnExecutorTest(unittest.TestCase):
+    def test_executes_explicit_move_then_end_turn_with_factual_events(self):
+        initial = movement_state()
+        moved = movement_state(
+            x=10,
+            y=12,
+            moves=60,
+            ready=False,
+            targets=(),
+            blocker=-1,
+        )
+        advanced = movement_state(
+            x=10,
+            y=12,
+            moves=60,
+            ready=False,
+            targets=(),
+            turn=5,
+            blocker=-1,
+        )
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "move_unit",
+                {"unit_id": 8, "x": 10, "y": 12},
+            ),
+            PlannedAction(COMMAND_IDS[1], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, moved, advanced])
+        events = []
+
+        report = execute_turn_plan(
+            plan,
+            bridge.read_state,
+            bridge.execute,
+            events.append,
+        )
+
+        self.assertEqual(report.status, "completed")
+        self.assertEqual(bridge.executed, ["move_unit", "end_turn"])
+        self.assertEqual(
+            [event.command_id for event in events if event.command_id is not None],
+            [COMMAND_IDS[0], COMMAND_IDS[0], COMMAND_IDS[1], COMMAND_IDS[1]],
+        )
+
+    def test_move_covers_only_its_exact_unit_requirement(self):
+        initial = movement_state()
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "move_unit",
+                {"unit_id": 9, "x": 10, "y": 12},
+            ),
+            PlannedAction(COMMAND_IDS[1], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial])
+
+        report = execute_turn_plan(plan, bridge.read_state, bridge.execute)
+
+        self.assertEqual(report.status, "paused")
+        self.assertEqual(report.reason_code, "unresolved_requirement")
+        self.assertEqual(bridge.executed, [])
+
+    def test_pauses_when_moved_unit_still_needs_uncovered_orders(self):
+        initial = movement_state()
+        still_ready = movement_state(
+            x=10,
+            y=12,
+            moves=60,
+            ready=True,
+            targets=({"x": 11, "y": 12},),
+        )
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "move_unit",
+                {"unit_id": 8, "x": 10, "y": 12},
+            ),
+            PlannedAction(COMMAND_IDS[1], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, still_ready])
+
+        report = execute_turn_plan(plan, bridge.read_state, bridge.execute)
+
+        self.assertEqual(report.status, "paused")
+        self.assertEqual(report.next_action_index, 1)
+        self.assertEqual(bridge.executed, ["move_unit"])
+
+    def test_executes_multiple_explicit_moves_for_same_unit(self):
+        initial = movement_state()
+        first = movement_state(
+            x=10,
+            y=12,
+            moves=60,
+            ready=True,
+            targets=({"x": 11, "y": 12},),
+        )
+        second = movement_state(
+            x=11,
+            y=12,
+            moves=0,
+            ready=False,
+            targets=(),
+            blocker=-1,
+        )
+        advanced = movement_state(
+            x=11,
+            y=12,
+            moves=0,
+            ready=False,
+            targets=(),
+            turn=5,
+            blocker=-1,
+        )
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "move_unit",
+                {"unit_id": 8, "x": 10, "y": 12},
+            ),
+            PlannedAction(
+                COMMAND_IDS[1],
+                "move_unit",
+                {"unit_id": 8, "x": 11, "y": 12},
+            ),
+            PlannedAction(COMMAND_IDS[2], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, first, second, advanced])
+
+        report = execute_turn_plan(plan, bridge.read_state, bridge.execute)
+
+        self.assertEqual(report.status, "completed")
+        self.assertEqual(bridge.executed, ["move_unit", "move_unit", "end_turn"])
+
+    def test_rejects_invalid_move_result_even_when_bridge_calls_it_success(self):
+        initial = movement_state()
+        unexpected = movement_state(
+            x=11,
+            y=12,
+            moves=60,
+            ready=False,
+            targets=(),
+            blocker=-1,
+        )
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "move_unit",
+                {"unit_id": 8, "x": 10, "y": 12},
+            ),
+            PlannedAction(COMMAND_IDS[1], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, unexpected])
+
+        report = execute_turn_plan(plan, bridge.read_state, bridge.execute)
+
+        self.assertEqual(report.status, "failed")
+        self.assertEqual(report.reason_code, "invalid_action_result")
+        self.assertEqual(bridge.executed, ["move_unit"])
+
+    def test_rejects_move_result_that_never_changes_coordinates(self):
+        initial = movement_state(targets=({"x": 9, "y": 12},))
+        spent = movement_state(
+            moves=60,
+            ready=False,
+            targets=(),
+            blocker=-1,
+        )
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "move_unit",
+                {"unit_id": 8, "x": 9, "y": 12},
+            ),
+            PlannedAction(COMMAND_IDS[1], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, spent])
+
+        report = execute_turn_plan(plan, bridge.read_state, bridge.execute)
+
+        self.assertEqual(report.status, "failed")
+        self.assertEqual(report.reason_code, "invalid_action_result")
+
+    def test_reconciles_verified_move_then_pauses_without_resubmission(self):
+        initial = movement_state()
+        moved = movement_state(
+            x=10,
+            y=12,
+            moves=60,
+            ready=False,
+            targets=(),
+            blocker=-1,
+        )
+        action = PlannedAction(
+            COMMAND_IDS[0],
+            "move_unit",
+            {"unit_id": 8, "x": 10, "y": 12},
+        )
+        plan = make_turn_plan(
+            initial,
+            SESSION_ID,
+            (action, PlannedAction(COMMAND_IDS[1], "end_turn", {})),
+            plan_id=PLAN_ID,
+        )
+        recovery = execute_turn_plan(
+            plan,
+            lambda: (SESSION_ID, initial),
+            lambda *_: (_ for _ in ()).throw(TimeoutError("outcome unknown")),
+        )
+        cached = CommandResult(
+            id=COMMAND_IDS[0],
+            status="success",
+            message="verified",
+            before=asdict(initial),
+            after=asdict(moved),
+        )
+
+        report = reconcile_turn_plan(
+            plan,
+            recovery,
+            lambda: (SESSION_ID, moved),
+            lambda *_: cached,
+        )
+
+        self.assertEqual(report.status, "paused")
+        self.assertEqual(report.reason_code, "action_reconciled")
+        self.assertEqual(report.next_action_index, 1)
+
+    def test_rejects_cached_move_with_unexpected_destination(self):
+        initial = movement_state()
+        unexpected = movement_state(
+            x=11,
+            y=12,
+            moves=60,
+            ready=False,
+            targets=(),
+            blocker=-1,
+        )
+        action = PlannedAction(
+            COMMAND_IDS[0],
+            "move_unit",
+            {"unit_id": 8, "x": 10, "y": 12},
+        )
+        plan = make_turn_plan(
+            initial,
+            SESSION_ID,
+            (action, PlannedAction(COMMAND_IDS[1], "end_turn", {})),
+            plan_id=PLAN_ID,
+        )
+        recovery = execute_turn_plan(
+            plan,
+            lambda: (SESSION_ID, initial),
+            lambda *_: (_ for _ in ()).throw(TimeoutError("outcome unknown")),
+        )
+        cached = CommandResult(
+            id=COMMAND_IDS[0],
+            status="success",
+            message="verified",
+            before=asdict(initial),
+            after=asdict(unexpected),
+        )
+
+        report = reconcile_turn_plan(
+            plan,
+            recovery,
+            lambda: (SESSION_ID, unexpected),
+            lambda *_: cached,
+        )
+
+        self.assertEqual(report.status, "recovery_required")
+        self.assertEqual(report.reason_code, "invalid_recovery_evidence")
+
     def test_invalid_plan_fails_before_write(self):
         initial = state()
         valid = make_turn_plan(

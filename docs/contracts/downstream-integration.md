@@ -116,7 +116,7 @@ process.
 The accepted M9 contract defines live-state schema 6 and an allowlisted
 `move_unit(unit_id, x, y)` action for one explicit adjacent ordinary move.
 Development head implements the offline-only schema 6 read model and bounded
-bridge command; the released profile and live-support claim remain absent.
+bridge/TurnPlan command path; the released profile and live-support claim remain absent.
 Each owned unit exposes only the bounded
 `ordinary_move_targets` that the core is prepared to admit under that contract.
 This does not add path selection,

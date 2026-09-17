@@ -10,10 +10,9 @@ development log.
 
 - Current milestone: M9 — verified unit movement — is in progress. M8 and the
   immutable 1.0.0 release remain complete.
-- Active next deliverable: integrate the bounded `move_unit` action into
-  deterministic TurnPlan requirement coverage and recovery for
+- Active next deliverable: reconcile and complete the full M9 offline gate for
   [CoreCapabilityRequest #1](https://github.com/alonekite/civ5-agent-macos/issues/1).
-- Functional baseline: 278 tests pass locally on the default runtime
+- Functional baseline: 290 tests pass locally on the default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
 - User presence required next: none for documentation, source research, or
@@ -79,6 +78,12 @@ development log.
   accepts success only when the same unit reaches the exact destination in the
   same active turn with lower movement points. Marker acceptance, unchanged or
   unexpected state, transformation, turn drift, and timeout are not success.
+- C4 deterministic integration is implemented offline. Schema 1 plans may list
+  only explicit movement coordinates; a move covers `unit_orders` only for its
+  exact unit, multiple moves remain explicitly ordered, newly uncovered orders
+  pause execution, and cached recovery evidence must independently satisfy the
+  exact movement postcondition. Watcher forwarding, factual events, command
+  journal composition, and unchanged `civ5-turn` envelopes are covered.
 
 ## Current architecture
 
@@ -169,8 +174,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 1. Execute the batches in
    `docs/planning/UNIT_MOVEMENT_PLAN.md`, starting with the capability request,
    source research, ADR-0032, and contracts.
-2. Complete deterministic executor integration, then reconcile the full M9
-   offline gate before requesting a live test.
+2. Reconcile the full M9 offline gate and documentation before requesting a
+   live test.
 3. Pause for the bounded operator-authorized live procedure before advertising
    movement in the downstream profile or preparing 1.1.0.
 

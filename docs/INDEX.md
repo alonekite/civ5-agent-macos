@@ -36,8 +36,8 @@ do not belong in the repository.
 - [Live-state contract](contracts/live-state.md)
 - [Command contract](contracts/command.md)
 - [Unit-movement contract](contracts/unit-movement.md): M9 schema, command,
-  verification, and ownership boundary; schema 6 read/write is offline-only and
-  deterministic executor integration remains pending.
+  verification, and ownership boundary; schema 6 read/write/executor path is
+  offline-only and full/live gates remain pending.
 - [Session and match identity contract](contracts/session-identity.md)
 - [Knowledge contract](KNOWLEDGE.md)
 - [Ruleset knowledge-view contract](contracts/resolver.md)

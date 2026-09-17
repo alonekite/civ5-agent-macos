@@ -95,10 +95,11 @@ implemented. The current `decide()` function
 mixes factual requirement reporting with the legacy end-turn recommendation and
 must not grow into a tactical or strategic planner.
 
-## Planned extensions
+## Movement extension
 
-M9 may add the bridge-owned `move_unit` action to schema 1 plans without adding
-route selection. It covers only the matching unit-order requirement; if the
+Development head accepts the bridge-owned `move_unit` action in schema 1 plans
+without adding route selection. It covers only the matching unit-order
+requirement; if the
 unit remains ready and no later explicit move or skip covers it, execution
 pauses. Keep the bounded live procedure as a regression gate when execution
 semantics change. Tactical and strategic layers remain plan producers, not

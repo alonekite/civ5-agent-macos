@@ -9,8 +9,9 @@ All notable user-visible changes are recorded here. Development details belong i
 
 - Offline schema 6 `ordinary_move_targets` observations and a narrowly
   allowlisted adjacent `move_unit(unit_id, x, y)` bridge command with repeated
-  game-side guards and exact read-after-write verification. TurnPlan and live
-  verification gates remain pending before the planned 1.1.0 release.
+  game-side guards, exact read-after-write verification, and deterministic
+  TurnPlan execution/recovery. Full offline reconciliation and live verification
+  remain pending before the planned 1.1.0 release.
 
 ## 1.0.0 - 2026-09-16
 

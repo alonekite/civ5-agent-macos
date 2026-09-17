@@ -29,6 +29,7 @@ from civ5_agent.turn_plan import (
 SESSION_ID = "123e4567-e89b-42d3-a456-426614174060"
 PLAN_ID = "123e4567-e89b-42d3-a456-426614174061"
 COMMAND_ID = "123e4567-e89b-42d3-a456-426614174062"
+MOVE_COMMAND_ID = "123e4567-e89b-42d3-a456-426614174063"
 
 
 def state(turn=4):
@@ -84,6 +85,26 @@ class TurnPlanCliTest(unittest.TestCase):
             loaded = load_turn_plan(self.write_plan(directory))
 
         self.assertEqual(loaded, plan())
+
+    def test_loads_schema_one_plan_with_explicit_move_action(self):
+        movement_plan = make_turn_plan(
+            state(),
+            SESSION_ID,
+            (
+                PlannedAction(
+                    MOVE_COMMAND_ID,
+                    "move_unit",
+                    {"unit_id": 8, "x": 10, "y": 12},
+                ),
+                PlannedAction(COMMAND_ID, "end_turn", {}),
+            ),
+            plan_id=PLAN_ID,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            loaded = load_turn_plan(
+                self.write_plan(directory, asdict(movement_plan))
+            )
+        self.assertEqual(loaded, movement_plan)
 
     def test_rejects_extra_fields_nonfinite_values_and_oversize(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -232,7 +232,7 @@ intentionally outside this repository's scope.
 - [x] Freeze movement, live-state, command, TurnPlan, and downstream contracts
 - [x] Implement and test the minimum active-player-visible read model
 - [x] Implement bounded allowlisted movement with read-after-write verification
-- [ ] Integrate explicit movement into deterministic TurnPlan execution
+- [x] Integrate explicit movement into deterministic TurnPlan execution
 - [ ] Complete the full offline verification gate
 - [ ] Complete bounded operator-authorized target-machine verification
 - [ ] Publish the verified capability in a compatible 1.1.0 release

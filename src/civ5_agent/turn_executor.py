@@ -499,6 +499,14 @@ def _validated_step(
     before_digest = live_state_digest(before_state)
     if before_digest != expected_before_digest:
         raise ValueError("action result before-state differs from executor observation")
+    if result.status == "success" and action.action == "move_unit":
+        movement_error = _move_unit_postcondition_error(
+            action,
+            before_state,
+            after_state,
+        )
+        if movement_error is not None:
+            raise ValueError(movement_error)
     after_digest = live_state_digest(after_state)
     return (
         ExecutionStepReport(
@@ -529,6 +537,42 @@ def _action_postcondition_error(
         or not after_state.turn_active
     ):
         return "non-final action changed turn or active player"
+    return None
+
+
+def _move_unit_postcondition_error(
+    action: PlannedAction,
+    before_state: GameState,
+    after_state: GameState,
+) -> str | None:
+    if before_state.schema_version != 6 or after_state.schema_version != 6:
+        return "move_unit result requires schema 6 before and after states"
+    unit_id = action.arguments["unit_id"]
+    target = {"x": action.arguments["x"], "y": action.arguments["y"]}
+    before_unit = next(
+        (unit for unit in before_state.units if unit.get("id") == unit_id), None
+    )
+    after_unit = next(
+        (unit for unit in after_state.units if unit.get("id") == unit_id), None
+    )
+    if before_unit is None or after_unit is None:
+        return "move_unit result does not preserve the exact unit identity"
+    if target not in before_unit["ordinary_move_targets"]:
+        return "move_unit result was not admitted by its before-state target set"
+    if (before_unit.get("x"), before_unit.get("y")) == (target["x"], target["y"]):
+        return "move_unit result destination equals its before-state source"
+    if after_unit.get("type") != before_unit.get("type"):
+        return "move_unit result changed the unit type"
+    if (after_unit.get("x"), after_unit.get("y")) != (target["x"], target["y"]):
+        return "move_unit result did not reach the exact destination"
+    if after_unit.get("moves", 0) >= before_unit.get("moves", 0):
+        return "move_unit result did not lower movement points"
+    if (
+        after_state.turn != before_state.turn
+        or after_state.active_player != before_state.active_player
+        or not after_state.turn_active
+    ):
+        return "move_unit result changed turn, active player, or active-turn state"
     return None
 
 
@@ -565,7 +609,7 @@ def _action_covers(action: PlannedAction, requirement: TurnRequirement) -> bool:
         )
     if requirement.kind == "unit_orders":
         return (
-            action.action == "skip_unit"
+            action.action in {"skip_unit", "move_unit"}
             and action.arguments["unit_id"] == requirement.subject_id
         )
     return False
