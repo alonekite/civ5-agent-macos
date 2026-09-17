@@ -1357,6 +1357,29 @@ Release commit: `ad90dbd`; tag: `v1.1.0`.
 
 Planning commit: `2f4bc54`.
 
+## 2026-09-17 — Decide the ordinary worker-build mechanism
+
+- Completed M10 C0/D1 against the installed BNW UI and supporting released SDK
+  source at the already recorded exact commit; no third-party source was
+  copied.
+- Accepted ADR-0033: enumerate exact per-unit candidates with selection-free
+  `unit:CanBuild`, then select and re-check the exact unit before the stock
+  `Game.CanHandleAction`/`Game.HandleAction` network-backed submission.
+- Restricted the first slice to blank featureless land and non-route,
+  non-repair, non-water, non-consuming improvement builds. This excludes the
+  overwrite popup and feature-removal side effects.
+- Defined separate exact success branches for an active requested `BUILD_*`
+  and an immediately completed paired `IMPROVEMENT_*`; both retain the same
+  unit and plot and require lower movement.
+- Measured design prototypes at 688 and 895 bytes for the two read-only
+  segments and 994 bytes for a worst-case compact write. Final generated
+  strings remain subject to executable bounds and target-machine evidence.
+- All 297 warning-enabled tests passed on Python 3.11. Documentation links,
+  diff checks, and changed-file sensitive-content scans passed. No game,
+  FireTuner, firewall, or live write operation ran.
+
+Decision commit: `a526974`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
