@@ -1335,6 +1335,28 @@ Evidence commit: `15a54b1`.
 
 Release commit: `ad90dbd`; tag: `v1.1.0`.
 
+## 2026-09-17 — Register and plan the worker-build capability
+
+- Registered downstream CoreCapabilityRequest Issue #2 and introduced M10 as
+  a strategy-neutral verified worker-build milestone targeting a compatible
+  1.2.0 release only after bounded live evidence.
+- Limited the first slice to one caller-selected ordinary `BUILD_*` action for
+  a worker already standing on the intended plot. Worker/plot/improvement
+  choice, movement, scoring, recommendations, routes, repair, removal-only,
+  automation, water, and consuming/special builds remain excluded.
+- Added the D0–D4/C0–C7 development plan, acceptance criteria, downstream
+  absent-capability behavior, verification-matrix forecast, and R-018.
+- Recorded bundled BNW source evidence for action mapping, capability checks,
+  dispatch, active-build, and progress APIs without claiming live support.
+  Per-unit read-only candidate enumeration and immediate-completion proof remain
+  C0/D1 blockers before ADR-0033, frozen contracts, or command code.
+- All 297 warning-enabled tests passed on Python 3.11. Documentation links and
+  diff checks passed; the changed files contain no local path, address,
+  credential, private match state, or generated game data. No game, FireTuner,
+  or firewall operation ran.
+
+Planning commit: `2f4bc54`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
