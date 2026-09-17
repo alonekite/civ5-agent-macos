@@ -300,9 +300,9 @@ Acceptance criteria:
   after updating the static downstream profile.
 
 Current status: in progress. D0, C0/D1 source research, D2 contracts, and D3
-verification design are complete. ADR-0032 selects the stock selected-unit
-network path for an explicit adjacent ordinary move; schema 6 and the exact
-command/result boundary are frozen in the unit-movement contract. C1 read-model
-implementation is next, and no movement command is implemented or advertised
-yet. The owning execution order and evidence gates are in the
+verification design and C1 read-model implementation are complete. ADR-0032
+selects the stock selected-unit network path for an explicit adjacent ordinary
+move; schema 6 now emits and validates the bounded per-unit target set offline.
+C2/C3 command submission and verification are next, and no movement command is
+implemented or advertised yet. The owning execution order and evidence gates are in the
 [verified unit movement development plan](UNIT_MOVEMENT_PLAN.md).

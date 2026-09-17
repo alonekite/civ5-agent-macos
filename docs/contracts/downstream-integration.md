@@ -113,10 +113,12 @@ process.
 
 ## Planned 1.1.0 movement delta
 
-The accepted M9 contract proposes live-state schema 6 and an allowlisted
-`move_unit(unit_id, x, y)` action for one explicit adjacent ordinary move. Each
-owned unit will expose only the bounded `ordinary_move_targets` that the core is
-prepared to admit under that contract. This does not add path selection,
+The accepted M9 contract defines live-state schema 6 and an allowlisted
+`move_unit(unit_id, x, y)` action for one explicit adjacent ordinary move.
+Development head implements the offline-only schema 6 read model; the command
+and released profile remain absent. Each owned unit exposes only the bounded
+`ordinary_move_targets` that the core is prepared to admit under that contract.
+This does not add path selection,
 terrain assessment, combat, worker tasks, or tactical recommendations.
 
 This section is a compatibility forecast, not a 1.0.0 capability and not a live

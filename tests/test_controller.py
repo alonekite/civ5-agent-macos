@@ -75,6 +75,17 @@ def schema_five_state(**changes):
     return state
 
 
+def schema_six_state(**changes):
+    state = schema_five_state(schema_version=6)
+    state.units[0]["ordinary_move_targets"] = [
+        {"x": 8, "y": 12},
+        {"x": 10, "y": 12},
+    ]
+    for key, value in changes.items():
+        setattr(state, key, value)
+    return state
+
+
 class StateValidationTest(unittest.TestCase):
     def test_accepts_consistent_live_state(self):
         state = ready_state()
@@ -286,6 +297,29 @@ class StateValidationTest(unittest.TestCase):
             ),
             GameState,
         )
+
+    def test_schema_six_validates_bounded_sorted_move_targets(self):
+        state = schema_six_state()
+        self.assertIs(validate_live_state(state), state)
+
+        invalid_targets = (
+            None,
+            [{"x": 10, "y": 12}, {"x": 8, "y": 12}],
+            [{"x": 8, "y": 12}, {"x": 8, "y": 12}],
+            [{"x": -1, "y": 12}],
+            [{"x": 65_536, "y": 12}],
+            [{"x": 8, "y": 12, "score": 1}],
+            [{"x": value, "y": 12} for value in range(7)],
+        )
+        for targets in invalid_targets:
+            with self.subTest(targets=targets):
+                candidate = schema_six_state()
+                if targets is None:
+                    candidate.units[0].pop("ordinary_move_targets")
+                else:
+                    candidate.units[0]["ordinary_move_targets"] = targets
+                with self.assertRaises(StateValidationError):
+                    validate_live_state(candidate)
 
 
 class DeterministicPolicyTest(unittest.TestCase):

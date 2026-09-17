@@ -1,6 +1,6 @@
 # Unit-Movement Contract
 
-Status: Approved M9 contract; not implemented or live-verified
+Status: Schema 6 read model implemented offline; write not implemented or live-verified
 
 Expected compatibility release: 1.1.0
 
@@ -17,7 +17,7 @@ This contract applies ADR-0032. It does not advertise movement in the current
 
 ## Live-state input
 
-M9 introduces live-state schema 6. It retains every schema 5 field and adds the
+M9 schema 6 is implemented offline. It retains every schema 5 field and adds the
 following required field to every owned-unit record:
 
 ```json
@@ -135,8 +135,9 @@ must not be committed. Fixtures use synthetic coordinates and identities.
 
 ## Evidence gate
 
-Support requires parser/validation and legacy-schema tests, exhaustive command
-and Lua-bound tests, executor and recovery tests, one safe offline negative
+Parser/validation, legacy-schema, target ordering/bounds/privacy, read-only Lua,
+and segmented-size tests pass offline. Remaining support requires exhaustive
+command and Lua-bound tests, executor and recovery tests, one safe offline negative
 matrix, and the bounded target-machine procedure in the live-test checklist.
 Until that evidence passes, documentation and the downstream profile must call
 the capability planned or absent, never supported or live-verified.

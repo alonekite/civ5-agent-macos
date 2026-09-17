@@ -57,7 +57,8 @@ class PublicApiContractTest(unittest.TestCase):
             self.assertTrue(issubclass(error_type, RuntimeError))
 
     def test_published_schema_and_size_constants_match_contract(self):
-        self.assertEqual(api.SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS, {2, 3, 4, 5})
+        self.assertEqual(api.SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS, {2, 3, 4, 5, 6})
+        self.assertEqual(api.MAX_MAP_COORDINATE, 65_535)
         self.assertEqual(api.NO_END_TURN_BLOCKING_TYPE, -1)
         self.assertEqual(api.SUPPORTED_KNOWLEDGE_SCHEMA_VERSIONS, {1, 2, 3})
         self.assertEqual(api.JOURNAL_SCHEMA_VERSION, 1)

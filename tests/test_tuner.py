@@ -309,6 +309,126 @@ class TunerProtocolTest(unittest.TestCase):
                 )
             )
 
+    def test_parses_schema_six_sorted_ordinary_move_targets(self):
+        header = (
+            "CIV5_AGENT_SNAPSHOT|6|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "1|TECH_POTTERY|6|35|true|false|8"
+        )
+        messages = [TunerMessage(-1, header)]
+        for part in ("cities", "units", "diplomacy", "victory", "technologies"):
+            payload = f"CIV5_AGENT_PART|{part}|2|0"
+            if part == "units":
+                payload += (
+                    "\nCIV5_AGENT_UNIT|8|Warrior|UNIT_WARRIOR|"
+                    "9|12|120|0|100|8|0|0|true"
+                )
+            elif part == "victory":
+                payload += "\nCIV5_AGENT_VICTORY|science|true|0|0|0|0|0"
+            elif part == "technologies":
+                payload += (
+                    "\nCIV5_AGENT_RESEARCH_CHOICE|false|normal"
+                    "\nCIV5_AGENT_TECHNOLOGY|researched|TECH_AGRICULTURE"
+                    "\nCIV5_AGENT_TECHNOLOGY|researchable|TECH_WRITING"
+                )
+            messages.append(TunerMessage(-1, payload))
+        messages.append(
+            TunerMessage(
+                -1,
+                "CIV5_AGENT_PART|move_targets|2|0\n"
+                "CIV5_AGENT_MOVE_TARGET|8|10|12\n"
+                "CIV5_AGENT_MOVE_TARGET|8|8|12",
+            )
+        )
+
+        state = parse_snapshot(tuple(messages))
+
+        self.assertEqual(state.schema_version, 6)
+        self.assertEqual(
+            state.units[0]["ordinary_move_targets"],
+            [{"x": 8, "y": 12}, {"x": 10, "y": 12}],
+        )
+
+    def test_rejects_invalid_schema_six_move_target_records(self):
+        header = (
+            "CIV5_AGENT_SNAPSHOT|6|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "1|TECH_POTTERY|6|35|true|false|8"
+        )
+        invalid_records = (
+            "CIV5_AGENT_MOVE_TARGET|8|1",
+            "CIV5_AGENT_MOVE_TARGET|8|-1|2",
+            "CIV5_AGENT_MOVE_TARGET|8|65536|2",
+        )
+        for record in invalid_records:
+            with self.subTest(record=record), self.assertRaises(ValueError):
+                parse_snapshot((TunerMessage(-1, header), TunerMessage(-1, record)))
+
+        duplicate = "CIV5_AGENT_MOVE_TARGET|8|1|2"
+        with self.assertRaisesRegex(ValueError, "duplicate move target"):
+            parse_snapshot(
+                (
+                    TunerMessage(-1, header),
+                    TunerMessage(-1, duplicate),
+                    TunerMessage(-1, duplicate),
+                )
+            )
+
+    def test_rejects_schema_six_target_for_unknown_unit(self):
+        header = (
+            "CIV5_AGENT_SNAPSHOT|6|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "1|TECH_POTTERY|6|35|true|false|8"
+        )
+        parts = [
+            TunerMessage(-1, f"CIV5_AGENT_PART|{part}|2|0")
+            for part in ("cities", "units", "diplomacy")
+        ]
+        parts.extend(
+            (
+                TunerMessage(
+                    -1,
+                    "CIV5_AGENT_PART|victory|2|0\n"
+                    "CIV5_AGENT_VICTORY|science|true|0|0|0|0|0",
+                ),
+                TunerMessage(
+                    -1,
+                    "CIV5_AGENT_PART|technologies|2|0\n"
+                    "CIV5_AGENT_RESEARCH_CHOICE|false|normal",
+                ),
+                TunerMessage(
+                    -1,
+                    "CIV5_AGENT_PART|move_targets|2|0\n"
+                    "CIV5_AGENT_MOVE_TARGET|99|1|2",
+                ),
+            )
+        )
+        with self.assertRaisesRegex(ValueError, "unknown unit"):
+            parse_snapshot((TunerMessage(-1, header), *parts))
+
+    def test_schema_six_requires_move_targets_part(self):
+        header = (
+            "CIV5_AGENT_SNAPSHOT|6|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "1|TECH_POTTERY|6|35|true|false|8"
+        )
+        parts = [
+            TunerMessage(-1, f"CIV5_AGENT_PART|{part}|2|0")
+            for part in ("cities", "units", "diplomacy")
+        ]
+        parts.extend(
+            (
+                TunerMessage(
+                    -1,
+                    "CIV5_AGENT_PART|victory|2|0\n"
+                    "CIV5_AGENT_VICTORY|science|true|0|0|0|0|0",
+                ),
+                TunerMessage(
+                    -1,
+                    "CIV5_AGENT_PART|technologies|2|0\n"
+                    "CIV5_AGENT_RESEARCH_CHOICE|false|normal",
+                ),
+            )
+        )
+        with self.assertRaisesRegex(ValueError, "incomplete.*move_targets"):
+            parse_snapshot((TunerMessage(-1, header), *parts))
+
     def test_rejects_records_before_header_and_duplicate_headers(self):
         with self.assertRaisesRegex(ValueError, "before snapshot header"):
             parse_snapshot(
@@ -369,16 +489,23 @@ class TunerProtocolTest(unittest.TestCase):
 
     def test_snapshot_programs_fit_verified_firetuner_command_limit(self):
         programs = snapshot_lua_programs()
-        self.assertEqual(len(programs), 6)
+        self.assertEqual(len(programs), 7)
         self.assertTrue(all(len(program.encode("utf-8")) < 900 for program in programs))
 
     def test_read_game_state_collects_every_snapshot_program(self):
         header = TunerMessage(
             -1,
-            "CIV5_AGENT_SNAPSHOT|5|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "CIV5_AGENT_SNAPSHOT|6|2|0|7|4|5|9|0|1|33|0|Test|Test|"
             "-1||-1|-1|true|true|-1",
         )
-        part_names = ("cities", "units", "diplomacy", "victory", "technologies")
+        part_names = (
+            "cities",
+            "units",
+            "diplomacy",
+            "victory",
+            "technologies",
+            "move_targets",
+        )
         part_messages = [
             TunerMessage(-1, f"CIV5_AGENT_PART|{name}|2|0")
             for name in part_names
@@ -402,7 +529,7 @@ class TunerProtocolTest(unittest.TestCase):
             state = client.read_game_state(172)
 
         self.assertEqual(state.turn, 2)
-        self.assertEqual(execute.call_count, 6)
+        self.assertEqual(execute.call_count, 7)
         self.assertEqual(
             [call.args for call in execute.call_args_list],
             [(172, program) for program in snapshot_lua_programs()],
@@ -428,6 +555,27 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertIn("ENDTURN_BLOCKING_STEAL_TECH", lua)
         self.assertIn('projectCount("PROJECT_APOLLO_PROGRAM")', lua)
         self.assertIn('projectCount("PROJECT_SS_ENGINE")', lua)
+
+    def test_snapshot_lua_emits_only_conservative_ordinary_move_targets(self):
+        lua = snapshot_lua_programs()[-1]
+        for required in (
+            "u:IsReadyToMove()",
+            "u:MovesLeft()>0",
+            "not u:IsBusy()",
+            "not u:IsAutomated()",
+            "not u:IsDelayedDeath()",
+            "u:GetDomainType()~=DomainTypes.DOMAIN_AIR",
+            "not u:IsEmbarked()",
+            "q:IsVisible(team,false)",
+            "not q:IsCity()",
+            "q:GetNumUnits()==0",
+            "s:IsWater()==q:IsWater()",
+            "u:CanMoveThrough(q)",
+        ):
+            self.assertIn(required, lua)
+        self.assertNotIn("CanMoveOrAttackInto", lua)
+        self.assertNotIn("PushMission", lua)
+        self.assertNotIn("SelectionListMove", lua)
 
     def test_end_turn_is_narrow_and_preconditioned(self):
         lua = end_turn_lua()

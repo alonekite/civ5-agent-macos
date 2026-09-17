@@ -10,10 +10,9 @@ development log.
 
 - Current milestone: M9 — verified unit movement — is in progress. M8 and the
   immutable 1.0.0 release remain complete.
-- Active next deliverable: implement and test schema 6's minimum per-unit
-  `ordinary_move_targets` read model for
-  [CoreCapabilityRequest #1](https://github.com/alonekite/civ5-agent-macos/issues/1)
-  before adding the movement command.
+- Active next deliverable: implement and exhaustively test the bounded
+  `move_unit` bridge command and exact read-after-write verification for
+  [CoreCapabilityRequest #1](https://github.com/alonekite/civ5-agent-macos/issues/1).
 - Functional baseline: 260 tests pass locally on Python 3.11/default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
@@ -69,6 +68,11 @@ development log.
   takes exact unit/coordinate arguments and requires identity, destination, and
   decreased-movement read-back. The bounded live procedure is designed but must
   not run until implementation and offline gates pass.
+- The schema 6 read model is implemented offline. A seventh read-only segment
+  emits active-player-visible `ordinary_move_targets`; parser and validation
+  enforce six-target, coordinate, identity, ordering, part-consistency, and
+  legacy-schema bounds. No movement write exists yet, and schema 6 has no
+  target-machine evidence.
 
 ## Current architecture
 

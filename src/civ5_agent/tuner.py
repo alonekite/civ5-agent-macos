@@ -10,6 +10,7 @@ from urllib.parse import unquote
 
 from .models import GameState
 from .preflight import require_safe_tuner_session
+from .validation import MAX_MAP_COORDINATE
 
 
 HEADER = struct.Struct("<Ii")
@@ -41,10 +42,11 @@ class LuaState:
 STATE_MARKER = "CIV5_AGENT_STATE:"
 STATE_PATTERN = re.compile(r"CIV5_AGENT_STATE:(-?\d+):(-?\d+):(-?\d+)")
 SNAPSHOT_MARKER = "CIV5_AGENT_SNAPSHOT|"
-SNAPSHOT_SCHEMA_VERSION = 5
+SNAPSHOT_SCHEMA_VERSION = 6
 PART_MARKER = "CIV5_AGENT_PART|"
 CITY_MARKER = "CIV5_AGENT_CITY|"
 UNIT_MARKER = "CIV5_AGENT_UNIT|"
+MOVE_TARGET_MARKER = "CIV5_AGENT_MOVE_TARGET|"
 DIPLOMACY_MARKER = "CIV5_AGENT_DIPLOMACY|"
 VICTORY_MARKER = "CIV5_AGENT_VICTORY|"
 TECHNOLOGY_MARKER = "CIV5_AGENT_TECHNOLOGY|"
@@ -279,6 +281,20 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         '..u:GetBaseRangedCombatStrength().."|"..u:Range().."|"'
         '..tostring(u:IsReadyToMove()))end'
     )
+    move_targets = (
+        'local i=Game.GetActivePlayer();local p=Players[i];local team=p:GetTeam();'
+        f'print("{PART_MARKER}move_targets|"..Game.GetGameTurn().."|"..i);'
+        'local ok=p:IsTurnActive()and not Game.IsProcessingMessages();'
+        'for u in p:Units()do if ok and u:IsReadyToMove()and u:MovesLeft()>0 '
+        'and not u:IsBusy()and not u:IsAutomated()and not u:IsDelayedDeath()'
+        'and u:GetDomainType()~=DomainTypes.DOMAIN_AIR and not u:IsEmbarked()then '
+        'local s=u:GetPlot();for d=0,DirectionTypes.NUM_DIRECTION_TYPES-1 do '
+        'local q=Map.PlotDirection(u:GetX(),u:GetY(),d);'
+        'if q and q:IsVisible(team,false)and not q:IsCity()and q:GetNumUnits()==0 '
+        'and s:IsWater()==q:IsWater()and u:CanMoveThrough(q)then '
+        f'print("{MOVE_TARGET_MARKER}"..u:GetID().."|"..q:GetX().."|"..q:GetY())'
+        'end end end end'
+    )
     diplomacy = (
         'local pid=Game.GetActivePlayer();local p=Players[pid];local myTeam=Teams[p:GetTeam()];'
         + _escape_lua()
@@ -322,7 +338,7 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         'if m=="normal" then q=(r==nil or r<0)and a end;'
         f'print("{RESEARCH_CHOICE_MARKER}"..tostring(q).."|"..m)'
     )
-    return header, cities, units, diplomacy, victory, technologies
+    return header, cities, units, diplomacy, victory, technologies, move_targets
 
 
 def snapshot_lua() -> str:
@@ -461,6 +477,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     researched_technologies: list[str] = []
     researchable_technologies: list[str] = []
     research_choice: dict[str, object] | None = None
+    move_targets: dict[int, list[dict[str, int]]] = {}
     parts: set[str] = set()
 
     for message in messages:
@@ -470,7 +487,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     raise ValueError("multiple snapshot headers in one response")
                 fields = line.split(SNAPSHOT_MARKER, 1)[1].split("|")
                 schema_version = int(fields[0])
-                if schema_version not in {2, 3, 4, SNAPSHOT_SCHEMA_VERSION}:
+                if schema_version not in {2, 3, 4, 5, SNAPSHOT_SCHEMA_VERSION}:
                     raise ValueError(f"unsupported snapshot schema: {schema_version}")
                 expected_fields = 18 if schema_version == 2 else 20
                 if len(fields) != expected_fields:
@@ -524,12 +541,17 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     "diplomacy",
                     "victory",
                     "technologies",
+                    "move_targets",
                 }:
                     raise ValueError(f"malformed snapshot part: {line!r}")
                 part, turn, active_player = fields
-                if part == "technologies" and snapshot.schema_version != 5:
+                if part == "technologies" and snapshot.schema_version < 5:
                     raise ValueError(
-                        "technologies part requires a schema 5 snapshot header"
+                        "technologies part requires a schema 5+ snapshot header"
+                    )
+                if part == "move_targets" and snapshot.schema_version != 6:
+                    raise ValueError(
+                        "move_targets part requires a schema 6 snapshot header"
                     )
                 if part in parts:
                     raise ValueError(f"duplicate snapshot part: {part}")
@@ -569,7 +591,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                 if snapshot is None:
                     raise ValueError("unit record appeared before snapshot header")
                 fields = line.split(UNIT_MARKER, 1)[1].split("|")
-                expected_fields = {2: 6, 3: 11, 4: 12, 5: 12}[
+                expected_fields = {2: 6, 3: 11, 4: 12, 5: 12, 6: 12}[
                     snapshot.schema_version
                 ]
                 if len(fields) != expected_fields:
@@ -595,10 +617,34 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                 if snapshot.schema_version >= 4:
                     unit["ready_to_move"] = _parse_lua_bool(fields[11])
                 units.append(unit)
-            elif DIPLOMACY_MARKER in line:
-                if snapshot is None or snapshot.schema_version not in {3, 4, 5}:
+            elif MOVE_TARGET_MARKER in line:
+                if snapshot is None or snapshot.schema_version != 6:
                     raise ValueError(
-                        "diplomacy record requires a schema 3 or 4 snapshot header"
+                        "move target requires a schema 6 snapshot header"
+                    )
+                fields = line.split(MOVE_TARGET_MARKER, 1)[1].split("|")
+                if len(fields) != 3:
+                    raise ValueError(f"malformed move target record: {line!r}")
+                unit_id, x, y = (int(value) for value in fields)
+                if (
+                    unit_id < 0
+                    or not 0 <= x <= MAX_MAP_COORDINATE
+                    or not 0 <= y <= MAX_MAP_COORDINATE
+                ):
+                    raise ValueError(f"invalid move target record: {line!r}")
+                target = {"x": x, "y": y}
+                targets = move_targets.setdefault(unit_id, [])
+                if target in targets:
+                    raise ValueError(
+                        f"duplicate move target for unit {unit_id}: ({x}, {y})"
+                    )
+                if len(targets) >= 6:
+                    raise ValueError(f"too many move targets for unit {unit_id}")
+                targets.append(target)
+            elif DIPLOMACY_MARKER in line:
+                if snapshot is None or snapshot.schema_version not in {3, 4, 5, 6}:
+                    raise ValueError(
+                        "diplomacy record requires a schema 3+ snapshot header"
                     )
                 fields = line.split(DIPLOMACY_MARKER, 1)[1].split("|")
                 if len(fields) != 7:
@@ -615,9 +661,9 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     }
                 )
             elif VICTORY_MARKER in line:
-                if snapshot is None or snapshot.schema_version not in {3, 4, 5}:
+                if snapshot is None or snapshot.schema_version not in {3, 4, 5, 6}:
                     raise ValueError(
-                        "victory record requires a schema 3 or 4 snapshot header"
+                        "victory record requires a schema 3+ snapshot header"
                     )
                 if victory is not None:
                     raise ValueError("multiple victory records in one response")
@@ -633,9 +679,9 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     "engine": int(fields[6]),
                 }
             elif RESEARCH_CHOICE_MARKER in line:
-                if snapshot is None or snapshot.schema_version != 5:
+                if snapshot is None or snapshot.schema_version < 5:
                     raise ValueError(
-                        "research choice requires a schema 5 snapshot header"
+                        "research choice requires a schema 5+ snapshot header"
                     )
                 if research_choice is not None:
                     raise ValueError("multiple research choice records in one response")
@@ -651,9 +697,9 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     "mode": fields[1],
                 }
             elif TECHNOLOGY_MARKER in line:
-                if snapshot is None or snapshot.schema_version != 5:
+                if snapshot is None or snapshot.schema_version < 5:
                     raise ValueError(
-                        "technology record requires a schema 5 snapshot header"
+                        "technology record requires a schema 5+ snapshot header"
                     )
                 fields = line.split(TECHNOLOGY_MARKER, 1)[1].split("|")
                 if (
@@ -680,11 +726,26 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
         expected_parts = {"cities", "units", "diplomacy", "victory"}
         if snapshot.schema_version >= 5:
             expected_parts.add("technologies")
+        if snapshot.schema_version >= 6:
+            expected_parts.add("move_targets")
         if parts != expected_parts:
             missing = ", ".join(sorted(expected_parts - parts))
             raise ValueError(f"incomplete snapshot parts: {missing}")
     if snapshot.schema_version >= 5 and research_choice is None:
-        raise ValueError("schema 5 snapshot omitted research choice")
+        raise ValueError("schema 5+ snapshot omitted research choice")
+    if snapshot.schema_version >= 6:
+        unit_ids = {unit["id"] for unit in units}
+        unknown_ids = set(move_targets) - unit_ids
+        if unknown_ids:
+            raise ValueError(
+                "move target references unknown unit: "
+                + ", ".join(str(value) for value in sorted(unknown_ids))
+            )
+        for unit in units:
+            unit["ordinary_move_targets"] = sorted(
+                move_targets.get(unit["id"], []),
+                key=lambda target: (target["x"], target["y"]),
+            )
     snapshot.cities = cities
     snapshot.units = units
     snapshot.diplomacy = diplomacy

@@ -35,8 +35,9 @@ do not belong in the repository.
 - [Contract index](contracts/README.md)
 - [Live-state contract](contracts/live-state.md)
 - [Command contract](contracts/command.md)
-- [Unit-movement contract](contracts/unit-movement.md): approved M9 schema,
-  command, verification, and ownership boundary; not yet implemented.
+- [Unit-movement contract](contracts/unit-movement.md): M9 schema, command,
+  verification, and ownership boundary; schema 6 read model is offline-only and
+  the write is not yet implemented.
 - [Session and match identity contract](contracts/session-identity.md)
 - [Knowledge contract](KNOWLEDGE.md)
 - [Ruleset knowledge-view contract](contracts/resolver.md)

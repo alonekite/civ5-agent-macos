@@ -11,6 +11,7 @@ from .actions import (
 from .ipc import MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES
 from .models import Command, CommandResult, GameState
 from .validation import (
+    MAX_MAP_COORDINATE,
     NO_END_TURN_BLOCKING_TYPE,
     SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS,
     validate_live_state,
@@ -45,6 +46,7 @@ __all__ = [
     "MAX_REQUEST_BYTES",
     "MAX_RESPONSE_BYTES",
     "MAX_COMMAND_MESSAGE_LENGTH",
+    "MAX_MAP_COORDINATE",
     "NO_END_TURN_BLOCKING_TYPE",
     "SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS",
     "WatcherBridgeClient",

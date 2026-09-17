@@ -18,6 +18,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | `set_city_production` | Stock UI matched | Yes | Yes | Confirmed |
 | `skip_unit` | Stock behavior inspected | Yes | Yes | Confirmed with readiness and unchanged movement/location |
 | Coordinate movement | ADR-0032 and schema/command/result contract accepted | Planned: schema 6, validation, Lua bound, exact postcondition, recovery, and TurnPlan coverage | No | Contract frozen; not implemented or supported |
+| Schema 6 ordinary movement targets | Bundled adjacent/visibility/unit predicates inspected; read-only segment is below the FireTuner limit | Parser, required part, unit binding, sorting, duplicate/count/coordinate rejection, conservative predicate inspection, legacy compatibility, and aggregate constant tests | No | Read model implemented offline; no target-machine support claim |
 | Safety preflight/shutdown | Yes | Yes | Yes | Confirmed |
 | Local IPC bounds and permissions | Yes | Yes | Indirectly | Confirmed offline |
 | Command UUID/audit/idempotency | Yes | Yes | Partial | Confirmed offline; live core path observed |

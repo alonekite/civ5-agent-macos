@@ -17,15 +17,16 @@ requirement inspection, and deterministic execution. The implementation in `mode
 | 3 | Compatibility-tested | Score, era, exact city progress, unit condition, met-major diplomacy, science-victory progress |
 | 4 | Live-verified for early-game branches | Schema 3 fields plus unit readiness and coherent segmented collection |
 | 5 | Live-verified for ordinary research | Schema 4 plus researched/researchable technology sets and research-choice mode; free/steal modes remain offline-only |
-| 6 | Approved for M9; not implemented | Schema 5 plus bounded per-unit `ordinary_move_targets`; no support claim until offline and target-machine evidence pass |
+| 6 | Implemented offline; target evidence pending | Schema 5 plus bounded per-unit `ordinary_move_targets`; no live support claim until target-machine evidence passes |
 
 ## Stable requirements
 
 - `schema_version`, when present, selects validation rules.
 - Turn and active-player identity are non-negative integers.
 - A schema 4 read contains all four non-header parts exactly once; schema 5 adds
-  a mandatory `technologies` part. Each part's turn and active-player identity
-  must match the header.
+  a mandatory `technologies` part, and schema 6 adds a mandatory
+  `move_targets` part. Each part's turn and active-player identity must match
+  the header.
 - Lists use stable in-game identifiers and reject duplicates where identity must
   be unique.
 - Unmet major civilizations are omitted rather than disclosed.
@@ -67,8 +68,10 @@ bounds, privacy limit, and legacy behavior are defined by the
 [unit-movement contract](unit-movement.md). It is not a general pathing or map
 schema.
 
-Readers retain schema 2, 3, 4, and 5 support after schema 6 is implemented. A
-future
+Collection uses a seventh independently bounded read-only Lua segment. All
+seven parts must identify the same turn and active player.
+
+Readers retain schema 2, 3, 4, and 5 support. A future
 breaking shape change increments `schema_version`; it does not reinterpret an
 existing field silently.
 

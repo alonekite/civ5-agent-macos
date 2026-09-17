@@ -44,9 +44,9 @@ or ruleset knowledge.
 - One watcher owns the game connection and serializes requests.
 - The connection owner issues one `bridge_session_id` per connection epoch;
   it never presents that value as a permanent save or match identifier.
-- Schema 5 is collected as bounded header/city/unit/diplomacy/victory/technology
-  programs; every part must identify the same turn and active player. Schemas
-  2–4 remain readable.
+- Schema 6 is collected as bounded header/city/unit/diplomacy/victory/technology/
+  move-target programs; every part must identify the same turn and active
+  player. Schemas 2–5 remain readable.
 - Every successful write includes a proved postcondition.
 - Every FireTuner Lua program is at most 1,000 UTF-8 bytes; oversized programs
   fail before transport contact.
@@ -76,7 +76,9 @@ API. Local broker and audit files use private permissions.
 
 Read, end turn, research selection, city production, schema 4 early-game state,
 schema 5 ordinary technology state, and the game-side effect of unit skip have
-target-machine evidence. The offline suite covers framing, segmented-snapshot
+target-machine evidence. Schema 6 ordinary movement targets have offline-only
+parser, validation, legacy compatibility, privacy, and Lua-bound evidence. The
+offline suite covers framing, segmented-snapshot
 consistency, validation, IPC bounds, generated action code, retries, and
 postconditions. See the verification matrix.
 
@@ -84,14 +86,15 @@ postconditions. See the verification matrix.
 
 Schema 5 free-technology and steal-technology modes remain offline-only. Schema
 4's non-empty diplomacy and late-game victory branches remain unverified.
-Coordinate movement is not implemented. The standalone legacy command CLI still
+The schema 6 read model is not yet target-verified, and the coordinate movement
+write is not implemented. The standalone legacy command CLI still
 has a direct fallback; the supported Python bridge client is watcher-only.
 
 ## Planned extensions
 
-Implement the approved M9 unit-movement contract as schema 6 plus one narrowly
-allowlisted adjacent ordinary move. Until its offline and live gates pass, keep
-it out of `ALLOWED_ACTIONS` and the released capability profile. Add only
+Implement the approved M9 narrowly allowlisted adjacent ordinary move on the
+schema 6 read basis. Until its offline and live gates pass, keep it out of
+`ALLOWED_ACTIONS` and the released capability profile. Add only
 narrowly specified actions and optional live evidence for the other branches
 listed above. The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

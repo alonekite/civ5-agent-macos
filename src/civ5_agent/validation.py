@@ -7,7 +7,8 @@ from .models import GameState
 
 
 TECH_TYPE_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
-SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5})
+SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5, 6})
+MAX_MAP_COORDINATE = 65_535
 NO_END_TURN_BLOCKING_TYPE = -1
 
 
@@ -146,6 +147,8 @@ def validate_live_state(state: GameState) -> GameState:
                 raise StateValidationError(
                     f"unit {unit.get('id')} has invalid ready_to_move"
                 )
+            if state.schema_version >= 6:
+                _validate_ordinary_move_targets(unit)
 
     diplomacy_players: set[int] = set()
     for relation in state.diplomacy:
@@ -265,6 +268,45 @@ def _validate_technology_ids(values: object, field: str) -> None:
     ):
         raise StateValidationError(
             f"{field} contains an invalid technology identifier"
+        )
+
+
+def _validate_ordinary_move_targets(unit: dict[str, object]) -> None:
+    targets = unit.get("ordinary_move_targets")
+    if not isinstance(targets, list):
+        raise StateValidationError(
+            f"unit {unit.get('id')} has invalid ordinary_move_targets"
+        )
+    if len(targets) > 6:
+        raise StateValidationError(
+            f"unit {unit.get('id')} has too many ordinary_move_targets"
+        )
+    normalized: list[tuple[int, int]] = []
+    for target in targets:
+        if not isinstance(target, dict) or set(target) != {"x", "y"}:
+            raise StateValidationError(
+                f"unit {unit.get('id')} has malformed ordinary move target"
+            )
+        values: list[int] = []
+        for coordinate in ("x", "y"):
+            value = target[coordinate]
+            if (
+                not isinstance(value, int)
+                or isinstance(value, bool)
+                or not 0 <= value <= MAX_MAP_COORDINATE
+            ):
+                raise StateValidationError(
+                    f"unit {unit.get('id')} has invalid move target {coordinate}"
+                )
+            values.append(value)
+        normalized.append((values[0], values[1]))
+    if normalized != sorted(normalized):
+        raise StateValidationError(
+            f"unit {unit.get('id')} ordinary_move_targets are not sorted"
+        )
+    if len(set(normalized)) != len(normalized):
+        raise StateValidationError(
+            f"unit {unit.get('id')} ordinary_move_targets contain duplicates"
         )
 
 
