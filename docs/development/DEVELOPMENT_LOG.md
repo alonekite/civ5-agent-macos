@@ -1417,6 +1417,26 @@ Contract commit: `dd03351`.
 
 Verification-design commit: `fb65a12`.
 
+## 2026-09-17 — Implement schema 7 worker-build reads
+
+- Implemented two selection-free schema 7 segments for exact per-unit current-
+  plot context/current build and conservative ordinary build/improvement
+  candidates. Final generated sizes are 688 and 895 UTF-8 bytes.
+- Added strict multipart parsing and state validation for active-team-visible
+  resources, identifier/null/type bounds, exact nested shape, unit binding,
+  sorting, duplicate rejection, and the 32-candidate limit while retaining
+  schemas 2–6.
+- Exported the frozen schema and size limits without adding `worker_build` to
+  the action allowlist. Reads never use recommendation/personality data or UI
+  selection.
+- Preserved the released movement capability by accepting matching schema 6+
+  before/after states in direct and deterministic-executor verification.
+- WB-S01–S06 pass within a 307-test warning-enabled baseline. Documentation
+  links, diff checks, and changed-file sensitive-content scans passed. No game,
+  FireTuner, firewall, or live write operation ran.
+
+C1 commit: `f65ece8`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
