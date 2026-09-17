@@ -8,16 +8,16 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M9 — verified unit movement — is in progress. M8 and the
+- Current milestone: M9 — verified unit movement — is complete. M8 and the
   immutable 1.0.0 release remain complete.
-- Active next deliverable: validate the exact 1.1.0 release candidate, duplicate
-  artifacts, clean installs, and exact-commit CI for
-  [CoreCapabilityRequest #1](https://github.com/alonekite/civ5-agent-macos/issues/1).
+- Active next deliverable: none in this repository. The stable 1.1.0 movement
+  capability is available to the downstream tactical project; future gaps use
+  the core capability request process.
 - Functional baseline: 297 tests pass locally on Python 3.11/default runtime
-  and in GitHub Actions on Python 3.11/3.13.
+  and in exact-commit/tag GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: no. The bounded C6 live write and exact host
-  restoration are complete; D4/C7 is an offline release-engineering batch.
+- User presence required next: no. C6, D4, C7, publication, and downloaded-asset
+  verification are complete.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -61,8 +61,8 @@ development log.
   `UI.SelectUnit` plus `Game.SelectionListMove` network-backed path for one
   explicit adjacent ordinary move and rejects direct `PushMission`. This is a
   path. The complete read/write/executor path is implemented on development
-  head and now has bounded target-machine evidence. It is included in the
-  prepared 1.1.0 compatibility profile pending exact release-candidate gates.
+  head and now has bounded target-machine evidence. It is published in the
+  stable 1.1.0 compatibility profile.
 - M9's unit-movement contract is frozen: schema 6 exposes only zero to six
   conservative adjacent `ordinary_move_targets` per owned unit; `move_unit`
   takes exact unit/coordinate arguments and requires identity, destination, and
@@ -99,6 +99,10 @@ development log.
   produced a fresh watcher snapshot, and caused no observed extra side effect.
   The private audit was mode `600`, and shutdown restored the exact host
   baseline.
+- D4/C7 is complete. Immutable tag `v1.1.0` points to the reviewed release
+  commit; exact-commit and tag CI passed on Python 3.11/3.13, duplicate wheel
+  and sdist contents matched, clean installations passed, and the two published
+  assets matched their recorded SHA-256 values after download.
 
 ## Current architecture
 

@@ -1310,6 +1310,31 @@ Implementation commit: `ed7daea`.
 
 Evidence commit: `15a54b1`.
 
+## 2026-09-17 — Publish verified unit movement in 1.1.0
+
+- Prepared the 1.1.0 compatibility surface with schema 6 and the bounded
+  `move_unit` action while preserving the existing stable aggregate API,
+  TurnPlan schema, CLI envelopes, module boundaries, and downstream ownership.
+- The release commit passed all 297 tests locally on Python 3.11 and the default
+  runtime, plus exact-commit and annotated-tag GitHub Actions on Python
+  3.11/3.13. CI also repeated artifact inspection and clean installation.
+- Two independent exact-commit wheel builds and two independent source archives
+  had matching normalized content. Separate clean Python 3.11 environments
+  installed both formats, imported the aggregate API at version 1.1.0, and
+  started the supported `civ5-turn` CLI.
+- After explicit operator authorization, immutable tag `v1.1.0` was created at
+  `ad90dbd` and the GitHub Release published exactly the inspected wheel and
+  source archive. Downloaded assets passed the artifact inspector and matched
+  the recorded SHA-256 values: wheel
+  `78e308bfe3c0cadb38252860a4a809b796da58c4337ea2771965750c75fee6f2` and
+  source archive
+  `2e4f9b199be6e60dfa5c2c301933ddb4adec1437735aba3f79ebb2c8835a76d5`.
+- No generated dataset, match snapshot, journal, audit log, plan, private path,
+  local address, credential, unit identity, coordinate, or session identity was
+  committed or published.
+
+Release commit: `ad90dbd`; tag: `v1.1.0`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

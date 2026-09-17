@@ -1,6 +1,6 @@
 # Verified Unit Movement Development Plan
 
-Status: Approved implementation plan; 1.1.0 release candidate in progress
+Status: Complete in 1.1.0
 
 Progress: D0–D3 and C0–C6 are complete as of 2026-09-17. ADR-0032 selects the
 stock selected-unit network path, and schema 6 now implements the bounded
@@ -9,8 +9,9 @@ verification, deterministic TurnPlan integration, and full offline gate now
 pass. C6 operator-assisted target-machine verification passed, including the
 safe negative branch, one explicitly authorized exact move, private audit, and
 host restoration. The capability is live-verified and included in the prepared
-1.1.0 profile; exact-commit CI, duplicate artifacts, clean installs, operator
-tag approval, tag CI, publication, and downloaded-asset verification remain.
+1.1.0 profile. Exact-commit CI, duplicate artifacts, clean installs, explicit
+operator tag approval, tag CI, publication, and downloaded-asset verification
+all passed.
 
 Target milestone: M9
 
@@ -240,7 +241,7 @@ committed, and pushed before the next begins:
 6. C4 executor, watcher, journal composition, API, and CLI integration (complete 2026-09-17);
 7. C5 full offline gate and documentation reconciliation (complete 2026-09-17);
 8. C6 operator-assisted live verification (complete 2026-09-17);
-9. D4/C7 stabilization and 1.1.0 release preparation.
+9. D4/C7 stabilization and 1.1.0 release (complete 2026-09-17).
 
 If research disproves the proposed API or postcondition, stop after a complete
 documented batch and revise the ADR/contract plan before writing around the

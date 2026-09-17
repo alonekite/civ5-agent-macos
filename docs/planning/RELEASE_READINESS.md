@@ -1,6 +1,6 @@
 # Release Readiness
 
-Status: Complete for 1.0.0; 1.1.0 release candidate in progress
+Status: Complete for 1.0.0 and 1.1.0
 
 Last reviewed: 2026-09-17
 
@@ -15,13 +15,13 @@ register, contracts, or live experiment evidence.
 | Required live verification | C6 passed on 2026-09-17: schema 6 target observation, source-coordinate pre-send rejection, one separately authorized exact adjacent move, private audit permission, and exact host restoration | Preserve section 7 of the live checklist for regression use |
 | High-impact risk | R-017 is mitigated and monitored after the bounded target-machine proof; all earlier release dispositions remain in force | Reopen review if movement scope, game build, or dispatch path changes |
 | Public compatibility | Version 1.1.0 adds schema 6 and `move_unit` through the existing stable aggregate API and unchanged schema 1 TurnPlan/CLI envelopes; the downstream profile preserves tactical ownership | Keep autonomous path choice, combat, worker tasks, and strategy outside this release |
-| Tests and scans | 297 tests pass warning-enabled on Python 3.11 and the default runtime; documentation and tracked-content scans are clean | Require Python 3.11/3.13 CI on the exact release commit and tag |
-| Packaging rehearsal | Two independent 1.1.0 wheel and sdist builds had matching normalized content; both formats installed and imported in separate clean Python 3.11 environments, and the supported CLI started | Rebuild and inspect from the clean exact release commit; rehearsal artifacts are not publishable |
-| Release | Version and changelog are prepared for 1.1.0 | Record the exact commit, pass CI, obtain explicit operator tag approval, pass tag CI, publish exactly the inspected assets, and verify downloaded hashes |
+| Tests and scans | 297 tests pass warning-enabled on Python 3.11 and the default runtime; documentation and tracked-content scans are clean; exact-commit and tag CI passed on Python 3.11/3.13 | Preserve the gates for later changes |
+| Packaging | Two independent exact-commit 1.1.0 wheel and sdist builds had matching normalized content; both formats installed and imported in separate clean Python 3.11 environments, and the supported CLI started | Preserve the artifact gate for later releases |
+| Release | Immutable `v1.1.0` points to `ad90dbd`; the GitHub Release contains exactly the inspected wheel and sdist, and downloaded assets match the recorded SHA-256 values | Never move the tag or replace its assets; use a new semantic version for changes |
 
-The 1.1.0 release is incomplete until the final row closes. In particular, a
-version bump, local tests, or successful rehearsal artifacts do not authorize
-an immutable tag or GitHub Release.
+The 1.1.0 release completed on 2026-09-17 after explicit operator authorization.
+Future releases must repeat every gate rather than treating this evidence as a
+blanket authorization.
 
 ## Gate status
 

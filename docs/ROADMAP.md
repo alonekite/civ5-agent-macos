@@ -47,7 +47,7 @@ No application-bundle modification is required.
 - [x] research selection (live-verified with `TECH_POTTERY`)
 - [x] city production (live-verified with `UNIT_SCOUT`)
 - [x] unit skip (live-verified through readiness with unchanged movement and location)
-- [ ] coordinate-based unit movement (M9; see the bounded
+- [x] coordinate-based unit movement (M9; see the bounded
   [development plan](planning/UNIT_MOVEMENT_PLAN.md))
 - [x] legacy readiness/refusal and explicit end-turn proof (live-verified)
 
@@ -235,4 +235,4 @@ intentionally outside this repository's scope.
 - [x] Integrate explicit movement into deterministic TurnPlan execution
 - [x] Complete the full offline verification gate
 - [x] Complete bounded operator-authorized target-machine verification
-- [ ] Publish the verified capability in a compatible 1.1.0 release
+- [x] Publish the verified capability in a compatible 1.1.0 release

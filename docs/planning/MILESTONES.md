@@ -14,7 +14,7 @@ GitHub Issues and should link back to one milestone ID.
 | M6 | Deterministic turn executor | Complete | M2 |
 | M7 | Public API stabilization | Complete | M4, M5, M6 |
 | M8 | 1.0 release readiness | Complete | M7 |
-| M9 | Verified unit movement | In progress | M8, M2, M6 |
+| M9 | Verified unit movement | Complete | M8, M2, M6 |
 
 ## M0 — Environment reconnaissance
 
@@ -299,7 +299,7 @@ Acceptance criteria:
 - Publish the capability only through a compatible semantic-versioned release
   after updating the static downstream profile.
 
-Current status: in progress. D0, C0/D1 source research, D2 contracts, D3
+Current status: complete. D0, C0/D1 source research, D2 contracts, D3
 verification design, and C1–C6 read/command/verification/executor/offline/live-
 gate work are complete. ADR-0032 selects the stock selected-unit network path for an explicit
 adjacent ordinary move; schema 6 emits and validates the bounded per-unit target
@@ -309,6 +309,7 @@ movement ordering, requirement coverage, continuity, events, and conservative
 recovery. The bounded operator-assisted C6 target-machine procedure passed with
 one safe pre-send rejection, one authorized exact adjacent move, private audit,
 and exact host restoration. D4 compatibility reconciliation is complete, and
-the 1.1.0 release candidate is entering C7 exact-commit and artifact gates. The
-owning execution order and evidence gates are in
+the exact-commit and tag CI, duplicate artifacts, clean installs, immutable
+tag, GitHub Release, and downloaded-asset verification all passed. The owning
+execution order and evidence gates are in
 the [verified unit movement development plan](UNIT_MOVEMENT_PLAN.md).
