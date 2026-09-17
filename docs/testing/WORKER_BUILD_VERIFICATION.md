@@ -1,7 +1,7 @@
 # Worker-Build Verification Specification
 
-Status: M10 D3 frozen; WB-S01–S06 implemented and passing offline; remaining
-implementation and target evidence pending
+Status: M10 D3 frozen; WB-S01–S06, WB-C01–C04, and initial WB-V01–V04 coverage
+implemented offline; executor, reconciliation, release, and target gates remain
 
 Owning semantic contract: [worker-build contract](../contracts/worker-build.md)
 

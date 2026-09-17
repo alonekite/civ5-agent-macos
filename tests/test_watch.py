@@ -15,6 +15,7 @@ END_TURN_ID = "123e4567-e89b-42d3-a456-426614174000"
 SKIP_ID = "123e4567-e89b-42d3-a456-426614174001"
 AUDIT_ID = "123e4567-e89b-42d3-a456-426614174002"
 MOVE_ID = "123e4567-e89b-42d3-a456-426614174003"
+WORKER_BUILD_ID = "123e4567-e89b-42d3-a456-426614174004"
 
 
 class _FakeClient:
@@ -120,6 +121,51 @@ class WatchControlHandlerTest(unittest.TestCase):
         command = execute.call_args.args[2]
         self.assertEqual(command.action, "move_unit")
         self.assertEqual(command.args, {"unit_id": 8, "x": 10, "y": 12})
+
+    def test_forwards_exact_worker_build_arguments(self):
+        result = CommandResult(id=WORKER_BUILD_ID, status="success")
+        with patch(
+            "civ5_agent.watch.execute_worker_build", return_value=result
+        ) as execute:
+            response = self.write(
+                {
+                    "op": "worker_build",
+                    "id": WORKER_BUILD_ID,
+                    "unit_id": 8,
+                    "x": 9,
+                    "y": 12,
+                    "build_type": "BUILD_FARM",
+                }
+            )
+        self.assertTrue(response["ok"])
+        command = execute.call_args.args[2]
+        self.assertEqual(command.action, "worker_build")
+        self.assertEqual(
+            command.args,
+            {"unit_id": 8, "x": 9, "y": 12, "build_type": "BUILD_FARM"},
+        )
+
+    def test_worker_build_uuid_replay_is_exact_and_never_executes_twice(self):
+        result = CommandResult(id=WORKER_BUILD_ID, status="success")
+        request = {
+            "op": "worker_build",
+            "id": WORKER_BUILD_ID,
+            "unit_id": 8,
+            "x": 9,
+            "y": 12,
+            "build_type": "BUILD_FARM",
+        }
+        with patch(
+            "civ5_agent.watch.execute_worker_build", return_value=result
+        ) as execute:
+            first = self.write(request)
+            replay = self.write(request)
+            mismatch = self.write({**request, "build_type": "BUILD_MINE"})
+        self.assertTrue(first["ok"])
+        self.assertTrue(replay["replayed"])
+        self.assertFalse(mismatch["ok"])
+        self.assertIn("different arguments", mismatch["error"])
+        self.assertEqual(execute.call_count, 1)
 
     def test_replays_move_unit_uuid_without_executing_twice(self):
         result = CommandResult(id=MOVE_ID, status="success")

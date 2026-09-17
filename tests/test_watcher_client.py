@@ -147,6 +147,27 @@ class WatcherBridgeClientTest(unittest.TestCase):
             ):
                 validate_command(Command("move_unit", arguments, COMMAND_ID))
 
+    def test_public_worker_build_validation_is_exact_and_bounded(self):
+        command = Command(
+            "worker_build",
+            {"unit_id": 8, "x": 65_535, "y": 0, "build_type": "BUILD_FARM"},
+            COMMAND_ID,
+        )
+        self.assertEqual(validate_command(command), command)
+        invalid_arguments = (
+            {"unit_id": 8, "x": 1, "y": 2},
+            {"unit_id": True, "x": 1, "y": 2, "build_type": "BUILD_FARM"},
+            {"unit_id": 8, "x": -1, "y": 2, "build_type": "BUILD_FARM"},
+            {"unit_id": 8, "x": 1, "y": 65_536, "build_type": "BUILD_FARM"},
+            {"unit_id": 8, "x": 1, "y": 2, "build_type": "IMPROVEMENT_FARM"},
+            {"unit_id": 8, "x": 1, "y": 2, "build_type": "BUILD_" + "X" * 59},
+        )
+        for arguments in invalid_arguments:
+            with self.subTest(arguments=arguments), self.assertRaises(
+                CommandValidationError
+            ):
+                validate_command(Command("worker_build", arguments, COMMAND_ID))
+
 
 if __name__ == "__main__":
     unittest.main()

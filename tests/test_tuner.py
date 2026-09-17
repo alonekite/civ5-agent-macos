@@ -22,9 +22,11 @@ from civ5_agent.tuner import (
     parse_choose_research_response,
     parse_city_production_response,
     parse_skip_unit_response,
+    parse_worker_build_response,
     parse_snapshot,
     skip_unit_lua,
     move_unit_lua,
+    worker_build_lua,
     snapshot_lua,
     snapshot_lua_programs,
     MAX_LUA_PROGRAM_BYTES,
@@ -694,6 +696,40 @@ class TunerProtocolTest(unittest.TestCase):
                     (status, 8, 10, 12),
                 )
 
+    def test_parses_exact_single_worker_build_marker(self):
+        self.assertEqual(
+            parse_worker_build_response(
+                (TunerMessage(-1, "C5WB|A|8|BUILD_FARM"),)
+            ),
+            ("accepted", 8, "BUILD_FARM"),
+        )
+        statuses = {
+            "U": "invalid_unit",
+            "R": "blocked",
+            "S": "stale",
+            "B": "invalid_build",
+            "X": "selection_failed",
+            "A": "accepted",
+        }
+        for code, status in statuses.items():
+            with self.subTest(code=code):
+                self.assertEqual(
+                    parse_worker_build_response(
+                        (TunerMessage(-1, f"C5WB|{code}|8|BUILD_FARM"),)
+                    ),
+                    (status, 8, "BUILD_FARM"),
+                )
+        for payload in (
+            "C5WB|A|8|BUILD_FARM\nC5WB|R|8|BUILD_FARM",
+            "C5WB|A|8|BUILD_" + "X" * 65,
+            "C5WB|A|8|BUILD_FARM;trailing",
+            "x" * 1025,
+            "C5WB|Q|8|BUILD_FARM",
+            "Lua lifecycle only",
+        ):
+            with self.subTest(payload=payload), self.assertRaises(ValueError):
+                parse_worker_build_response((TunerMessage(-1, payload),))
+
     def test_snapshot_lua_contains_no_game_write_calls(self):
         lua = snapshot_lua()
         for forbidden in (
@@ -875,6 +911,12 @@ class TunerProtocolTest(unittest.TestCase):
             ),
             skip_unit_lua(2_147_483_647),
             move_unit_lua(2_147_483_647, 65_535, 65_535, 65_535, 65_535),
+            worker_build_lua(
+                2_147_483_647,
+                65_535,
+                65_535,
+                "BUILD_" + "X" * 58,
+            ),
         )
         self.assertTrue(programs)
         for program in programs:
@@ -921,6 +963,45 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertEqual(lua.count("Game.SelectionListMove"), 1)
         self.assertNotIn("PushMission", lua)
         self.assertLessEqual(len(lua.encode("utf-8")), MAX_LUA_PROGRAM_BYTES)
+
+    def test_worker_build_repeats_guards_and_dispatches_stock_action_once(self):
+        lua = worker_build_lua(8, 9, 12, "BUILD_FARM")
+        for required in (
+            "p:GetUnitByID(8)",
+            'GameInfo.Builds["BUILD_FARM"]',
+            "GameInfoActions[b.Type]",
+            "ActionSubTypes.ACTIONSUBTYPE_BUILD",
+            "a.MissionData~=b.ID",
+            "u:GetX()~=9",
+            "u:GetY()~=12",
+            "p:IsTurnActive()",
+            "Game.IsProcessingMessages()",
+            "u:GetBuildType()~=-1",
+            "q:IsWater()",
+            "q:GetFeatureType()~=-1",
+            "q:GetImprovementType()~=-1",
+            "u:CanBuild(q,b.ID,false,true)",
+            "UI.ClearSelectionList()",
+            "UI.SelectUnit(u)",
+            "UI.GetHeadSelectedUnit()",
+            "Game.CanHandleAction(a.ID)",
+        ):
+            self.assertIn(required, lua)
+        self.assertEqual(lua.count("Game.HandleAction(a.ID)"), 1)
+        for forbidden in ("PushMission", "SelectionListMove", "AcceptPopup"):
+            self.assertNotIn(forbidden, lua)
+        self.assertLessEqual(len(lua.encode("utf-8")), MAX_LUA_PROGRAM_BYTES)
+
+    def test_worker_build_rejects_untrusted_arguments(self):
+        for arguments in (
+            (True, 1, 2, "BUILD_FARM"),
+            (8, -1, 2, "BUILD_FARM"),
+            (8, 1, 65_536, "BUILD_FARM"),
+            (8, 1, 2, "BUILD_FARM;Game.HandleAction(1)"),
+            (8, 1, 2, "BUILD_" + "X" * 59),
+        ):
+            with self.subTest(arguments=arguments), self.assertRaises(ValueError):
+                worker_build_lua(*arguments)
 
     def test_move_unit_rejects_invalid_numeric_inputs(self):
         for arguments in (

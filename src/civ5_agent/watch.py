@@ -12,12 +12,14 @@ from pathlib import Path
 from uuid import UUID
 
 from .audit import CommandAuditLog, default_audit_path
+from .actions import CommandValidationError
 from .command import (
     execute_choose_research,
     execute_city_production,
     execute_end_turn,
     execute_move_unit,
     execute_skip_unit,
+    execute_worker_build,
 )
 from .identity import (
     SessionIdentityError,
@@ -103,6 +105,7 @@ def make_control_handler(
             "set_city_production",
             "skip_unit",
             "move_unit",
+            "worker_build",
         }:
             try:
                 requested_session_id = validate_bridge_session_id(
@@ -148,6 +151,13 @@ def make_control_handler(
                         "y": request.get("y"),
                     }
                     if operation == "move_unit"
+                    else {
+                        "unit_id": request.get("unit_id"),
+                        "x": request.get("x"),
+                        "y": request.get("y"),
+                        "build_type": request.get("build_type"),
+                    }
+                    if operation == "worker_build"
                     else {
                         "city_id": request.get("city_id"),
                         "kind": request.get("kind"),
@@ -248,13 +258,26 @@ def make_control_handler(
                             command,
                             verify_timeout=verify_timeout,
                         )
-                    else:
+                    elif operation == "move_unit":
                         result = execute_move_unit(
                             client,
                             state_id,
                             command,
                             verify_timeout=verify_timeout,
                         )
+                    else:
+                        result = execute_worker_build(
+                            client,
+                            state_id,
+                            command,
+                            verify_timeout=verify_timeout,
+                        )
+                except CommandValidationError as error:
+                    return {
+                        "ok": False,
+                        "bridge_session_id": session_id,
+                        "error": str(error),
+                    }
                 except (ConnectionError, OSError, TimeoutError, ValueError) as error:
                     if journal_capture is not None and submission_turn is not None:
                         try:

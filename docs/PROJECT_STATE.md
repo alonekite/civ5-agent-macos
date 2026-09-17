@@ -8,13 +8,12 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M10 — verified worker build — is implementing the write
-  path after completing its read model offline.
+- Current milestone: M10 — verified worker build — has completed bridge reads,
+  write submission, and factual verification offline.
   M9 and the immutable 1.1.0 release remain complete.
-- Active next deliverable: implement M10 C2 exact allowlisted `worker_build`
-  admission, bounded stock dispatch, and marker handling without yet claiming
-  success from a marker.
-- Functional baseline: 307 tests pass locally on Python 3.11/default runtime
+- Active next deliverable: implement M10 C4 deterministic TurnPlan integration
+  and its exact unit-requirement/recovery semantics.
+- Functional baseline: 319 tests pass locally on Python 3.11/default runtime
   and in exact-commit/tag GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
 - User presence required next: no. Source research, request registration, ADR,
@@ -112,15 +111,15 @@ development log.
   `Game.CanHandleAction`/`Game.HandleAction` path owns submission. Blank
   featureless land plus ordinary non-consuming improvements avoid popup and
   side-effect ambiguity. Exact active-build and completed-improvement branches
-  require the same unit/plot and lower movement. Prototype read segments and
-  the worst-case compact write fit the 1,000-byte design limit; final generated
-  strings remain subject to executable tests and later live evidence.
+  require the same unit/plot and lower movement. The final read programs and
+  996-byte worst-case compact write fit the 1,000-byte transport limit; target
+  behavior still awaits C6 evidence.
 - M10 D2 is complete. The new owning worker-build contract freezes schema 7
   current-plot facts, current build, up to 32 bounded candidate pairs, the
   exact four-field `worker_build` action, both success branches, executor
   coverage/recovery, stable CLI behavior, public constants, and downstream
-  absent-capability behavior. Core 1.1 implementation and profile remain
-  unchanged.
+  absent-capability behavior. Tagged core 1.1 remains unchanged; development
+  head now reports `1.2.0.dev0`.
 - M10 D3 is complete. WB-S01–A02 freeze the full offline negative,
   uncertainty, executor, compatibility, artifact, and privacy matrix. Live
   checklist section 8 permits only a read-without-selection proof, one stale-
@@ -133,7 +132,13 @@ development log.
   programs. Resources use active-team visibility; identifiers, nested shape,
   part identity, unit binding, ordering, duplicates, counts, privacy, and
   schema 2–6 compatibility are covered. The existing movement action remains
-  operational on matching schema 6+ states. No worker write action exists yet.
+  operational on matching schema 6+ states.
+- M10 C2–C3 are complete offline. Development head reports `1.2.0.dev0` and
+  allowlists the exact four-field worker command. Fresh schema 7 admission
+  precedes one guarded 996-byte stock dispatch; its bounded marker is never
+  success by itself. Polling proves either the exact active build or completed
+  paired improvement with the same turn/player/unit/plot and lower movement.
+  C4 TurnPlan integration and all target-machine evidence remain pending.
 
 ## Current architecture
 
@@ -221,10 +226,9 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Implement C2 allowlisted submission and WB-C01–C04 without accepting any
-   marker as verified success.
-2. Implement C3–C4 strictly against the frozen contracts and verification IDs.
-3. Complete C5 offline evidence, then pause for separately authorized C6 live
+1. Implement C4 TurnPlan integration strictly against WB-E01–E03.
+2. Complete the remaining WB-W/A and C5 offline evidence.
+3. Pause for separately authorized C6 live
    verification before advertising the action or preparing 1.2.0.
 
 ## Recent governing decisions

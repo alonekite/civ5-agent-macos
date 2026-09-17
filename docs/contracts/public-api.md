@@ -129,16 +129,17 @@ The read and direct write have offline and bounded target-machine evidence;
 TurnPlan integration has the complete offline evidence required by the M9
 contract. The approved semantics are in the unit-movement contract.
 
-The frozen M10 compatibility forecast adds schema 7, `worker_build`,
+The M10 1.2.0 compatibility surface adds schema 7, `worker_build`,
 `MAX_BUILD_IDENTIFIER_LENGTH = 64`, and
 `MAX_ORDINARY_WORKER_BUILDS_PER_UNIT = 32` in a future compatible release. It
 adds no public model class and does not change `CommandResult`, TurnPlan,
 execution-report/event, journal, or stable CLI envelope schemas. None of these
-forecast values is exported by core 1.1.0. Development head now exports the two
-limits and includes schema 7 in the supported schema set for C1 read testing,
-but still omits `worker_build` from `ALLOWED_ACTIONS`. Consumers must require
-the complete future capability rather than treat the read model alone as write
-support. See the worker-build contract.
+values is exported by tagged core 1.1.0. Development head reports
+`1.2.0.dev0`, exports the two limits, includes schema 7 in the supported schema
+set, and includes the C2–C3 verified command in `ALLOWED_ACTIONS`. Stable
+consumers must still wait for the complete released capability rather than
+treat a development checkout as published support. See the worker-build
+contract.
 
 ## Error inventory
 

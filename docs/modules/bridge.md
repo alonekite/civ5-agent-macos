@@ -99,8 +99,9 @@ still has a direct fallback; the supported Python bridge client is watcher-only.
 
 ## Planned extensions
 
-Maintain the 1.1.0 movement contract. M10 next implements the exact
-`worker_build` command and factual verification against the completed schema 7
-read model, without adding policy or a second write path. Optional evidence for
-other branches remains separate. The session envelope and public error semantics have offline
+Maintain the 1.1.0 movement contract. M10 C2–C3 now implement the exact
+`worker_build` admission, single stock dispatch, and factual schema 7 read-back
+verification on the unreleased development head. C4 executor integration and
+C5/C6 evidence remain. Optional evidence for other branches remains separate.
+The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

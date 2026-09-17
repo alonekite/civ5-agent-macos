@@ -132,10 +132,11 @@ supported schema set, `worker_build` in `ALLOWED_ACTIONS`, and the exact
 schema/limit constants published by the aggregate API. Greater version numbers
 alone remain insufficient.
 
-Development head now implements and exports the schema 7 read model and its
-two limits for offline C1 testing. This does not satisfy the future capability:
-`worker_build` remains absent from `ALLOWED_ACTIONS`, core 1.1.0 remains the
-stable profile, and downstream must continue emitting no worker-build action.
+Development head now reports `1.2.0.dev0`, implements schema 7 reads plus the
+C2–C3 command, and includes `worker_build` in `ALLOWED_ACTIONS`. This still does
+not satisfy the stable capability: C4 executor integration, C5 reconciliation,
+and C6 target evidence remain; core 1.1.0 remains the stable profile, and
+downstream must continue emitting no worker-build action against released core.
 
 The frozen action carries exactly `unit_id`, `x`, `y`, and `build_type`. The
 unit's schema 7 record supplies current-plot facts, current build, and zero to

@@ -36,21 +36,17 @@ Direct commands create one identity for their single connection.
 | `set_city_production` | city ID, `unit\|building\|project`, matching stable ID | target city's production matches | Live-verified |
 | `skip_unit` | schema 4 owned unit ID | same unit/location/movement; `ready_to_move` becomes false | Live-verified |
 | `move_unit` | schema 6+ owned unit ID, admitted target, and exact bounded `x`, `y` | same unit reaches exact destination in same active turn with lower movement | Live-verified on schema 6; added in 1.1.0; schema 7 compatibility covered offline |
+| `worker_build` | schema 7 owned unit ID, exact bounded `x`, `y`, and bounded `BUILD_*` | same unit/plot with lower movement and either exact active build or exact completed paired improvement | Implemented offline on 1.2.0 development head; live evidence pending |
 
 Core 1.1.0 includes the approved M9 `move_unit` action with exact arguments
 `unit_id`, `x`, and `y`. It is absent from core 1.0.0. Its downstream profile
 and evidence are defined by the [unit-movement contract](unit-movement.md).
 
-## Frozen future action
-
-| Action | Arguments | Postcondition | Evidence |
-|---|---|---|---|
-| `worker_build` | planned schema 7 owned unit ID, exact bounded `x`, `y`, and bounded `BUILD_*` | same unit/plot with lower movement and either exact active build or exact completed paired improvement | Frozen for M10; not implemented or live-verified |
-
-M10 freezes the future `worker_build` action with exact arguments `unit_id`,
-`x`, `y`, and `build_type`. It is not in the current implementation allowlist
-or core 1.1.0. Its exact admission, ordinary-build exclusions, stock dispatch,
-dual success postcondition, recovery, and compatibility rules are defined by
+M10 implements `worker_build` on the unreleased 1.2.0 development head with
+exact arguments `unit_id`, `x`, `y`, and `build_type`. It remains absent from
+tagged core 1.1.0 and is not yet in the stable downstream capability profile.
+Its exact admission, ordinary-build exclusions, stock dispatch, dual success
+postcondition, recovery, and compatibility rules are defined by
 the [worker-build contract](worker-build.md).
 
 The target FireTuner accepts only bounded Lua reliably. Every internal program

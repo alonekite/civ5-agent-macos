@@ -6,7 +6,11 @@ from typing import Any
 from .errors import ValidationError
 from .identity import validate_command_id
 from .models import Command
-from .validation import MAX_MAP_COORDINATE
+from .validation import (
+    BUILD_TYPE_PATTERN,
+    MAX_BUILD_IDENTIFIER_LENGTH,
+    MAX_MAP_COORDINATE,
+)
 
 _TECH_PATTERN = re.compile(r"TECH_[A-Z0-9_]+\Z")
 _PRODUCTION_PATTERNS = {
@@ -15,7 +19,14 @@ _PRODUCTION_PATTERNS = {
     "project": re.compile(r"PROJECT_[A-Z0-9_]+\Z"),
 }
 ALLOWED_ACTIONS = frozenset(
-    {"end_turn", "choose_research", "set_city_production", "skip_unit", "move_unit"}
+    {
+        "end_turn",
+        "choose_research",
+        "set_city_production",
+        "skip_unit",
+        "move_unit",
+        "worker_build",
+    }
 )
 MAX_COMMAND_MESSAGE_LENGTH = 1024
 
@@ -66,22 +77,42 @@ def validate_command(command: Command) -> Command:
         unit_id = arguments["unit_id"]
         if isinstance(unit_id, bool) or not isinstance(unit_id, int) or unit_id < 0:
             raise CommandValidationError("unit_id must be a non-negative integer")
-    else:
+    elif command.action == "move_unit":
         _require_fields(arguments, {"unit_id", "x", "y"}, command.action)
-        unit_id = arguments["unit_id"]
-        if isinstance(unit_id, bool) or not isinstance(unit_id, int) or unit_id < 0:
-            raise CommandValidationError("unit_id must be a non-negative integer")
-        for field in ("x", "y"):
-            value = arguments[field]
-            if (
-                isinstance(value, bool)
-                or not isinstance(value, int)
-                or not 0 <= value <= MAX_MAP_COORDINATE
-            ):
-                raise CommandValidationError(
-                    f"{field} must be an integer from 0 to {MAX_MAP_COORDINATE}"
-                )
+        _validate_unit_and_coordinates(arguments)
+    else:
+        _require_fields(
+            arguments,
+            {"unit_id", "x", "y", "build_type"},
+            command.action,
+        )
+        _validate_unit_and_coordinates(arguments)
+        build_type = arguments["build_type"]
+        if (
+            not isinstance(build_type, str)
+            or len(build_type) > MAX_BUILD_IDENTIFIER_LENGTH
+            or not BUILD_TYPE_PATTERN.fullmatch(build_type)
+        ):
+            raise CommandValidationError(
+                "build_type must be a bounded BUILD_[A-Z0-9_]+ identifier"
+            )
     return Command(action=command.action, args=arguments, id=command_id)
+
+
+def _validate_unit_and_coordinates(arguments: dict[str, Any]) -> None:
+    unit_id = arguments["unit_id"]
+    if isinstance(unit_id, bool) or not isinstance(unit_id, int) or unit_id < 0:
+        raise CommandValidationError("unit_id must be a non-negative integer")
+    for field in ("x", "y"):
+        value = arguments[field]
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, int)
+            or not 0 <= value <= MAX_MAP_COORDINATE
+        ):
+            raise CommandValidationError(
+                f"{field} must be an integer from 0 to {MAX_MAP_COORDINATE}"
+            )
 
 
 def _require_fields(arguments: dict[str, Any], expected: set[str], action: str) -> None:

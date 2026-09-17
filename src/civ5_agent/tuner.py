@@ -259,6 +259,20 @@ class FireTunerClient:
         )
         return parse_move_unit_response(messages)
 
+    def request_worker_build(
+        self,
+        state_id: int,
+        unit_id: int,
+        source_x: int,
+        source_y: int,
+        build_type: str,
+    ) -> tuple[str, int, str]:
+        messages = self.execute_collect(
+            state_id,
+            worker_build_lua(unit_id, source_x, source_y, build_type),
+        )
+        return parse_worker_build_response(messages)
+
     def _require_socket(self) -> socket.socket:
         if self._socket is None:
             raise RuntimeError("FireTuner client is not connected")
@@ -567,6 +581,53 @@ def move_unit_lua(
         'else Game.SelectionListMove(q,false,false,false);'
         'r("accepted");end end'
     )
+
+
+def worker_build_lua(
+    unit_id: int,
+    source_x: int,
+    source_y: int,
+    build_type: str,
+) -> str:
+    """Build one exact selected-unit worker action with repeated live guards."""
+    if not isinstance(unit_id, int) or isinstance(unit_id, bool) or unit_id < 0:
+        raise ValueError("unit_id must be a non-negative integer")
+    for name, value in (("source_x", source_x), ("source_y", source_y)):
+        if (
+            not isinstance(value, int)
+            or isinstance(value, bool)
+            or not 0 <= value <= MAX_MAP_COORDINATE
+        ):
+            raise ValueError(
+                f"{name} must be an integer from 0 to {MAX_MAP_COORDINATE}"
+            )
+    if (
+        not isinstance(build_type, str)
+        or len(build_type) > MAX_BUILD_IDENTIFIER_LENGTH
+        or not BUILD_TYPE_PATTERN.fullmatch(build_type)
+    ):
+        raise ValueError("build_type must be a bounded BUILD_[A-Z0-9_]+ identifier")
+    lua = (
+        'local p=Players[Game.GetActivePlayer()];'
+        f'local u=p:GetUnitByID({unit_id});local b=GameInfo.Builds["{build_type}"];'
+        'local a=b and GameInfoActions[b.Type];'
+        f'local function r(s)print("C5WB|"..s.."|{unit_id}|"..'
+        '(b and b.Type or"BUILD_X"))end;'
+        'if not u then r("U");return end;local q=u:GetPlot();'
+        f'if u:GetX()~={source_x}or u:GetY()~={source_y}then r("S");return end;'
+        'if not b or not a or a.SubType~=ActionSubTypes.ACTIONSUBTYPE_BUILD or '
+        'a.Type~=b.Type or a.MissionData~=b.ID then r("B");return end;'
+        'if not p:IsTurnActive()or Game.IsProcessingMessages()or '
+        'not u:IsReadyToMove()or u:MovesLeft()<=0 or '
+        'u:GetBuildType()~=-1 or q:IsWater()or q:GetFeatureType()~=-1 or '
+        'q:GetImprovementType()~=-1 or not u:CanBuild(q,b.ID,false,true)then r("R");return end;'
+        'UI.ClearSelectionList();UI.SelectUnit(u);local h=UI.GetHeadSelectedUnit();'
+        f'if not h or h:GetID()~={unit_id}then r("X");return end;'
+        'if not Game.CanHandleAction(a.ID)then r("R");return end;'
+        'Game.HandleAction(a.ID);r("A")'
+    )
+    _validate_lua_program(lua)
+    return lua
 
 
 def _receive_exact(connection: socket.socket, length: int) -> bytes:
@@ -1080,6 +1141,37 @@ def parse_move_unit_response(
             )
     details = _summarize_messages(messages)
     raise ValueError(f"move_unit did not return a command marker ({details})")
+
+
+def parse_worker_build_response(
+    messages: tuple[TunerMessage, ...],
+) -> tuple[str, int, str]:
+    pattern = re.compile(
+        r"C5WB\|([URSBXA])\|(\d+)\|(BUILD_[A-Z0-9_]+)(?=$|[\r\n])"
+    )
+    statuses = {
+        "U": "invalid_unit",
+        "R": "blocked",
+        "S": "stale",
+        "B": "invalid_build",
+        "X": "selection_failed",
+        "A": "accepted",
+    }
+    matches: list[tuple[str, int, str]] = []
+    for message in messages:
+        if len(message.payload.encode("utf-8")) > 1024:
+            raise ValueError("worker_build returned oversized output")
+        for match in pattern.finditer(message.payload):
+            build_type = match.group(3)
+            if len(build_type) <= MAX_BUILD_IDENTIFIER_LENGTH:
+                matches.append(
+                    (statuses[match.group(1)], int(match.group(2)), build_type)
+                )
+    if len(matches) == 1:
+        return matches[0]
+    details = _summarize_messages(messages)
+    qualifier = "multiple markers" if matches else "no valid marker"
+    raise ValueError(f"worker_build returned {qualifier} ({details})")
 
 
 def _summarize_messages(messages: tuple[TunerMessage, ...]) -> str:

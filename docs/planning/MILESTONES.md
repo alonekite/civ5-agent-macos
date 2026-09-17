@@ -353,5 +353,8 @@ separately authorized write, private audit verification, and exact restoration.
 C1 is complete offline: schema 7 now reads and validates exact current-plot,
 current-build, and bounded candidate facts through two selection-free programs,
 retains schema 2–6, and preserves `move_unit` on matching schema 6+ states.
-WB-S01–S06 pass within a 307-test baseline. C2 allowlisted submission is next;
-no worker command or live-support claim exists yet.
+WB-S01–S06 pass. C2–C3 are now complete offline: the unreleased 1.2.0
+development head validates and admits the exact command, generates a worst-case
+996-byte guarded stock dispatch, treats its marker only as submission evidence,
+and verifies both factual schema 7 result branches. C4 executor integration is
+next; no stable downstream or live-support claim exists yet.

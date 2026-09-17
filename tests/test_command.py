@@ -6,12 +6,14 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
+from civ5_agent.actions import CommandValidationError
 from civ5_agent.command import (
     execute_choose_research,
     execute_city_production,
     execute_end_turn,
     execute_move_unit,
     execute_skip_unit,
+    execute_worker_build,
     main,
 )
 from civ5_agent.models import Command, GameState
@@ -26,6 +28,7 @@ class _FakeClient:
         production_result=("blocked", -1, ""),
         skip_result=("blocked", -1),
         move_result=("blocked", -1, -1, -1),
+        worker_build_result=("blocked", -1, "BUILD_X"),
     ):
         self.states = iter(states)
         self.end_turn_result = end_turn_result
@@ -33,6 +36,7 @@ class _FakeClient:
         self.production_result = production_result
         self.skip_result = skip_result
         self.move_result = move_result
+        self.worker_build_result = worker_build_result
 
     def read_game_state(self, state_id):
         state = next(self.states)
@@ -56,6 +60,9 @@ class _FakeClient:
         self, state_id, unit_id, source_x, source_y, target_x, target_y
     ):
         return self.move_result
+
+    def request_worker_build(self, state_id, unit_id, source_x, source_y, build_type):
+        return self.worker_build_result
 
 
 def game_state(turn, gold):
@@ -133,6 +140,37 @@ def movement_state(
                 "current_build_type": None,
                 "ordinary_build_actions": [],
             }
+        )
+    return state
+
+
+def worker_state(
+    *,
+    x=9,
+    y=12,
+    moves=120,
+    current_build_type=None,
+    improvement_type=None,
+    build_actions=None,
+    turn=3,
+    unit_type="UNIT_WORKER",
+    schema_version=7,
+):
+    state = movement_state(
+        x=x,
+        y=y,
+        moves=moves,
+        unit_type=unit_type,
+        turn=turn,
+        schema_version=schema_version,
+    )
+    if schema_version == 7:
+        state.units[0]["current_build_type"] = current_build_type
+        state.units[0]["current_plot"]["improvement_type"] = improvement_type
+        state.units[0]["ordinary_build_actions"] = (
+            [{"build_type": "BUILD_FARM", "improvement_type": "IMPROVEMENT_FARM"}]
+            if build_actions is None
+            else build_actions
         )
     return state
 
@@ -651,6 +689,117 @@ class CommandCliSessionTest(unittest.TestCase):
             {key: sent[key] for key in ("unit_id", "x", "y")},
             {"unit_id": 8, "x": 10, "y": 12},
         )
+
+
+class WorkerBuildTest(unittest.TestCase):
+    command = Command(
+        "worker_build",
+        {"unit_id": 8, "x": 9, "y": 12, "build_type": "BUILD_FARM"},
+    )
+
+    def test_rejects_malformed_or_unadmitted_request_without_write(self):
+        cases = (
+            (Command("worker_build", {"unit_id": 8}), [], "exactly"),
+            (self.command, [movement_state(schema_version=6)], "schema 7"),
+            (
+                Command(
+                    "worker_build",
+                    {"unit_id": 8, "x": 10, "y": 12, "build_type": "BUILD_FARM"},
+                ),
+                [worker_state()],
+                "stale",
+            ),
+            (
+                self.command,
+                [worker_state(build_actions=[])],
+                "not one exact admitted",
+            ),
+            (
+                self.command,
+                [worker_state(current_build_type="BUILD_FARM")],
+                "already executing",
+            ),
+        )
+        for command, states, message in cases:
+            with self.subTest(message=message):
+                client = _FakeClient(states)
+                with patch.object(client, "request_worker_build") as write:
+                    result = execute_worker_build(client, 172, command)
+                self.assertEqual(result.status, "error")
+                self.assertIn(message, result.message)
+                write.assert_not_called()
+
+    def test_malformed_schema_seven_state_is_prewrite_rejection(self):
+        malformed = worker_state()
+        malformed.units.append(dict(malformed.units[0]))
+        client = _FakeClient([malformed])
+        with patch.object(client, "request_worker_build") as write, self.assertRaises(
+            CommandValidationError
+        ):
+            execute_worker_build(client, 172, self.command)
+        write.assert_not_called()
+
+    def test_accepts_active_build_only_after_exact_read_back(self):
+        client = _FakeClient(
+            [
+                worker_state(),
+                worker_state(moves=60, current_build_type="BUILD_FARM", build_actions=[]),
+            ],
+            worker_build_result=("accepted", 8, "BUILD_FARM"),
+        )
+        with patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1]
+        ):
+            result = execute_worker_build(
+                client, 172, self.command, verify_timeout=1.0
+            )
+        self.assertEqual(result.status, "success")
+        self.assertIn("active", result.message)
+
+    def test_accepts_exact_immediate_completion(self):
+        client = _FakeClient(
+            [
+                worker_state(),
+                worker_state(
+                    moves=60,
+                    improvement_type="IMPROVEMENT_FARM",
+                    build_actions=[],
+                ),
+            ],
+            worker_build_result=("accepted", 8, "BUILD_FARM"),
+        )
+        with patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1]
+        ):
+            result = execute_worker_build(
+                client, 172, self.command, verify_timeout=1.0
+            )
+        self.assertEqual(result.status, "success")
+        self.assertIn("completed", result.message)
+
+    def test_marker_is_not_success_and_mismatch_does_not_poll(self):
+        for marker in (
+            ("blocked", 8, "BUILD_FARM"),
+            ("accepted", 9, "BUILD_FARM"),
+            ("accepted", 8, "BUILD_MINE"),
+        ):
+            with self.subTest(marker=marker):
+                client = _FakeClient([worker_state()], worker_build_result=marker)
+                result = execute_worker_build(client, 172, self.command)
+                self.assertEqual(result.status, "error")
+                self.assertIn("rejected", result.message)
+
+    def test_rejects_wrong_postcondition_after_submission(self):
+        client = _FakeClient(
+            [worker_state(), worker_state(moves=60, current_build_type="BUILD_MINE", build_actions=[])],
+            worker_build_result=("accepted", 8, "BUILD_FARM"),
+        )
+        with patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1]
+        ):
+            result = execute_worker_build(client, 172, self.command, verify_timeout=1.0)
+        self.assertEqual(result.status, "error")
+        self.assertIn("unexpected", result.message)
 
 
 if __name__ == "__main__":

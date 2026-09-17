@@ -1,6 +1,6 @@
 # Verified Worker Build Development Plan
 
-Status: D0–D3, C0/D1, and C1 complete; C2 allowlisted command is next
+Status: D0–D3, C0/D1, and C1–C3 complete offline; C4 executor integration next
 
 Target milestone: M10
 
@@ -221,12 +221,23 @@ count limits, exact nested shape, nulls, stable sorting, duplicates, and schema
 
 ### C2 — Implement the allowlisted command
 
+Status: complete offline.
+
 Resolve the exact active-player unit and build action, repeat source and
 legality guards in game-side Lua, establish and verify exact selection if the
 stock path requires it, dispatch once, and return one bounded marker. Preserve
 UUID duplicate suppression and no-retry semantics.
 
+Outcome: exact four-field validation and fresh schema 7 admission precede a
+996-byte worst-case selected-unit stock program. The program re-resolves the
+unit, plot, build and matching action, repeats mutable guards, verifies exact
+selection and `CanHandleAction`, calls `Game.HandleAction` once, and emits one
+bounded private marker. Watcher forwarding retains its existing session, UUID,
+audit, journal and unknown-outcome semantics.
+
 ### C3 — Implement factual verification
+
+Status: complete offline.
 
 Use fresh schema 7 state and bounded polling. Multi-turn success requires the
 same unit and plot to report the requested active build. Immediate-completion
@@ -234,6 +245,12 @@ success requires the same plot to report the exact contract-mapped improvement.
 Movement to another plot, a different build/improvement, unchanged state,
 identity/turn drift, disappearance, capture, timeout, or malformed evidence is
 not success.
+
+Outcome: an accepted marker only begins bounded polling. Success requires the
+same schema 7 turn/player/unit/type/coordinates, lower movement, unchanged
+non-improvement plot facts, and exactly one active-build or completed-
+improvement branch. Explicit refusal and wrong results fail; malformed or lost
+post-submission transport remains unknown and is never retried.
 
 ### C4 — Integrate deterministic execution
 

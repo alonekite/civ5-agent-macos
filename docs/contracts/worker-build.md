@@ -1,7 +1,7 @@
 # Worker-Build Contract
 
-Status: Frozen M10 contract; C1 read model implemented offline, write and live
-evidence pending
+Status: Frozen M10 contract; C1 reads and C2–C3 command/verification implemented
+offline; executor integration and live evidence pending
 
 Expected compatibility release: 1.2.0, only after the offline and bounded live
 gates pass
@@ -13,9 +13,10 @@ chooses one active-player unit, its exact current plot, and one exact ordinary
 `BUILD_*` candidate from fresh state. The bridge validates, submits through the
 stock selected-unit action path, and proves one of two exact factual outcomes.
 
-This contract applies ADR-0033. Development head implements schema 7 reads but
-not `worker_build`. The capability is absent from core 1.1.0 and must not be
-used until a later compatible release advertises both schema 7 and the action.
+This contract applies ADR-0033. Development head reports `1.2.0.dev0` and
+implements schema 7 plus the bridge command, while tagged core 1.1.0 does not.
+The capability must not be treated as stable until the compatible release
+advertises schema 7 and the action after all remaining gates.
 
 ## Schema 7 live-state input
 
@@ -229,9 +230,10 @@ The planned backward-compatible additions are:
 - unchanged `CommandResult`, execution-report/event, journal, and stable
   `civ5-turn` envelope schemas.
 
-These changes require at least package version 1.2.0. C1 now implements only
-the first and third bullets' read/schema limits on development head; the action
-and executor integration remain absent until C2–C4 pass. The complete
-capability remains absent from the stable downstream profile until C5 offline
-reconciliation and C6 bounded target-machine evidence pass. A failed live gate
-leaves core 1.1.0 as the latest advertised capability.
+These changes require at least package version 1.2.0. Development head is
+`1.2.0.dev0`: C1 implements the read/schema surface and C2–C3 implement exact
+admission, one stock submission, marker handling, polling, and both factual
+success branches. TurnPlan/controller integration remains absent until C4.
+The complete capability remains absent from the stable downstream profile until
+C5 offline reconciliation and C6 bounded target-machine evidence pass. A
+failed live gate leaves core 1.1.0 as the latest advertised capability.

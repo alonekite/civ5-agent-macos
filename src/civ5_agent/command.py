@@ -7,6 +7,7 @@ from dataclasses import asdict
 from pathlib import Path
 import sys
 
+from .actions import CommandValidationError, validate_command
 from .audit import CommandAuditLog, default_audit_path
 from .identity import new_bridge_session_id, validate_bridge_session_id
 from .ipc import default_socket_path, request
@@ -436,6 +437,206 @@ def execute_move_unit(
     )
 
 
+def execute_worker_build(
+    client: FireTunerClient,
+    state_id: int,
+    command: Command,
+    *,
+    verify_timeout: float = 10.0,
+    poll_interval: float = 0.1,
+) -> CommandResult:
+    try:
+        normalized = validate_command(command)
+    except CommandValidationError as error:
+        return CommandResult(command.id, "error", str(error))
+    if normalized.action != "worker_build":
+        return CommandResult(command.id, "error", "worker_build command required")
+    unit_id = normalized.args["unit_id"]
+    source_x = normalized.args["x"]
+    source_y = normalized.args["y"]
+    build_type = normalized.args["build_type"]
+
+    try:
+        before_state = validate_live_state(client.read_game_state(state_id))
+    except ValueError as error:
+        raise CommandValidationError(
+            f"worker_build rejected malformed live state: {error}"
+        ) from error
+    before = asdict(before_state)
+    if before_state.schema_version != 7:
+        return CommandResult(
+            command.id,
+            "error",
+            "worker_build requires a fresh schema 7 state",
+            before,
+            before,
+        )
+    matching_units = [
+        unit for unit in before_state.units if unit.get("id") == unit_id
+    ]
+    if len(matching_units) != 1:
+        return CommandResult(
+            command.id,
+            "error",
+            f"worker_build requires exactly one owned unit {unit_id}",
+            before,
+            before,
+        )
+    before_unit = matching_units[0]
+    if (before_unit["x"], before_unit["y"]) != (source_x, source_y):
+        return CommandResult(
+            command.id,
+            "error",
+            f"worker_build source ({source_x}, {source_y}) is stale for unit {unit_id}",
+            before,
+            before,
+        )
+    if before_unit["current_build_type"] is not None:
+        return CommandResult(
+            command.id,
+            "error",
+            f"unit {unit_id} is already executing a build",
+            before,
+            before,
+        )
+    before_plot = before_unit["current_plot"]
+    if (
+        before_plot["is_water"]
+        or before_plot["feature_type"] is not None
+        or before_plot["improvement_type"] is not None
+        or not before_unit["ready_to_move"]
+        or before_unit["moves"] <= 0
+    ):
+        return CommandResult(
+            command.id,
+            "error",
+            f"unit {unit_id} is not in the admitted ordinary-build state",
+            before,
+            before,
+        )
+    candidates = [
+        candidate
+        for candidate in before_unit["ordinary_build_actions"]
+        if candidate.get("build_type") == build_type
+    ]
+    if len(candidates) != 1:
+        return CommandResult(
+            command.id,
+            "error",
+            f"{build_type} is not one exact admitted ordinary build for unit {unit_id}",
+            before,
+            before,
+        )
+    expected_improvement = candidates[0]["improvement_type"]
+    before_moves = before_unit["moves"]
+    before_type = before_unit["type"]
+
+    status, returned_unit_id, returned_build_type = client.request_worker_build(
+        state_id, unit_id, source_x, source_y, build_type
+    )
+    if (
+        status != "accepted"
+        or returned_unit_id != unit_id
+        or returned_build_type != build_type
+    ):
+        return CommandResult(
+            command.id,
+            "error",
+            f"Civ V rejected worker build for unit {unit_id} ({status})",
+            before,
+            before,
+        )
+
+    unchanged_plot_fields = set(before_plot) - {"improvement_type"}
+    deadline = time.monotonic() + verify_timeout
+    after_state = before_state
+    while time.monotonic() < deadline:
+        time.sleep(poll_interval)
+        try:
+            after_state = validate_live_state(client.read_game_state(state_id))
+        except ValueError:
+            continue
+        after = asdict(after_state)
+        if (
+            after_state.schema_version != 7
+            or after_state.turn != before_state.turn
+            or after_state.active_player != before_state.active_player
+            or after_state.turn_active is not True
+        ):
+            return CommandResult(
+                command.id,
+                "error",
+                "worker_build read-back changed schema, turn, player, or active-turn state",
+                before,
+                after,
+            )
+        units = [unit for unit in after_state.units if unit.get("id") == unit_id]
+        if len(units) != 1 or units[0].get("type") != before_type:
+            return CommandResult(
+                command.id,
+                "error",
+                f"worker_build read-back lost or transformed unit {unit_id}",
+                before,
+                after,
+            )
+        after_unit = units[0]
+        if (after_unit["x"], after_unit["y"]) != (source_x, source_y):
+            return CommandResult(
+                command.id,
+                "error",
+                f"unit {unit_id} moved while verifying worker_build",
+                before,
+                after,
+            )
+        after_plot = after_unit["current_plot"]
+        if any(
+            after_plot[field] != before_plot[field]
+            for field in unchanged_plot_fields
+        ):
+            return CommandResult(
+                command.id,
+                "error",
+                "worker_build changed an unsupported plot fact",
+                before,
+                after,
+            )
+        after_moves = after_unit["moves"]
+        active = (
+            after_unit["current_build_type"] == build_type
+            and after_plot["improvement_type"] is None
+        )
+        completed = (
+            after_unit["current_build_type"] is None
+            and after_plot["improvement_type"] == expected_improvement
+        )
+        if after_moves < before_moves and active != completed:
+            branch = "active" if active else "completed"
+            return CommandResult(
+                command.id,
+                "success",
+                f"verified {branch} {build_type} for unit {unit_id} at ({source_x}, {source_y})",
+                before,
+                after,
+            )
+        if after_moves > before_moves or (
+            after_moves < before_moves and not (active or completed)
+        ):
+            return CommandResult(
+                command.id,
+                "error",
+                f"worker_build produced an unexpected result for unit {unit_id}",
+                before,
+                after,
+            )
+    return CommandResult(
+        command.id,
+        "error",
+        f"worker build was accepted but no exact result was observed within {verify_timeout}s",
+        before,
+        asdict(after_state),
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Submit a verified, allowlisted Civ V action")
     parser.add_argument(
@@ -446,6 +647,7 @@ def main() -> int:
             "set_city_production",
             "skip_unit",
             "move_unit",
+            "worker_build",
         ],
     )
     parser.add_argument("values", nargs="*")
@@ -473,6 +675,8 @@ def main() -> int:
         parser.error("skip_unit requires UNIT_ID")
     if args.action == "move_unit" and len(args.values) != 3:
         parser.error("move_unit requires UNIT_ID X Y")
+    if args.action == "worker_build" and len(args.values) != 4:
+        parser.error("worker_build requires UNIT_ID X Y BUILD_TYPE")
 
     command_args: dict[str, object] = {}
     if args.action == "choose_research":
@@ -499,6 +703,17 @@ def main() -> int:
         except ValueError:
             parser.error("UNIT_ID, X, and Y must be integers")
         command_args = {"unit_id": unit_id, "x": target_x, "y": target_y}
+    elif args.action == "worker_build":
+        try:
+            unit_id, source_x, source_y = (int(value) for value in args.values[:3])
+        except ValueError:
+            parser.error("UNIT_ID, X, and Y must be integers")
+        command_args = {
+            "unit_id": unit_id,
+            "x": source_x,
+            "y": source_y,
+            "build_type": args.values[3],
+        }
 
     command = Command(
         action=args.action,
@@ -580,8 +795,12 @@ def main() -> int:
                 result = execute_skip_unit(
                     client, state_id, command, verify_timeout=args.verify_timeout
                 )
-            else:
+            elif args.action == "move_unit":
                 result = execute_move_unit(
+                    client, state_id, command, verify_timeout=args.verify_timeout
+                )
+            else:
+                result = execute_worker_build(
                     client, state_id, command, verify_timeout=args.verify_timeout
                 )
     except (

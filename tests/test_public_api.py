@@ -58,7 +58,7 @@ class PublicApiContractTest(unittest.TestCase):
 
     def test_published_schema_and_size_constants_match_contract(self):
         self.assertIn("move_unit", api.ALLOWED_ACTIONS)
-        self.assertNotIn("worker_build", api.ALLOWED_ACTIONS)
+        self.assertIn("worker_build", api.ALLOWED_ACTIONS)
         self.assertEqual(
             api.SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS,
             {2, 3, 4, 5, 6, 7},
