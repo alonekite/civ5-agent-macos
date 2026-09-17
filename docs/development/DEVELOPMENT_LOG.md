@@ -1242,6 +1242,29 @@ Implementation commit: `cde1b55`.
 
 Implementation commit: `0d886f2`.
 
+## 2026-09-17 — Integrate movement into deterministic turn execution
+
+- Enabled exact `move_unit` actions in schema 1 TurnPlans without adding route,
+  unit, destination, or alternative selection to the executor.
+- Made movement cover `unit_orders` only for the matching unit ID. A unit that
+  remains ready must have another explicit move/skip later in the plan or the
+  executor pauses before further writes; multiple moves retain declared order.
+- Added executor-side defense-in-depth for both immediate and cached movement
+  results: schema 6 on both sides, admitted before-state target, changed source,
+  preserved unit identity/type, exact destination, lower movement, and unchanged
+  active turn/player are all required.
+- Covered successful move/end-turn execution, repeated movement, wrong-unit and
+  uncovered-order pauses, invalid bridge claims, factual events, watcher
+  argument forwarding, journal command composition, unchanged CLI envelopes,
+  successful non-final recovery, and invalid cached recovery evidence.
+- All 290 warning-enabled offline tests passed on the default runtime, including
+  Unix-socket IPC tests outside the sandbox. Documentation links, diff checks,
+  and tracked-content scans passed; no private path, local address, credential,
+  real match state, or generated game data was added. No game, FireTuner, or
+  firewall operation ran.
+
+Implementation commit: `629f0a8`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
