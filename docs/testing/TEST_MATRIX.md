@@ -17,7 +17,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | `choose_research` | Stock UI matched | Yes | Yes | Confirmed |
 | `set_city_production` | Stock UI matched | Yes | Yes | Confirmed |
 | `skip_unit` | Stock behavior inspected | Yes | Yes | Confirmed with readiness and unchanged movement/location |
-| Coordinate movement | No | No | No | Not implemented |
+| Coordinate movement | ADR-0032 and schema/command/result contract accepted | Planned: schema 6, validation, Lua bound, exact postcondition, recovery, and TurnPlan coverage | No | Contract frozen; not implemented or supported |
 | Safety preflight/shutdown | Yes | Yes | Yes | Confirmed |
 | Local IPC bounds and permissions | Yes | Yes | Indirectly | Confirmed offline |
 | Command UUID/audit/idempotency | Yes | Yes | Partial | Confirmed offline; live core path observed |

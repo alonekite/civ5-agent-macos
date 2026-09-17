@@ -20,6 +20,9 @@ must state the actual level instead of using “verified” without qualificatio
   timeouts, closing behavior, and state selection.
 - Actions: argument injection, capability predicates, exact postconditions,
   transient reads, timeout, duplicate UUID behavior, and audit failures.
+- Unit movement: schema 6 target ordering/bounds/privacy, conservative target
+  predicates, exact selection, generated-Lua size, wrong-unit and unexpected-
+  displacement rejection, no-retry recovery, and TurnPlan requirement coverage.
 - Knowledge: source immutability, active WAL/source change, allowlists,
   provenance, ruleset family, referential integrity, deterministic output, and
   forbidden AI/content fields.
@@ -48,6 +51,9 @@ must state the actual level instead of using “verified” without qualificatio
   evidence has been recorded.
 - Commit only sanitized conclusions, never raw player-specific snapshots or
   local paths that identify the user.
+- For M9, execute only the checklist's source-coordinate negative case and one
+  explicitly authorized adjacent target. A changed or unknown outcome ends the
+  write portion; never improvise another move.
 
 ## Release gate
 

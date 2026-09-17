@@ -120,6 +120,12 @@ selective factual-history view are not part of 1.0. A downstream need for them
 follows the documented core capability request process rather than private
 module inspection.
 
+M9 is specified as a backward-compatible 1.1.0 addition: schema 6 will join the
+supported live-state set, `move_unit` will join `ALLOWED_ACTIONS`, and the
+public coordinate maximum will be exported with the existing limit constants.
+No symbol is added and no current constant is changed until implementation and
+tests land. The approved semantics are in the unit-movement contract.
+
 ## Error inventory
 
 All supported domain errors inherit `Civ5AgentError`. Validation errors retain

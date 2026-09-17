@@ -111,6 +111,20 @@ Their absence is a compatibility result, not permission for a consumer-side
 workaround. New reusable facts and mechanics follow the core capability request
 process.
 
+## Planned 1.1.0 movement delta
+
+The accepted M9 contract proposes live-state schema 6 and an allowlisted
+`move_unit(unit_id, x, y)` action for one explicit adjacent ordinary move. Each
+owned unit will expose only the bounded `ordinary_move_targets` that the core is
+prepared to admit under that contract. This does not add path selection,
+terrain assessment, combat, worker tasks, or tactical recommendations.
+
+This section is a compatibility forecast, not a 1.0.0 capability and not a live
+support claim. Consumers must continue to report movement as absent until a
+released package advertises both schema 6 and `move_unit` through the stable
+aggregate constants. The tactical layer remains responsible for selecting the
+unit, destination, ordering, and any replanning.
+
 ## Compatibility and maintenance
 
 Incompatible changes to the stable aggregate API or `civ5-turn` require a new

@@ -31,6 +31,12 @@ initial digest is not re-applied after earlier verified actions intentionally
 change state; fresh live state is still read before every action. Plans contain
 no M5 `match_id` and do not require journal or knowledge access.
 
+M9 will add `move_unit` to the action allowlist without changing TurnPlan
+schema 1. Older 1.0 packages continue to reject it, so consumers must check the
+package version and `ALLOWED_ACTIONS` rather than infer action availability from
+the plan schema. Its exact arguments and result authority are frozen in the
+[unit-movement contract](unit-movement.md), but it is not currently accepted.
+
 ## Execution behavior
 
 - Validate the complete plan before the first write.
@@ -49,6 +55,9 @@ no M5 `match_id` and do not require journal or knowledge access.
 - Never infer that an interrupted action succeeded; recovery must reconcile its
   command identity, M6-owned execution state, and freshly read game state.
 - Operate correctly when no journal is configured or available.
+- When M9 is implemented, treat `move_unit` as covering `unit_orders` only for
+  its exact unit ID. If movement leaves that unit ready and no remaining move or
+  skip covers it, pause rather than choosing another destination.
 
 The in-process executor implements these transitions through two narrow injected
 capabilities: read `(bridge_session_id, GameState)` and execute one validated

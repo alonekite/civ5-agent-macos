@@ -36,7 +36,11 @@ Direct commands create one identity for their single connection.
 | `set_city_production` | city ID, `unit\|building\|project`, matching stable ID | target city's production matches | Live-verified |
 | `skip_unit` | schema 4 owned unit ID | same unit/location/movement; `ready_to_move` becomes false | Live-verified |
 
-Coordinate movement is not implemented and is not part of the allowlist.
+The approved M9 contract reserves `move_unit` with exact arguments `unit_id`,
+`x`, and `y`, but coordinate movement is not implemented and is not part of the
+current allowlist. It enters the allowlist only with schema 6 support and the
+offline gates in the [unit-movement contract](unit-movement.md); it is labeled
+live-verified only after the bounded target-machine procedure passes.
 
 The target FireTuner accepts only bounded Lua reliably. Every internal program
 is rejected before send above 1,000 UTF-8 bytes. `end_turn` additionally

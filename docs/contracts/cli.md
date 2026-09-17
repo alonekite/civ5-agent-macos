@@ -58,6 +58,13 @@ plan file or private live state.
 Consumers must inspect the versioned report status when exit 2 is returned.
 They must never interpret exit 1 as proof that a submitted action did not run.
 
+M9 does not add a `civ5-turn` subcommand. Once implemented, a schema 1 plan may
+contain the newly allowlisted `move_unit` action and the existing validate and
+execute envelopes remain unchanged. This is a backward-compatible minor
+capability addition; core 1.0.0 still rejects the action. The provisional
+`civ5-command` may gain positional unit/coordinate arguments for operator
+testing, but its spelling is not a stable integration surface.
+
 ## Non-goals
 
 This contract does not stabilize error prose, absolute socket paths, Python

@@ -2,10 +2,10 @@
 
 Status: Approved implementation plan; capability not yet implemented
 
-Progress: D0 and the C0/D1 source-research batch are complete as of 2026-09-17.
-ADR-0032 selects the stock selected-unit network path for an adjacent ordinary
-move. D2 contract freezing and D3 verification design are next; no movement
-command is implemented or advertised yet.
+Progress: D0, C0/D1 source research, D2 contract freezing, and D3 verification
+design are complete as of 2026-09-17. ADR-0032 selects the stock selected-unit
+network path for an adjacent ordinary move. C1 read-model implementation is
+next; no movement command is implemented or advertised yet.
 
 Target milestone: M9
 
@@ -229,7 +229,7 @@ committed, and pushed before the next begins:
 
 1. D0 request plus this M9 planning baseline;
 2. C0/D1 source research, risk, and ADR-0032 (complete 2026-09-17);
-3. D2 contracts and D3 verification design;
+3. D2 contracts and D3 verification design (complete 2026-09-17);
 4. C1 read-model implementation and tests;
 5. C2/C3 bridge command and verification with offline tests;
 6. C4 executor, watcher, journal composition, API, and CLI integration;

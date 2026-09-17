@@ -302,3 +302,107 @@ advance, event kinds/counts, integrity result, permissions, and clean restore;
 do not record paths, UUIDs, hashes, snapshots, player data, or exact match
 state. Retain or delete the temporary directory manually after the conclusion
 is recorded; project automation must not remove private evidence.
+
+## 7. M9 gate: one verified adjacent ordinary move
+
+Status: designed, not yet executable. Do not run this section until the M9
+implementation batch has passed the full offline suite and the command examples
+below match the implemented CLI tests. The user must be present and explicitly
+authorize the write portion. This gate permits one rejected source-coordinate
+request and one accepted adjacent move; it does not authorize exploration,
+combat, embarkation, or retries.
+
+### 7.1 Prepare a controlled state
+
+Follow sections 1 and 2 exactly. Prefer a normal single-player save with one
+idle land unit on open friendly terrain, no enemy or civilian on the intended
+target, no city target, no automation, and no pending animation. Do not use an
+irreplaceable or tactically important save.
+
+Create a private temporary audit path outside the repository, start exactly one
+watcher, and leave it running:
+
+```bash
+umask 077
+export CIV5_MOVE_ROOT="$(mktemp -d -t civ5-agent-move.XXXXXX)"
+export CIV5_MOVE_AUDIT="$CIV5_MOVE_ROOT/command-audit.jsonl"
+PYTHONPATH=src python3 -m civ5_agent.watch --audit-log "$CIV5_MOVE_AUDIT"
+```
+
+Require a validated schema 6 snapshot. Select one non-air, non-embarked unit
+whose `ordinary_move_targets` contains at least one coordinate. In a second
+terminal, copy the temporary root only if needed and set these values from that
+single snapshot; do not paste them into tracked files or an issue:
+
+```bash
+export CIV5_MOVE_UNIT='UNIT_ID'
+export CIV5_MOVE_SOURCE_X='SOURCE_X'
+export CIV5_MOVE_SOURCE_Y='SOURCE_Y'
+export CIV5_MOVE_TARGET_X='TARGET_X'
+export CIV5_MOVE_TARGET_Y='TARGET_Y'
+```
+
+Confirm manually that the chosen target is the intended adjacent empty plot.
+Do not proceed if the unit or target changes, the UI opens a prompt, another
+unit moves, or the watcher emits a new basis before the negative check.
+
+### 7.2 Prove the bounded negative branch
+
+Submit the unit's current source coordinate, which can never be an adjacent
+target:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.command move_unit \
+  "$CIV5_MOVE_UNIT" "$CIV5_MOVE_SOURCE_X" "$CIV5_MOVE_SOURCE_Y"
+```
+
+Expected: nonzero exit and a bounded error stating that the destination is not
+in the unit's current `ordinary_move_targets`. A subsequent watcher snapshot
+must show the same unit at the same coordinates with unchanged movement. This
+is a pre-send rejection; any movement, command acceptance, or unknown outcome
+fails the gate and ends the write portion.
+
+### 7.3 Execute exactly one authorized move
+
+Reconfirm that a fresh schema 6 snapshot still lists the chosen target. Ask the
+user for explicit confirmation immediately before this command, then execute it
+once:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.command move_unit \
+  "$CIV5_MOVE_UNIT" "$CIV5_MOVE_TARGET_X" "$CIV5_MOVE_TARGET_Y"
+```
+
+Do not repeat the command, even if the terminal appears idle. Success requires
+all of the following:
+
+- the command returns `status: success` with one UUID;
+- its before-state contains the selected unit at the source coordinate;
+- its after-state contains the same unit ID and type at exactly the target;
+- turn, active player, and active-turn status remain unchanged;
+- movement points strictly decrease; and
+- the game UI and a later independent watcher snapshot show that same unit on
+  the target, with no combat, capture, swap, embark/disembark, prompt, or
+  movement by another unit.
+
+An error, timeout, disappearance, unexpected coordinate, unchanged/increased
+movement, turn change, or mismatch between command and watcher evidence fails
+the gate. If the outcome is unknown, preserve the private evidence, make no
+further game action, and do not retry or move the unit manually.
+
+TurnPlan integration is covered offline in the first M9 gate. A separate live
+multi-action plan is not required for this one-write experiment because it
+would add unrelated skip/end-turn writes to satisfy the complete-turn schema.
+
+### 7.4 Restore and record
+
+Quit Civilization V, allow or stop the watcher, and run `live_session restore`
+as in section 5. Require the exact clean shutdown proof. Check locally that the
+private audit file has mode `600`; never commit it.
+
+Only after restoration, append a sanitized experiment conclusion and update the
+verification matrix, Chinese status ledger, project state, and risk R-017. The
+conclusion may state the schema, action, rejection/success classifications,
+exact-postcondition result, audit permission, and restoration result. It must
+not contain coordinates, unit IDs or names, command/session UUIDs, player/save
+data, raw snapshots, audit content, hashes, or local paths.

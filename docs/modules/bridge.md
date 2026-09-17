@@ -89,6 +89,9 @@ has a direct fallback; the supported Python bridge client is watcher-only.
 
 ## Planned extensions
 
-Add only narrowly specified actions and optional live evidence for the branches
+Implement the approved M9 unit-movement contract as schema 6 plus one narrowly
+allowlisted adjacent ordinary move. Until its offline and live gates pass, keep
+it out of `ALLOWED_ACTIONS` and the released capability profile. Add only
+narrowly specified actions and optional live evidence for the other branches
 listed above. The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

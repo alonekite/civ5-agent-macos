@@ -17,6 +17,7 @@ requirement inspection, and deterministic execution. The implementation in `mode
 | 3 | Compatibility-tested | Score, era, exact city progress, unit condition, met-major diplomacy, science-victory progress |
 | 4 | Live-verified for early-game branches | Schema 3 fields plus unit readiness and coherent segmented collection |
 | 5 | Live-verified for ordinary research | Schema 4 plus researched/researchable technology sets and research-choice mode; free/steal modes remain offline-only |
+| 6 | Approved for M9; not implemented | Schema 5 plus bounded per-unit `ordinary_move_targets`; no support claim until offline and target-machine evidence pass |
 
 ## Stable requirements
 
@@ -60,7 +61,14 @@ requirement inspection, and deterministic execution. The implementation in `mode
 
 ## Compatibility
 
-Readers retain schema 2, 3, and 4 support. A future
+Schema 6 requires each unit to carry zero to six sorted, unique coordinate
+objects in `ordinary_move_targets`. The exact conservative meaning, coordinate
+bounds, privacy limit, and legacy behavior are defined by the
+[unit-movement contract](unit-movement.md). It is not a general pathing or map
+schema.
+
+Readers retain schema 2, 3, 4, and 5 support after schema 6 is implemented. A
+future
 breaking shape change increments `schema_version`; it does not reinterpret an
 existing field silently.
 

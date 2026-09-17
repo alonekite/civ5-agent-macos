@@ -229,7 +229,7 @@ intentionally outside this repository's scope.
 - [x] Define the documentation, implementation, verification, and release plan
 - [x] Register the strategy-neutral `move_unit` core capability request
 - [x] Research the stock Lua movement path and accept ADR-0032
-- [ ] Freeze movement, live-state, command, TurnPlan, and downstream contracts
+- [x] Freeze movement, live-state, command, TurnPlan, and downstream contracts
 - [ ] Implement and test the minimum active-player-visible read model
 - [ ] Implement bounded allowlisted movement with read-after-write verification
 - [ ] Integrate explicit movement into deterministic TurnPlan execution
