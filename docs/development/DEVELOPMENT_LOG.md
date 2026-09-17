@@ -1169,6 +1169,29 @@ Planning commit: `1de7f36`.
 
 Decision commit: `4bf347f`.
 
+## 2026-09-17 — Freeze unit-movement contracts and live-test design
+
+- Added the owning unit-movement contract for planned schema 6 and the exact
+  `move_unit(unit_id, x, y)` action. Each unit exposes at most six sorted,
+  active-player-visible `ordinary_move_targets`; this is the conservative core
+  subset, not general map/pathing data or a tactical recommendation.
+- Froze pre-send admission, exact selected-unit submission, identity/location/
+  decreased-movement postconditions, terminal failure branches, and unknown-
+  outcome no-retry behavior without adding the command to the current allowlist.
+- Defined how schema 1 TurnPlans will admit the future action, cover only the
+  matching unit-order requirement, pause when more orders remain, and preserve
+  conservative non-final recovery.
+- Reconciled live-state, command, public API, CLI, downstream, bridge, executor,
+  milestone, state, roadmap, strategy, matrix, and Chinese status documents.
+- Added a bounded live procedure that is explicitly disabled until offline
+  implementation passes. It permits only a source-coordinate pre-send rejection
+  and one user-authorized adjacent move, followed by exact host restoration.
+- All 260 warning-enabled offline tests and documentation links passed.
+  Added-content scans found no private path, local address, credential, match
+  state, or generated game data.
+
+Contract commit: `e6e74a0`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
