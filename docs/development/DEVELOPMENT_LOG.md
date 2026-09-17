@@ -1398,6 +1398,25 @@ Decision commit: `a526974`.
 
 Contract commit: `dd03351`.
 
+## 2026-09-17 — Freeze worker-build verification gates
+
+- Added WB-S01–A02 as the complete offline schema, candidate, privacy,
+  command, verification, uncertainty, watcher, executor, compatibility,
+  artifact, and privacy matrix for M10.
+- Added a finite operator-assisted procedure that permits only read-without-
+  selection proof, one stale-source pre-send rejection, and one separately
+  authorized candidate build after C1–C5 pass.
+- Defined either exact active-build or immediate-completion branch as
+  sufficient live evidence while retaining the other branch offline-only;
+  unknown outcomes end the write portion without retry.
+- Updated the test strategy/matrix, Chinese evidence ledger, project state,
+  roadmap, milestone, and R-018. No game, FireTuner, firewall, or live write
+  operation ran.
+- All 297 tests, documentation links, diff checks, and changed-file sensitive-
+  content scans passed.
+
+Verification-design commit: `fb65a12`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
