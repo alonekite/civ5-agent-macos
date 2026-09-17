@@ -28,8 +28,9 @@ stable compatibility surfaces are `civ5_agent.api` and `civ5-turn`. Other
 command-line entry points remain explicitly provisional.
 
 The unreleased `1.2.0.dev0` development head adds offline-verified schema 7
-worker facts plus exact bridge-level `worker_build` submission and read-back;
-TurnPlan integration and target-machine evidence are still pending.
+worker facts, exact bridge-level `worker_build` submission/read-back, and
+deterministic TurnPlan integration. The complete offline gate has passed;
+bounded operator-authorized target-machine evidence is still pending.
 
 ## Documentation
 

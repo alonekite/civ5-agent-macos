@@ -20,10 +20,10 @@ A `TurnPlan` contains:
   validated initial `GameState`;
 - one to 64 ordered `PlannedAction` values.
 
-Each action contains a unique canonical UUIDv4 `command_id`, one of
-`choose_research`, `set_city_production`, `skip_unit`, `move_unit`, or
-`end_turn` in core 1.1.0. The frozen M10 extension adds `worker_build` only in a
-future compatible implementation. Every action uses the exact arguments
+Each action contains a unique canonical UUIDv4 `command_id`. Tagged core 1.1.0
+admits `choose_research`, `set_city_production`, `skip_unit`, `move_unit`, and
+`end_turn`; the unreleased 1.2.0 development head also admits `worker_build`
+only with a schema 7 state basis. Every action uses the exact arguments
 defined by the command contract. Extra fields, unknown actions,
 arbitrary predicates/code, duplicate command IDs, and malformed stable IDs are
 rejected. A complete plan contains exactly one final `end_turn`.
@@ -39,10 +39,10 @@ check the package version and `ALLOWED_ACTIONS` rather than infer action
 availability from the plan schema. Its exact arguments and result authority are
 defined in the [unit-movement contract](unit-movement.md).
 
-The frozen M10 contract similarly keeps TurnPlan schema 1 and plans exact
-`worker_build` arguments `unit_id`, `x`, `y`, and `build_type`. Core 1.1 rejects
-that action. A future compatible package may admit it only when schema 7 and the
-bridge action are implemented together. Exact semantics are defined by the
+M10 keeps TurnPlan schema 1 and preserves exact `worker_build` arguments
+`unit_id`, `x`, `y`, and `build_type`. Tagged core 1.1 rejects that action;
+development head now admits it only when schema 7 and the bridge action are
+available together. Exact semantics are defined by the
 [worker-build contract](worker-build.md).
 
 ## Execution behavior
@@ -66,7 +66,7 @@ bridge action are implemented together. Exact semantics are defined by the
 - Treat `move_unit` as covering `unit_orders` only for
   its exact unit ID. If movement leaves that unit ready and no remaining move or
   skip covers it, pause rather than choosing another destination.
-- Treat a future `worker_build` as covering `unit_orders` only for its exact
+- Treat `worker_build` as covering `unit_orders` only for its exact
   unit ID. Preserve all four arguments through the bridge. If verified work
   leaves that unit ready and no later explicit move, build, or skip covers it,
   pause rather than choosing another action.

@@ -1,7 +1,7 @@
 # Worker-Build Contract
 
-Status: Frozen M10 contract; C1 reads and C2–C3 command/verification implemented
-offline; executor integration and live evidence pending
+Status: Frozen M10 contract; C1–C5 offline gate complete; bounded live evidence
+pending
 
 Expected compatibility release: 1.2.0, only after the offline and bounded live
 gates pass
@@ -231,9 +231,10 @@ The planned backward-compatible additions are:
   `civ5-turn` envelope schemas.
 
 These changes require at least package version 1.2.0. Development head is
-`1.2.0.dev0`: C1 implements the read/schema surface and C2–C3 implement exact
+`1.2.0.dev0`: C1 implements the read/schema surface, C2–C3 implement exact
 admission, one stock submission, marker handling, polling, and both factual
-success branches. TurnPlan/controller integration remains absent until C4.
+success branches, and C4 integrates schema 1 TurnPlans with independent result
+validation, exact-unit coverage, continuity, pause, and recovery behavior.
 The complete capability remains absent from the stable downstream profile until
 C5 offline reconciliation and C6 bounded target-machine evidence pass. A
 failed live gate leaves core 1.1.0 as the latest advertised capability.

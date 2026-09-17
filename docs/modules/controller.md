@@ -105,12 +105,16 @@ pauses. Keep the bounded live procedure as a regression gate when execution
 semantics change. Tactical and strategic layers remain plan producers, not
 executor internals.
 
-## Frozen worker-build extension
+## Worker-build extension
 
-M10 D2 keeps TurnPlan schema 1 and defines a future exact `worker_build`
-action carrying unit ID, source coordinates, and stable build identifier. It
-covers only that unit's factual order requirement and remains subject to fresh
-schema 7 bridge admission. The executor neither queries knowledge nor chooses a
-build or alternate plot. If verified work leaves the unit ready without a
-remaining explicit action, execution pauses. Core 1.1 still rejects this action;
-implementation and evidence are pending.
+M10 C4 keeps TurnPlan schema 1 and implements the exact `worker_build` action
+carrying unit ID, source coordinates, and stable build identifier. A plan that
+contains it requires a schema 7 state basis. It covers only that unit's factual
+order requirement and remains subject to fresh bridge admission at its ordered
+step, so a prior explicit move may establish the source plot. The executor
+independently revalidates the worker postcondition and neither queries knowledge
+nor chooses a build or alternate plot. If verified work leaves the unit ready
+without a remaining explicit move, build, or skip, execution pauses. Recovery
+requires an exact cached command, the same postcondition, and a matching fresh
+state, then pauses before any later action. Tagged core 1.1 still rejects this
+action; C5 is complete and bounded C6 target evidence remains pending.

@@ -356,5 +356,10 @@ retains schema 2–6, and preserves `move_unit` on matching schema 6+ states.
 WB-S01–S06 pass. C2–C3 are now complete offline: the unreleased 1.2.0
 development head validates and admits the exact command, generates a worst-case
 996-byte guarded stock dispatch, treats its marker only as submission evidence,
-and verifies both factual schema 7 result branches. C4 executor integration is
-next; no stable downstream or live-support claim exists yet.
+and verifies both factual schema 7 result branches. C4 is also complete:
+schema 1 plans now preserve exact worker arguments, independently verify the
+result, cover only the exact unit, support ordered move/build, pause on newly
+uncovered orders, and conservatively reconcile cached results. C5 gate
+C5 is complete with the full test matrix, repeated artifact inspection, clean
+installation, and privacy scans. C6 bounded operator-authorized target evidence
+is next; no stable downstream or live-support claim exists yet.

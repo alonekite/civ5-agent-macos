@@ -8,17 +8,18 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M10 — verified worker build — has completed bridge reads,
-  write submission, and factual verification offline.
+- Current milestone: M10 — verified worker build — has passed its complete
+  offline gate through deterministic execution and artifact reconciliation.
   M9 and the immutable 1.1.0 release remain complete.
-- Active next deliverable: implement M10 C4 deterministic TurnPlan integration
-  and its exact unit-requirement/recovery semantics.
-- Functional baseline: 319 tests pass locally on Python 3.11/default runtime
+- Active next deliverable: M10 C6 bounded target-machine verification, only
+  after the operator separately authorizes the documented procedure.
+- Functional baseline: 335 tests pass locally on Python 3.11/default runtime;
+  the previous pushed batch passed GitHub Actions Python 3.11/3.13.
   and in exact-commit/tag GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: no. Source research, request registration, ADR,
-  contract, and offline work do not require the game. A later C6 write requires
-  the operator and separate confirmation.
+- User presence required next: yes. C6 requires the operator to prepare the
+  recoverable live session, manually confirm one candidate, and separately
+  authorize the sole build write.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -138,7 +139,18 @@ development log.
   precedes one guarded 996-byte stock dispatch; its bounded marker is never
   success by itself. Polling proves either the exact active build or completed
   paired improvement with the same turn/player/unit/plot and lower movement.
-  C4 TurnPlan integration and all target-machine evidence remain pending.
+  All target-machine evidence remains pending.
+- M10 C4 is complete offline. Schema 1 TurnPlans admit the exact worker action
+  only with a schema 7 basis, preserve all arguments through the watcher,
+  independently revalidate both result branches, and cover only the exact unit.
+  Ordered move/build is supported; a still-ready unit without a later explicit
+  move/build/skip pauses execution. Cached recovery requires exact command and
+  fresh-state agreement and pauses before later work.
+- M10 C5 is complete offline. Worker-specific drift, ambiguity, transient-read,
+  timeout, unknown-outcome, watcher/audit/journal/UUID, CLI and recovery cases
+  pass within the 335-test suite. Repeated wheel/sdist contents match, both
+  artifact kinds install cleanly, and tracked/unpacked sensitive-content scans
+  are empty. This is not live evidence.
 
 ## Current architecture
 
@@ -226,10 +238,9 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Implement C4 TurnPlan integration strictly against WB-E01–E03.
-2. Complete the remaining WB-W/A and C5 offline evidence.
-3. Pause for separately authorized C6 live
-   verification before advertising the action or preparing 1.2.0.
+1. Pause for separately authorized C6 live verification.
+2. Only after C6 passes, prepare D4/C7 release evidence and request explicit
+   approval before tagging or publishing 1.2.0.
 
 ## Recent governing decisions
 

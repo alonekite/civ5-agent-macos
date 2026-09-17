@@ -167,6 +167,78 @@ class WatchControlHandlerTest(unittest.TestCase):
         self.assertIn("different arguments", mismatch["error"])
         self.assertEqual(execute.call_count, 1)
 
+    def test_worker_build_lifecycle_reaches_journal_and_private_audit(self):
+        class RecordingJournal:
+            def __init__(self):
+                self.submitted = []
+                self.results = []
+
+            def record_command_submitted(self, operation, arguments, command_id, turn):
+                self.submitted.append((operation, arguments, command_id, turn))
+
+            def record_command_result(self, operation, arguments, result):
+                self.results.append((operation, arguments, result))
+
+        expected = {
+            "unit_id": 8,
+            "x": 9,
+            "y": 12,
+            "build_type": "BUILD_FARM",
+        }
+        journal = RecordingJournal()
+        with tempfile.TemporaryDirectory() as directory:
+            audit_path = Path(directory) / "commands.jsonl"
+            handler = make_control_handler(
+                self.client,
+                172,
+                threading.Lock(),
+                CommandAuditLog(audit_path),
+                bridge_session_id=self.session_id,
+                journal_capture=journal,
+            )
+            result = CommandResult(id=WORKER_BUILD_ID, status="success")
+            with patch(
+                "civ5_agent.watch.execute_worker_build", return_value=result
+            ):
+                response = handler(
+                    {
+                        "op": "worker_build",
+                        "id": WORKER_BUILD_ID,
+                        "bridge_session_id": self.session_id,
+                        **expected,
+                    }
+                )
+            audit = json.loads(audit_path.read_text())
+            permissions = audit_path.stat().st_mode & 0o777
+
+        self.assertTrue(response["ok"])
+        self.assertEqual(journal.submitted[0][0:3], ("worker_build", expected, WORKER_BUILD_ID))
+        self.assertEqual(journal.results[0][0:2], ("worker_build", expected))
+        self.assertEqual(audit["operation"], "worker_build")
+        self.assertEqual(audit["arguments"], expected)
+        self.assertEqual(permissions, 0o600)
+
+    def test_worker_build_unknown_outcome_is_cached_and_never_retried(self):
+        request = {
+            "op": "worker_build",
+            "id": WORKER_BUILD_ID,
+            "unit_id": 8,
+            "x": 9,
+            "y": 12,
+            "build_type": "BUILD_FARM",
+        }
+        with patch(
+            "civ5_agent.watch.execute_worker_build",
+            side_effect=ValueError("worker_build returned no valid marker"),
+        ) as execute:
+            first = self.write(request)
+            replay = self.write(request)
+
+        self.assertFalse(first["ok"])
+        self.assertTrue(first["outcome_unknown"])
+        self.assertTrue(replay["replayed"])
+        self.assertEqual(execute.call_count, 1)
+
     def test_replays_move_unit_uuid_without_executing_twice(self):
         result = CommandResult(id=MOVE_ID, status="success")
         request = {

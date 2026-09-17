@@ -507,6 +507,14 @@ def _validated_step(
         )
         if movement_error is not None:
             raise ValueError(movement_error)
+    if result.status == "success" and action.action == "worker_build":
+        worker_build_error = _worker_build_postcondition_error(
+            action,
+            before_state,
+            after_state,
+        )
+        if worker_build_error is not None:
+            raise ValueError(worker_build_error)
     after_digest = live_state_digest(after_state)
     return (
         ExecutionStepReport(
@@ -579,6 +587,77 @@ def _move_unit_postcondition_error(
     return None
 
 
+def _worker_build_postcondition_error(
+    action: PlannedAction,
+    before_state: GameState,
+    after_state: GameState,
+) -> str | None:
+    if before_state.schema_version != 7 or after_state.schema_version != 7:
+        return "worker_build result requires schema 7 states"
+    unit_id = action.arguments["unit_id"]
+    source_x = action.arguments["x"]
+    source_y = action.arguments["y"]
+    build_type = action.arguments["build_type"]
+    before_units = [
+        unit for unit in before_state.units if unit.get("id") == unit_id
+    ]
+    after_units = [unit for unit in after_state.units if unit.get("id") == unit_id]
+    if len(before_units) != 1 or len(after_units) != 1:
+        return "worker_build result does not preserve the exact unit identity"
+    before_unit = before_units[0]
+    after_unit = after_units[0]
+    if (before_unit.get("x"), before_unit.get("y")) != (source_x, source_y):
+        return "worker_build result source does not match caller coordinates"
+    if before_unit.get("current_build_type") is not None:
+        return "worker_build result began from an existing build"
+    before_plot = before_unit.get("current_plot")
+    after_plot = after_unit.get("current_plot")
+    if not isinstance(before_plot, dict) or not isinstance(after_plot, dict):
+        return "worker_build result lacks current-plot facts"
+    if (
+        before_plot.get("is_water") is not False
+        or before_plot.get("feature_type") is not None
+        or before_plot.get("improvement_type") is not None
+        or before_unit.get("ready_to_move") is not True
+        or before_unit.get("moves", 0) <= 0
+    ):
+        return "worker_build result began from an inadmissible unit or plot"
+    candidates = [
+        candidate
+        for candidate in before_unit.get("ordinary_build_actions", [])
+        if candidate.get("build_type") == build_type
+    ]
+    if len(candidates) != 1:
+        return "worker_build result was not admitted by its before-state candidates"
+    expected_improvement = candidates[0]["improvement_type"]
+    if after_unit.get("type") != before_unit.get("type"):
+        return "worker_build result changed the unit type"
+    if (after_unit.get("x"), after_unit.get("y")) != (source_x, source_y):
+        return "worker_build result moved the unit"
+    if after_unit.get("moves", 0) >= before_unit.get("moves", 0):
+        return "worker_build result did not lower movement points"
+    for field, value in before_plot.items():
+        if field != "improvement_type" and after_plot.get(field) != value:
+            return "worker_build result changed an unsupported plot fact"
+    active = (
+        after_unit.get("current_build_type") == build_type
+        and after_plot.get("improvement_type") is None
+    )
+    completed = (
+        after_unit.get("current_build_type") is None
+        and after_plot.get("improvement_type") == expected_improvement
+    )
+    if active == completed:
+        return "worker_build result does not satisfy exactly one success branch"
+    if (
+        after_state.turn != before_state.turn
+        or after_state.active_player != before_state.active_player
+        or not after_state.turn_active
+    ):
+        return "worker_build result changed turn, active player, or active-turn state"
+    return None
+
+
 def _uncovered_requirement(
     requirements: tuple[TurnRequirement, ...],
     remaining_actions: tuple[PlannedAction, ...],
@@ -612,7 +691,7 @@ def _action_covers(action: PlannedAction, requirement: TurnRequirement) -> bool:
         )
     if requirement.kind == "unit_orders":
         return (
-            action.action in {"skip_unit", "move_unit"}
+            action.action in {"skip_unit", "move_unit", "worker_build"}
             and action.arguments["unit_id"] == requirement.subject_id
         )
     return False

@@ -56,6 +56,65 @@ def ready_state(**changes):
     return GameState(**values)
 
 
+def worker_ready_state():
+    return GameState(
+        schema_version=7,
+        turn=4,
+        active_player=0,
+        gold=12,
+        score=10,
+        current_era=0,
+        turn_active=True,
+        can_end_turn=False,
+        end_turn_blocking_type=3,
+        research={"id": 1, "type": "TECH_POTTERY", "progress": 8, "cost": 40},
+        research_choice={"required": False, "mode": "normal"},
+        victory={
+            "science_enabled": True,
+            "apollo": 0,
+            "booster": 0,
+            "cockpit": 0,
+            "stasis_chamber": 0,
+            "engine": 0,
+        },
+        units=[
+            {
+                "id": 8,
+                "name": "Worker",
+                "type": "UNIT_WORKER",
+                "x": 9,
+                "y": 12,
+                "moves": 120,
+                "damage": 0,
+                "max_hit_points": 100,
+                "combat_strength": 0,
+                "ranged_strength": 0,
+                "range": 0,
+                "ready_to_move": True,
+                "ordinary_move_targets": [],
+                "current_plot": {
+                    "terrain_type": "TERRAIN_GRASS",
+                    "feature_type": None,
+                    "resource_type": None,
+                    "improvement_type": None,
+                    "route_type": None,
+                    "owner_id": 0,
+                    "is_hills": False,
+                    "is_water": False,
+                    "is_fresh_water": False,
+                },
+                "current_build_type": None,
+                "ordinary_build_actions": [
+                    {
+                        "build_type": "BUILD_FARM",
+                        "improvement_type": "IMPROVEMENT_FARM",
+                    }
+                ],
+            }
+        ],
+    )
+
+
 class TurnPlanTest(unittest.TestCase):
     def end_turn(self, command_id=COMMAND_TWO):
         return PlannedAction(command_id, "end_turn", {})
@@ -98,6 +157,30 @@ class TurnPlanTest(unittest.TestCase):
         )
         self.assertEqual(plan.actions[0].action, "move_unit")
         self.assertEqual(plan.actions[0].arguments, {"unit_id": 8, "x": 10, "y": 12})
+
+    def test_accepts_exact_worker_build_action_only_with_schema_seven_basis(self):
+        action = PlannedAction(
+            COMMAND_ONE,
+            "worker_build",
+            {"unit_id": 8, "x": 9, "y": 12, "build_type": "BUILD_FARM"},
+        )
+        state = worker_ready_state()
+        plan = make_turn_plan(
+            state,
+            SESSION_ID,
+            (action, self.end_turn()),
+            plan_id=PLAN_ID,
+        )
+        self.assertEqual(plan.schema_version, 1)
+        self.assertEqual(plan.actions[0], action)
+
+        with self.assertRaisesRegex(TurnPlanError, "schema 7"):
+            make_turn_plan(
+                ready_state(),
+                SESSION_ID,
+                (action, self.end_turn()),
+                plan_id=PLAN_ID,
+            )
 
     def test_rejects_stale_session_turn_player_and_state_basis(self):
         state = ready_state()
@@ -159,6 +242,17 @@ class TurnPlanTest(unittest.TestCase):
                 {"city_id": True, "kind": "unit", "item_type": "UNIT_SCOUT"},
             ),
             PlannedAction(COMMAND_ONE, "skip_unit", {"unit_id": -1}),
+            PlannedAction(
+                COMMAND_ONE,
+                "worker_build",
+                {
+                    "unit_id": 8,
+                    "x": 9,
+                    "y": 12,
+                    "build_type": "BUILD_FARM",
+                    "extra": True,
+                },
+            ),
         )
         for action in bad:
             with self.subTest(action=action.action):

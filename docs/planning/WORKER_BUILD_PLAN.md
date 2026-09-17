@@ -1,6 +1,6 @@
 # Verified Worker Build Development Plan
 
-Status: D0–D3, C0/D1, and C1–C3 complete offline; C4 executor integration next
+Status: D0–D3, C0/D1, and C1–C5 complete offline; C6 requires operator authorization
 
 Target milestone: M10
 
@@ -254,17 +254,37 @@ post-submission transport remains unknown and is never retried.
 
 ### C4 — Integrate deterministic execution
 
+Status: complete offline.
+
 Allow an explicit worker-build action in schema 1 TurnPlans only if the generic
 envelope remains sufficient. Preserve ordering and state continuity, cover only
 the exact unit requirement, pause on newly uncovered requirements, emit factual
 events, journal the existing generic command lifecycle, and apply the same
 conservative cached-result recovery rules.
 
+Outcome: schema 1 plans preserve the four exact arguments but require a schema
+7 basis when they contain `worker_build`. The action covers only its exact unit,
+supports an explicit prior move, and pauses when the unit remains ready without
+a later explicit move/build/skip. The executor independently validates both
+worker result branches and state continuity. Cached recovery requires the same
+command, the same postcondition, and matching fresh state, then pauses before
+the next action.
+
 ### C5 — Complete the offline gate
+
+Status: complete.
 
 Run the full supported Python matrix, contract checks, release-artifact checks,
 sensitive-information scan, generated-program bounds, and all worker-build
 negative/recovery cases. No target claim follows from this gate.
+
+Outcome: 335 warning-enabled tests pass on Python 3.11 and the default runtime.
+The complete worker matrix covers schema, admission, dispatch, markers, both
+result branches, drift, timeout, uncertainty, watcher/audit/journal/UUID
+behavior, TurnPlan continuity/recovery, and compatibility. Two independently
+built wheel and sdist pairs have matching normalized content, install cleanly,
+and expose `1.2.0.dev0`; tracked and unpacked-artifact sensitive-content scans
+are clean. No target-machine claim follows.
 
 ### C6 — Complete bounded target verification
 

@@ -2,6 +2,7 @@ import io
 import json
 import tempfile
 import unittest
+from copy import deepcopy
 from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
@@ -690,6 +691,50 @@ class CommandCliSessionTest(unittest.TestCase):
             {"unit_id": 8, "x": 10, "y": 12},
         )
 
+    def test_brokered_worker_build_forwards_exact_arguments(self):
+        session_id = "123e4567-e89b-42d3-a456-426614174000"
+        result = {
+            "id": "123e4567-e89b-42d3-a456-426614174001",
+            "status": "success",
+            "message": "verified",
+            "before": {},
+            "after": {},
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            socket_path = Path(directory) / "bridge.sock"
+            socket_path.touch()
+            with patch(
+                "civ5_agent.command.request",
+                side_effect=[
+                    {"ok": True, "bridge_session_id": session_id},
+                    {
+                        "ok": True,
+                        "bridge_session_id": session_id,
+                        "result": result,
+                    },
+                ],
+            ) as broker, patch(
+                "sys.argv",
+                [
+                    "civ5-command",
+                    "worker_build",
+                    "8",
+                    "9",
+                    "12",
+                    "BUILD_FARM",
+                    "--socket",
+                    str(socket_path),
+                ],
+            ), redirect_stdout(io.StringIO()):
+                status = main()
+
+        self.assertEqual(status, 0)
+        sent = broker.call_args_list[1].args[0]
+        self.assertEqual(
+            {key: sent[key] for key in ("unit_id", "x", "y", "build_type")},
+            {"unit_id": 8, "x": 9, "y": 12, "build_type": "BUILD_FARM"},
+        )
+
 
 class WorkerBuildTest(unittest.TestCase):
     command = Command(
@@ -800,6 +845,130 @@ class WorkerBuildTest(unittest.TestCase):
             result = execute_worker_build(client, 172, self.command, verify_timeout=1.0)
         self.assertEqual(result.status, "error")
         self.assertIn("unexpected", result.message)
+
+    def test_rejects_identity_turn_coordinate_and_plot_drift(self):
+        base = worker_state(
+            moves=60,
+            current_build_type="BUILD_FARM",
+            build_actions=[],
+        )
+        cases = []
+
+        vanished = deepcopy(base)
+        vanished.units = []
+        cases.append(vanished)
+        transformed = deepcopy(base)
+        transformed.units[0]["type"] = "UNIT_WARRIOR"
+        cases.append(transformed)
+        moved = deepcopy(base)
+        moved.units[0]["x"] = 10
+        cases.append(moved)
+        changed_turn = deepcopy(base)
+        changed_turn.turn = 4
+        cases.append(changed_turn)
+        changed_player = deepcopy(base)
+        changed_player.active_player = 1
+        cases.append(changed_player)
+        inactive = deepcopy(base)
+        inactive.turn_active = False
+        cases.append(inactive)
+        for field, value in (
+            ("terrain_type", "TERRAIN_PLAINS"),
+            ("feature_type", "FEATURE_FOREST"),
+            ("resource_type", "RESOURCE_WHEAT"),
+            ("route_type", "ROUTE_ROAD"),
+            ("owner_id", 1),
+            ("is_hills", True),
+            ("is_water", True),
+            ("is_fresh_water", True),
+        ):
+            changed = deepcopy(base)
+            changed.units[0]["current_plot"][field] = value
+            cases.append(changed)
+
+        for after in cases:
+            with self.subTest(after=after):
+                client = _FakeClient(
+                    [worker_state(), after],
+                    worker_build_result=("accepted", 8, "BUILD_FARM"),
+                )
+                with patch("civ5_agent.command.time.sleep"), patch(
+                    "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1]
+                ):
+                    result = execute_worker_build(
+                        client, 172, self.command, verify_timeout=1.0
+                    )
+                self.assertEqual(result.status, "error")
+
+    def test_rejects_ambiguous_or_wrong_build_outcomes(self):
+        cases = (
+            worker_state(
+                moves=60,
+                current_build_type="BUILD_FARM",
+                improvement_type="IMPROVEMENT_FARM",
+                build_actions=[],
+            ),
+            worker_state(
+                moves=60,
+                improvement_type="IMPROVEMENT_MINE",
+                build_actions=[],
+            ),
+            worker_state(moves=60, build_actions=[]),
+            worker_state(
+                moves=60,
+                current_build_type="BUILD_MINE",
+                build_actions=[],
+            ),
+        )
+        for after in cases:
+            with self.subTest(after=after):
+                client = _FakeClient(
+                    [worker_state(), after],
+                    worker_build_result=("accepted", 8, "BUILD_FARM"),
+                )
+                with patch("civ5_agent.command.time.sleep"), patch(
+                    "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1]
+                ):
+                    result = execute_worker_build(
+                        client, 172, self.command, verify_timeout=1.0
+                    )
+                self.assertEqual(result.status, "error")
+                self.assertIn("unexpected", result.message)
+
+    def test_retries_transient_invalid_snapshot_then_verifies(self):
+        client = _FakeClient(
+            [
+                worker_state(),
+                ValueError("transient snapshot"),
+                worker_state(
+                    moves=60,
+                    current_build_type="BUILD_FARM",
+                    build_actions=[],
+                ),
+            ],
+            worker_build_result=("accepted", 8, "BUILD_FARM"),
+        )
+        with patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1, 0.2]
+        ):
+            result = execute_worker_build(
+                client, 172, self.command, verify_timeout=1.0
+            )
+        self.assertEqual(result.status, "success")
+
+    def test_accepted_but_unchanged_state_times_out(self):
+        client = _FakeClient(
+            [worker_state(), worker_state()],
+            worker_build_result=("accepted", 8, "BUILD_FARM"),
+        )
+        with patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1, 1.1]
+        ):
+            result = execute_worker_build(
+                client, 172, self.command, verify_timeout=1.0
+            )
+        self.assertEqual(result.status, "error")
+        self.assertIn("no exact result", result.message)
 
 
 if __name__ == "__main__":

@@ -67,8 +67,9 @@ operator testing, but its spelling is not a stable integration surface.
 M10 likewise adds no stable subcommand or envelope field. Development head has
 a provisional `civ5-command worker_build UNIT_ID X Y BUILD_TYPE` spelling for
 bounded operator testing, but it is not a supported integration interface.
-Schema 1 TurnPlan admission remains gated until C4; tagged core 1.1 rejects the
-action. `validate` and `execute` retain the same stdout and exit meanings.
+Schema 1 TurnPlan admission is implemented on development head only with a
+schema 7 basis; tagged core 1.1 rejects the action. `validate` and `execute`
+retain the same stdout and exit meanings.
 
 ## Non-goals
 

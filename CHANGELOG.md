@@ -5,6 +5,14 @@ All notable user-visible changes are recorded here. Development details belong i
 
 ## Unreleased
 
+### Added
+
+- Schema 7 worker current-plot/current-build facts and conservative ordinary
+  build candidates, plus an exact `worker_build(unit_id, x, y, build_type)`
+  bridge action with bounded stock dispatch, dual factual verification, and
+  deterministic TurnPlan execution/recovery. The complete offline gate passes;
+  target-machine verification and stable 1.2.0 publication remain pending.
+
 ## 1.1.0 - 2026-09-17
 
 ### Added

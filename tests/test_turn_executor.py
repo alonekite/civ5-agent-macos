@@ -117,6 +117,43 @@ def movement_state(
     return result
 
 
+def worker_state(
+    *,
+    x=9,
+    y=12,
+    moves=120,
+    ready=True,
+    current_build_type=None,
+    improvement_type=None,
+    candidates=(
+        {
+            "build_type": "BUILD_FARM",
+            "improvement_type": "IMPROVEMENT_FARM",
+        },
+    ),
+    targets=(),
+    turn=4,
+    blocker=3,
+):
+    result = movement_state(
+        x=x,
+        y=y,
+        moves=moves,
+        ready=ready,
+        targets=targets,
+        turn=turn,
+        blocker=blocker,
+        schema_version=7,
+    )
+    unit = result.units[0]
+    unit["name"] = "Worker"
+    unit["type"] = "UNIT_WORKER"
+    unit["current_build_type"] = current_build_type
+    unit["current_plot"]["improvement_type"] = improvement_type
+    unit["ordinary_build_actions"] = list(candidates)
+    return result
+
+
 class FakeBridge:
     def __init__(self, states):
         self.states = states
@@ -146,6 +183,251 @@ class FakeBridge:
 
 
 class TurnExecutorTest(unittest.TestCase):
+    def test_executes_verified_worker_build_then_end_turn(self):
+        initial = worker_state()
+        working = worker_state(
+            moves=60,
+            ready=False,
+            current_build_type="BUILD_FARM",
+            candidates=(),
+            blocker=-1,
+        )
+        advanced = worker_state(
+            moves=60,
+            ready=False,
+            current_build_type="BUILD_FARM",
+            candidates=(),
+            turn=5,
+            blocker=-1,
+        )
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "worker_build",
+                {"unit_id": 8, "x": 9, "y": 12, "build_type": "BUILD_FARM"},
+            ),
+            PlannedAction(COMMAND_IDS[1], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, working, advanced])
+        events = []
+
+        report = execute_turn_plan(
+            plan, bridge.read_state, bridge.execute, events.append
+        )
+
+        self.assertEqual(report.status, "completed")
+        self.assertEqual(bridge.executed, ["worker_build", "end_turn"])
+        self.assertEqual(
+            [event.command_id for event in events if event.command_id is not None],
+            [COMMAND_IDS[0], COMMAND_IDS[0], COMMAND_IDS[1], COMMAND_IDS[1]],
+        )
+
+    def test_worker_build_covers_only_its_exact_unit_requirement(self):
+        initial = worker_state()
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "worker_build",
+                {"unit_id": 9, "x": 9, "y": 12, "build_type": "BUILD_FARM"},
+            ),
+            PlannedAction(COMMAND_IDS[1], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial])
+
+        report = execute_turn_plan(plan, bridge.read_state, bridge.execute)
+
+        self.assertEqual(report.status, "paused")
+        self.assertEqual(report.reason_code, "unresolved_requirement")
+        self.assertEqual(bridge.executed, [])
+
+    def test_pauses_when_worker_remains_ready_without_later_explicit_order(self):
+        initial = worker_state()
+        still_ready = worker_state(
+            moves=60,
+            ready=True,
+            current_build_type="BUILD_FARM",
+            candidates=(),
+        )
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "worker_build",
+                {"unit_id": 8, "x": 9, "y": 12, "build_type": "BUILD_FARM"},
+            ),
+            PlannedAction(COMMAND_IDS[1], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, still_ready])
+
+        report = execute_turn_plan(plan, bridge.read_state, bridge.execute)
+
+        self.assertEqual(report.status, "paused")
+        self.assertEqual(report.next_action_index, 1)
+        self.assertEqual(report.reason_code, "unresolved_requirement")
+        self.assertEqual(bridge.executed, ["worker_build"])
+
+    def test_later_explicit_skip_covers_worker_that_remains_ready(self):
+        initial = worker_state()
+        still_ready = worker_state(
+            moves=60,
+            ready=True,
+            current_build_type="BUILD_FARM",
+            candidates=(),
+        )
+        skipped = worker_state(
+            moves=60,
+            ready=False,
+            current_build_type="BUILD_FARM",
+            candidates=(),
+            blocker=-1,
+        )
+        advanced = worker_state(
+            moves=60,
+            ready=False,
+            current_build_type="BUILD_FARM",
+            candidates=(),
+            turn=5,
+            blocker=-1,
+        )
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "worker_build",
+                {"unit_id": 8, "x": 9, "y": 12, "build_type": "BUILD_FARM"},
+            ),
+            PlannedAction(COMMAND_IDS[1], "skip_unit", {"unit_id": 8}),
+            PlannedAction(COMMAND_IDS[2], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, still_ready, skipped, advanced])
+
+        report = execute_turn_plan(plan, bridge.read_state, bridge.execute)
+
+        self.assertEqual(report.status, "completed")
+        self.assertEqual(
+            bridge.executed, ["worker_build", "skip_unit", "end_turn"]
+        )
+
+    def test_move_may_establish_worker_build_source_before_execution(self):
+        initial = worker_state(
+            targets=({"x": 10, "y": 12},),
+            candidates=(),
+        )
+        moved = worker_state(x=10, y=12, moves=60, ready=True)
+        working = worker_state(
+            x=10,
+            y=12,
+            moves=0,
+            ready=False,
+            current_build_type="BUILD_FARM",
+            candidates=(),
+            blocker=-1,
+        )
+        advanced = worker_state(
+            x=10,
+            y=12,
+            moves=0,
+            ready=False,
+            current_build_type="BUILD_FARM",
+            candidates=(),
+            turn=5,
+            blocker=-1,
+        )
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "move_unit",
+                {"unit_id": 8, "x": 10, "y": 12},
+            ),
+            PlannedAction(
+                COMMAND_IDS[1],
+                "worker_build",
+                {"unit_id": 8, "x": 10, "y": 12, "build_type": "BUILD_FARM"},
+            ),
+            PlannedAction(COMMAND_IDS[2], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, moved, working, advanced])
+
+        report = execute_turn_plan(plan, bridge.read_state, bridge.execute)
+
+        self.assertEqual(report.status, "completed")
+        self.assertEqual(
+            bridge.executed, ["move_unit", "worker_build", "end_turn"]
+        )
+
+    def test_rejects_worker_success_without_exact_postcondition(self):
+        initial = worker_state()
+        wrong = worker_state(
+            moves=60,
+            ready=False,
+            current_build_type="BUILD_MINE",
+            candidates=(),
+            blocker=-1,
+        )
+        actions = (
+            PlannedAction(
+                COMMAND_IDS[0],
+                "worker_build",
+                {"unit_id": 8, "x": 9, "y": 12, "build_type": "BUILD_FARM"},
+            ),
+            PlannedAction(COMMAND_IDS[1], "end_turn", {}),
+        )
+        plan = make_turn_plan(initial, SESSION_ID, actions, plan_id=PLAN_ID)
+        bridge = FakeBridge([initial, wrong])
+
+        report = execute_turn_plan(plan, bridge.read_state, bridge.execute)
+
+        self.assertEqual(report.status, "failed")
+        self.assertEqual(report.reason_code, "invalid_action_result")
+        self.assertEqual(bridge.executed, ["worker_build"])
+
+    def test_reconciles_verified_worker_build_then_pauses(self):
+        initial = worker_state()
+        completed = worker_state(
+            moves=60,
+            ready=False,
+            improvement_type="IMPROVEMENT_FARM",
+            candidates=(),
+            blocker=-1,
+        )
+        action = PlannedAction(
+            COMMAND_IDS[0],
+            "worker_build",
+            {"unit_id": 8, "x": 9, "y": 12, "build_type": "BUILD_FARM"},
+        )
+        plan = make_turn_plan(
+            initial,
+            SESSION_ID,
+            (action, PlannedAction(COMMAND_IDS[1], "end_turn", {})),
+            plan_id=PLAN_ID,
+        )
+        recovery = execute_turn_plan(
+            plan,
+            lambda: (SESSION_ID, initial),
+            lambda *_: (_ for _ in ()).throw(TimeoutError("outcome unknown")),
+        )
+        cached = CommandResult(
+            id=COMMAND_IDS[0],
+            status="success",
+            message="verified",
+            before=asdict(initial),
+            after=asdict(completed),
+        )
+
+        report = reconcile_turn_plan(
+            plan,
+            recovery,
+            lambda: (SESSION_ID, completed),
+            lambda *_: cached,
+        )
+
+        self.assertEqual(report.status, "paused")
+        self.assertEqual(report.reason_code, "action_reconciled")
+        self.assertEqual(report.next_action_index, 1)
+
     def test_executes_explicit_move_then_end_turn_with_factual_events(self):
         initial = movement_state(schema_version=7)
         moved = movement_state(

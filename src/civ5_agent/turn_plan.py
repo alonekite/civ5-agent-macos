@@ -29,6 +29,7 @@ _TURN_PLAN_ACTIONS = frozenset(
         "set_city_production",
         "skip_unit",
         "move_unit",
+        "worker_build",
     }
 )
 _DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}\Z")
@@ -163,6 +164,11 @@ def validate_turn_plan(
     if normalized.bridge_session_id != current_session:
         raise StaleTurnPlanError("TurnPlan targets a different bridge session")
     validated = validate_live_state(state)
+    if (
+        any(action.action == "worker_build" for action in normalized.actions)
+        and validated.schema_version != 7
+    ):
+        raise TurnPlanError("worker_build requires a schema 7 state basis")
     if not validated.turn_active:
         raise StaleTurnPlanError("active player's turn is not active")
     if normalized.turn != validated.turn:
