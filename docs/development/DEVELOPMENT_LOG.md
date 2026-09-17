@@ -1437,6 +1437,27 @@ Verification-design commit: `fb65a12`.
 
 C1 commit: `f65ece8`.
 
+## 2026-09-17 — Implement worker-build submission and factual verification
+
+- Added the exact four-field `worker_build` action on the unreleased
+  `1.2.0.dev0` surface, with schema 7 candidate/source admission before any
+  game write.
+- Added one worst-case 996-byte selected-unit stock program that re-resolves
+  the unit, plot, build and action, repeats mutable guards, checks exact
+  selection and `Game.CanHandleAction`, and calls `Game.HandleAction` once.
+- Kept private markers as submission evidence only. Fresh polling now proves
+  the same turn/player/unit/type/plot, lower movement, unchanged supported plot
+  facts, and exactly one active-build or completed-improvement branch.
+- Preserved watcher session binding, exact UUID replay, audit/journal
+  composition, and non-retryable unknown-outcome handling. TurnPlan admission
+  remains gated for C4 and the stable 1.1.0 downstream profile is unchanged.
+- All 319 warning-enabled tests passed on Python 3.11 and the default runtime.
+  Documentation links, diff checks, release metadata checks, and tracked-file
+  sensitive-content scans passed. No game, FireTuner, firewall, or live write
+  operation ran.
+
+C2–C3 commit: `1d19416`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
