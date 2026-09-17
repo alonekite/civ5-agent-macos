@@ -1192,6 +1192,30 @@ Decision commit: `4bf347f`.
 
 Contract commit: `e6e74a0`.
 
+## 2026-09-17 — Add the schema 6 movement-target read model
+
+- Upgraded the current snapshot to schema 6 while preserving schema 2–5
+  parsing and validation. A seventh independently bounded read-only segment
+  computes the conservative adjacent `ordinary_move_targets` for each owned
+  unit without exposing hidden plots or choosing a destination.
+- Required active turn, readiness, remaining movement, non-busy/non-automated/
+  non-delayed state, non-air and non-embarked status, current visibility, empty
+  non-city destination, unchanged land/water classification, and the stock
+  `CanMoveThrough` predicate.
+- Added strict parser and model checks for the required segment, unit binding,
+  zero-to-six count, exact coordinate fields, the public 65,535 coordinate
+  bound, deterministic ordering, duplicates, and malformed records.
+- Exported the schema set and coordinate bound through the stable aggregate
+  surface, while keeping `move_unit` absent from the action allowlist.
+- Added legacy, malformed, incomplete, privacy-predicate, read-only, aggregate-
+  export, and Lua-size coverage. The seven generated programs are all below the
+  1,000-byte transport limit; the largest remains 875 bytes.
+- All 266 warning-enabled offline tests and documentation links passed.
+  Added-content scans found no private path, local address, credential, match
+  state, or generated game data. No game, FireTuner, or firewall operation ran.
+
+Implementation commit: `cde1b55`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
