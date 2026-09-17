@@ -1265,6 +1265,27 @@ Implementation commit: `0d886f2`.
 
 Implementation commit: `629f0a8`.
 
+## 2026-09-17 — Complete the movement offline gate
+
+- Reconciled every C5 branch against executable tests and the verification
+  matrix: malformed/bounded arguments, legacy and schema-drift refusal,
+  unknown or foreign-as-absent units, unlisted/unsupported targets, exact
+  source guards, every terminal marker, explicit rejection, transient reads,
+  unchanged/partial/unexpected state, timeout, and missing markers.
+- Added movement-specific UUID replay/no-retry coverage, exact provisional CLI
+  forwarding, public allowlist compatibility, and retained the C4 multi-action,
+  journal, event, recovery, and executor-continuity evidence.
+- Marked the bounded live checklist executable only as an operator-assisted
+  procedure. It still permits just one source-coordinate pre-send rejection and
+  one separately authorized adjacent ordinary move, with no retry after any
+  uncertain outcome.
+- All 297 warning-enabled tests passed on Python 3.11 and the default runtime;
+  documentation links and diff checks passed. Tracked-content scans found no
+  private path, local address, credential, real match state, or generated game
+  data. No game, FireTuner, or firewall operation ran.
+
+Implementation commit: `ed7daea`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
