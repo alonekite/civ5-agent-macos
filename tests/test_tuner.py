@@ -493,6 +493,27 @@ class TunerProtocolTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "did not return"):
             parse_move_unit_response((TunerMessage(-1, "Lua error"),))
 
+    def test_parses_every_terminal_move_unit_marker(self):
+        for status in (
+            "accepted",
+            "blocked",
+            "invalid_unit",
+            "invalid_target",
+            "selection_failed",
+        ):
+            with self.subTest(status=status):
+                self.assertEqual(
+                    parse_move_unit_response(
+                        (
+                            TunerMessage(
+                                -1,
+                                f"CIV5_AGENT_COMMAND|move_unit|{status}|8|10|12",
+                            ),
+                        )
+                    ),
+                    (status, 8, 10, 12),
+                )
+
     def test_snapshot_lua_contains_no_game_write_calls(self):
         lua = snapshot_lua()
         for forbidden in (

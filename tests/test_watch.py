@@ -177,6 +177,26 @@ class WatchControlHandlerTest(unittest.TestCase):
         self.assertEqual(journal.submitted[0][0:3], ("move_unit", expected, MOVE_ID))
         self.assertEqual(journal.results[0][0:2], ("move_unit", expected))
 
+    def test_move_unit_unknown_outcome_is_cached_and_never_retried(self):
+        request = {
+            "op": "move_unit",
+            "id": MOVE_ID,
+            "unit_id": 8,
+            "x": 10,
+            "y": 12,
+        }
+        with patch(
+            "civ5_agent.watch.execute_move_unit",
+            side_effect=ConnectionError("connection lost after submission"),
+        ) as execute:
+            first = self.write(request)
+            replay = self.write(request)
+
+        self.assertFalse(first["ok"])
+        self.assertTrue(first["outcome_unknown"])
+        self.assertTrue(replay["replayed"])
+        self.assertEqual(execute.call_count, 1)
+
     def test_audits_command_result(self):
         result = CommandResult(id=AUDIT_ID, status="success")
         with tempfile.TemporaryDirectory() as directory:

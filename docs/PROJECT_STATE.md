@@ -10,14 +10,13 @@ development log.
 
 - Current milestone: M9 — verified unit movement — is in progress. M8 and the
   immutable 1.0.0 release remain complete.
-- Active next deliverable: reconcile and complete the full M9 offline gate for
+- Active next deliverable: perform the bounded operator-assisted C6 live test for
   [CoreCapabilityRequest #1](https://github.com/alonekite/civ5-agent-macos/issues/1).
-- Functional baseline: 290 tests pass locally on the default runtime
+- Functional baseline: 297 tests pass locally on Python 3.11/default runtime
   and in GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: none for documentation, source research, or
-  offline implementation. M9 live verification will pause for explicit user
-  authorization and a controlled in-game state.
+- User presence required next: yes. M9 live verification requires explicit
+  authorization immediately before one controlled movement write.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -60,14 +59,14 @@ development log.
 - M9 source reconnaissance is complete. ADR-0032 selects the stock
   `UI.SelectUnit` plus `Game.SelectionListMove` network-backed path for one
   explicit adjacent ordinary move and rejects direct `PushMission`. This is a
-  path. The write is implemented on development head with offline-only evidence;
-  it remains unsupported pending executor integration, full offline gates, and
+  path. The complete read/write/executor path is implemented on development
+  head with offline-only evidence; it remains unsupported pending
   target-machine verification.
-- M9's unit-movement contract is frozen: schema 6 will expose only zero to six
+- M9's unit-movement contract is frozen: schema 6 exposes only zero to six
   conservative adjacent `ordinary_move_targets` per owned unit; `move_unit`
   takes exact unit/coordinate arguments and requires identity, destination, and
-  decreased-movement read-back. The bounded live procedure is designed but must
-  not run until implementation and offline gates pass.
+  decreased-movement read-back. The bounded live procedure is ready but must run
+  only with the user present and explicitly authorizing the single write.
 - The schema 6 read model is implemented offline. A seventh read-only segment
   emits active-player-visible `ordinary_move_targets`; parser and validation
   enforce six-target, coordinate, identity, ordering, part-consistency, and
@@ -84,6 +83,12 @@ development log.
   pause execution, and cached recovery evidence must independently satisfy the
   exact movement postcondition. Watcher forwarding, factual events, command
   journal composition, and unchanged `civ5-turn` envelopes are covered.
+- C5 offline reconciliation is complete: the movement matrix now covers strict
+  arguments, legacy/schema drift, unknown/foreign-as-absent units, unlisted and
+  unsupported targets, source drift guards, every terminal marker, transient
+  reads, unchanged/partial/unexpected results, timeout, duplicate and unknown
+  outcomes, multi-action continuity, recovery, CLI/API compatibility, and
+  generated-program bounds. Release-artifact checks remain enforced in CI.
 
 ## Current architecture
 
@@ -174,9 +179,7 @@ may enable FireTuner, launch Civ V, or change the firewall.
 1. Execute the batches in
    `docs/planning/UNIT_MOVEMENT_PLAN.md`, starting with the capability request,
    source research, ADR-0032, and contracts.
-2. Reconcile the full M9 offline gate and documentation before requesting a
-   live test.
-3. Pause for the bounded operator-authorized live procedure before advertising
+2. Pause for the bounded operator-authorized live procedure before advertising
    movement in the downstream profile or preparing 1.1.0.
 
 M5 live verification and M6 implementation are independent workstreams.

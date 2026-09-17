@@ -89,14 +89,14 @@ verification matrix.
 Schema 5 free-technology and steal-technology modes remain offline-only. Schema
 4's non-empty diplomacy and late-game victory branches remain unverified.
 The schema 6 read model and coordinate movement write are not yet target-
-verified. Full offline-gate reconciliation and the bounded live procedure remain pending. The
-standalone legacy command CLI still has a direct fallback; the supported Python
-bridge client is watcher-only.
+verified. The bounded live procedure remains pending. The standalone legacy
+command CLI still has a direct fallback; the supported Python bridge client is
+watcher-only.
 
 ## Planned extensions
 
-Complete the approved M9 action's remaining offline/live gates. Keep it out of the released capability
-profile until those gates pass. Add only
+Complete the approved M9 action's bounded live gate. Keep it out of the
+released capability profile until that gate passes. Add only
 narrowly specified actions and optional live evidence for the other branches
 listed above. The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

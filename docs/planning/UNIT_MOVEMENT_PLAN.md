@@ -2,12 +2,12 @@
 
 Status: Approved implementation plan; implementation in progress
 
-Progress: D0–D3 and C0–C4 are complete as of 2026-09-17. ADR-0032 selects the
+Progress: D0–D3 and C0–C5 are complete as of 2026-09-17. ADR-0032 selects the
 stock selected-unit network path, and schema 6 now implements the bounded
 per-unit read model offline. The bounded command and exact read-after-write
-verification and deterministic TurnPlan integration now pass offline tests. C5
-full offline-gate reconciliation is next. No live or released support is
-advertised yet.
+verification, deterministic TurnPlan integration, and full offline gate now
+pass. C6 operator-assisted target-machine verification is next. No live or
+released support is advertised yet.
 
 Target milestone: M9
 
@@ -235,7 +235,7 @@ committed, and pushed before the next begins:
 4. C1 read-model implementation and tests (complete 2026-09-17);
 5. C2/C3 bridge command and verification with offline tests (complete 2026-09-17);
 6. C4 executor, watcher, journal composition, API, and CLI integration (complete 2026-09-17);
-7. C5 full offline gate and documentation reconciliation;
+7. C5 full offline gate and documentation reconciliation (complete 2026-09-17);
 8. C6 operator-assisted live verification;
 9. D4/C7 stabilization and 1.1.0 release preparation.
 

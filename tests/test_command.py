@@ -347,6 +347,25 @@ class SkipUnitTest(unittest.TestCase):
 
 
 class MoveUnitTest(unittest.TestCase):
+    def test_rejects_malformed_arguments_before_reading_or_writing(self):
+        cases = (
+            {"unit_id": True, "x": 10, "y": 12},
+            {"unit_id": 8, "x": -1, "y": 12},
+            {"unit_id": 8, "x": 10, "y": 65_536},
+        )
+        for arguments in cases:
+            with self.subTest(arguments=arguments):
+                client = _FakeClient([])
+                with patch.object(client, "read_game_state") as read, patch.object(
+                    client, "request_move_unit"
+                ) as write:
+                    result = execute_move_unit(
+                        client, 172, Command("move_unit", arguments)
+                    )
+                self.assertEqual(result.status, "error")
+                read.assert_not_called()
+                write.assert_not_called()
+
     def test_rejects_legacy_state_before_writing(self):
         client = _FakeClient([game_state(3, 0)])
         with patch.object(client, "request_move_unit") as write:
@@ -403,6 +422,57 @@ class MoveUnitTest(unittest.TestCase):
         )
         self.assertEqual(result.status, "error")
         self.assertIn("rejected", result.message)
+
+    def test_explicit_game_rejection_does_not_poll_or_retry(self):
+        client = _FakeClient(
+            [movement_state()], move_result=("blocked", 8, 10, 12)
+        )
+        with patch.object(
+            client, "request_move_unit", wraps=client.request_move_unit
+        ) as write:
+            result = execute_move_unit(
+                client, 172, Command("move_unit", {"unit_id": 8, "x": 10, "y": 12})
+            )
+        self.assertEqual(result.status, "error")
+        self.assertIn("blocked", result.message)
+        write.assert_called_once()
+
+    def test_retries_transient_invalid_read_back_then_verifies(self):
+        client = _FakeClient(
+            [
+                movement_state(),
+                ValueError("transient snapshot"),
+                movement_state(x=10, y=12, moves=60),
+            ],
+            move_result=("accepted", 8, 10, 12),
+        )
+        with patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1, 0.2]
+        ):
+            result = execute_move_unit(
+                client,
+                172,
+                Command("move_unit", {"unit_id": 8, "x": 10, "y": 12}),
+                verify_timeout=1.0,
+            )
+        self.assertEqual(result.status, "success")
+
+    def test_rejects_schema_drift_after_acceptance(self):
+        client = _FakeClient(
+            [movement_state(), game_state(3, 0)],
+            move_result=("accepted", 8, 10, 12),
+        )
+        with patch("civ5_agent.command.time.sleep"), patch(
+            "civ5_agent.command.time.monotonic", side_effect=[0.0, 0.1]
+        ):
+            result = execute_move_unit(
+                client,
+                172,
+                Command("move_unit", {"unit_id": 8, "x": 10, "y": 12}),
+                verify_timeout=1.0,
+            )
+        self.assertEqual(result.status, "error")
+        self.assertIn("schema 6", result.message)
 
     def test_rejects_uncontracted_read_back_states(self):
         vanished = movement_state()
@@ -492,6 +562,49 @@ class CommandCliSessionTest(unittest.TestCase):
         rendered = json.loads(output.getvalue())
         self.assertEqual(rendered["bridge_session_id"], session_id)
         self.assertEqual(rendered["status"], "success")
+
+    def test_brokered_move_command_forwards_exact_coordinates(self):
+        session_id = "123e4567-e89b-42d3-a456-426614174000"
+        result = {
+            "id": "123e4567-e89b-42d3-a456-426614174001",
+            "status": "success",
+            "message": "verified",
+            "before": {},
+            "after": {},
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            socket_path = Path(directory) / "bridge.sock"
+            socket_path.touch()
+            with patch(
+                "civ5_agent.command.request",
+                side_effect=[
+                    {"ok": True, "bridge_session_id": session_id},
+                    {
+                        "ok": True,
+                        "bridge_session_id": session_id,
+                        "result": result,
+                    },
+                ],
+            ) as broker, patch(
+                "sys.argv",
+                [
+                    "civ5-command",
+                    "move_unit",
+                    "8",
+                    "10",
+                    "12",
+                    "--socket",
+                    str(socket_path),
+                ],
+            ), redirect_stdout(io.StringIO()):
+                status = main()
+
+        self.assertEqual(status, 0)
+        sent = broker.call_args_list[1].args[0]
+        self.assertEqual(
+            {key: sent[key] for key in ("unit_id", "x", "y")},
+            {"unit_id": 8, "x": 10, "y": 12},
+        )
 
 
 if __name__ == "__main__":

@@ -305,12 +305,11 @@ is recorded; project automation must not remove private evidence.
 
 ## 7. M9 gate: one verified adjacent ordinary move
 
-Status: designed, not yet executable. Do not run this section until the M9
-implementation batch has passed the full offline suite and the command examples
-below match the implemented CLI tests. The user must be present and explicitly
-authorize the write portion. This gate permits one rejected source-coordinate
-request and one accepted adjacent move; it does not authorize exploration,
-combat, embarkation, or retries.
+Status: ready for operator-assisted execution after the C1–C5 offline gate.
+Do not run unattended. The user must be present and explicitly authorize the
+write portion. This gate permits one rejected source-coordinate request and one
+accepted adjacent move; it does not authorize exploration, combat, embarkation,
+or retries.
 
 ### 7.1 Prepare a controlled state
 

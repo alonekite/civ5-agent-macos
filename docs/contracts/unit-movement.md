@@ -140,9 +140,9 @@ Parser/validation, legacy-schema, target ordering/bounds/privacy, read-only Lua,
 command arguments, repeated game-side guards, 1,000-byte pre-send bound, exact
 postcondition, rejection, unexpected-state, and timeout tests pass offline.
 Executor requirement coverage, ordered multi-move continuity, factual events,
-watcher forwarding, journal composition, CLI decoding, and conservative cached
-recovery also pass offline. Remaining support requires the reconciled full
-offline matrix and the bounded target-machine procedure in the live-test
-checklist.
+watcher forwarding, journal composition, CLI/API compatibility, and conservative
+cached recovery also pass offline. The full offline matrix is reconciled.
+Remaining support requires the bounded target-machine procedure in the
+live-test checklist.
 Until that evidence passes, documentation and the downstream profile must call
 the capability planned or absent, never supported or live-verified.
