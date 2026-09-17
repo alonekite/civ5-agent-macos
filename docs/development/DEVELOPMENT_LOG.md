@@ -1458,6 +1458,30 @@ C1 commit: `f65ece8`.
 
 C2–C3 commit: `1d19416`.
 
+## 2026-09-17 — Integrate and package-gate worker builds
+
+- Added `worker_build` to schema 1 TurnPlans only when the validated state
+  basis is schema 7, preserving exact four-field argument validation and
+  exact-unit action coverage.
+- Integrated worker builds into deterministic execution, including explicit
+  move-then-build sequencing, pause behavior for still-ready workers,
+  independent postcondition validation, event emission, and conservative
+  cached-result recovery without resubmission.
+- Completed the C5 offline matrix for mutable preconditions, all supported
+  plot-fact drift, ambiguous/wrong/missing success branches, transient polling,
+  unchanged-state timeout, brokered CLI forwarding, private audit records,
+  journal lifecycle, UUID replay, and unknown-outcome suppression.
+- All 335 warning-enabled tests passed on Python 3.11 and the default runtime.
+  Two independent wheel/source builds had matching normalized contents; both
+  formats installed and imported in clean Python 3.11 environments, and the
+  supported CLI started successfully.
+- Artifact and tracked-content scans found no private paths, local addresses,
+  credentials, generated game data, or real match state. No game, FireTuner,
+  firewall, or live write operation ran. C6 remains a separately authorized
+  target-machine gate.
+
+C4–C5 commit: `c070459`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
