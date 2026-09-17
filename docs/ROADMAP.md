@@ -242,7 +242,7 @@ intentionally outside this repository's scope.
 - [x] Define the documentation, implementation, verification, and release plan
 - [x] Normalize the conversation-submitted strategy-neutral capability request
 - [x] Register the request as GitHub Issue #2
-- [ ] Research candidate enumeration, stock dispatch, exclusions, and exact
+- [x] Research candidate enumeration, stock dispatch, exclusions, and exact
   active/completed postconditions; accept ADR-0033
 - [ ] Freeze worker-build, live-state, command, TurnPlan, and downstream
   contracts

@@ -20,11 +20,6 @@ Current working conclusions:
 
 Open questions:
 1. Which additional victory-progress fields are stable enough to add?
-2. Can `unit:CanBuild(unit:GetPlot(), build_id)` conservatively enumerate an
-   exact unit's current-plot ordinary builds on the target runtime without
-   changing UI selection?
-3. Can exact selected-unit worker dispatch and both active-build and immediate-
-   completion verification fit the bounded FireTuner path?
 
 Resolved since the initial notes:
 
@@ -85,8 +80,9 @@ target-machine evidence pass.
 
 ## 2026-09-17 — Worker-build source reconnaissance
 
-Evidence level: bundled-source inspection only. Nothing in this section is a
-live worker-build verification.
+Evidence level: bundled-source and supporting released-SDK inspection plus
+offline byte prototypes. Nothing in this section is a live worker-build
+verification.
 
 The installed BNW
 `DLC/Expansion2/UI/InGame/WorldView/UnitPanel.lua` enumerates
@@ -101,10 +97,25 @@ through `plot:GetBuildTurnsLeft` and `plot:GetBuildTurnsTotal`. Its recommended
 action branch calls `unit:IsActionRecommended`; M10 explicitly excludes that
 recommendation signal because selection belongs downstream.
 
-This identifies the likely stock dispatch and progress APIs but leaves two
-material gaps. `Game.CanHandleAction` is tied to the selected-unit context, so
-read-only candidate enumeration must not silently select each unit. Also, a
-one-turn build may complete before `GetBuildType()` can expose it, so success
-must have a separately specified exact plot-result branch. M10 C0/D1 must
-resolve both gaps, define a narrow ordinary-improvement allowlist, and prove the
-generated command fits the 1,000-byte limit before command implementation.
+The same public `Gedemon/Civ5-DLL` Expansion 2 source and commit recorded above
+shows that the Lua `unit:CanBuild(plot, build, false, true)` binding reaches
+unit-specific legality without consulting UI selection. In contrast,
+`CvGame::canHandleAction` and `CvGame::handleAction` resolve the head-selected
+unit, and `handleAction` sends a build mission through the game network-message
+path. It may instead open an overwrite-confirmation popup when the current plot
+already contains an improvement.
+
+ADR-0033 therefore separates selection-free candidate reads from exact
+selected-unit submission. The first slice requires blank featureless land and
+only a build that creates an improvement without route, repair, route-removal,
+water, or unit-killing semantics. This excludes the popup and gives two exact
+verification branches: the requested `BUILD_*` remains active, or its paired
+`IMPROVEMENT_*` is complete. Both also require the same unit and plot plus
+lower movement.
+
+Offline string prototypes place the two read-only segments at 688 and 895
+UTF-8 bytes. A compact write prototype using a 64-character build identifier,
+maximum unit ID, and maximum supported coordinates is 994 bytes. Final
+generated strings, parser behavior, and all bounds still require executable
+tests. The target runtime still requires bounded evidence before the capability
+can be advertised, but no unresolved source-design question blocks D2.

@@ -39,6 +39,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0030](ADR-0030-promote-supported-surfaces-to-stable-1.0.md) | Promote the supported surfaces to stable 1.0 | Accepted; advances ADR-0026/0027 compatibility policy |
 | [ADR-0031](ADR-0031-bound-downstream-tactical-integration.md) | Bound downstream tactical integration and core evolution | Accepted |
 | [ADR-0032](ADR-0032-use-selected-unit-network-path-for-adjacent-movement.md) | Use the selected-unit network path for adjacent movement | Accepted |
+| [ADR-0033](ADR-0033-use-unit-legality-and-selected-action-for-ordinary-worker-builds.md) | Use unit legality and the selected-unit stock action for ordinary worker builds | Accepted |
 
 ## Template
 

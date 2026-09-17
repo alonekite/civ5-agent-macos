@@ -1,6 +1,6 @@
 # Verified Worker Build Development Plan
 
-Status: D0 complete; C0/D1 source reconnaissance in progress
+Status: D0 and C0/D1 complete; D2 contract work is next
 
 Target milestone: M10
 
@@ -136,6 +136,8 @@ path.
 
 ### C0/D1 — Research and decide the stock mechanic
 
+Status: complete under ADR-0033.
+
 1. Inspect the target BNW `UnitPanel.lua`, Lua bindings, released SDK source,
    and local ruleset tables for candidate enumeration, action mapping,
    selection, dispatch, progress, and completion facts.
@@ -147,6 +149,13 @@ path.
 
 Exit: the target action path and both success branches are explicit and fit the
 transport bound. Otherwise M10 returns to design without command code.
+
+Outcome: selection-free `unit:CanBuild` candidates feed a selected-unit
+`Game.HandleAction` submission. The first slice requires blank featureless land
+and non-route, non-repair, non-water, non-consuming improvement builds. Exact
+active-build and immediate-completion branches are defined. Read-only segment
+prototypes measured 688/895 bytes and the worst-case compact write prototype
+measured 994 bytes; final strings still require executable bound tests.
 
 ### D2 — Freeze contracts
 

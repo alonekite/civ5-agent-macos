@@ -337,10 +337,12 @@ Acceptance criteria:
 - Publish the capability only through a compatible semantic-versioned release
   after updating the static downstream profile.
 
-Current status: planning. The conversation-submitted request is registered as
+Current status: contract design. The conversation-submitted request is registered as
 [GitHub Issue #2](https://github.com/alonekite/civ5-agent-macos/issues/2) and
 normalized in the [verified worker build development plan](WORKER_BUILD_PLAN.md).
-Bundled BNW UI inspection identifies a candidate stock action path. C0/D1 must
-settle selection-independent candidate enumeration, exact allowlist exclusions,
-transport size, and immediate-
-completion verification before ADR-0033 or command code is accepted.
+Bundled BNW UI and released SDK inspection completed C0/D1. ADR-0033 selects
+selection-free `unit:CanBuild` candidates plus exact selected-unit
+`Game.HandleAction` dispatch, narrows the slice to blank featureless land and
+ordinary non-consuming improvements, defines active/completed verification,
+and records feasible sub-1,000-byte prototypes. D2 contract freezing is next;
+no command implementation or live-support claim exists yet.

@@ -8,12 +8,11 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M10 — verified worker build — is in planning. M9 and the
+- Current milestone: M10 — verified worker build — is in contract design. M9 and the
   immutable 1.1.0 release remain complete.
-- Active next deliverable: complete M10 C0/D1 for registered GitHub Issue #2:
-  settle conservative per-unit candidate enumeration, stock dispatch,
-  exclusions, transport size, and exact active/completed postconditions before
-  command code.
+- Active next deliverable: complete M10 D2 by freezing schema 7 worker context
+  and candidates, command, verification, TurnPlan, public API, CLI, and
+  downstream contracts before command code.
 - Functional baseline: 297 tests pass locally on Python 3.11/default runtime
   and in exact-commit/tag GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
@@ -105,13 +104,16 @@ development log.
   commit; exact-commit and tag CI passed on Python 3.11/3.13, duplicate wheel
   and sdist contents matched, clean installations passed, and the two published
   assets matched their recorded SHA-256 values after download.
-- M10 planning has started from a downstream capability request. The first
-  slice is one caller-selected ordinary `BUILD_*` action for a worker already
-  on the target plot. Bundled BNW UI source identifies
-  `Game.CanHandleAction`/`Game.HandleAction`, `action.MissionData`,
-  `unit:GetBuildType`, and plot build-turn APIs as the candidate stock path;
-  this is source evidence only. R-018 blocks command code until per-unit
-  read-only enumeration and immediate-completion verification are resolved.
+- M10 began from downstream capability request Issue #2. Its first slice is one
+  caller-selected ordinary `BUILD_*` action for a worker already on the target
+  plot. C0/D1 is complete under ADR-0033. Unit-level `CanBuild` permits
+  selection-free candidate reads; the stock selected-unit
+  `Game.CanHandleAction`/`Game.HandleAction` path owns submission. Blank
+  featureless land plus ordinary non-consuming improvements avoid popup and
+  side-effect ambiguity. Exact active-build and completed-improvement branches
+  require the same unit/plot and lower movement. Prototype read segments and
+  the worst-case compact write fit the 1,000-byte design limit; final generated
+  strings remain subject to executable tests and later live evidence.
 
 ## Current architecture
 
@@ -199,9 +201,9 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Complete C0/D1 source/runtime research and accept ADR-0033 only when the
-   candidate, dispatch, exclusions, size, and two success branches are exact.
-2. Freeze D2/D3 contracts and verification before implementing C1–C4.
+1. Freeze D2 contracts for schema 7, command/verification, TurnPlan, public
+   surfaces, and downstream compatibility.
+2. Freeze D3 offline and bounded-live verification before implementing C1–C4.
 3. Complete C5 offline evidence, then pause for separately authorized C6 live
    verification before advertising the action or preparing 1.2.0.
 
