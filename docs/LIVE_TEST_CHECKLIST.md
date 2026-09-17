@@ -405,3 +405,143 @@ conclusion may state the schema, action, rejection/success classifications,
 exact-postcondition result, audit permission, and restoration result. It must
 not contain coordinates, unit IDs or names, command/session UUIDs, player/save
 data, raw snapshots, audit content, hashes, or local paths.
+
+## 8. M10 gate: one verified ordinary worker build
+
+Status: frozen procedure; do not execute until C1–C5 pass on the exact
+implementation commit. Do not run unattended. The operator must be present and
+must separately authorize the sole live build. This gate permits one stale-
+source rejection and one accepted candidate only. It does not authorize worker
+movement, route/repair/feature clearing, improvement replacement, automation,
+water or consuming builds, turn advancement, or retries.
+
+### 8.1 Prepare a controlled worker state
+
+Follow sections 1 and 2 exactly. Use a normal single-player save that can be
+discarded. Choose one idle active-player worker already standing on blank,
+featureless land with no improvement, no current build, movement remaining, no
+automation, and no pending animation or popup. The intended stock worker action
+must be visibly available. Do not use a tactically important save or plot.
+
+Create one private audit path outside the repository, start exactly one watcher,
+and leave it running:
+
+```bash
+umask 077
+export CIV5_BUILD_ROOT="$(mktemp -d -t civ5-agent-build.XXXXXX)"
+export CIV5_BUILD_AUDIT="$CIV5_BUILD_ROOT/command-audit.jsonl"
+PYTHONPATH=src python3 -m civ5_agent.watch --audit-log "$CIV5_BUILD_AUDIT"
+```
+
+Require a validated schema 7 snapshot. The chosen unit must report the same
+coordinates and current-plot facts as the visible game state,
+`current_build_type: null`, and exactly one intended entry in
+`ordinary_build_actions`. The entry's `build_type` must match the enabled stock
+UI action and its paired `improvement_type` must describe the expected result.
+Merely reading this state must not change selected unit, UI mode, movement,
+plot, or any unit order.
+
+In a second terminal, set these values from that one snapshot. They are private
+match data and must not be pasted into tracked files, issues, or the experiment
+log:
+
+```bash
+export CIV5_BUILD_UNIT='UNIT_ID'
+export CIV5_BUILD_X='SOURCE_X'
+export CIV5_BUILD_Y='SOURCE_Y'
+export CIV5_BUILD_TYPE='BUILD_TYPE'
+export CIV5_BUILD_IMPROVEMENT='IMPROVEMENT_TYPE'
+if [ "$CIV5_BUILD_X" -lt 65535 ]; then
+  export CIV5_BUILD_REJECT_X="$((CIV5_BUILD_X + 1))"
+else
+  export CIV5_BUILD_REJECT_X="$((CIV5_BUILD_X - 1))"
+fi
+```
+
+Stop before any command if the UI and schema disagree, the candidate is no
+longer listed, the unit/plot changes, a prompt appears, another action runs, or
+the read changes selection. This read-only observation fails the gate but does
+not authorize a diagnostic Lua probe.
+
+### 8.2 Prove the safe pre-send rejection
+
+After implementation, use the provisional operator command with the deliberately
+wrong source `x` and the real `y`:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.command worker_build \
+  "$CIV5_BUILD_UNIT" "$CIV5_BUILD_REJECT_X" "$CIV5_BUILD_Y" \
+  "$CIV5_BUILD_TYPE"
+```
+
+Expected: nonzero exit and a bounded stale-source error before any build-write
+Lua is submitted. A later watcher snapshot and the game UI must show the same
+unit, coordinates, movement, current build, and plot improvement. Selection
+must not change as a result of this rejection. Any accepted marker, changed
+state, or unknown outcome fails the gate and ends the write portion.
+
+### 8.3 Execute exactly one authorized build
+
+Require a fresh schema 7 snapshot that still lists the exact candidate and
+matches all five private variables. Manually reconfirm the enabled stock action
+and blank plot. Ask the user for explicit confirmation immediately before the
+following command, then execute it exactly once:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.command worker_build \
+  "$CIV5_BUILD_UNIT" "$CIV5_BUILD_X" "$CIV5_BUILD_Y" \
+  "$CIV5_BUILD_TYPE"
+```
+
+Do not repeat the command even if the terminal appears idle. Success requires
+one command UUID and all common worker-build contract conditions: unchanged
+session, turn, active player and active-turn status; the same unit ID/type at
+the same coordinates; strictly lower movement; unchanged terrain, feature,
+visible resource, route, ownership, hills, water, and fresh-water facts; and a
+fresh independent watcher snapshot agreeing with the command result.
+
+Exactly one result branch must then hold:
+
+- **active build:** `current_build_type` equals `CIV5_BUILD_TYPE` and the plot
+  still has no improvement; or
+- **immediate completion:** `current_build_type` is `null` and the plot
+  improvement equals `CIV5_BUILD_IMPROVEMENT`.
+
+The game UI must agree with the observed branch. Exact unit selection is an
+allowed submission side effect; movement, another unit's action, a popup,
+alternative build, changed plot fact, or turn advancement is not. Do not end a
+turn to finish an active build: the active branch is already the full live
+proof. The other branch remains offline-tested and does not justify a second
+live build.
+
+An error, timeout, malformed result, mismatch, or transport loss fails C6. If
+the outcome is unknown, preserve the private files, make no further game action,
+do not retry, do not issue a new command UUID, and do not change the plot
+manually.
+
+TurnPlan ordering, alternate success branch, timeout, duplicate UUID, and
+recovery behavior remain offline-only. Adding them to this session would create
+unnecessary writes or deliberate uncertainty.
+
+### 8.4 Restore and record
+
+Quit Civilization V without advancing the turn. Allow the watcher to close or
+stop it, then run `live_session restore` as in section 5. Require the exact clean
+shutdown proof before inspecting artifacts. Check only private structure:
+
+```bash
+stat -f '%Lp' "$CIV5_BUILD_AUDIT"
+wc -l < "$CIV5_BUILD_AUDIT"
+```
+
+The audit file must be mode `600` and contain exactly the two attempted command
+records: one rejected and one terminal live result. Inspect them locally only
+if needed to confirm the action and classification; never copy their payloads.
+
+Only after restoration, append a sanitized experiment conclusion and update the
+verification matrix, Chinese status ledger, project state, and R-018. Record
+the exact implementation commit, schema, read-without-selection result,
+pre-send rejection classification, which one success branch was observed,
+independent watcher agreement, audit permission/count, and restoration result.
+Do not record unit/player names, IDs, coordinates, build UUIDs, command/session
+UUIDs, save data, raw snapshots, audit content, hashes, or local paths.

@@ -8,11 +8,10 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M10 — verified worker build — is in verification design.
+- Current milestone: M10 — verified worker build — is entering implementation.
   M9 and the immutable 1.1.0 release remain complete.
-- Active next deliverable: complete M10 D3 by freezing the offline matrix and
-  finite operator-assisted schema 7/worker-build live procedure before command
-  code.
+- Active next deliverable: implement M10 C1 schema 7 current-plot context,
+  current build, and bounded worker-build candidates with WB-S01–S06 coverage.
 - Functional baseline: 297 tests pass locally on Python 3.11/default runtime
   and in exact-commit/tag GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
@@ -120,6 +119,12 @@ development log.
   coverage/recovery, stable CLI behavior, public constants, and downstream
   absent-capability behavior. Core 1.1 implementation and profile remain
   unchanged.
+- M10 D3 is complete. WB-S01–A02 freeze the full offline negative,
+  uncertainty, executor, compatibility, artifact, and privacy matrix. Live
+  checklist section 8 permits only a read-without-selection proof, one stale-
+  source pre-send rejection, and one separately authorized candidate write
+  after C1–C5. Either exact success branch may close C6; no retry or second
+  branch write is allowed.
 
 ## Current architecture
 
@@ -207,8 +212,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Freeze D3 offline and bounded-live verification before implementing C1–C4.
-2. Implement C1–C4 strictly against the frozen contracts.
+1. Implement C1 schema 7 reads and WB-S01–S06 tests without command code.
+2. Implement C2–C4 strictly against the frozen contracts and verification IDs.
 3. Complete C5 offline evidence, then pause for separately authorized C6 live
    verification before advertising the action or preparing 1.2.0.
 

@@ -337,7 +337,7 @@ Acceptance criteria:
 - Publish the capability only through a compatible semantic-versioned release
   after updating the static downstream profile.
 
-Current status: verification design. The conversation-submitted request is registered as
+Current status: implementation. The conversation-submitted request is registered as
 [GitHub Issue #2](https://github.com/alonekite/civ5-agent-macos/issues/2) and
 normalized in the [verified worker build development plan](WORKER_BUILD_PLAN.md).
 Bundled BNW UI and released SDK inspection completed C0/D1. ADR-0033 selects
@@ -346,6 +346,9 @@ selection-free `unit:CanBuild` candidates plus exact selected-unit
 ordinary non-consuming improvements, defines active/completed verification,
 and records feasible sub-1,000-byte prototypes. D2 is complete: the
 worker-build, schema 7, command, TurnPlan, public API, CLI, module, and
-downstream contracts are frozen without changing current implementation.
-D3 verification design is next; no command implementation or live-support
+downstream contracts are frozen without changing current implementation. D3 is
+also complete: WB-S01–A02 freeze the complete offline matrix and checklist
+section 8 freezes one read-only proof, one stale-source rejection, one
+separately authorized write, private audit verification, and exact restoration.
+C1 schema 7 implementation is next; no command implementation or live-support
 claim exists yet.

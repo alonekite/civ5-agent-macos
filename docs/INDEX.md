@@ -67,6 +67,8 @@ behavior. Contract documents define intended compatibility and rejection rules.
 
 - [Test strategy](testing/TEST_STRATEGY.md)
 - [Verification matrix](testing/TEST_MATRIX.md)
+- [Worker-build verification specification](testing/WORKER_BUILD_VERIFICATION.md):
+  frozen M10 offline matrix, evidence allocation, and target-machine pass rule.
 - [Live verification status (Chinese)](testing/LIVE_VERIFICATION_STATUS.zh-CN.md):
   concise record of what has and has not been tested in the real game.
 - [Bounded live-test checklist](LIVE_TEST_CHECKLIST.md)

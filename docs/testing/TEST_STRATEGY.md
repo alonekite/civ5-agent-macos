@@ -23,6 +23,12 @@ must state the actual level instead of using “verified” without qualificatio
 - Unit movement: schema 6 target ordering/bounds/privacy, conservative target
   predicates, exact selection, generated-Lua size, wrong-unit and unexpected-
   displacement rejection, no-retry recovery, and TurnPlan requirement coverage.
+- Worker build: schema 7 multipart/current-plot/candidate validation, read
+  purity and privacy, every ordinary-build exclusion, exact source and selected
+  dispatch guards, both factual success branches, uncertainty/no-retry,
+  executor continuity/recovery, and compatibility preservation. The complete
+  cases are frozen in the
+  [worker-build verification specification](WORKER_BUILD_VERIFICATION.md).
 - Knowledge: source immutability, active WAL/source change, allowlists,
   provenance, ruleset family, referential integrity, deterministic output, and
   forbidden AI/content fields.
@@ -54,6 +60,10 @@ must state the actual level instead of using “verified” without qualificatio
 - For M9, execute only the checklist's source-coordinate negative case and one
   explicitly authorized adjacent target. A changed or unknown outcome ends the
   write portion; never improvise another move.
+- For M10, execute only checklist section 8 after C1–C5: one stale-source
+  pre-send rejection and one separately authorized candidate. Either exact
+  success branch is sufficient live evidence; every unexpected or unknown
+  outcome ends the write portion without retry or manual state changes.
 
 ## Release gate
 

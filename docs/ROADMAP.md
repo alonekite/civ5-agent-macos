@@ -246,7 +246,7 @@ intentionally outside this repository's scope.
   active/completed postconditions; accept ADR-0033
 - [x] Freeze worker-build, live-state, command, TurnPlan, and downstream
   contracts
-- [ ] Freeze the offline and bounded target-machine verification procedures
+- [x] Freeze the offline and bounded target-machine verification procedures
 - [ ] Implement and test schema 7 current-plot build state
 - [ ] Implement bounded allowlisted worker build with read-after-write
   verification

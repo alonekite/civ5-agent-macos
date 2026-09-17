@@ -1,6 +1,6 @@
 # Verified Worker Build Development Plan
 
-Status: D0, C0/D1, and D2 complete; D3 verification design is next
+Status: D0–D3 and C0/D1 complete; C1 schema 7 implementation is next
 
 Target milestone: M10
 
@@ -183,6 +183,10 @@ unchanged. Core 1.1 continues to reject the action.
 
 ### D3 — Freeze verification before the write
 
+Status: complete. The exact matrix and evidence allocation are frozen in
+`docs/testing/WORKER_BUILD_VERIFICATION.md`; the finite operator procedure is
+section 8 of `docs/LIVE_TEST_CHECKLIST.md`.
+
 1. Extend the test strategy and verification matrix with the complete negative
    and uncertainty matrix.
 2. Add a finite operator procedure to the live checklist and Chinese evidence
@@ -191,6 +195,13 @@ unchanged. Core 1.1 continues to reject the action.
    write, audit verification, and exact restoration.
 
 Exit: the live procedure requires no improvised Lua or private state capture.
+
+Outcome: WB-S01–A02 cover schema, predicates, privacy, arguments, admission,
+game-side guards, markers, both success branches, failures, uncertainty,
+watcher/audit/UUID semantics, TurnPlan continuity/recovery, compatibility,
+artifacts, and privacy. C6 permits only one stale-source rejection and one
+separately confirmed candidate write after C1–C5; either success branch may
+close the live gate, while the other remains fully covered offline.
 
 ### C1 — Implement schema 7 read state
 
