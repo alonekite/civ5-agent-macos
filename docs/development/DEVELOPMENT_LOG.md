@@ -1542,6 +1542,29 @@ Binding-fix commit: `f596516`.
 
 Repair and sanitized-evidence commit: `b15e967`.
 
+## 2026-09-19 — Resolve worker actions through the target table shape
+
+- Ran a new guarded C6 session on exact implementation commit `74ba4d1`.
+  Schema 7/UI agreement and stale-source rejection passed again. The separately
+  authorized single write parsed but returned explicit `invalid_build` because
+  the write path indexed `GameInfoActions` with a build-type string.
+- Before/after state and the game UI agreed that no build, movement loss,
+  popup, other unit action, or turn advance occurred. The command was not
+  retried, and host restoration matched the recorded baseline.
+- Replaced string-key action lookup with the target-proven bounded numeric table
+  iteration, requiring exact build Type, build SubType, and MissionData before
+  selection or dispatch. The generated program retains every mutable guard,
+  contains one `Game.HandleAction`, and is 997 bytes at worst-case inputs.
+- Added regression coverage forbidding the failed lookup form and requiring the
+  exact numeric iteration/mapping predicates. All 335 warning-enabled tests
+  passed on Python 3.11 and the default runtime. Repeated wheel/source contents
+  matched, and the wheel installed, imported, and started its CLI in a clean
+  Python 3.11 environment.
+- Diff and tracked-file scans found no private session IDs, unit IDs,
+  coordinates, snapshots, local paths, credentials, or audit contents.
+
+Repair and sanitized-evidence commit: `f28a9b4`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
