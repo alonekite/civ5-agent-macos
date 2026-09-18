@@ -1482,6 +1482,25 @@ C2–C3 commit: `1d19416`.
 
 C4–C5 commit: `c070459`.
 
+## 2026-09-18 — Repair the schema 7 target-runtime iterator
+
+- Ran the first bounded M10 C6 attempt through guarded preparation and live
+  preflight. The watcher stopped safely at its first read-only schema 7 gate
+  because Campaign Edition exposes `GameInfoActions` as a table rather than a
+  callable iterator; no command or game write ran, and host restoration matched
+  the recorded baseline.
+- Replaced the invalid callable-table loop with numeric table iteration already
+  used by a target-verified action path, and added a regression assertion that
+  explicitly forbids the failed call form.
+- Compact local aliases retain every candidate predicate while reducing the
+  repaired worker-build segment to 888 UTF-8 bytes, below the independent
+  900-byte read-segment bound.
+- All 335 warning-enabled tests passed on Python 3.11 and the default runtime.
+  Documentation/release checks, diff checks, and tracked/diff sensitive-content
+  scans passed. A fresh separately authorized C6 remains required.
+
+Repair commit: `cb8187b`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
