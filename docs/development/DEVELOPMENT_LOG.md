@@ -1501,6 +1501,25 @@ C4–C5 commit: `c070459`.
 
 Repair commit: `cb8187b`.
 
+## 2026-09-19 — Match worker legality flags to the target Lua binding
+
+- Ran a fresh guarded C6 retry after the indexed-action repair. It passed the
+  prior failure point and stopped safely at the read-only candidate predicate
+  because Campaign Edition requires numeric option flags for `unit:CanBuild`.
+  No command or write ran, and host restoration again matched the baseline.
+- Confirmed from the locked Expansion 2 SDK source that
+  `CvLuaUnit::lCanBuild` reads the two options with `luaL_optint`, defaulting to
+  `0` and `1`; ADR-0034 records the target-specific representation correction
+  without changing ADR-0033's capability boundary.
+- Updated both selection-free candidate collection and the game-side
+  pre-submit recheck to `CanBuild(..., 0, 1)`. Exact-form regressions cover both
+  paths; the read and worst-case write programs are now 881 and 989 bytes.
+- All 335 warning-enabled tests passed on Python 3.11 and the default runtime.
+  Documentation/release checks, diff checks, and tracked/diff sensitive-content
+  scans passed. A fresh separately authorized C6 remains required.
+
+Binding-fix commit: `f596516`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
