@@ -1258,3 +1258,50 @@ receive fresh operator authorization before C6 restarts.
 Replace the invalid callable-table loop with bounded numeric table iteration,
 add a regression assertion that forbids `GameInfoActions()`, re-run C1–C5, and
 publish the repaired implementation before scheduling another live attempt.
+
+### 2026-09-19 — Schema 7 worker-build read retry
+
+**Hypothesis**
+
+The indexed-action repair allows the guarded watcher to collect schema 7
+worker-build candidates without changing game state or UI selection.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the same target Mac.
+- Normal disposable single-player state with an idle owned worker on a blank
+  featureless land plot.
+- Exact repair commit `e5a4186`, successful Python 3.11/3.13 CI, a fresh
+  recoverable guarded FireTuner session, and a new private watcher audit path.
+
+**Procedure**
+
+1. Prepared a new recoverable session, started the game, and passed live
+   preflight.
+2. Started one watcher and stopped immediately when the read-only
+   `worker_builds` segment returned a second Lua runtime type error.
+3. Did not run the stale-source command or any build command.
+4. Quit the game and restored the recorded host baseline before investigation.
+
+**Observed result**
+
+- Indexed `GameInfoActions` enumeration passed the prior failure point.
+- The target `unit:CanBuild` binding rejected a Lua boolean option flag because
+  its third explicit argument requires a number.
+- No complete schema 7 snapshot, command submission, game write, or turn
+  advancement occurred.
+- Restoration again proved FireTuner disabled, no TCP 4318 listener or agent
+  socket, firewall restored to disabled, and no Civ V rule.
+
+**Conclusion**
+
+Not confirmed. C6 again stopped safely at its read-only gate. The exact
+Expansion 2 SDK binding uses `luaL_optint` for the visibility and gold flags,
+with defaults `0` and `1`; generated read and write guards must therefore pass
+integer flags rather than Lua booleans.
+
+**Next step**
+
+Accept ADR-0034, change both generated `CanBuild` calls to `(plot, build, 0, 1)`,
+add exact-form regression coverage, re-run and publish the complete offline
+gate, then require fresh operator authorization before another C6 attempt.

@@ -1,7 +1,7 @@
 # Verified Worker Build Development Plan
 
-Status: D0–D3, C0/D1, and C1–C5 complete offline; first C6 read attempt failed
-safely and is repaired offline; a fresh C6 requires operator authorization
+Status: D0–D3, C0/D1, and C1–C5 complete offline; two C6 read attempts failed
+safely and are repaired offline; a fresh C6 requires operator authorization
 
 Target milestone: M10
 
@@ -214,7 +214,7 @@ bounded ordinary-build candidates. Validate identifiers, ordering, uniqueness,
 unit association, legacy compatibility, multi-part consistency, and payload
 bounds. No read operation may change UI selection.
 
-Outcome: two 688/888-byte read programs use active-team resource visibility,
+Outcome: two 688/881-byte read programs use active-team resource visibility,
 never select a unit, and emit exact current-plot/current-build/candidate facts.
 Parser and validation enforce mandatory parts, unit binding, identifier and
 count limits, exact nested shape, nulls, stable sorting, duplicates, and schema
@@ -234,7 +234,7 @@ stock path requires it, dispatch once, and return one bounded marker. Preserve
 UUID duplicate suppression and no-retry semantics.
 
 Outcome: exact four-field validation and fresh schema 7 admission precede a
-996-byte worst-case selected-unit stock program. The program re-resolves the
+989-byte worst-case selected-unit stock program. The program re-resolves the
 unit, plot, build and matching action, repeats mutable guards, verifies exact
 selection and `CanHandleAction`, calls `Game.HandleAction` once, and emits one
 bounded private marker. Watcher forwarding retains its existing session, UUID,
@@ -301,8 +301,11 @@ permissions, exit Civ V, and restore the exact host baseline.
 
 Attempt status: the 2026-09-18 attempt stopped at the first read-only gate when
 the candidate segment called target-runtime `GameInfoActions` as a function.
-No command or write ran and exact restoration passed. The indexed-table repair
-must be committed, pushed, and pass CI before a separately authorized restart.
+The 2026-09-19 retry passed that point but stopped when the target
+`unit:CanBuild` binding required numeric option flags. Neither attempt submitted
+a command or write, and exact restoration passed both times. Indexed iteration
+and ADR-0034 integer flags are repaired offline; the new repair must be
+committed, pushed, and pass CI before a separately authorized restart.
 
 ### D4/C7 — Publish the compatible release
 

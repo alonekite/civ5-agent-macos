@@ -113,7 +113,7 @@ development log.
   featureless land plus ordinary non-consuming improvements avoid popup and
   side-effect ambiguity. Exact active-build and completed-improvement branches
   require the same unit/plot and lower movement. The final read programs and
-  996-byte worst-case compact write fit the 1,000-byte transport limit; target
+  989-byte worst-case compact write fit the 1,000-byte transport limit; target
   behavior still awaits C6 evidence.
 - M10 D2 is complete. The new owning worker-build contract freezes schema 7
   current-plot facts, current build, up to 32 bounded candidate pairs, the
@@ -129,14 +129,14 @@ development log.
   branch write is allowed.
 - M10 C1 is complete offline. Schema 7 now emits and validates exact per-unit
   current-plot facts, nullable current build, and up to 32 sorted factual
-  build/improvement candidates through two selection-free 688/888-byte Lua
+  build/improvement candidates through two selection-free 688/881-byte Lua
   programs. Resources use active-team visibility; identifiers, nested shape,
   part identity, unit binding, ordering, duplicates, counts, privacy, and
   schema 2–6 compatibility are covered. The existing movement action remains
   operational on matching schema 6+ states.
 - M10 C2–C3 are complete offline. Development head reports `1.2.0.dev0` and
   allowlists the exact four-field worker command. Fresh schema 7 admission
-  precedes one guarded 996-byte stock dispatch; its bounded marker is never
+  precedes one guarded 989-byte stock dispatch; its bounded marker is never
   success by itself. Polling proves either the exact active build or completed
   paired improvement with the same turn/player/unit/plot and lower movement.
   All target-machine evidence remains pending.
@@ -158,6 +158,13 @@ development log.
   shape already proven by `skip_unit`, forbids the invalid call in regression
   tests, and retains the sub-900-byte segment bound. Fresh C6 evidence is still
   required after the repair is pushed.
+- The 2026-09-19 retry passed indexed action enumeration but stopped safely at
+  the same read-only gate because Campaign Edition's `unit:CanBuild` binding
+  reads its option flags with `luaL_optint` and rejects Lua booleans. No command
+  or write ran and restoration again passed. ADR-0034 now requires integer
+  flags `0, 1` in both candidate reads and the game-side pre-submit guard; the
+  repaired programs are 881 and 989 bytes. A fresh C6 remains required after
+  this second repair is pushed and passes CI.
 
 ## Current architecture
 

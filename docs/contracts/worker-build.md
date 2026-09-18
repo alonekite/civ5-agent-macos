@@ -1,7 +1,7 @@
 # Worker-Build Contract
 
-Status: Frozen M10 contract; C1–C5 offline gate complete; first bounded live
-read attempt failed safely and is repaired offline; fresh live evidence pending
+Status: Frozen M10 contract; C1–C5 offline gate complete; two bounded live read
+attempts failed safely and are repaired offline; fresh live evidence pending
 
 Expected compatibility release: 1.2.0, only after the offline and bounded live
 gates pass
@@ -92,7 +92,9 @@ A candidate is emitted only when the same read observes all of the following:
   referenced build row;
 - the build creates the paired improvement and is not a route, repair,
   route-removal, water, or unit-killing build; and
-- `unit:CanBuild(current_plot, build_id, false, true)` succeeds.
+- `unit:CanBuild(current_plot, build_id, 0, 1)` succeeds. ADR-0034 requires
+  numeric option flags because the Campaign Edition binding reads them through
+  `luaL_optint`; the values retain false/true semantics.
 
 The list excludes feature clearing, improvement replacement, repair, routes,
 water construction, automation, and great-person or other consuming builds.

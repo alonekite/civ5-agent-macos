@@ -355,7 +355,7 @@ current-build, and bounded candidate facts through two selection-free programs,
 retains schema 2–6, and preserves `move_unit` on matching schema 6+ states.
 WB-S01–S06 pass. C2–C3 are now complete offline: the unreleased 1.2.0
 development head validates and admits the exact command, generates a worst-case
-996-byte guarded stock dispatch, treats its marker only as submission evidence,
+989-byte guarded stock dispatch, treats its marker only as submission evidence,
 and verifies both factual schema 7 result branches. C4 is also complete:
 schema 1 plans now preserve exact worker arguments, independently verify the
 result, cover only the exact unit, support ordered move/build, pause on newly
@@ -364,6 +364,9 @@ C5 is complete with the full test matrix, repeated artifact inspection, clean
 installation, and privacy scans. The first C6 attempt stopped safely during
 read-only collection because Campaign Edition exposes `GameInfoActions` as an
 indexed table, not a callable iterator. No write ran and restoration passed.
-The indexed-loop repair retains the sub-900-byte bound and passes the offline
-suite; a fresh operator-authorized C6 remains next. No stable downstream or
-live-support claim exists yet.
+The indexed-loop repair retained the sub-900-byte bound, but the next attempt
+exposed `luaL_optint` option flags in the target `CanBuild` binding. ADR-0034
+requires numeric `0, 1` flags in read and pre-submit guards; no command ran and
+restoration again passed. The second repair passes offline, and a fresh
+operator-authorized C6 remains next. No stable downstream or live-support claim
+exists yet.

@@ -98,7 +98,7 @@ action branch calls `unit:IsActionRecommended`; M10 explicitly excludes that
 recommendation signal because selection belongs downstream.
 
 The same public `Gedemon/Civ5-DLL` Expansion 2 source and commit recorded above
-shows that the Lua `unit:CanBuild(plot, build, false, true)` binding reaches
+shows that the Lua `unit:CanBuild(plot, build, 0, 1)` binding reaches
 unit-specific legality without consulting UI selection. In contrast,
 `CvGame::canHandleAction` and `CvGame::handleAction` resolve the head-selected
 unit, and `handleAction` sends a build mission through the game network-message
@@ -112,6 +112,11 @@ water, or unit-killing semantics. This excludes the popup and gives two exact
 verification branches: the requested `BUILD_*` remains active, or its paired
 `IMPROVEMENT_*` is complete. Both also require the same unit and plot plus
 lower movement.
+
+The 2026-09-19 target read retry confirmed why integer flags matter: this
+Campaign Edition binding rejects Lua booleans because `CvLuaUnit::lCanBuild`
+reads both options with `luaL_optint`. ADR-0034 records the correction without
+changing ADR-0033's candidate or submission semantics.
 
 Offline string prototypes place the two read-only segments at 688 and 895
 UTF-8 bytes. A compact write prototype using a 64-character build identifier,

@@ -370,7 +370,7 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         'local b=GameInfo.Builds[a.MissionData];local v=b and b.ImprovementType;'
         'if b and a.Type==b.Type and v and v~="" and not b.RouteType and not b.Repair '
         'and not b.RemoveRoute and not b.Water and not b.Kill '
-        'and u:CanBuild(q,b.ID,false,true)then '
+        'and u:CanBuild(q,b.ID,0,1)then '
         f'print("{WORKER_BUILD_MARKER}"..u:GetID().."|"..b.Type.."|"'
         '..v)end end end end end'
     )
@@ -621,7 +621,7 @@ def worker_build_lua(
         'if not p:IsTurnActive()or Game.IsProcessingMessages()or '
         'not u:IsReadyToMove()or u:MovesLeft()<=0 or '
         'u:GetBuildType()~=-1 or q:IsWater()or q:GetFeatureType()~=-1 or '
-        'q:GetImprovementType()~=-1 or not u:CanBuild(q,b.ID,false,true)then r("R");return end;'
+        'q:GetImprovementType()~=-1 or not u:CanBuild(q,b.ID,0,1)then r("R");return end;'
         'UI.ClearSelectionList();UI.SelectUnit(u);local h=UI.GetHeadSelectedUnit();'
         f'if not h or h:GetID()~={unit_id}then r("X");return end;'
         'if not Game.CanHandleAction(a.ID)then r("R");return end;'

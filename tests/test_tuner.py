@@ -880,7 +880,7 @@ class TunerProtocolTest(unittest.TestCase):
             "not b.RemoveRoute",
             "not b.Water",
             "not b.Kill",
-            "u:CanBuild(q,b.ID,false,true)",
+            "u:CanBuild(q,b.ID,0,1)",
         ):
             self.assertIn(required, lua)
         self.assertNotIn("GameInfoActions()", lua)
@@ -983,7 +983,7 @@ class TunerProtocolTest(unittest.TestCase):
             "q:IsWater()",
             "q:GetFeatureType()~=-1",
             "q:GetImprovementType()~=-1",
-            "u:CanBuild(q,b.ID,false,true)",
+            "u:CanBuild(q,b.ID,0,1)",
             "UI.ClearSelectionList()",
             "UI.SelectUnit(u)",
             "UI.GetHeadSelectedUnit()",
@@ -991,6 +991,7 @@ class TunerProtocolTest(unittest.TestCase):
         ):
             self.assertIn(required, lua)
         self.assertEqual(lua.count("Game.HandleAction(a.ID)"), 1)
+        self.assertNotIn("u:CanBuild(q,b.ID,false,true)", lua)
         for forbidden in ("PushMission", "SelectionListMove", "AcceptPopup"):
             self.assertNotIn(forbidden, lua)
         self.assertLessEqual(len(lua.encode("utf-8")), MAX_LUA_PROGRAM_BYTES)
