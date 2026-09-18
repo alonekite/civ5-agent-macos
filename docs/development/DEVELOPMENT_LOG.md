@@ -1520,6 +1520,28 @@ Repair commit: `cb8187b`.
 
 Binding-fix commit: `f596516`.
 
+## 2026-09-19 — Repair worker-build Lua token boundaries
+
+- Ran a fresh guarded C6 attempt on exact implementation commit `28469a3`.
+  Schema 7 candidate facts matched the enabled stock action without read side
+  effects, and the stale-source request was rejected before submission with
+  unchanged state.
+- Sent the separately authorized build exactly once. The target parser rejected
+  generated Lua where interpolated numeric literals touched following `or` and
+  `then` keywords. No valid marker was returned, the UI showed no build or
+  movement change, the command was not retried, and host restoration matched
+  the recorded baseline.
+- Added explicit whitespace at every affected numeric/keyword boundary and
+  regression assertions over the actual generated source. The worst-case
+  program is 992 bytes and remains below the 1,000-byte transport limit.
+- All 335 warning-enabled tests passed on Python 3.11 and the default runtime.
+  Repeated wheel/source builds had matching normalized contents, and the wheel
+  installed, imported, and started its CLI in a clean Python 3.11 environment.
+  Diff and tracked-file scans found no private live IDs, coordinates, local
+  paths, credentials, generated game data, or match snapshots.
+
+Repair and sanitized-evidence commit: `b15e967`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
