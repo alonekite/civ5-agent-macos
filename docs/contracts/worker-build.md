@@ -1,7 +1,8 @@
 # Worker-Build Contract
 
-Status: Frozen M10 contract; C1–C5 offline gate complete; two bounded live read
-attempts failed safely and are repaired offline; fresh live evidence pending
+Status: Frozen M10 contract; C1–C5 offline gate complete; live read/admission
+evidence is partial, but the write gate remains open after a no-retry Lua parse
+failure with no observed game-state change; fresh live evidence pending
 
 Expected compatibility release: 1.2.0, only after the offline and bounded live
 gates pass

@@ -1,7 +1,8 @@
 # Verified Worker Build Development Plan
 
-Status: D0–D3, C0/D1, and C1–C5 complete offline; two C6 read attempts failed
-safely and are repaired offline; a fresh C6 requires operator authorization
+Status: D0–D3, C0/D1, and C1–C5 complete offline; C6 read/admission evidence is
+partial, but the sole write attempt failed safely at Lua parsing; a fresh C6
+requires a published lexical-boundary repair and operator authorization
 
 Target milestone: M10
 
@@ -234,7 +235,7 @@ stock path requires it, dispatch once, and return one bounded marker. Preserve
 UUID duplicate suppression and no-retry semantics.
 
 Outcome: exact four-field validation and fresh schema 7 admission precede a
-989-byte worst-case selected-unit stock program. The program re-resolves the
+992-byte worst-case selected-unit stock program. The program re-resolves the
 unit, plot, build and matching action, repeats mutable guards, verifies exact
 selection and `CanHandleAction`, calls `Game.HandleAction` once, and emits one
 bounded private marker. Watcher forwarding retains its existing session, UUID,
@@ -306,6 +307,15 @@ The 2026-09-19 retry passed that point but stopped when the target
 a command or write, and exact restoration passed both times. Indexed iteration
 and ADR-0034 integer flags are repaired offline; the new repair must be
 committed, pushed, and pass CI before a separately authorized restart.
+
+A later attempt passed the repaired schema 7 read gate and manually matched one
+candidate to the stock UI. Its stale-source request was rejected before write
+submission with unchanged state. The separately authorized write was sent only
+once, but the generated Lua joined numeric literals to following `or`/`then`
+keywords and failed parsing without a valid marker. The game showed no build or
+movement change; the command was not retried and exact restoration passed. C6
+therefore remains open until the lexical repair passes the complete offline/CI
+gate and a new session proves one exact postcondition branch.
 
 ### D4/C7 — Publish the compatible release
 

@@ -615,7 +615,7 @@ def worker_build_lua(
         f'local function r(s)print("C5WB|"..s.."|{unit_id}|"..'
         '(b and b.Type or"BUILD_X"))end;'
         'if not u then r("U");return end;local q=u:GetPlot();'
-        f'if u:GetX()~={source_x}or u:GetY()~={source_y}then r("S");return end;'
+        f'if u:GetX()~={source_x} or u:GetY()~={source_y} then r("S");return end;'
         'if not b or not a or a.SubType~=ActionSubTypes.ACTIONSUBTYPE_BUILD or '
         'a.Type~=b.Type or a.MissionData~=b.ID then r("B");return end;'
         'if not p:IsTurnActive()or Game.IsProcessingMessages()or '
@@ -623,7 +623,7 @@ def worker_build_lua(
         'u:GetBuildType()~=-1 or q:IsWater()or q:GetFeatureType()~=-1 or '
         'q:GetImprovementType()~=-1 or not u:CanBuild(q,b.ID,0,1)then r("R");return end;'
         'UI.ClearSelectionList();UI.SelectUnit(u);local h=UI.GetHeadSelectedUnit();'
-        f'if not h or h:GetID()~={unit_id}then r("X");return end;'
+        f'if not h or h:GetID()~={unit_id} then r("X");return end;'
         'if not Game.CanHandleAction(a.ID)then r("R");return end;'
         'Game.HandleAction(a.ID);r("A")'
     )

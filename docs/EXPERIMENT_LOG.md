@@ -1305,3 +1305,63 @@ integer flags rather than Lua booleans.
 Accept ADR-0034, change both generated `CanBuild` calls to `(plot, build, 0, 1)`,
 add exact-form regression coverage, re-run and publish the complete offline
 gate, then require fresh operator authorization before another C6 attempt.
+
+### 2026-09-19 — Schema 7 worker-build guarded command attempt
+
+**Hypothesis**
+
+The repaired schema 7 watcher can expose one UI-matching ordinary build,
+reject a stale source before submission, and execute one separately authorized
+build through the guarded selected-unit path.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the target Apple
+  Silicon Mac.
+- Normal disposable single-player state with an idle owned worker on a blank,
+  featureless owned land plot and one enabled ordinary improvement action.
+- Exact implementation commit `28469a3`, successful Python 3.11/3.13 CI, a
+  fresh recoverable guarded FireTuner session, and one private watcher audit
+  path outside the repository.
+
+**Procedure**
+
+1. Prepared a new guarded session, passed live preflight, and started one
+   watcher.
+2. Compared the schema 7 worker/plot/candidate facts with the game UI and
+   confirmed that reading caused no visible side effect.
+3. Sent one deliberately stale source-coordinate request and confirmed that it
+   was rejected with identical before/after state and no game-side change.
+4. Reconfirmed the candidate, obtained separate authorization, and sent the
+   exact build request once.
+5. Did not retry after the response lacked a valid command marker; quit the
+   game and restored the recorded host baseline before investigation.
+
+**Observed result**
+
+- Schema 7 produced the expected worker, blank plot context, and one candidate
+  matching the enabled stock UI action without changing selection or state.
+- The stale-source request failed before write submission. Unit location,
+  movement, current build, improvement, and candidate remained unchanged.
+- The authorized write program reached the target Lua parser but returned a
+  syntax error before any valid command marker. The generated text joined
+  interpolated numeric literals directly to keywords (`or` and `then`).
+- The UI showed no started build and no movement decrease. Because the protocol
+  could not prove a terminal write outcome, the session followed the mandatory
+  no-retry path.
+- Restoration proved FireTuner disabled, no TCP 4318 listener or agent socket,
+  firewall restored to disabled, and no Civ V rule, matching the baseline.
+
+**Conclusion**
+
+Partially confirmed. The schema 7 read path, manual UI agreement, and safe
+stale-source rejection now have target-machine evidence. The build-write gate
+did not pass; absence of a valid marker remains an unknown protocol outcome
+even though the parser error and UI both indicate no game change.
+
+**Next step**
+
+Separate interpolated numeric literals from Lua keywords, add exact lexical-
+boundary regression coverage, re-run and publish the complete offline gate,
+then require a fresh session and separate operator authorization for C6. Never
+reuse or retry the failed command.

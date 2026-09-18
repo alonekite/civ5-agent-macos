@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-09-18.
+Last updated: 2026-09-19.
 
 This is the short durable handoff for current work. Detailed completed history
 belongs in module documents, milestones, the experiment log, and the
@@ -11,11 +11,12 @@ development log.
 - Current milestone: M10 — verified worker build — has passed its complete
   offline gate through deterministic execution and artifact reconciliation.
   M9 and the immutable 1.1.0 release remain complete.
-- Active next deliverable: publish the repaired schema 7 candidate enumerator,
+- Active next deliverable: publish the worker-write Lua lexical-boundary repair,
   then restart M10 C6 only after the operator separately authorizes the
-  documented procedure.
+  documented procedure in a fresh session.
 - Functional baseline: 335 tests pass locally on Python 3.11/default runtime;
-  the previous pushed batch passed GitHub Actions Python 3.11/3.13.
+  repeated wheel/sdist contents match and the wheel installs/imports cleanly.
+  The previous pushed batch passed GitHub Actions Python 3.11/3.13.
 - Blocking issue: none.
 - User presence required next: yes. C6 requires the operator to prepare the
   recoverable live session, manually confirm one candidate, and separately
@@ -113,7 +114,7 @@ development log.
   featureless land plus ordinary non-consuming improvements avoid popup and
   side-effect ambiguity. Exact active-build and completed-improvement branches
   require the same unit/plot and lower movement. The final read programs and
-  989-byte worst-case compact write fit the 1,000-byte transport limit; target
+  992-byte worst-case compact write fit the 1,000-byte transport limit; target
   behavior still awaits C6 evidence.
 - M10 D2 is complete. The new owning worker-build contract freezes schema 7
   current-plot facts, current build, up to 32 bounded candidate pairs, the
@@ -136,7 +137,7 @@ development log.
   operational on matching schema 6+ states.
 - M10 C2–C3 are complete offline. Development head reports `1.2.0.dev0` and
   allowlists the exact four-field worker command. Fresh schema 7 admission
-  precedes one guarded 989-byte stock dispatch; its bounded marker is never
+  precedes one guarded 992-byte stock dispatch; its bounded marker is never
   success by itself. Polling proves either the exact active build or completed
   paired improvement with the same turn/player/unit/plot and lower movement.
   All target-machine evidence remains pending.
@@ -163,8 +164,17 @@ development log.
   reads its option flags with `luaL_optint` and rejects Lua booleans. No command
   or write ran and restoration again passed. ADR-0034 now requires integer
   flags `0, 1` in both candidate reads and the game-side pre-submit guard; the
-  repaired programs are 881 and 989 bytes. A fresh C6 remains required after
+  repaired programs were 881 and 989 bytes. A fresh C6 remained required after
   this second repair is pushed and passes CI.
+- A later guarded attempt produced a valid schema 7 candidate matching the UI
+  with no read side effect, and its deliberately stale source was rejected
+  before submission with identical state. The separately authorized single
+  write then failed Lua parsing because interpolated numeric literals touched
+  following `or`/`then` keywords. No valid marker was returned, the UI showed
+  no build or movement change, no retry occurred, and exact restoration passed.
+  The generator now separates those tokens and regression coverage freezes the
+  actual boundaries; the complete offline and CI gates must pass before a new
+  C6 session.
 
 ## Current architecture
 
