@@ -1365,3 +1365,65 @@ Separate interpolated numeric literals from Lua keywords, add exact lexical-
 boundary regression coverage, re-run and publish the complete offline gate,
 then require a fresh session and separate operator authorization for C6. Never
 reuse or retry the failed command.
+
+### 2026-09-19 — Schema 7 worker-build action-resolution retry
+
+**Hypothesis**
+
+The numeric/keyword boundary repair allows one fresh guarded session to pass
+schema 7 observation, stale-source rejection, action resolution, submission,
+and one exact worker-build postcondition.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the target Apple
+  Silicon Mac.
+- Normal disposable single-player state with an idle owned worker on a blank,
+  featureless owned land plot and one enabled ordinary improvement action.
+- Exact implementation commit `74ba4d1`, successful Python 3.11/3.13 CI, a
+  new recoverable guarded FireTuner session, and a new private watcher audit
+  path outside the repository.
+
+**Procedure**
+
+1. Prepared the guarded session, passed live preflight, and started one schema
+   7 watcher.
+2. Confirmed that one reported worker-build candidate matched the enabled stock
+   UI action and that reading caused no visible side effect.
+3. Sent one deliberately stale source-coordinate request; confirmed explicit
+   pre-write rejection and identical before/after state.
+4. Obtained a fresh compact snapshot, reconfirmed the candidate, received
+   separate authorization, and sent the exact build request once.
+5. Stopped after the target returned an explicit `invalid_build` marker; did
+   not retry, exited the game, and restored the recorded host baseline.
+
+**Observed result**
+
+- Schema 7, the UI, and the fresh pre-write snapshot agreed on the idle worker,
+  blank plot, and one ordinary improvement candidate.
+- The stale-source request changed no state and caused no UI side effect.
+- The authorized request parsed successfully but the game-side program could
+  not resolve the matching action because it indexed `GameInfoActions` by the
+  build type string. The target had already proven this object is a numerically
+  indexed table.
+- A valid rejection marker was returned. Before/after states were identical;
+  the game UI confirmed no build, movement loss, popup, other unit action, or
+  turn advance.
+- No retry occurred. Restoration proved FireTuner disabled, no TCP 4318
+  listener or agent socket, firewall restored to disabled, and no Civ V rule,
+  matching the baseline.
+
+**Conclusion**
+
+Partially confirmed. Read purity, candidate/UI agreement, stale-source
+rejection, repaired Lua parsing, explicit terminal rejection, no-retry policy,
+and exact restoration passed. The write postcondition remains unproven because
+the write program used the wrong action-table lookup shape.
+
+**Next step**
+
+Resolve the action through bounded numeric `GameInfoActions` iteration while
+matching its build Type, build SubType, and MissionData. Preserve every mutable
+guard and the 1,000-byte limit, add a regression forbidding string-key lookup,
+run and publish the complete offline gate, then require a fresh separately
+authorized C6 session.

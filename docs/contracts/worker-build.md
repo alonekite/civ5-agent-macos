@@ -1,8 +1,9 @@
 # Worker-Build Contract
 
 Status: Frozen M10 contract; C1–C5 offline gate complete; live read/admission
-evidence is partial, but the write gate remains open after a no-retry Lua parse
-failure with no observed game-state change; fresh live evidence pending
+evidence is partial, but the write gate remains open after no-retry parse and
+action-resolution failures with no observed game-state change; fresh evidence
+pending
 
 Expected compatibility release: 1.2.0, only after the offline and bounded live
 gates pass
@@ -139,7 +140,9 @@ captured as the expected completed result. Legacy, malformed, missing,
 duplicate, stale, or unlisted state is rejection without game contact.
 
 The single bounded Lua program re-resolves the active player, unit, build,
-action, and current plot; repeats the source coordinates, active-turn,
+action, and current plot. It resolves the target action through the target-
+proven numeric `GameInfoActions` table and requires exact Type, build SubType,
+and MissionData agreement; repeats the source coordinates, active-turn,
 message-processing, current-build, blank-plot, action-mapping, and exact
 `CanBuild` guards; then clears selection, selects that unit, and verifies its
 head-selected ID. It calls `Game.HandleAction(action_index)` exactly once only

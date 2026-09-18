@@ -11,7 +11,7 @@ development log.
 - Current milestone: M10 — verified worker build — has passed its complete
   offline gate through deterministic execution and artifact reconciliation.
   M9 and the immutable 1.1.0 release remain complete.
-- Active next deliverable: publish the worker-write Lua lexical-boundary repair,
+- Active next deliverable: publish the worker-write numeric action-resolution repair,
   then restart M10 C6 only after the operator separately authorizes the
   documented procedure in a fresh session.
 - Functional baseline: 335 tests pass locally on Python 3.11/default runtime;
@@ -114,7 +114,7 @@ development log.
   featureless land plus ordinary non-consuming improvements avoid popup and
   side-effect ambiguity. Exact active-build and completed-improvement branches
   require the same unit/plot and lower movement. The final read programs and
-  992-byte worst-case compact write fit the 1,000-byte transport limit; target
+  997-byte worst-case compact write fits the 1,000-byte transport limit; target
   behavior still awaits C6 evidence.
 - M10 D2 is complete. The new owning worker-build contract freezes schema 7
   current-plot facts, current build, up to 32 bounded candidate pairs, the
@@ -137,7 +137,7 @@ development log.
   operational on matching schema 6+ states.
 - M10 C2–C3 are complete offline. Development head reports `1.2.0.dev0` and
   allowlists the exact four-field worker command. Fresh schema 7 admission
-  precedes one guarded 992-byte stock dispatch; its bounded marker is never
+  precedes one guarded 997-byte stock dispatch; its bounded marker is never
   success by itself. Polling proves either the exact active build or completed
   paired improvement with the same turn/player/unit/plot and lower movement.
   All target-machine evidence remains pending.
@@ -175,6 +175,14 @@ development log.
   The generator now separates those tokens and regression coverage freezes the
   actual boundaries; the complete offline and CI gates must pass before a new
   C6 session.
+- The following fresh attempt again passed schema 7/UI agreement and stale-
+  source rejection. Its separately authorized write parsed and returned an
+  explicit `invalid_build` marker with identical before/after state and no UI
+  side effect. The write path had incorrectly used a build-type string key on
+  the target's numerically indexed `GameInfoActions` table. No retry occurred
+  and exact restoration passed. The repaired 997-byte program now iterates the
+  numeric table and matches Type, SubType, and MissionData; the complete offline
+  and CI gates remain mandatory before another C6 session.
 
 ## Current architecture
 

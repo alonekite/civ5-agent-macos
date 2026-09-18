@@ -355,7 +355,7 @@ current-build, and bounded candidate facts through two selection-free programs,
 retains schema 2–6, and preserves `move_unit` on matching schema 6+ states.
 WB-S01–S06 pass. C2–C3 are now complete offline: the unreleased 1.2.0
 development head validates and admits the exact command, generates a worst-case
-992-byte guarded stock dispatch, treats its marker only as submission evidence,
+997-byte guarded stock dispatch, treats its marker only as submission evidence,
 and verifies both factual schema 7 result branches. C4 is also complete:
 schema 1 plans now preserve exact worker arguments, independently verify the
 result, cover only the exact unit, support ordered move/build, pause on newly
@@ -374,3 +374,10 @@ There was no valid marker, visible game change, or retry, and restoration
 passed. The lexical-boundary repair must pass the full offline/CI gate before a
 fresh operator-authorized C6. No stable downstream or live-support claim exists
 yet.
+
+A subsequent fresh attempt passed read/UI agreement and stale-source rejection
+again. The sole authorized write parsed but returned explicit `invalid_build`
+because the write path used a build-type string key on the target's numeric
+action table. State and UI remained unchanged, no retry occurred, and exact
+restoration passed. Numeric Type/SubType/MissionData action resolution must pass
+the complete offline/CI gate before another C6.
