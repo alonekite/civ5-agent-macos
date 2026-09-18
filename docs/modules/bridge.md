@@ -49,8 +49,10 @@ or ruleset knowledge.
   player. Schemas 2–5 remain readable.
 - Schema 7 adds bounded worker-context and worker-build segments without
   changing selection. Parsing, validation, public limits, legacy compatibility,
-  and the 688/895-byte generated reads are implemented offline. Its future
-  action remains unavailable until command and verification ship together.
+  and the repaired 688/888-byte generated reads are implemented offline. The
+  first target attempt exposed and safely stopped on an invalid callable-table
+  enumeration before any write; indexed enumeration now has regression
+  coverage, and a new bounded target attempt remains required.
 - Every successful write includes a proved postcondition.
 - Every FireTuner Lua program is at most 1,000 UTF-8 bytes; oversized programs
   fail before transport contact.
@@ -99,9 +101,10 @@ still has a direct fallback; the supported Python bridge client is watcher-only.
 
 ## Planned extensions
 
-Maintain the 1.1.0 movement contract. M10 C2–C3 now implement the exact
-`worker_build` admission, single stock dispatch, and factual schema 7 read-back
-verification on the unreleased development head. C4 executor integration and
-C5/C6 evidence remain. Optional evidence for other branches remains separate.
+Maintain the 1.1.0 movement contract. M10 C1–C5 implement the schema 7 reads,
+exact `worker_build` admission, single stock dispatch, factual read-back,
+executor integration, and complete offline gate on the unreleased development
+head. The first C6 read attempt failed safely and has been repaired offline;
+fresh bounded C6 evidence remains. Optional evidence for other branches remains separate.
 The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

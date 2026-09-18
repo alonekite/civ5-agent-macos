@@ -857,6 +857,8 @@ class TunerProtocolTest(unittest.TestCase):
     def test_snapshot_lua_emits_only_conservative_ordinary_worker_builds(self):
         lua = snapshot_lua_programs()[8]
         for required in (
+            "for j=0,#GameInfoActions do",
+            "local a=GameInfoActions[j]",
             "p:IsTurnActive()",
             "not Game.IsProcessingMessages()",
             "u:IsReadyToMove()",
@@ -871,8 +873,8 @@ class TunerProtocolTest(unittest.TestCase):
             "q:GetImprovementType()<0",
             "a.SubType==ActionSubTypes.ACTIONSUBTYPE_BUILD",
             "a.Type==b.Type",
-            "b.ImprovementType",
-            'b.ImprovementType~=""',
+            "local v=b and b.ImprovementType",
+            'v~=""',
             "not b.RouteType",
             "not b.Repair",
             "not b.RemoveRoute",
@@ -881,6 +883,7 @@ class TunerProtocolTest(unittest.TestCase):
             "u:CanBuild(q,b.ID,false,true)",
         ):
             self.assertIn(required, lua)
+        self.assertNotIn("GameInfoActions()", lua)
         for forbidden in (
             "IsActionRecommended",
             "Game.CanHandleAction",

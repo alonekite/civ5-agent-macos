@@ -15,7 +15,7 @@ GitHub Issues and should link back to one milestone ID.
 | M7 | Public API stabilization | Complete | M4, M5, M6 |
 | M8 | 1.0 release readiness | Complete | M7 |
 | M9 | Verified unit movement | Complete | M8, M2, M6 |
-| M10 | Verified worker build | Planning | M9, M2, M6 |
+| M10 | Verified worker build | Target verification | M9, M2, M6 |
 
 ## M0 — Environment reconnaissance
 
@@ -337,7 +337,7 @@ Acceptance criteria:
 - Publish the capability only through a compatible semantic-versioned release
   after updating the static downstream profile.
 
-Current status: write-path implementation. The conversation-submitted request is registered as
+Current status: bounded target verification. The conversation-submitted request is registered as
 [GitHub Issue #2](https://github.com/alonekite/civ5-agent-macos/issues/2) and
 normalized in the [verified worker build development plan](WORKER_BUILD_PLAN.md).
 Bundled BNW UI and released SDK inspection completed C0/D1. ADR-0033 selects
@@ -361,5 +361,9 @@ schema 1 plans now preserve exact worker arguments, independently verify the
 result, cover only the exact unit, support ordered move/build, pause on newly
 uncovered orders, and conservatively reconcile cached results. C5 gate
 C5 is complete with the full test matrix, repeated artifact inspection, clean
-installation, and privacy scans. C6 bounded operator-authorized target evidence
-is next; no stable downstream or live-support claim exists yet.
+installation, and privacy scans. The first C6 attempt stopped safely during
+read-only collection because Campaign Edition exposes `GameInfoActions` as an
+indexed table, not a callable iterator. No write ran and restoration passed.
+The indexed-loop repair retains the sub-900-byte bound and passes the offline
+suite; a fresh operator-authorized C6 remains next. No stable downstream or
+live-support claim exists yet.

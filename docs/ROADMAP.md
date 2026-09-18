@@ -248,9 +248,9 @@ intentionally outside this repository's scope.
   contracts
 - [x] Freeze the offline and bounded target-machine verification procedures
 - [x] Implement and test schema 7 current-plot build state
-- [ ] Implement bounded allowlisted worker build with read-after-write
+- [x] Implement bounded allowlisted worker build with read-after-write
   verification
-- [ ] Integrate the explicit action into deterministic TurnPlan execution
-- [ ] Complete the full offline verification gate
+- [x] Integrate the explicit action into deterministic TurnPlan execution
+- [x] Complete the full offline verification gate
 - [ ] Complete bounded operator-authorized target-machine verification
 - [ ] Publish the verified capability in a compatible 1.2.0 release

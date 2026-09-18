@@ -9,7 +9,7 @@ tests; discrepancies are defects that must be resolved explicitly.
 | [Live state](live-state.md) | Evolving; schemas 2–6 stable in 1.1.0, schema 7 worker reads implemented offline on development head | bridge |
 | [Commands](command.md) | Evolving, core writes live-verified | bridge |
 | [Unit movement](unit-movement.md) | Stable 1.1.0 schema 6 read/write/executor contract; offline and bounded live gates complete | bridge/executor |
-| [Worker build](worker-build.md) | Frozen M10 contract; C1 read model implemented offline, write/executor/live evidence pending | bridge/executor |
+| [Worker build](worker-build.md) | Frozen M10 contract; C1–C5 implemented offline, first C6 read attempt failed safely and was repaired, fresh live evidence pending | bridge/executor |
 | [Session and match identity](session-identity.md) | Bridge session and journal match binding implemented offline | bridge/application/journal |
 | [Knowledge bundle](../KNOWLEDGE.md) | Evolving, implemented | knowledge |
 | [Ruleset knowledge view](resolver.md) | Structural M4 contract implemented | knowledge |

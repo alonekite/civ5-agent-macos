@@ -92,7 +92,7 @@ reads, and public limits are implemented and covered offline on development
 head. They are not live-verified and are not part of the stable 1.1.0 profile.
 
 Collection uses two additional independently bounded read-only Lua segments,
-688 and 895 UTF-8 bytes in the current generator, for nine total schema 7
+688 and 888 UTF-8 bytes in the current generator, for nine total schema 7
 segments. Schema 2–6 compatibility remains unchanged. Existing `move_unit`
 admission and executor verification accept matching schema 6+ states so the
 schema extension does not disable the released movement action.

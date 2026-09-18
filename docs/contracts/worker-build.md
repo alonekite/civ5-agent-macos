@@ -1,7 +1,7 @@
 # Worker-Build Contract
 
-Status: Frozen M10 contract; C1–C5 offline gate complete; bounded live evidence
-pending
+Status: Frozen M10 contract; C1–C5 offline gate complete; first bounded live
+read attempt failed safely and is repaired offline; fresh live evidence pending
 
 Expected compatibility release: 1.2.0, only after the offline and bounded live
 gates pass

@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-09-17.
+Last updated: 2026-09-18.
 
 This is the short durable handoff for current work. Detailed completed history
 belongs in module documents, milestones, the experiment log, and the
@@ -11,11 +11,11 @@ development log.
 - Current milestone: M10 — verified worker build — has passed its complete
   offline gate through deterministic execution and artifact reconciliation.
   M9 and the immutable 1.1.0 release remain complete.
-- Active next deliverable: M10 C6 bounded target-machine verification, only
-  after the operator separately authorizes the documented procedure.
+- Active next deliverable: publish the repaired schema 7 candidate enumerator,
+  then restart M10 C6 only after the operator separately authorizes the
+  documented procedure.
 - Functional baseline: 335 tests pass locally on Python 3.11/default runtime;
   the previous pushed batch passed GitHub Actions Python 3.11/3.13.
-  and in exact-commit/tag GitHub Actions on Python 3.11/3.13.
 - Blocking issue: none.
 - User presence required next: yes. C6 requires the operator to prepare the
   recoverable live session, manually confirm one candidate, and separately
@@ -129,7 +129,7 @@ development log.
   branch write is allowed.
 - M10 C1 is complete offline. Schema 7 now emits and validates exact per-unit
   current-plot facts, nullable current build, and up to 32 sorted factual
-  build/improvement candidates through two selection-free 688/895-byte Lua
+  build/improvement candidates through two selection-free 688/888-byte Lua
   programs. Resources use active-team visibility; identifiers, nested shape,
   part identity, unit binding, ordering, duplicates, counts, privacy, and
   schema 2–6 compatibility are covered. The existing movement action remains
@@ -151,6 +151,13 @@ development log.
   pass within the 335-test suite. Repeated wheel/sdist contents match, both
   artifact kinds install cleanly, and tracked/unpacked sensitive-content scans
   are empty. This is not live evidence.
+- The first M10 C6 attempt on 2026-09-18 stopped safely at the read-only gate:
+  Campaign Edition exposes `GameInfoActions` as a table, so the callable-table
+  candidate loop failed before a schema 7 snapshot. No command or write ran,
+  and exact host restoration passed. The reader now uses the same numeric table
+  shape already proven by `skip_unit`, forbids the invalid call in regression
+  tests, and retains the sub-900-byte segment bound. Fresh C6 evidence is still
+  required after the repair is pushed.
 
 ## Current architecture
 

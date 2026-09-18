@@ -1211,3 +1211,50 @@ D4/C7 compatibility, artifact, tag, and publication gates complete.
 
 Reconcile the public contracts and downstream capability forecast with this live
 evidence, then perform D4/C7 stabilization for the planned 1.1.0 release.
+
+### 2026-09-18 — Schema 7 worker-build read attempt
+
+**Hypothesis**
+
+The guarded watcher can collect schema 7 current-plot and ordinary worker-build
+candidate facts without changing game state or UI selection.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the target Apple
+  Silicon Mac.
+- Normal disposable single-player state with an idle owned worker on a blank
+  featureless land plot.
+- Exact implementation commit `86934a3`, a recoverable guarded FireTuner
+  session, and one private watcher audit path outside the repository.
+
+**Procedure**
+
+1. Prepared the recoverable session and proved the firewall, explicit Civ V
+   incoming block, FireTuner setting, and absence of a pre-existing listener.
+2. Started the game, passed live preflight, and started one schema 7 watcher.
+3. Stopped immediately when the read-only `worker_builds` segment returned a
+   Lua runtime error; no command, stale-source test, or build was attempted.
+4. Quit the game and restored the recorded host baseline before investigation.
+
+**Observed result**
+
+- The target runtime exposes `GameInfoActions` as a table. Calling it as an
+  iterator failed before a complete schema 7 snapshot was produced.
+- The failure occurred during read-only collection. No worker action, command
+  submission, turn advancement, or game-state change was attempted.
+- Restoration proved FireTuner disabled, no TCP 4318 listener or agent socket,
+  firewall restored to disabled, and no Civ V rule, matching the baseline.
+
+**Conclusion**
+
+Not confirmed. C6 stopped safely at its first read-only gate. The candidate
+enumerator must use the target-proven indexed `GameInfoActions` table shape,
+retain the sub-900-byte read bound, pass the complete offline gate again, and
+receive fresh operator authorization before C6 restarts.
+
+**Next step**
+
+Replace the invalid callable-table loop with bounded numeric table iteration,
+add a regression assertion that forbids `GameInfoActions()`, re-run C1–C5, and
+publish the repaired implementation before scheduling another live attempt.
