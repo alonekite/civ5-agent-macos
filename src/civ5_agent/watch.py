@@ -7,7 +7,6 @@ import sys
 import threading
 import time
 from collections.abc import Callable
-from dataclasses import asdict
 from pathlib import Path
 from uuid import UUID
 
@@ -29,7 +28,7 @@ from .identity import (
 )
 from .ipc import LocalControlServer, default_socket_path
 from .journal import JournalCapture, JournalError
-from .models import Command, GameState
+from .models import Command, GameState, model_to_dict as asdict
 from .preflight import UnsafeSessionError, require_safe_tuner_session
 from .storage import UserDataStateReader, default_state_database
 from .tuner import DEFAULT_HOST, DEFAULT_PORT, FireTunerClient, _find_state

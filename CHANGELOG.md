@@ -5,6 +5,14 @@ All notable user-visible changes are recorded here. Development details belong i
 
 ## Unreleased
 
+### Added
+
+- Development schema 8 read-only ordinary-research forecast facts: effective
+  candidate costs, exact times-100 progress/science, whole-point overflow,
+  runtime turns-left, action-window phase, field provenance, and explicit
+  runtime context. Complete ruleset fingerprint binding remains downstream;
+  no write or TurnPlan contract changes.
+
 ## 1.2.0 - 2026-09-19
 
 ### Added

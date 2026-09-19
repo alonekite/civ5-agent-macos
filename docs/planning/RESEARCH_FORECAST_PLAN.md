@@ -33,7 +33,7 @@ Status: complete under ADR-0035.
 
 ### C1 — Implement schema 8 collection and parsing
 
-Status: pending.
+Status: complete offline; target evidence pending.
 
 - Add independently bounded, read-only research and runtime-context segments.
 - Preserve schemas 2–7 unchanged.
@@ -41,7 +41,7 @@ Status: pending.
 
 ### C2 — Implement validation and public discovery
 
-Status: pending.
+Status: complete offline.
 
 - Validate the complete nested shapes, units, identifiers, candidate equality,
   stable order, source labels, and fail-closed unsupported states.
@@ -50,7 +50,7 @@ Status: pending.
 
 ### C3 — Complete the offline gate
 
-Status: pending.
+Status: complete offline; the 346-test suite and artifact gate pass.
 
 - Add the negative and compatibility matrix required by the owning contract.
 - Preserve authoritative core facts when downstream KnowledgeBundle binding is

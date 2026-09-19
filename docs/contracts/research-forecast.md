@@ -78,7 +78,8 @@ unsupported object.
 `current` is `null` when no ordinary current research exists. Otherwise its
 technology must be present in `candidates`, and the four values must equal the
 candidate record. `candidates` contains exactly the schema 5
-`researchable_technologies`, sorted by `type`, with no duplicates. The maximum
+`researchable_technologies` plus the current technology if the legacy list does
+not already include it, sorted by `type`, with no duplicates. The maximum
 candidate count remains bounded by the number of valid technology records in
 the active ruleset and by the existing response-size limit.
 

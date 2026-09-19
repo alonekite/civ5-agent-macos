@@ -159,6 +159,20 @@ ordering, and any replanning.
 
 ## Compatibility and maintenance
 
+## Development 1.3.0 research facts forecast
+
+The development head adds live-state schema 8 and capability/context versions
+1. These are authoritative runtime facts when `research_forecast.status` is
+`supported`; they are not a complete ruleset manifest. Exact-supported
+forecasting and forecast-dependent automatic intent eligibility additionally
+require a sufficient, non-conflicting downstream KnowledgeBundle binding.
+That binding is not required to expose the live facts and does not, by itself,
+prohibit a separately approved core-only/manual-review `choose_research` intent
+that makes no exact-forecast claim.
+
+This section is a development compatibility forecast, not part of the stable
+1.2.0 profile. Target evidence and the 1.3.0 release gate remain pending.
+
 Incompatible changes to the stable aggregate API or `civ5-turn` require a new
 major version. Backward-compatible capability additions require at least a
 minor release; compatible fixes use a patch release. A new or changed schema,

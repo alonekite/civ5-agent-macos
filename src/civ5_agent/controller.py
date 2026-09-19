@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
 from .ipc import default_socket_path, request
 from .identity import validate_bridge_session_id
-from .models import Command, GameState
+from .models import Command, GameState, model_to_dict as asdict
 from .turn_requirements import inspect_turn_requirements
 from .validation import validate_live_state
 

@@ -77,6 +77,34 @@ def _schema_seven_messages():
     return messages
 
 
+def _schema_eight_messages():
+    messages = [
+        TunerMessage(message.tag, message.payload.replace("SNAPSHOT|7|", "SNAPSHOT|8|"))
+        for message in _schema_seven_messages()
+    ]
+    messages.extend(
+        (
+            TunerMessage(
+                -1,
+                "CIV5_AGENT_PART|research_forecast|2|0\n"
+                "CIV5_AGENT_RESEARCH_FORECAST|1|S||A|500|2|TECH_POTTERY",
+            ),
+            TunerMessage(
+                -1,
+                "CIV5_AGENT_RESEARCH_CANDIDATE|TECH_WRITING|55|0|11\n"
+                "CIV5_AGENT_RESEARCH_CANDIDATE|TECH_POTTERY|35|600|6",
+            ),
+            TunerMessage(
+                -1,
+                "CIV5_AGENT_PART|runtime_context|2|0\n"
+                "CIV5_AGENT_RUNTIME_CONTEXT|1|GAMESPEED_STANDARD|HANDICAP_PRINCE|"
+                "WORLDSIZE_STANDARD|Assets/Maps/Continents.lua|CIVILIZATION_TEST",
+            ),
+        )
+    )
+    return messages
+
+
 class TunerProtocolTest(unittest.TestCase):
     def test_connect_requires_safe_session_before_opening_socket(self):
         client = FireTunerClient()
@@ -511,6 +539,49 @@ class TunerProtocolTest(unittest.TestCase):
         )
         self.assertIs(validate_live_state(state), state)
 
+    def test_parses_schema_eight_research_forecast_and_runtime_context(self):
+        state = parse_snapshot(tuple(_schema_eight_messages()))
+
+        self.assertEqual(state.schema_version, 8)
+        self.assertEqual(state.research_forecast["overflow_research"], 2)
+        self.assertEqual(
+            state.research_forecast["current"],
+            {
+                "type": "TECH_POTTERY",
+                "cost": 35,
+                "progress_times100": 600,
+                "turns_left_with_overflow": 6,
+            },
+        )
+        self.assertEqual(
+            [item["type"] for item in state.research_forecast["candidates"]],
+            ["TECH_POTTERY", "TECH_WRITING"],
+        )
+        self.assertEqual(
+            state.runtime_context["ruleset_fingerprint"],
+            {"status": "unsupported", "value": None, "source": None},
+        )
+        self.assertIs(validate_live_state(state), state)
+
+    def test_schema_eight_parses_fail_closed_unsupported_forecast(self):
+        messages = _schema_eight_messages()
+        messages = [
+            TunerMessage(
+                message.tag,
+                message.payload.replace(
+                    "CIV5_AGENT_RESEARCH_FORECAST|1|S||A|500|2|TECH_POTTERY",
+                    "CIV5_AGENT_RESEARCH_FORECAST|1|U|F|O|||",
+                ),
+            )
+            for message in messages
+            if "CIV5_AGENT_RESEARCH_CANDIDATE" not in message.payload
+        ]
+        state = parse_snapshot(tuple(messages))
+        state.research_choice = {"required": True, "mode": "free_technology"}
+        self.assertEqual(state.research_forecast["status"], "unsupported")
+        self.assertEqual(state.research_forecast["reason"], "free_technology_mode")
+        self.assertIs(validate_live_state(state), state)
+
     def test_schema_seven_requires_both_worker_parts(self):
         for missing_part in ("worker_context", "worker_builds"):
             with self.subTest(missing_part=missing_part):
@@ -746,13 +817,15 @@ class TunerProtocolTest(unittest.TestCase):
 
     def test_snapshot_programs_fit_verified_firetuner_command_limit(self):
         programs = snapshot_lua_programs()
-        self.assertEqual(len(programs), 9)
-        self.assertTrue(all(len(program.encode("utf-8")) < 900 for program in programs))
+        self.assertEqual(len(programs), 12)
+        self.assertTrue(
+            all(len(program.encode("utf-8")) <= MAX_LUA_PROGRAM_BYTES for program in programs)
+        )
 
     def test_read_game_state_collects_every_snapshot_program(self):
         header = TunerMessage(
             -1,
-            "CIV5_AGENT_SNAPSHOT|7|2|0|7|4|5|9|0|1|33|0|Test|Test|"
+            "CIV5_AGENT_SNAPSHOT|8|2|0|7|4|5|9|0|1|33|0|Test|Test|"
             "-1||-1|-1|true|true|-1",
         )
         part_names = (
@@ -764,6 +837,8 @@ class TunerProtocolTest(unittest.TestCase):
             "move_targets",
             "worker_context",
             "worker_builds",
+            "research_forecast",
+            "runtime_context",
         )
         part_messages = [
             TunerMessage(-1, f"CIV5_AGENT_PART|{name}|2|0")
@@ -779,16 +854,31 @@ class TunerProtocolTest(unittest.TestCase):
             "CIV5_AGENT_PART|technologies|2|0\n"
             "CIV5_AGENT_RESEARCH_CHOICE|false|normal",
         )
+        part_messages[8] = TunerMessage(
+            -1,
+            "CIV5_AGENT_PART|research_forecast|2|0\n"
+            "CIV5_AGENT_RESEARCH_FORECAST|1|S||A|500|0|",
+        )
+        part_messages[9] = TunerMessage(
+            -1,
+            "CIV5_AGENT_PART|runtime_context|2|0\n"
+            "CIV5_AGENT_RUNTIME_CONTEXT|1|||||",
+        )
         client = FireTunerClient()
         with patch.object(
             client,
             "execute_collect",
-            side_effect=[(header,), *((message,) for message in part_messages)],
+            side_effect=[
+                (header,),
+                *((message,) for message in part_messages[:9]),
+                (),
+                (part_messages[9],),
+            ],
         ) as execute:
             state = client.read_game_state(172)
 
         self.assertEqual(state.turn, 2)
-        self.assertEqual(execute.call_count, 9)
+        self.assertEqual(execute.call_count, 12)
         self.assertEqual(
             [call.args for call in execute.call_args_list],
             [(172, program) for program in snapshot_lua_programs()],

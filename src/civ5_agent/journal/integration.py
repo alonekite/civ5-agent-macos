@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Literal
 
 from ..identity import validate_command_id
-from ..models import GameState
+from ..models import GameState, game_state_to_dict
 from ..validation import validate_live_state
 from .store import JournalStore
 
@@ -59,7 +58,7 @@ class JournalCapture:
             )
         self.store.append(
             "snapshot",
-            {"state": asdict(validated)},
+            {"state": game_state_to_dict(validated)},
             bridge_session_id=self.bridge_session_id,
             turn=validated.turn,
         )

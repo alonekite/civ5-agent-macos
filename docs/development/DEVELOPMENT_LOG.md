@@ -1644,6 +1644,26 @@ Sanitized C6 evidence commit: `138fa20`.
   remain pending; schemas 2–7 and all write, plan, executor, result, and journal
   contracts are unchanged by this design batch.
 
+## 2026-09-19 — Implement M11 schema 8 offline
+
+- Added three bounded read-only programs for ordinary-research forecast status,
+  candidate facts, and runtime context. Twelve total snapshot programs remain
+  below the 1,000-byte transport limit; the largest is 981 bytes.
+- Added schema 8 parsing and strict validation for effective cost, times-100
+  progress/science, whole-point overflow, runtime turns-left, action-window
+  phase, field provenance, explicit context availability, and the unsupported
+  ruleset-fingerprint boundary.
+- Exported capability/context version 1 on development version `1.3.0.dev0`.
+  Existing worker-build admission and verification now accept a matching schema
+  7+ state so the extension does not disable the published action.
+- Preserved schemas 2–7 wire and digest shape by omitting schema-8-only fields
+  from legacy serialization. KnowledgeBundle binding remains a downstream
+  exact-forecast/automation concern and is not required to validate live facts.
+- All 346 tests pass on Python 3.11. Repeated wheel and source distributions
+  have equal normalized contents, both artifact scans pass, and a clean wheel
+  installation imports the new public constants. Target-machine evidence is
+  still pending.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

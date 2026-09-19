@@ -1,6 +1,6 @@
 # Public API Inventory
 
-Status: Stable 1.2 aggregate surface implemented; bounded CLI classified
+Status: Stable 1.2 surface plus 1.3.0 development additions
 
 ## Purpose
 
@@ -13,7 +13,7 @@ listed Python symbol into a stable API by itself.
 
 | Area | Version boundary | Current compatibility |
 |---|---|---|
-| Live state | `GameState.schema_version` | Schemas 2–7 supported in 1.2.0; schema 7 ordinary worker reads have bounded live evidence |
+| Live state | `GameState.schema_version` | Stable 1.2.0 supports schemas 2–7; development 1.3.0 adds offline schema 8 |
 | Knowledge | `KnowledgeBundle.schema_version` | Schemas 1–3 readable; current importer emits schema 3 |
 | Journal | journal record `schema_version` | Schema 1 only; unknown versions fail closed |
 | Turn plan | `TurnPlan.schema_version` | Schema 1 complete-turn plans only |
@@ -139,6 +139,13 @@ two limits, includes schema 7 in the supported schema set, and includes the
 verified command in `ALLOWED_ACTIONS`. Consumers must require an approved tagged
 release rather than treating an arbitrary checkout as published support.
 See the worker-build contract.
+
+Development core 1.3.0 adds schema 8 plus exported
+`RESEARCH_FORECAST_CAPABILITY_VERSION = 1` and
+`RUNTIME_CONTEXT_VERSION = 1`. It adds fields to `GameState` but no model class,
+action, write, plan, result, executor, journal, or stable CLI schema. Consumers
+must not treat this development checkout as published or target-verified
+support. See the research-forecast contract.
 
 ## Error inventory
 

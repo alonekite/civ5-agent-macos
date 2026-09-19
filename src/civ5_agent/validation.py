@@ -13,7 +13,13 @@ RESOURCE_TYPE_PATTERN = re.compile(r"RESOURCE_[A-Z0-9_]+\Z")
 IMPROVEMENT_TYPE_PATTERN = re.compile(r"IMPROVEMENT_[A-Z0-9_]+\Z")
 ROUTE_TYPE_PATTERN = re.compile(r"ROUTE_[A-Z0-9_]+\Z")
 BUILD_TYPE_PATTERN = re.compile(r"BUILD_[A-Z0-9_]+\Z")
-SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5, 6, 7})
+GAME_SPEED_TYPE_PATTERN = re.compile(r"GAMESPEED_[A-Z0-9_]+\Z")
+HANDICAP_TYPE_PATTERN = re.compile(r"HANDICAP_[A-Z0-9_]+\Z")
+WORLD_SIZE_TYPE_PATTERN = re.compile(r"WORLDSIZE_[A-Z0-9_]+\Z")
+CIVILIZATION_TYPE_PATTERN = re.compile(r"CIVILIZATION_[A-Z0-9_]+\Z")
+SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5, 6, 7, 8})
+RESEARCH_FORECAST_CAPABILITY_VERSION = 1
+RUNTIME_CONTEXT_VERSION = 1
 MAX_MAP_COORDINATE = 65_535
 MAX_BUILD_IDENTIFIER_LENGTH = 64
 MAX_ORDINARY_WORKER_BUILDS_PER_UNIT = 32
@@ -262,7 +268,185 @@ def validate_live_state(state: GameState) -> GameState:
             raise StateValidationError(
                 "normal research_choice must match ordinary research availability"
             )
+    if state.schema_version >= 8:
+        _validate_research_forecast(state)
+        _validate_runtime_context(state.runtime_context)
     return state
+
+
+def _validate_research_forecast(state: GameState) -> None:
+    forecast = state.research_forecast
+    expected = {
+        "capability_version",
+        "status",
+        "reason",
+        "phase",
+        "science_per_turn_times100",
+        "overflow_research",
+        "current",
+        "candidates",
+        "field_provenance",
+    }
+    if not isinstance(forecast, dict) or set(forecast) != expected:
+        raise StateValidationError("schema 8 requires exact research_forecast")
+    if forecast["capability_version"] != RESEARCH_FORECAST_CAPABILITY_VERSION:
+        raise StateValidationError("research_forecast has invalid capability_version")
+    provenance = forecast["field_provenance"]
+    expected_provenance = {
+        "cost": "CvPlayer.GetResearchCost",
+        "progress_times100": "CvPlayer.GetResearchProgressTimes100",
+        "science_per_turn_times100": "CvPlayer.GetScienceTimes100",
+        "overflow_research": "CvPlayer.GetOverflowResearch",
+        "turns_left_with_overflow": "CvPlayer.GetResearchTurnsLeft(include_overflow=true)",
+        "phase": "CvPlayer.IsTurnActive+Game.IsProcessingMessages",
+    }
+    if provenance != expected_provenance:
+        raise StateValidationError("research_forecast has invalid field_provenance")
+    status = forecast["status"]
+    reason = forecast["reason"]
+    if status == "supported":
+        if reason is not None:
+            raise StateValidationError("supported research_forecast cannot have reason")
+        if forecast["phase"] != "action_window_after_interturn_research_resolution":
+            raise StateValidationError("supported research_forecast has invalid phase")
+        if state.research_choice.get("mode") != "normal" or not state.turn_active:
+            raise StateValidationError("supported research_forecast is outside ordinary active mode")
+        for field in ("science_per_turn_times100", "overflow_research"):
+            value = forecast[field]
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                raise StateValidationError(f"research_forecast has invalid {field}")
+        candidates = forecast["candidates"]
+        if not isinstance(candidates, list):
+            raise StateValidationError("research_forecast candidates must be a list")
+        normalized: list[str] = []
+        for candidate in candidates:
+            _validate_research_candidate(candidate)
+            normalized.append(candidate["type"])
+        if normalized != sorted(normalized) or len(set(normalized)) != len(normalized):
+            raise StateValidationError("research_forecast candidates must be sorted and unique")
+        expected_types = sorted(
+            set(state.researchable_technologies)
+            | ({state.research["type"]} if state.research is not None else set())
+        )
+        if normalized != expected_types:
+            raise StateValidationError("research_forecast candidates disagree with researchable technologies")
+        current = forecast["current"]
+        if state.research is None:
+            if current is not None:
+                raise StateValidationError("research_forecast current must be null")
+        else:
+            if not isinstance(current, dict):
+                raise StateValidationError("research_forecast current is missing")
+            match = next(
+                (item for item in candidates if item["type"] == state.research["type"]),
+                None,
+            )
+            if current != match:
+                raise StateValidationError("research_forecast current must match its candidate")
+            if current["cost"] != state.research["cost"]:
+                raise StateValidationError("research_forecast current cost disagrees with research")
+    elif status in {"unsupported", "unavailable"}:
+        if reason not in {
+            "free_technology_mode",
+            "technology_steal_mode",
+            "outside_action_window",
+            "runtime_api_binding_unavailable",
+        }:
+            raise StateValidationError("research_forecast has invalid unsupported reason")
+        if forecast["phase"] != "outside_action_window":
+            raise StateValidationError("unsupported research_forecast has invalid phase")
+        if any(
+            forecast[field] is not None
+            for field in ("science_per_turn_times100", "overflow_research", "current")
+        ) or forecast["candidates"] != []:
+            raise StateValidationError("unsupported research_forecast contains partial facts")
+        expected_status = (
+            "unavailable"
+            if reason == "runtime_api_binding_unavailable"
+            else "unsupported"
+        )
+        if status != expected_status:
+            raise StateValidationError("research_forecast status disagrees with reason")
+        mode = state.research_choice.get("mode")
+        if reason == "free_technology_mode" and mode != "free_technology":
+            raise StateValidationError("research_forecast free mode disagrees with research_choice")
+        if reason == "technology_steal_mode" and mode != "unsupported":
+            raise StateValidationError("research_forecast steal mode disagrees with research_choice")
+    else:
+        raise StateValidationError("research_forecast has invalid status")
+
+
+def _validate_research_candidate(candidate: object) -> None:
+    expected = {"type", "cost", "progress_times100", "turns_left_with_overflow"}
+    if not isinstance(candidate, dict) or set(candidate) != expected:
+        raise StateValidationError("research_forecast has malformed candidate")
+    if not isinstance(candidate["type"], str) or not TECH_TYPE_PATTERN.fullmatch(
+        candidate["type"]
+    ):
+        raise StateValidationError("research_forecast has invalid candidate type")
+    for field in ("cost", "progress_times100", "turns_left_with_overflow"):
+        value = candidate[field]
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            raise StateValidationError(f"research_forecast candidate has invalid {field}")
+
+
+def _validate_runtime_context(context: object) -> None:
+    dimensions = {
+        "game_speed",
+        "difficulty",
+        "world_size",
+        "map_script",
+        "civilization",
+        "game_family",
+        "game_build",
+        "active_content",
+        "ruleset_fingerprint",
+    }
+    if not isinstance(context, dict) or set(context) != {"context_version", *dimensions}:
+        raise StateValidationError("schema 8 requires exact runtime_context")
+    if context["context_version"] != RUNTIME_CONTEXT_VERSION:
+        raise StateValidationError("runtime_context has invalid context_version")
+    for name in dimensions:
+        item = context[name]
+        if not isinstance(item, dict) or set(item) != {"status", "value", "source"}:
+            raise StateValidationError(f"runtime_context has malformed {name}")
+        if item["status"] == "available":
+            if not isinstance(item["value"], str) or not item["value"]:
+                raise StateValidationError(f"runtime_context has invalid {name} value")
+            if not isinstance(item["source"], str) or not item["source"]:
+                raise StateValidationError(f"runtime_context has invalid {name} source")
+        elif item["status"] in {"unavailable", "unsupported"}:
+            if item["value"] is not None or item["source"] is not None:
+                raise StateValidationError(f"runtime_context {name} must be null")
+        else:
+            raise StateValidationError(f"runtime_context has invalid {name} status")
+    if context["ruleset_fingerprint"]["status"] != "unsupported":
+        raise StateValidationError("runtime_context cannot claim a ruleset fingerprint")
+    if context["game_family"]["status"] != "unavailable" or context["game_build"]["status"] != "unavailable":
+        raise StateValidationError("runtime_context cannot invent game family or build")
+    if context["active_content"]["status"] != "unsupported":
+        raise StateValidationError("runtime_context cannot claim active content")
+    identifier_patterns = {
+        "game_speed": GAME_SPEED_TYPE_PATTERN,
+        "difficulty": HANDICAP_TYPE_PATTERN,
+        "world_size": WORLD_SIZE_TYPE_PATTERN,
+        "civilization": CIVILIZATION_TYPE_PATTERN,
+    }
+    for name, pattern in identifier_patterns.items():
+        item = context[name]
+        if item["status"] == "available" and not pattern.fullmatch(item["value"]):
+            raise StateValidationError(f"runtime_context has invalid {name} identifier")
+    map_script = context["map_script"]
+    if map_script["status"] == "available":
+        value = map_script["value"]
+        if (
+            len(value) > 512
+            or value.startswith(("/", "\\"))
+            or re.match(r"^[A-Za-z]:", value)
+            or ".." in value.replace("\\", "/").split("/")
+            or "\x00" in value
+        ):
+            raise StateValidationError("runtime_context has unsafe map_script")
 
 
 def _validate_technology_ids(values: object, field: str) -> None:

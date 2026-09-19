@@ -52,6 +52,11 @@ or ruleset knowledge.
   and the repaired 688/881-byte generated reads are included in the stable
   1.2.0 profile. Bounded target evidence confirms candidate/UI agreement and
   the active-build result branch; immediate completion remains offline-only.
+- Development schema 8 adds three bounded read-only research/runtime-context
+  programs and validated capability/context objects. It publishes runtime
+  provenance but never invents a complete ruleset fingerprint. Offline tests
+  pass; target bindings, exact units, UI agreement, and overflow timing remain
+  pending.
 - Every successful write includes a proved postcondition.
 - Every FireTuner Lua program is at most 1,000 UTF-8 bytes; oversized programs
   fail before transport contact.

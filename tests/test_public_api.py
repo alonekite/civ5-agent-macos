@@ -61,8 +61,10 @@ class PublicApiContractTest(unittest.TestCase):
         self.assertIn("worker_build", api.ALLOWED_ACTIONS)
         self.assertEqual(
             api.SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS,
-            {2, 3, 4, 5, 6, 7},
+            {2, 3, 4, 5, 6, 7, 8},
         )
+        self.assertEqual(api.RESEARCH_FORECAST_CAPABILITY_VERSION, 1)
+        self.assertEqual(api.RUNTIME_CONTEXT_VERSION, 1)
         self.assertEqual(api.MAX_BUILD_IDENTIFIER_LENGTH, 64)
         self.assertEqual(api.MAX_ORDINARY_WORKER_BUILDS_PER_UNIT, 32)
         self.assertEqual(api.MAX_MAP_COORDINATE, 65_535)

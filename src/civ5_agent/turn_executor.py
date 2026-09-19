@@ -592,8 +592,11 @@ def _worker_build_postcondition_error(
     before_state: GameState,
     after_state: GameState,
 ) -> str | None:
-    if before_state.schema_version != 7 or after_state.schema_version != 7:
-        return "worker_build result requires schema 7 states"
+    if (
+        before_state.schema_version < 7
+        or after_state.schema_version != before_state.schema_version
+    ):
+        return "worker_build result requires matching schema 7+ states"
     unit_id = action.arguments["unit_id"]
     source_x = action.arguments["x"]
     source_y = action.arguments["y"]

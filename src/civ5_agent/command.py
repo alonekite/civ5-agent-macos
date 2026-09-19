@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import time
-from dataclasses import asdict
 from pathlib import Path
 import sys
 
@@ -11,7 +10,7 @@ from .actions import CommandValidationError, validate_command
 from .audit import CommandAuditLog, default_audit_path
 from .identity import new_bridge_session_id, validate_bridge_session_id
 from .ipc import default_socket_path, request
-from .models import Command, CommandResult
+from .models import Command, CommandResult, game_state_to_dict, model_to_dict as asdict
 from .preflight import UnsafeSessionError, require_safe_tuner_session
 from .tuner import DEFAULT_HOST, DEFAULT_PORT, FireTunerClient, _find_state
 from .validation import MAX_MAP_COORDINATE, validate_live_state
@@ -26,7 +25,7 @@ def execute_end_turn(
     poll_interval: float = 0.25,
 ) -> CommandResult:
     before_state = validate_live_state(client.read_game_state(state_id))
-    before = asdict(before_state)
+    before = game_state_to_dict(before_state)
     accepted, blocking_type = client.request_end_turn(state_id)
     if not accepted:
         return CommandResult(
@@ -463,11 +462,11 @@ def execute_worker_build(
             f"worker_build rejected malformed live state: {error}"
         ) from error
     before = asdict(before_state)
-    if before_state.schema_version != 7:
+    if before_state.schema_version < 7:
         return CommandResult(
             command.id,
             "error",
-            "worker_build requires a fresh schema 7 state",
+            "worker_build requires a fresh schema 7+ state",
             before,
             before,
         )
@@ -558,7 +557,7 @@ def execute_worker_build(
             continue
         after = asdict(after_state)
         if (
-            after_state.schema_version != 7
+            after_state.schema_version != before_state.schema_version
             or after_state.turn != before_state.turn
             or after_state.active_player != before_state.active_player
             or after_state.turn_active is not True

@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 from uuid import uuid4
 
@@ -28,6 +28,8 @@ class GameState:
     researched_technologies: list[str] = field(default_factory=list)
     researchable_technologies: list[str] = field(default_factory=list)
     research_choice: dict[str, Any] | None = None
+    research_forecast: dict[str, Any] | None = None
+    runtime_context: dict[str, Any] | None = None
 
 @dataclass
 class Command:
@@ -42,3 +44,17 @@ class CommandResult:
     message: str = ""
     before: dict[str, Any] | None = None
     after: dict[str, Any] | None = None
+
+
+def game_state_to_dict(state: GameState) -> dict[str, Any]:
+    """Serialize one state without adding schema-8 fields to legacy payloads."""
+    value = asdict(state)
+    if state.schema_version is None or state.schema_version < 8:
+        value.pop("research_forecast")
+        value.pop("runtime_context")
+    return value
+
+
+def model_to_dict(value: Any) -> dict[str, Any]:
+    """Serialize a dataclass while preserving legacy GameState wire shapes."""
+    return game_state_to_dict(value) if isinstance(value, GameState) else asdict(value)

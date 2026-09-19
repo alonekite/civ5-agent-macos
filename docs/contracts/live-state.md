@@ -19,6 +19,7 @@ requirement inspection, and deterministic execution. The implementation in `mode
 | 5 | Live-verified for ordinary research | Schema 4 plus researched/researchable technology sets and research-choice mode; free/steal modes remain offline-only |
 | 6 | Live-verified; added in 1.1.0 | Schema 5 plus bounded per-unit `ordinary_move_targets` |
 | 7 | Live-verified for ordinary worker builds; added in 1.2.0 | Schema 6 plus current unit-plot context, current build, and bounded ordinary worker-build candidates |
+| 8 | Implemented offline on 1.3.0 development head; target evidence pending | Schema 7 plus exact ordinary-research forecast facts and explicit runtime context/provenance |
 
 ## Stable requirements
 
@@ -27,8 +28,9 @@ requirement inspection, and deterministic execution. The implementation in `mode
 - A schema 4 read contains all four non-header parts exactly once; schema 5 adds
   a mandatory `technologies` part, and schema 6 adds a mandatory
   `move_targets` part. Schema 7 adds mandatory `worker_context` and
-  `worker_builds` parts. Each part's turn and active-player identity must match
-  the header.
+  `worker_builds` parts. Schema 8 adds mandatory `research_forecast` and
+  `runtime_context` parts. Each part's turn and active-player identity must
+  match the header.
 - Lists use stable in-game identifiers and reject duplicates where identity must
   be unique.
 - Unmet major civilizations are omitted rather than disclosed.
@@ -73,9 +75,22 @@ schema.
 Collection uses a seventh independently bounded read-only Lua segment. All
 seven parts must identify the same turn and active player.
 
-Readers retain schema 2–6 support. A future
+Readers retain schema 2–7 support. A future
 breaking shape change increments `schema_version`; it does not reinterpret an
 existing field silently.
+
+## Schema 8 research and runtime context
+
+Schema 8 adds `research_forecast` capability version 1 and `runtime_context`
+version 1. Exact fields, units, provenance, fail-closed unsupported states, and
+the absence of a complete ruleset fingerprint are frozen by the
+[research-forecast contract](research-forecast.md).
+
+Collection uses three additional read-only Lua programs: one forecast/status
+record, one candidate stream, and one runtime-context record. The current
+generator therefore executes twelve bounded programs; the largest is 981 UTF-8
+bytes. Parser and validation coverage is offline only until the exact target
+bindings and overflow units pass the bounded M11 procedure.
 
 ## Frozen schema 7 worker state
 
@@ -100,7 +115,7 @@ schema extension does not disable the released movement action.
 
 ## Session metadata
 
-Schemas 2–7 do not expose a stable save or match identifier, and their state
+Schemas 2–8 do not expose a stable save or match identifier, and their state
 payload does not contain the bridge connection epoch. Per ADR-0017, the bridge
 now attaches a separate `bridge_session_id` beside the unchanged payload rather
 than pretending that mutable state fields identify a match. M6 targets that

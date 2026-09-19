@@ -202,8 +202,8 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 - [x] Normalize the downstream request as strategy-neutral read facts
 - [x] Freeze schema 8 fields, units, provenance, unsupported behavior, and the
   runtime-context versus complete-ruleset-fingerprint boundary
-- [ ] Implement bounded read-only research and runtime-context segments
-- [ ] Implement parsing, validation, public capability discovery, and schemas
+- [x] Implement bounded read-only research and runtime-context segments
+- [x] Implement parsing, validation, public capability discovery, and schemas
   2–7 compatibility
 - [ ] Complete the frozen offline negative/bounds/artifact matrix
 - [ ] Run bounded target verification for read purity, exact units, and the
