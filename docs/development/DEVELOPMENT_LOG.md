@@ -1565,6 +1565,29 @@ Repair and sanitized-evidence commit: `b15e967`.
 
 Repair and sanitized-evidence commit: `f28a9b4`.
 
+## 2026-09-19 — Dispatch worker builds with the stock action index
+
+- Ran a fresh guarded C6 session on exact implementation commit `4a6433f`.
+  Candidate/UI agreement and stale-source rejection passed again. Numeric
+  action resolution reached the executability guard, but the separately
+  authorized single write returned explicit `blocked`.
+- Before/after state and UI confirmed no build, movement loss, popup, other
+  unit action, or turn advance. The command was not retried and restoration
+  matched the recorded baseline.
+- Re-inspected the installed BNW `UnitPanel.lua`: stock buttons retain the
+  numeric `GameInfoActions` loop index and pass that value to both
+  `Game.CanHandleAction` and `Game.HandleAction`. The table entry's `ID` is not
+  the stock click-path argument.
+- Changed the compact program to retain and submit the matched numeric index,
+  and added exact regressions forbidding entry-ID guard or dispatch calls. The
+  worst-case generated program is 991 bytes and contains one stock write.
+- All 335 warning-enabled tests passed on Python 3.11 and the default runtime.
+  Repeated wheel/source contents matched, the wheel installed/imported/started
+  its CLI in a clean Python 3.11 environment, and sensitive-content scans found
+  no private live data, identities, paths, credentials, or audit contents.
+
+Repair and sanitized-evidence commit: `9ee4e55`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
