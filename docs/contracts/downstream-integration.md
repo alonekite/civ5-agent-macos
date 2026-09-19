@@ -1,6 +1,6 @@
 # Downstream Tactical Integration Contract
 
-Status: Stable capability profile prepared for 1.2.0
+Status: Stable capability profile for 1.2.0
 
 ## Purpose
 

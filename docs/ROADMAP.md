@@ -253,4 +253,4 @@ intentionally outside this repository's scope.
 - [x] Integrate the explicit action into deterministic TurnPlan execution
 - [x] Complete the full offline verification gate
 - [x] Complete bounded operator-authorized target-machine verification
-- [ ] Publish the verified capability in a compatible 1.2.0 release
+- [x] Publish the verified capability in a compatible 1.2.0 release

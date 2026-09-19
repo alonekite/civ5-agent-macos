@@ -49,7 +49,7 @@ or ruleset knowledge.
   player. Schemas 2–5 remain readable.
 - Schema 7 adds bounded worker-context and worker-build segments without
   changing selection. Parsing, validation, public limits, legacy compatibility,
-  and the repaired 688/881-byte generated reads are included in the prepared
+  and the repaired 688/881-byte generated reads are included in the stable
   1.2.0 profile. Bounded target evidence confirms candidate/UI agreement and
   the active-build result branch; immediate completion remains offline-only.
 - Every successful write includes a proved postcondition.
@@ -107,7 +107,7 @@ agreement, stale-source rejection, and one verified
 active-build write through numeric-index stock dispatch. Earlier no-retry
 attempts exposed target-specific iterator, flag, lexical, action-resolution,
 and entry-ID-versus-loop-index details without changing game state. The
-immediate-completion branch remains offline-only. The prepared candidate still
-requires exact-commit evidence and explicit tag/publication approval.
+immediate-completion branch remains offline-only. The capability is published
+in the stable 1.2.0 profile.
 The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

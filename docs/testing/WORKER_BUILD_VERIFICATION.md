@@ -1,7 +1,7 @@
 # Worker-Build Verification Specification
 
 Status: M10 D3 frozen; WB-S01–A02 complete offline; bounded C6 active-build
-target proof complete; release publication remains
+target proof and 1.2.0 publication complete
 
 Owning semantic contract: [worker-build contract](../contracts/worker-build.md)
 
@@ -79,5 +79,5 @@ C6 passed on 2026-09-19 through the active-build branch on exact implementation
 commit `04dd70f`. Read purity, UI agreement, stale-source rejection, one exact
 write, independent watcher read-back, private audit permissions, absence of
 observed extra side effects, and exact host restoration all passed. The
-immediate-completion branch remains offline-only. Stable publication remains a
-separate D4/C7 gate.
+immediate-completion branch remains offline-only. D4/C7 published the verified
+capability in stable 1.2.0.

@@ -1,7 +1,6 @@
 # Verified Worker Build Development Plan
 
-Status: D0–D3, C0/D1, and C1–C6 complete; 1.2.0 release candidate prepared;
-exact-commit evidence, approval, tag, and publication remain
+Status: Complete in 1.2.0
 
 Target milestone: M10
 
@@ -346,10 +345,11 @@ prepare 1.2.0 release notes, scan artifacts, run exact-commit and tag CI, and
 publish only after explicit release approval. A failed C6 leaves the action
 absent from the stable profile.
 
-Current status: the 1.2.0 version and stable compatibility profile are prepared
-after C6 passed. Exact-commit CI, duplicate artifact inspection, clean installs,
-final privacy scans, explicit tag approval, tag CI, publication, and downloaded-
-asset verification remain. No development artifact is publishable by itself.
+Completion: immutable tag `v1.2.0` points to release commit `6210a4e`.
+Exact-commit and tag CI, duplicate artifact inspection, clean installs, final
+privacy scans, explicit approval, publication, and downloaded-asset
+verification all passed. The immediate-completion result branch remains
+offline-only; section 8 of the live checklist remains a regression procedure.
 
 ## Initial source evidence
 

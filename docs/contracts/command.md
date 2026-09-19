@@ -36,15 +36,15 @@ Direct commands create one identity for their single connection.
 | `set_city_production` | city ID, `unit\|building\|project`, matching stable ID | target city's production matches | Live-verified |
 | `skip_unit` | schema 4 owned unit ID | same unit/location/movement; `ready_to_move` becomes false | Live-verified |
 | `move_unit` | schema 6+ owned unit ID, admitted target, and exact bounded `x`, `y` | same unit reaches exact destination in same active turn with lower movement | Live-verified on schema 6; added in 1.1.0; schema 7 compatibility covered offline |
-| `worker_build` | schema 7 owned unit ID, exact bounded `x`, `y`, and bounded `BUILD_*` | same unit/plot with lower movement and either exact active build or exact completed paired improvement | Active-build branch target-verified; added in prepared 1.2.0 profile |
+| `worker_build` | schema 7 owned unit ID, exact bounded `x`, `y`, and bounded `BUILD_*` | same unit/plot with lower movement and either exact active build or exact completed paired improvement | Active-build branch target-verified; added in 1.2.0 |
 
 Core 1.1.0 includes the approved M9 `move_unit` action with exact arguments
 `unit_id`, `x`, and `y`. It is absent from core 1.0.0. Its downstream profile
 and evidence are defined by the [unit-movement contract](unit-movement.md).
 
 Core 1.2.0 adds `worker_build` with exact arguments `unit_id`, `x`, `y`, and
-`build_type`. It remains absent from tagged core 1.1.0 and becomes available
-only when the prepared 1.2.0 candidate is approved, tagged, and published.
+`build_type`. It remains absent from tagged core 1.1.0 and is available in the
+published 1.2.0 profile.
 Its exact admission, ordinary-build exclusions, stock dispatch, dual success
 postcondition, recovery, and compatibility rules are defined by
 the [worker-build contract](worker-build.md).

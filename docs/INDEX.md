@@ -45,7 +45,7 @@ do not belong in the repository.
 - [Worker-build contract](contracts/worker-build.md): frozen M10 schema 7,
   exact command, dual postcondition, executor, compatibility, and evidence
   boundary; complete offline and bounded C6 active-build gates passed and the
-  1.2.0 release candidate is prepared; tag and publication remain.
+  capability is published in 1.2.0.
 - [Session and match identity contract](contracts/session-identity.md)
 - [Knowledge contract](KNOWLEDGE.md)
 - [Ruleset knowledge-view contract](contracts/resolver.md)

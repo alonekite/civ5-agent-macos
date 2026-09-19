@@ -8,7 +8,7 @@ per-unit read model offline. The bounded command and exact read-after-write
 verification, deterministic TurnPlan integration, and full offline gate now
 pass. C6 operator-assisted target-machine verification passed, including the
 safe negative branch, one explicitly authorized exact move, private audit, and
-host restoration. The capability is live-verified and included in the prepared
+host restoration. The capability is live-verified and included in the stable
 1.1.0 profile. Exact-commit CI, duplicate artifacts, clean installs, explicit
 operator tag approval, tag CI, publication, and downloaded-asset verification
 all passed.

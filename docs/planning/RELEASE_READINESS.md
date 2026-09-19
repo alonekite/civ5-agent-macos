@@ -1,6 +1,6 @@
 # Release Readiness
 
-Status: Complete for 1.0.0 and 1.1.0; 1.2.0 release candidate in progress
+Status: Complete for 1.0.0, 1.1.0, and 1.2.0
 
 Last reviewed: 2026-09-19
 
@@ -15,13 +15,13 @@ register, contracts, or live experiment evidence.
 | Required live verification | C6 passed on 2026-09-19: schema 7 candidate/UI agreement, read purity, stale-source pre-send rejection, one separately authorized active-build result, independent watcher agreement, private audit permission, no observed extra side effect, and exact host restoration | Preserve section 8 of the live checklist for regression use; immediate completion remains offline-only |
 | High-impact risk | R-018 is mitigated and monitored after the bounded target-machine proof; earlier release dispositions remain in force | Reopen review if worker scope, eligible plots/builds, game build, or dispatch path changes |
 | Public compatibility | Version 1.2.0 adds schema 7, two public worker limits, and `worker_build` through the existing aggregate API and unchanged schema 1 TurnPlan/CLI envelopes; the downstream profile preserves tactical ownership | Keep worker/plot/build selection, movement-to-plot, routes, repair, automation, and strategy outside this release |
-| Tests and scans | 335 tests pass warning-enabled on Python 3.11 and the default runtime; documentation and tracked-content scans are clean | Require Python 3.11/3.13 CI on the exact release commit and tag |
-| Packaging rehearsal | Two independent development-head wheel and sdist builds had matching normalized content; both formats installed and imported cleanly, and the supported CLI started | Rebuild and inspect from the clean exact 1.2.0 release commit; rehearsal artifacts are not publishable |
-| Release | Version, changelog, contracts, and static downstream profile are prepared for 1.2.0 | Record the exact commit, pass CI, obtain explicit operator tag approval, pass tag CI, publish exactly the inspected assets, and verify downloaded hashes |
+| Tests and scans | 335 tests pass warning-enabled on Python 3.11 and the default runtime; documentation and tracked-content scans are clean; exact-commit and tag CI passed on Python 3.11/3.13 | Preserve the gates for later changes |
+| Packaging | Two independent exact-commit 1.2.0 wheel and sdist builds had matching normalized contents; both formats installed and imported in separate clean Python 3.11 environments, and the supported CLI started | Preserve the artifact gate for later releases |
+| Release | Immutable `v1.2.0` points to `6210a4e`; the GitHub Release contains exactly the inspected wheel and sdist, and downloaded assets match the recorded SHA-256 values | Never move the tag or replace its assets; use a new semantic version for changes |
 
-The 1.2.0 release is incomplete until the final row closes. A stable version
-string, local tests, or successful rehearsal artifacts do not authorize an
-immutable tag or GitHub Release.
+The 1.2.0 release completed on 2026-09-19 after explicit operator authorization.
+Future releases must repeat every gate rather than treating this evidence as a
+blanket authorization.
 
 ## 1.1.0 movement release gate
 

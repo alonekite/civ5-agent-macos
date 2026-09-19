@@ -88,7 +88,7 @@ looked up for the active team so hidden resources remain `null`.
 The complete field shape, ordinary-build predicate, null meanings, candidate
 ordering, privacy boundary, and command relationship are frozen by the
 [worker-build contract](worker-build.md). Schema 7 parsing, validation, bounded
-reads, and public limits are included in the prepared 1.2.0 profile. Candidate
+reads, and public limits are included in the stable 1.2.0 profile. Candidate
 collection, UI agreement, and the active-build result branch are live-verified;
 immediate completion retains offline evidence only.
 

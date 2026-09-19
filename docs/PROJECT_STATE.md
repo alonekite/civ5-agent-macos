@@ -9,17 +9,15 @@ development log.
 ## Dashboard
 
 - Current milestone: M10 — verified worker build — has passed its complete
-  offline gate and its bounded C6 target-machine verification. M9 and the
-  immutable 1.1.0 release remain complete.
-- Active next deliverable: validate the prepared 1.2.0 release candidate with
-  exact-commit CI, duplicate artifacts, clean installs, and final privacy
-  scans.
+  offline gate, bounded C6 target-machine verification, and D4/C7 release gate.
+  M9 and the immutable 1.1.0 release remain complete.
+- Active next deliverable: none scheduled in this repository; accept future
+  strategy-neutral core capability requests through the documented process.
 - Functional baseline: 335 tests pass locally on Python 3.11/default runtime;
   repeated wheel/sdist contents match and the wheel installs/imports cleanly.
-  The previous pushed batch passed GitHub Actions Python 3.11/3.13.
+  Exact-commit and `v1.2.0` GitHub Actions passed on Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: no for offline candidate validation. Explicit
-  approval is required before creating or publishing the 1.2.0 tag/release.
+- User presence required next: no.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -120,8 +118,8 @@ development log.
   current-plot facts, current build, up to 32 bounded candidate pairs, the
   exact four-field `worker_build` action, both success branches, executor
   coverage/recovery, stable CLI behavior, public constants, and downstream
-  absent-capability behavior. Tagged core 1.1 remains unchanged; the prepared
-  release candidate reports `1.2.0`.
+  absent-capability behavior. Tagged core 1.1 remains unchanged; stable core
+  1.2.0 publishes the new capability.
 - M10 D3 is complete. WB-S01–A02 freeze the full offline negative,
   uncertainty, executor, compatibility, artifact, and privacy matrix. Live
   checklist section 8 permits only a read-without-selection proof, one stale-
@@ -135,7 +133,7 @@ development log.
   part identity, unit binding, ordering, duplicates, counts, privacy, and
   schema 2–6 compatibility are covered. The existing movement action remains
   operational on matching schema 6+ states.
-- M10 C2–C3 are complete offline. The prepared 1.2.0 candidate allowlists the
+- M10 C2–C3 are complete offline. Core 1.2.0 allowlists the
   exact four-field worker command. Fresh schema 7 admission
   precedes one guarded 991-byte stock dispatch; its bounded marker is never
   success by itself. Polling proves either the exact active build or completed
@@ -201,6 +199,11 @@ development log.
   advance occurred. The private audit was mode `600` with the expected two
   records, and shutdown restored the exact baseline. C6 is complete; the
   immediate-completion branch remains offline-only.
+- D4/C7 is complete. Immutable tag `v1.2.0` points to release commit
+  `6210a4e`; exact-commit and tag CI passed on Python 3.11/3.13, duplicate
+  wheel/sdist contents matched, both artifact formats installed cleanly, and
+  the two published assets matched their recorded SHA-256 values after a fresh
+  download.
 
 ## Current architecture
 
@@ -288,9 +291,9 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Complete exact-commit CI, duplicate artifact, clean-install, and privacy
-   evidence for the prepared 1.2.0 candidate.
-2. Request explicit approval before tagging or publishing 1.2.0.
+1. Keep `v1.2.0` immutable and monitor downstream integration feedback.
+2. Route future mechanics through the strategy-neutral capability-request
+   process before changing the stable core surface.
 
 ## Recent governing decisions
 

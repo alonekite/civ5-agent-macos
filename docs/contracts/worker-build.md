@@ -1,7 +1,7 @@
 # Worker-Build Contract
 
-Status: Stable 1.2.0 contract prepared; C1–C5 offline gate and bounded C6
-active-build target proof complete; tag and publication remain
+Status: Stable in 1.2.0; C1–C5 offline gate and bounded C6 active-build target
+proof complete
 
 Compatibility release: 1.2.0
 
@@ -12,10 +12,9 @@ chooses one active-player unit, its exact current plot, and one exact ordinary
 `BUILD_*` candidate from fresh state. The bridge validates, submits through the
 stock selected-unit action path, and proves one of two exact factual outcomes.
 
-This contract applies ADR-0033. The prepared 1.2.0 candidate implements schema
-7 plus the bridge command, while tagged core 1.1.0 does not. Consumers must
-still require an approved tagged release rather than treating an arbitrary
-checkout as published support.
+This contract applies ADR-0033. Core 1.2.0 implements schema 7 plus the bridge
+command, while core 1.1.0 does not. Consumers must require an approved tagged
+release rather than treating an arbitrary checkout as published support.
 
 ## Schema 7 live-state input
 
@@ -234,12 +233,10 @@ The planned backward-compatible additions are:
 - unchanged `CommandResult`, execution-report/event, journal, and stable
   `civ5-turn` envelope schemas.
 
-These changes require at least package version 1.2.0. The release candidate
+These changes require at least package version 1.2.0. Core 1.2.0
 implements the read/schema surface, exact
 admission, one stock submission, marker handling, polling, and both factual
 success branches, and C4 integrates schema 1 TurnPlans with independent result
 validation, exact-unit coverage, continuity, pause, and recovery behavior.
 Both evidence gates pass, including the bounded active-build target proof. The
-capability is included in the prepared 1.2.0 downstream profile but is not a
-published release until the candidate is explicitly approved, tagged, and
-published.
+capability is included in the published 1.2.0 downstream profile.

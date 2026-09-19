@@ -27,11 +27,10 @@ artifacts are identified by matching version tags and GitHub releases; the
 stable compatibility surfaces are `civ5_agent.api` and `civ5-turn`. Other
 command-line entry points remain explicitly provisional.
 
-The prepared `1.2.0` release candidate adds schema 7 worker facts, exact
+The published `1.2.0` release adds schema 7 worker facts, exact
 bridge-level `worker_build` submission/read-back, and deterministic TurnPlan
 integration. Its complete offline gate and bounded operator-authorized
-active-build target proof pass; tag and publication still require explicit
-approval.
+active-build target proof pass.
 
 ## Documentation
 

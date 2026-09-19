@@ -15,7 +15,7 @@ GitHub Issues and should link back to one milestone ID.
 | M7 | Public API stabilization | Complete | M4, M5, M6 |
 | M8 | 1.0 release readiness | Complete | M7 |
 | M9 | Verified unit movement | Complete | M8, M2, M6 |
-| M10 | Verified worker build | Release preparation | M9, M2, M6 |
+| M10 | Verified worker build | Complete | M9, M2, M6 |
 
 ## M0 — Environment reconnaissance
 
@@ -337,7 +337,7 @@ Acceptance criteria:
 - Publish the capability only through a compatible semantic-versioned release
   after updating the static downstream profile.
 
-Current status: release candidate preparation. The conversation-submitted request is registered as
+Current status: complete in 1.2.0. The conversation-submitted request is registered as
 [GitHub Issue #2](https://github.com/alonekite/civ5-agent-macos/issues/2) and
 normalized in the [verified worker build development plan](WORKER_BUILD_PLAN.md).
 Bundled BNW UI and released SDK inspection completed C0/D1. ADR-0033 selects
@@ -394,6 +394,8 @@ restoration gates. The same worker remained on the same plot and active turn,
 movement decreased, and the exact requested build became active without any
 observed popup, movement, other unit action, or turn advance. C6 is complete
 through the active-build branch; immediate completion remains offline-only.
-The 1.2.0 compatibility surface and stable version are now prepared for D4/C7.
-Exact-commit CI, duplicate artifacts, clean installs, explicit approval, tag
-CI, publication, and downloaded-asset verification remain.
+M10 completed on 2026-09-19. Immutable tag `v1.2.0` points to release commit
+`6210a4e`; exact-commit and tag CI passed on Python 3.11/3.13. Two independent
+wheel and sdist builds had matching normalized contents, both formats installed
+cleanly, and freshly downloaded release assets matched their recorded SHA-256
+values. The immediate-completion result branch remains offline-only by design.

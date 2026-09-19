@@ -1,6 +1,6 @@
 # Public API Inventory
 
-Status: Stable 1.2 aggregate surface prepared; bounded CLI classified
+Status: Stable 1.2 aggregate surface implemented; bounded CLI classified
 
 ## Purpose
 
@@ -134,10 +134,10 @@ Core 1.2.0 adds schema 7, `worker_build`,
 `MAX_ORDINARY_WORKER_BUILDS_PER_UNIT = 32`. It
 adds no public model class and does not change `CommandResult`, TurnPlan,
 execution-report/event, journal, or stable CLI envelope schemas. These values
-remain absent from tagged core 1.1.0. The prepared 1.2.0 candidate exports the
+remain absent from tagged core 1.1.0. Core 1.2.0 exports the
 two limits, includes schema 7 in the supported schema set, and includes the
-verified command in `ALLOWED_ACTIONS`. Consumers must still require an approved
-tagged release rather than treating an arbitrary checkout as published support.
+verified command in `ALLOWED_ACTIONS`. Consumers must require an approved tagged
+release rather than treating an arbitrary checkout as published support.
 See the worker-build contract.
 
 ## Error inventory

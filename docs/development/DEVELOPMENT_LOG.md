@@ -1606,6 +1606,27 @@ Repair and sanitized-evidence commit: `9ee4e55`.
 
 Sanitized C6 evidence commit: `138fa20`.
 
+## 2026-09-19 — Publish stable worker-build release 1.2.0
+
+- Prepared exact release commit `6210a4e` with version 1.2.0, dated changelog,
+  stable schema 7/`worker_build` contracts, downstream capability profile, and
+  offline release runbook that does not require dependency downloads.
+- All 335 warning-enabled tests passed on Python 3.11 and the default runtime.
+  Exact-commit and annotated-tag GitHub Actions passed on Python 3.11/3.13.
+- Two independent exact-commit wheel and sdist builds had matching normalized
+  contents. Both formats installed, imported, and started the stable CLI in
+  separate clean Python 3.11 environments; artifact and sensitive-content
+  checks passed.
+- After explicit authorization, immutable tag `v1.2.0` was pushed and the
+  inspected wheel and source archive were published. Fresh downloads matched
+  the recorded SHA-256 values:
+  - wheel: `f7ee5e040de0c87e11d0c5a7c72238f1effe5137de3c7b8ecf19e242664bdf31`;
+  - sdist: `3131ee72ca024fb471d9429ce69cecb1393d0237221d64ad8f575282cb5d7da3`.
+- The release adds only the caller-selected ordinary worker-build slice. The
+  immediate-completion result branch remains offline-only, and tactics,
+  movement-to-plot, automation, routes, repair, and build choice remain outside
+  the core.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
