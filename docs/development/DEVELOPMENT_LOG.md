@@ -1692,6 +1692,27 @@ Implementation and contract commit: `c67e096`.
 
 Procedure and status commit: `d9c2a20`.
 
+## 2026-09-19 — Correct the schema 8 research-progress binding
+
+- The first bounded C4 attempt on development commit `bd5ba1e` confirmed schema
+  8 framing and visible read purity, then failed closed because Campaign Edition
+  does not expose `GetResearchProgressTimes100` on `CvPlayer`.
+- A separately authorized, bounded read-only diagnostic located the exact
+  times-100 method on the active team's `CvTeamTechs` object. ADR-0037 records
+  the corrected binding and provenance without changing the schema, field,
+  units, capability version, or any write contract.
+- Updated both schema 8 read programs and added a regression that requires the
+  team-technologies owner. All twelve programs remain within the verified
+  FireTuner limit; the largest is 990 bytes.
+- All 348 tests passed on Python 3.11 and compilation passed. Two wheel builds
+  and two source builds had matching normalized contents; clean installations
+  from both formats imported successfully. Sensitive-content and diff-hygiene
+  checks passed.
+- The private command audit was not independently inspected during the first
+  attempt, so the corrected full C4 target gate remains pending.
+
+Implementation, ADR, and sanitized diagnostic-evidence commit: `41b06e3`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
