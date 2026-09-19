@@ -197,6 +197,25 @@ Working memory and strategic memory will be designed together with a future LLM
 interaction layer outside this repository. They are not tasks on this roadmap.
 See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 
+## M11 — Runtime research forecast facts
+
+- [x] Normalize the downstream request as strategy-neutral read facts
+- [x] Freeze schema 8 fields, units, provenance, unsupported behavior, and the
+  runtime-context versus complete-ruleset-fingerprint boundary
+- [ ] Implement bounded read-only research and runtime-context segments
+- [ ] Implement parsing, validation, public capability discovery, and schemas
+  2–7 compatibility
+- [ ] Complete the frozen offline negative/bounds/artifact matrix
+- [ ] Run bounded target verification for read purity, exact units, and the
+  controlled interturn overflow sequence
+- [ ] Publish core 1.3.0 only after documentation, security scan, exact-commit
+  CI, reproducible artifacts, and target evidence pass
+
+M11 adds no write action and does not move forecasting or technology selection
+into the execution core. See the
+[development plan](planning/RESEARCH_FORECAST_PLAN.md) and
+[owning contract](contracts/research-forecast.md).
+
 ## M7 — Public API stabilization
 
 - [x] Inventory versioned contracts, candidate public symbols, implementation

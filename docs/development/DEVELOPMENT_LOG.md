@@ -1627,6 +1627,23 @@ Sanitized C6 evidence commit: `138fa20`.
   movement-to-plot, automation, routes, repair, and build choice remain outside
   the core.
 
+## 2026-09-19 — Freeze M11 runtime research facts design
+
+- Normalized the first post-1.2 downstream request as read-only, strategy-neutral
+  runtime facts rather than a forecast engine or executor responsibility.
+- Accepted ADR-0035 and froze the schema 8/core 1.3.0 contract: exact effective
+  candidate costs, times-100 progress and science, whole-point overflow,
+  runtime turns-left, explicit action-window phase, and field provenance.
+- Separated runtime context identity from a complete ruleset proof. Missing
+  game-family/build/content dimensions and the full ruleset fingerprint remain
+  explicit unavailable/unsupported values. A downstream adapter must fail
+  closed on binding gaps or conflicts for exact-supported forecasts and
+  forecast-dependent automation, without erasing core runtime facts or
+  prohibiting a separately approved non-forecast manual intent.
+- Registered M11 and its staged C1–C5 plan. Implementation and target evidence
+  remain pending; schemas 2–7 and all write, plan, executor, result, and journal
+  contracts are unchanged by this design batch.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

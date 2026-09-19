@@ -1,0 +1,91 @@
+# Runtime Research Forecast Facts Development Plan
+
+Status: Design frozen; implementation pending
+
+Target milestone: M11
+
+Compatible release: 1.3.0
+
+## Objective
+
+Add the strategy-neutral schema 8 facts defined by the
+[research-forecast contract](../contracts/research-forecast.md). The first slice
+is ordinary research only and introduces no write action.
+
+## Delivery sequence
+
+### D0 — Normalize the capability request
+
+Status: complete.
+
+- Preserve the downstream need as runtime facts rather than tactical advice.
+- Reject a fabricated complete ruleset fingerprint.
+- Keep free technology, stolen technology, recent-completion inference, and
+  write behavior outside the first slice.
+
+### D1 — Freeze fields and provenance
+
+Status: complete under ADR-0035.
+
+- Freeze exact names, units, null/unsupported behavior, phase, provenance, and
+  runtime-context semantics.
+- Require downstream KnowledgeBundle binding for any complete fingerprint.
+
+### C1 — Implement schema 8 collection and parsing
+
+Status: pending.
+
+- Add independently bounded, read-only research and runtime-context segments.
+- Preserve schemas 2–7 unchanged.
+- Reject malformed, duplicate, mismatched-turn/player, and incomplete parts.
+
+### C2 — Implement validation and public discovery
+
+Status: pending.
+
+- Validate the complete nested shapes, units, identifiers, candidate equality,
+  stable order, source labels, and fail-closed unsupported states.
+- Export capability/context versions and limits from `civ5_agent.api`.
+- Update public and downstream compatibility profiles.
+
+### C3 — Complete the offline gate
+
+Status: pending.
+
+- Add the negative and compatibility matrix required by the owning contract.
+- Preserve authoritative core facts when downstream KnowledgeBundle binding is
+  absent or conflicting; fail closed only for exact/forecast-dependent paths.
+- Confirm deterministic state serialization and unchanged state digests.
+- Measure every generated Lua program below 1,000 UTF-8 bytes and responses
+  below the existing protocol limit.
+- Run the complete suite and release-artifact checks.
+
+### C4 — Bounded target-machine verification
+
+Status: pending; operator required.
+
+- Prove schema 8 reads without selection, popup, movement, write, or turn
+  advancement.
+- Confirm exact source units and UI agreement.
+- Run the controlled overflow/interturn sequence if a suitable save can be
+  prepared without debug writes.
+- Record only summarized evidence; never commit the real snapshot or save.
+- Restore the FireTuner/firewall baseline exactly.
+
+### D2/C5 — Release 1.3.0
+
+Status: pending.
+
+- Update contracts, capability profile, matrix, changelog, project state, and
+  development log.
+- Scan tracked and built artifacts for secrets, user paths, IP addresses, and
+  private match data.
+- Tag only after exact-commit CI, reproducible artifacts, clean-install checks,
+  and required target evidence pass.
+
+## Stop conditions
+
+Stop and keep the capability unsupported if any exact binding is absent,
+overflow units cannot be established, action-window phase cannot be observed
+coherently, a generated read exceeds its bound, or the context shape would need
+an invented identifier. No consumer-side FireTuner fallback is permitted.

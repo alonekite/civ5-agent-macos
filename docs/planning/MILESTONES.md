@@ -16,6 +16,25 @@ GitHub Issues and should link back to one milestone ID.
 | M8 | 1.0 release readiness | Complete | M7 |
 | M9 | Verified unit movement | Complete | M8, M2, M6 |
 | M10 | Verified worker build | Complete | M9, M2, M6 |
+| M11 | Runtime research forecast facts | Planned | M8, M7 |
+
+## M11 — Runtime research forecast facts
+
+Acceptance criteria:
+
+- Add schema 8 read-only ordinary-research facts with exact effective costs,
+  times-100 progress and science, whole-point overflow, runtime turns-left, and
+  explicit action-window phase.
+- Publish per-field provenance and runtime-derived game-setting context without
+  claiming a complete ruleset fingerprint.
+- Represent unavailable bindings and unsupported free/steal modes explicitly;
+  never synthesize missing precision or identity.
+- Preserve schemas 2–7 and all write, plan, result, executor, and journal
+  contracts unchanged.
+- Pass the frozen offline matrix and bounded target-machine read/overflow
+  verification before release as core 1.3.0.
+
+Owning plan: `docs/planning/RESEARCH_FORECAST_PLAN.md`.
 
 ## M0 — Environment reconnaissance
 

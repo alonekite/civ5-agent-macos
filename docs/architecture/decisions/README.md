@@ -41,6 +41,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0032](ADR-0032-use-selected-unit-network-path-for-adjacent-movement.md) | Use the selected-unit network path for adjacent movement | Accepted |
 | [ADR-0033](ADR-0033-use-unit-legality-and-selected-action-for-ordinary-worker-builds.md) | Use unit legality and the selected-unit stock action for ordinary worker builds | Accepted |
 | [ADR-0034](ADR-0034-use-integer-flags-for-campaign-edition-canbuild.md) | Use integer option flags for Campaign Edition `CanBuild` | Accepted; supersedes ADR-0033's flag representation only |
+| [ADR-0035](ADR-0035-publish-runtime-research-forecast-facts.md) | Publish runtime research forecast facts without claiming a ruleset fingerprint | Accepted |
 
 ## Template
 

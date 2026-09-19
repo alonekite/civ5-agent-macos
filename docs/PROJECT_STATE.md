@@ -8,16 +8,19 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M10 — verified worker build — has passed its complete
-  offline gate, bounded C6 target-machine verification, and D4/C7 release gate.
-  M9 and the immutable 1.1.0 release remain complete.
-- Active next deliverable: none scheduled in this repository; accept future
-  strategy-neutral core capability requests through the documented process.
+- Current milestone: M11 — runtime research forecast facts — has an accepted
+  strategy-neutral capability request and frozen schema 8/core 1.3.0 design.
+  M10 and the immutable 1.2.0 release remain complete.
+- Active next deliverable: implement schema 8 read-only research/runtime-context
+  collection, parsing, validation, public discovery, and the frozen offline
+  matrix. No new write action is planned.
 - Functional baseline: 335 tests pass locally on Python 3.11/default runtime;
   repeated wheel/sdist contents match and the wheel installs/imports cleanly.
   Exact-commit and `v1.2.0` GitHub Actions passed on Python 3.11/3.13.
-- Blocking issue: none.
-- User presence required next: no.
+- Blocking issue: exact target-runtime overflow units and bindings must pass the
+  bounded read-only gate before 1.3.0 can be described as live-verified.
+- User presence required next: no for offline implementation; yes for the later
+  bounded target-machine verification.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
