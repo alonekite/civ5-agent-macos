@@ -72,6 +72,8 @@ Status: pending; operator required.
 - Record only summarized evidence; never commit the real snapshot or save.
 - Restore the FireTuner/firewall baseline exactly.
 
+See the [operator procedure and evidence template](../testing/RESEARCH_RUNTIME_FACTS_LIVE_TEST.md).
+
 ### D2/C5 — Release 1.3.0
 
 Status: pending.

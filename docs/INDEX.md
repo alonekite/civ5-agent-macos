@@ -79,6 +79,9 @@ behavior. Contract documents define intended compatibility and rejection rules.
 - [Research runtime facts verification specification](testing/RESEARCH_RUNTIME_FACTS_VERIFICATION.md):
   frozen M11 offline and target matrix, including the runtime-fact versus
   downstream KnowledgeBundle-binding boundary.
+- [M11 runtime research facts live test](testing/RESEARCH_RUNTIME_FACTS_LIVE_TEST.md):
+  bounded read-only target procedure, stop conditions, restoration checks, and
+  sanitized evidence template.
 - [Live verification status (Chinese)](testing/LIVE_VERIFICATION_STATUS.zh-CN.md):
   concise record of what has and has not been tested in the real game.
 - [Bounded live-test checklist](LIVE_TEST_CHECKLIST.md)
