@@ -18,7 +18,7 @@ requirement inspection, and deterministic execution. The implementation in `mode
 | 4 | Live-verified for early-game branches | Schema 3 fields plus unit readiness and coherent segmented collection |
 | 5 | Live-verified for ordinary research | Schema 4 plus researched/researchable technology sets and research-choice mode; free/steal modes remain offline-only |
 | 6 | Live-verified; added in 1.1.0 | Schema 5 plus bounded per-unit `ordinary_move_targets` |
-| 7 | Implemented offline on development head; target evidence pending | Schema 6 plus current unit-plot context, current build, and bounded ordinary worker-build candidates |
+| 7 | Live-verified for ordinary worker builds; added in 1.2.0 | Schema 6 plus current unit-plot context, current build, and bounded ordinary worker-build candidates |
 
 ## Stable requirements
 
@@ -88,8 +88,9 @@ looked up for the active team so hidden resources remain `null`.
 The complete field shape, ordinary-build predicate, null meanings, candidate
 ordering, privacy boundary, and command relationship are frozen by the
 [worker-build contract](worker-build.md). Schema 7 parsing, validation, bounded
-reads, and public limits are implemented and covered offline on development
-head. They are not live-verified and are not part of the stable 1.1.0 profile.
+reads, and public limits are included in the prepared 1.2.0 profile. Candidate
+collection, UI agreement, and the active-build result branch are live-verified;
+immediate completion retains offline evidence only.
 
 Collection uses two additional independently bounded read-only Lua segments,
 688 and 881 UTF-8 bytes in the current generator, for nine total schema 7

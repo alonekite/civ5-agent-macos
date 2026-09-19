@@ -1,12 +1,12 @@
 # Downstream Tactical Integration Contract
 
-Status: Stable capability profile for 1.1.0
+Status: Stable capability profile prepared for 1.2.0
 
 ## Purpose
 
 Define the supported boundary between this execution core and independent plan
 producers such as `civ5-short-term-tactical-layer`. This document describes
-what core 1.1.0 exposes, who owns each concept, how a consumer detects
+what core 1.2.0 exposes, who owns each concept, how a consumer detects
 compatibility, and which capabilities remain absent. It does not define
 tactical policy or authorize a downstream game connection.
 
@@ -37,22 +37,22 @@ Consumer terms such as `CoreCapabilities` and `VerifiedActionResult` may be
 useful adapter views, but they do not replace or redefine the core's exported
 objects, status meanings, or success conditions.
 
-## Core 1.1.0 capability profile
+## Core 1.2.0 capability profile
 
 The stable aggregate API exposes the facts needed to construct this static
 release profile:
 
-| Capability | Core 1.1.0 value |
+| Capability | Core 1.2.0 value |
 |---|---|
-| Package/API identity | `civ5-agent-macos` 1.1.0; `civ5_agent.api` |
-| Live-state schemas | 2, 3, 4, 5, 6 |
+| Package/API identity | `civ5-agent-macos` 1.2.0; `civ5_agent.api` |
+| Live-state schemas | 2, 3, 4, 5, 6, 7 |
 | Knowledge schemas | 1, 2, 3 |
 | Journal schema | 1 |
 | `TurnPlan` schema | 1 |
 | `ExecutionReport` and `ExecutionEvent` schema | 1 |
 | Plan action limit | 64 |
 | Plan execution | Complete-turn plans with explicit final `end_turn` |
-| Actions | `choose_research`, `set_city_production`, `skip_unit`, `move_unit`, `end_turn` |
+| Actions | `choose_research`, `set_city_production`, `skip_unit`, `move_unit`, `worker_build`, `end_turn` |
 | Live execution identity | `bridge_session_id`, turn, active player, full state digest |
 | Result states | `completed`, `paused`, `stale`, `failed`, `recovery_required` |
 | Unknown outcome | Conservative reconciliation; never automatic retry |
@@ -62,15 +62,15 @@ their individual contracts. A consumer must compare package and contract
 versions, required action names, and required fields explicitly. A greater
 schema or package number never implies an absent field or action.
 
-## Capability discovery in 1.1.0
+## Capability discovery in 1.2.0
 
-Core 1.1.0 does not define a serialized capability-manifest wire contract.
+Core 1.2.0 does not define a serialized capability-manifest wire contract.
 Python consumers may construct a detached compatibility profile from
 `__version__`, `ALLOWED_ACTIONS`, the exported supported-schema sets, schema
 constants, and limit constants. They must not inspect private modules or infer
 per-field availability from a package version alone.
 
-The 1.1.0 profile does not export per-action capability versions, field-level
+The 1.2.0 profile does not export per-action capability versions, field-level
 feature flags, or target-evidence labels. Consumers that require those values
 must use a reviewed static compatibility matrix or submit a capability request
 for a future public manifest. Absence of a manifest never permits optimistic
@@ -92,17 +92,18 @@ an assessment into verified success.
 
 ## Factual history boundary
 
-The journal is not an execution dependency. Core 1.1.0 exposes verification,
+The journal is not an execution dependency. Core 1.2.0 exposes verification,
 full private replay, and redacted structural export, but no bounded selective
 tactical-history query. Consumers must not parse journal storage or treat it as
 an execution cursor. A future history view requires its own privacy, ordering,
 provenance, bounds, compatibility, and no-write contract.
 
-## Capabilities absent from 1.1.0
+## Capabilities absent from 1.2.0
 
 - serialized capability manifest;
 - selective factual history view;
-- autonomous/path movement, combat, and worker-task actions;
+- autonomous/path movement, combat, worker automation, routes, repair, feature
+  removal, and worker-task selection;
 - city founding, policy, religion, purchase, citizen, trade-route, diplomacy,
   espionage, and great-person actions;
 - tactical scoring, candidate selection, planning, memory, or strategy.
@@ -111,33 +112,21 @@ Their absence is a compatibility result, not permission for a consumer-side
 workaround. New reusable facts and mechanics follow the core capability request
 process.
 
-### Accepted future request: ordinary worker build
+## 1.2.0 ordinary worker-build capability
 
-M10 has accepted a strategy-neutral request for one caller-selected ordinary
-`BUILD_*` action by a worker already standing on the intended plot. It remains
-absent from core 1.1.0 and must not be emitted by consumers yet. The tactical
+M10 adds one strategy-neutral caller-selected ordinary `BUILD_*` action by a
+worker already standing on the intended plot. It remains absent from core
+1.1.0. The tactical
 layer retains worker, plot, improvement, ordering, and purpose selection; the
 core request is limited to visible current-plot facts, conservative per-unit
 candidates, exact dispatch, and factual verification.
 
-Until a compatible release advertises the finalized schema and action, a
-consumer must report this domain as unsupported and emit no worker-build plan
-action. Direct FireTuner access or another consumer-side write path is not a
-fallback. See the [M10 worker-build development
-plan](../planning/WORKER_BUILD_PLAN.md).
-
-M10 D2 freezes the compatibility forecast without making it available. A
-future consumer will require all of package 1.2.0 or later, schema 7 in the
-supported schema set, `worker_build` in `ALLOWED_ACTIONS`, and the exact
-schema/limit constants published by the aggregate API. Greater version numbers
-alone remain insufficient.
-
-Development head now reports `1.2.0.dev0`, implements schema 7 reads, the
-C2–C3 command, and C4 deterministic execution, and includes `worker_build` in
-`ALLOWED_ACTIONS`. C5 and the bounded C6 active-build target proof are complete,
-but this still does not satisfy the stable capability until 1.2.0 is approved,
-tagged, and published. Core 1.1.0 remains the stable profile, and downstream
-must continue emitting no worker-build action against released core.
+Consumers require package 1.2.0 or later, schema 7 in the supported schema set,
+`worker_build` in `ALLOWED_ACTIONS`, and the exact schema/limit constants
+published by the aggregate API. Greater version numbers alone remain
+insufficient. Core 1.1.0 consumers must report the domain as unsupported and
+emit no worker-build action; direct FireTuner access or another consumer-side
+write path is not a fallback. See the [worker-build contract](worker-build.md).
 
 The frozen action carries exactly `unit_id`, `x`, `y`, and `build_type`. The
 unit's schema 7 record supplies current-plot facts, current build, and zero to

@@ -1,11 +1,11 @@
 # Verified Worker Build Development Plan
 
-Status: D0–D3, C0/D1, and C1–C6 complete; D4/C7 release preparation is next
+Status: D0–D3, C0/D1, and C1–C6 complete; 1.2.0 release candidate prepared;
+exact-commit evidence, approval, tag, and publication remain
 
 Target milestone: M10
 
-Expected first compatible release: 1.2.0, only after bounded target-machine
-verification
+Compatible release: 1.2.0
 
 Capability request: [GitHub Issue #2](https://github.com/alonekite/civ5-agent-macos/issues/2),
 submitted by the `civ5-short-term-tactical-layer` owner in the project task on
@@ -345,6 +345,11 @@ Record sanitized evidence, update every owning contract/profile/matrix/log,
 prepare 1.2.0 release notes, scan artifacts, run exact-commit and tag CI, and
 publish only after explicit release approval. A failed C6 leaves the action
 absent from the stable profile.
+
+Current status: the 1.2.0 version and stable compatibility profile are prepared
+after C6 passed. Exact-commit CI, duplicate artifact inspection, clean installs,
+final privacy scans, explicit tag approval, tag CI, publication, and downloaded-
+asset verification remain. No development artifact is publishable by itself.
 
 ## Initial source evidence
 

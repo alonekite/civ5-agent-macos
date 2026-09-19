@@ -11,13 +11,14 @@ development log.
 - Current milestone: M10 — verified worker build — has passed its complete
   offline gate and its bounded C6 target-machine verification. M9 and the
   immutable 1.1.0 release remain complete.
-- Active next deliverable: prepare M10 D4/C7 compatibility, artifact, privacy,
-  and release evidence for 1.2.0.
+- Active next deliverable: validate the prepared 1.2.0 release candidate with
+  exact-commit CI, duplicate artifacts, clean installs, and final privacy
+  scans.
 - Functional baseline: 335 tests pass locally on Python 3.11/default runtime;
   repeated wheel/sdist contents match and the wheel installs/imports cleanly.
   The previous pushed batch passed GitHub Actions Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: no for offline release preparation. Explicit
+- User presence required next: no for offline candidate validation. Explicit
   approval is required before creating or publishing the 1.2.0 tag/release.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
@@ -119,8 +120,8 @@ development log.
   current-plot facts, current build, up to 32 bounded candidate pairs, the
   exact four-field `worker_build` action, both success branches, executor
   coverage/recovery, stable CLI behavior, public constants, and downstream
-  absent-capability behavior. Tagged core 1.1 remains unchanged; development
-  head now reports `1.2.0.dev0`.
+  absent-capability behavior. Tagged core 1.1 remains unchanged; the prepared
+  release candidate reports `1.2.0`.
 - M10 D3 is complete. WB-S01–A02 freeze the full offline negative,
   uncertainty, executor, compatibility, artifact, and privacy matrix. Live
   checklist section 8 permits only a read-without-selection proof, one stale-
@@ -134,8 +135,8 @@ development log.
   part identity, unit binding, ordering, duplicates, counts, privacy, and
   schema 2–6 compatibility are covered. The existing movement action remains
   operational on matching schema 6+ states.
-- M10 C2–C3 are complete offline. Development head reports `1.2.0.dev0` and
-  allowlists the exact four-field worker command. Fresh schema 7 admission
+- M10 C2–C3 are complete offline. The prepared 1.2.0 candidate allowlists the
+  exact four-field worker command. Fresh schema 7 admission
   precedes one guarded 991-byte stock dispatch; its bounded marker is never
   success by itself. Polling proves either the exact active build or completed
   paired improvement with the same turn/player/unit/plot and lower movement.
@@ -287,7 +288,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Prepare D4/C7 compatibility, artifact, privacy, and release evidence.
+1. Complete exact-commit CI, duplicate artifact, clean-install, and privacy
+   evidence for the prepared 1.2.0 candidate.
 2. Request explicit approval before tagging or publishing 1.2.0.
 
 ## Recent governing decisions

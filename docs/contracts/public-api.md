@@ -1,6 +1,6 @@
 # Public API Inventory
 
-Status: Stable 1.1 aggregate surface implemented; bounded CLI classified
+Status: Stable 1.2 aggregate surface prepared; bounded CLI classified
 
 ## Purpose
 
@@ -13,7 +13,7 @@ listed Python symbol into a stable API by itself.
 
 | Area | Version boundary | Current compatibility |
 |---|---|---|
-| Live state | `GameState.schema_version` | Schemas 2–6 supported in 1.1.0; schema 7 worker reads implemented offline on development head |
+| Live state | `GameState.schema_version` | Schemas 2–7 supported in 1.2.0; schema 7 ordinary worker reads have bounded live evidence |
 | Knowledge | `KnowledgeBundle.schema_version` | Schemas 1–3 readable; current importer emits schema 3 |
 | Journal | journal record `schema_version` | Schema 1 only; unknown versions fail closed |
 | Turn plan | `TurnPlan.schema_version` | Schema 1 complete-turn plans only |
@@ -24,7 +24,7 @@ Existing schema compatibility rules remain authoritative. `civ5_agent.api` is
 the supported aggregate Python import path under ADR-0026; ADR-0027 separately
 stabilizes `civ5-turn` and explicitly classifies every other CLI as provisional.
 ADR-0031 defines how independent tactical consumers use this surface without
-creating an upward dependency; the exact 1.1 profile is in the
+creating an upward dependency; the exact 1.2 profile is in the
 [downstream integration contract](downstream-integration.md).
 
 ## Candidate supported Python surface
@@ -41,7 +41,7 @@ types.
 
 ## Supported aggregate import
 
-`civ5_agent.api.__all__` is contract-tested as the supported stable 1.1
+`civ5_agent.api.__all__` is contract-tested as the supported stable 1.2
 surface under ADR-0030. It re-exports the documented module models, operations,
 errors, schema versions, supported schema sets, and byte/count limits. Raw FireTuner, IPC
 server, watcher-handler, importer, and private codec helpers are deliberately
@@ -112,14 +112,14 @@ them to use the supported core.
 
 ## Capability discovery
 
-Version 1.1 does not expose a serialized capability manifest. A Python consumer
+Version 1.2 does not expose a serialized capability manifest. A Python consumer
 may construct a detached compatibility profile from `__version__`,
 `ALLOWED_ACTIONS`, the supported-schema constants, individual schema versions,
 and exported limits. It must still validate the actual live state and command;
 capability presence never proves current legality.
 
 Per-action capability versions, optional-field flags, evidence levels, and a
-selective factual-history view are not part of 1.1. A downstream need for them
+selective factual-history view are not part of 1.2. A downstream need for them
 follows the documented core capability request process rather than private
 module inspection.
 
@@ -129,17 +129,16 @@ The read and direct write have offline and bounded target-machine evidence;
 TurnPlan integration has the complete offline evidence required by the M9
 contract. The approved semantics are in the unit-movement contract.
 
-The M10 1.2.0 compatibility surface adds schema 7, `worker_build`,
+Core 1.2.0 adds schema 7, `worker_build`,
 `MAX_BUILD_IDENTIFIER_LENGTH = 64`, and
-`MAX_ORDINARY_WORKER_BUILDS_PER_UNIT = 32` in a future compatible release. It
+`MAX_ORDINARY_WORKER_BUILDS_PER_UNIT = 32`. It
 adds no public model class and does not change `CommandResult`, TurnPlan,
-execution-report/event, journal, or stable CLI envelope schemas. None of these
-values is exported by tagged core 1.1.0. Development head reports
-`1.2.0.dev0`, exports the two limits, includes schema 7 in the supported schema
-set, and includes the C2–C3 verified command in `ALLOWED_ACTIONS`. Stable
-consumers must still wait for the complete released capability rather than
-treat a development checkout as published support. See the worker-build
-contract.
+execution-report/event, journal, or stable CLI envelope schemas. These values
+remain absent from tagged core 1.1.0. The prepared 1.2.0 candidate exports the
+two limits, includes schema 7 in the supported schema set, and includes the
+verified command in `ALLOWED_ACTIONS`. Consumers must still require an approved
+tagged release rather than treating an arbitrary checkout as published support.
+See the worker-build contract.
 
 ## Error inventory
 

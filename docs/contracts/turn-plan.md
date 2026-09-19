@@ -22,7 +22,7 @@ A `TurnPlan` contains:
 
 Each action contains a unique canonical UUIDv4 `command_id`. Tagged core 1.1.0
 admits `choose_research`, `set_city_production`, `skip_unit`, `move_unit`, and
-`end_turn`; the unreleased 1.2.0 development head also admits `worker_build`
+`end_turn`; core 1.2.0 also admits `worker_build`
 only with a schema 7 state basis. Every action uses the exact arguments
 defined by the command contract. Extra fields, unknown actions,
 arbitrary predicates/code, duplicate command IDs, and malformed stable IDs are
@@ -41,7 +41,7 @@ defined in the [unit-movement contract](unit-movement.md).
 
 M10 keeps TurnPlan schema 1 and preserves exact `worker_build` arguments
 `unit_id`, `x`, `y`, and `build_type`. Tagged core 1.1 rejects that action;
-development head now admits it only when schema 7 and the bridge action are
+core 1.2.0 admits it only when schema 7 and the bridge action are
 available together. Exact semantics are defined by the
 [worker-build contract](worker-build.md).
 

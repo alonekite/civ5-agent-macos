@@ -1,12 +1,27 @@
 # Release Readiness
 
-Status: Complete for 1.0.0 and 1.1.0
+Status: Complete for 1.0.0 and 1.1.0; 1.2.0 release candidate in progress
 
-Last reviewed: 2026-09-17
+Last reviewed: 2026-09-19
 
 This document preserves the first stable-release evidence and records gates for
 later compatible releases. It does not replace milestone definitions, the risk
 register, contracts, or live experiment evidence.
+
+## 1.2.0 worker-build release gate
+
+| Gate | Current evidence | Remaining work |
+|---|---|---|
+| Required live verification | C6 passed on 2026-09-19: schema 7 candidate/UI agreement, read purity, stale-source pre-send rejection, one separately authorized active-build result, independent watcher agreement, private audit permission, no observed extra side effect, and exact host restoration | Preserve section 8 of the live checklist for regression use; immediate completion remains offline-only |
+| High-impact risk | R-018 is mitigated and monitored after the bounded target-machine proof; earlier release dispositions remain in force | Reopen review if worker scope, eligible plots/builds, game build, or dispatch path changes |
+| Public compatibility | Version 1.2.0 adds schema 7, two public worker limits, and `worker_build` through the existing aggregate API and unchanged schema 1 TurnPlan/CLI envelopes; the downstream profile preserves tactical ownership | Keep worker/plot/build selection, movement-to-plot, routes, repair, automation, and strategy outside this release |
+| Tests and scans | 335 tests pass warning-enabled on Python 3.11 and the default runtime; documentation and tracked-content scans are clean | Require Python 3.11/3.13 CI on the exact release commit and tag |
+| Packaging rehearsal | Two independent development-head wheel and sdist builds had matching normalized content; both formats installed and imported cleanly, and the supported CLI started | Rebuild and inspect from the clean exact 1.2.0 release commit; rehearsal artifacts are not publishable |
+| Release | Version, changelog, contracts, and static downstream profile are prepared for 1.2.0 | Record the exact commit, pass CI, obtain explicit operator tag approval, pass tag CI, publish exactly the inspected assets, and verify downloaded hashes |
+
+The 1.2.0 release is incomplete until the final row closes. A stable version
+string, local tests, or successful rehearsal artifacts do not authorize an
+immutable tag or GitHub Release.
 
 ## 1.1.0 movement release gate
 
@@ -107,7 +122,7 @@ reopen the affected row.
 The current artifact check is:
 
 ```bash
-python -m pip wheel --no-deps --wheel-dir dist .
+python -m pip wheel --no-build-isolation --no-deps --wheel-dir dist .
 python -c "from setuptools.build_meta import build_sdist; build_sdist('dist')"
 python scripts/check_release_artifact.py dist/*.whl
 python scripts/check_release_artifact.py dist/*.tar.gz

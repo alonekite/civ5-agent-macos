@@ -52,7 +52,7 @@ now applies. Do not broaden provisional interfaces merely to remove that label.
 Review before committing:
 
 ```bash
-version=1.1.0
+version=1.2.0
 test "$(PYTHONPATH=src python3 -c 'import civ5_agent; print(civ5_agent.__version__)')" = "$version"
 PYTHONPATH=src PYTHONWARNINGS=error python3.11 -m unittest discover -s tests
 PYTHONPATH=src PYTHONWARNINGS=error python3 -m unittest discover -s tests
@@ -76,9 +76,9 @@ umask 077
 release_one="$(mktemp -d -t civ5-agent-release-one)"
 release_two="$(mktemp -d -t civ5-agent-release-two)"
 
-python3.11 -m pip wheel --no-deps --wheel-dir "$release_one" .
+python3.11 -m pip wheel --no-build-isolation --no-deps --wheel-dir "$release_one" .
 python3.11 -c "from setuptools.build_meta import build_sdist; build_sdist('$release_one')"
-python3.11 -m pip wheel --no-deps --wheel-dir "$release_two" .
+python3.11 -m pip wheel --no-build-isolation --no-deps --wheel-dir "$release_two" .
 python3.11 -c "from setuptools.build_meta import build_sdist; build_sdist('$release_two')"
 
 python3.11 scripts/check_release_artifact.py \
@@ -100,7 +100,7 @@ sdist_venv="$(mktemp -d -t civ5-agent-sdist-venv)"
 python3.11 -m venv "$wheel_venv"
 python3.11 -m venv "$sdist_venv"
 "$wheel_venv/bin/pip" install --no-deps --no-index "$release_one"/*.whl
-"$sdist_venv/bin/pip" install --no-deps "$release_one"/*.tar.gz
+"$sdist_venv/bin/pip" install --no-build-isolation --no-deps "$release_one"/*.tar.gz
 "$wheel_venv/bin/python" -c 'import civ5_agent.api'
 "$sdist_venv/bin/python" -c 'import civ5_agent.api'
 "$wheel_venv/bin/civ5-turn" --help
@@ -116,7 +116,7 @@ After the exact release commit passes CI and the two selected artifacts pass
 inspection and clean installation:
 
 ```bash
-version=1.1.0
+version=1.2.0
 release_commit="$(git rev-parse HEAD)"
 test -z "$(git status --porcelain)"
 test "$(git rev-parse origin/main)" = "$release_commit"

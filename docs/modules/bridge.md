@@ -49,11 +49,9 @@ or ruleset knowledge.
   player. Schemas 2–5 remain readable.
 - Schema 7 adds bounded worker-context and worker-build segments without
   changing selection. Parsing, validation, public limits, legacy compatibility,
-  and the repaired 688/881-byte generated reads are implemented offline. Two
-  target attempts safely stopped before any write: the first exposed indexed
-  action-table enumeration, and the second exposed numeric `luaL_optint`
-  `CanBuild` flags. Both repairs have regression coverage, and a new bounded
-  target attempt remains required.
+  and the repaired 688/881-byte generated reads are included in the prepared
+  1.2.0 profile. Bounded target evidence confirms candidate/UI agreement and
+  the active-build result branch; immediate completion remains offline-only.
 - Every successful write includes a proved postcondition.
 - Every FireTuner Lua program is at most 1,000 UTF-8 bytes; oversized programs
   fail before transport contact.
@@ -102,14 +100,14 @@ still has a direct fallback; the supported Python bridge client is watcher-only.
 
 ## Planned extensions
 
-Maintain the 1.1.0 movement contract. M10 C1–C5 implement the schema 7 reads,
+Maintain the 1.1.0 movement contract. Core 1.2.0 adds the schema 7 reads,
 exact `worker_build` admission, single stock dispatch, factual read-back,
-executor integration, and complete offline gate on the unreleased development
-head. C6 confirms read/UI agreement, stale-source rejection, and one verified
+executor integration, and complete offline gate. C6 confirms read/UI
+agreement, stale-source rejection, and one verified
 active-build write through numeric-index stock dispatch. Earlier no-retry
 attempts exposed target-specific iterator, flag, lexical, action-resolution,
 and entry-ID-versus-loop-index details without changing game state. The
-immediate-completion branch remains offline-only, and stable publication still
-requires D4/C7 release evidence and explicit approval.
+immediate-completion branch remains offline-only. The prepared candidate still
+requires exact-commit evidence and explicit tag/publication approval.
 The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

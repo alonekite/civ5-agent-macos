@@ -337,7 +337,7 @@ Acceptance criteria:
 - Publish the capability only through a compatible semantic-versioned release
   after updating the static downstream profile.
 
-Current status: bounded target verification. The conversation-submitted request is registered as
+Current status: release candidate preparation. The conversation-submitted request is registered as
 [GitHub Issue #2](https://github.com/alonekite/civ5-agent-macos/issues/2) and
 normalized in the [verified worker build development plan](WORKER_BUILD_PLAN.md).
 Bundled BNW UI and released SDK inspection completed C0/D1. ADR-0033 selects
@@ -353,8 +353,8 @@ separately authorized write, private audit verification, and exact restoration.
 C1 is complete offline: schema 7 now reads and validates exact current-plot,
 current-build, and bounded candidate facts through two selection-free programs,
 retains schema 2–6, and preserves `move_unit` on matching schema 6+ states.
-WB-S01–S06 pass. C2–C3 are now complete offline: the unreleased 1.2.0
-development head validates and admits the exact command, generates a worst-case
+WB-S01–S06 pass. C2–C3 are complete offline: core 1.2.0 validates and admits
+the exact command, generates a worst-case
 991-byte guarded stock dispatch, treats its marker only as submission evidence,
 and verifies both factual schema 7 result branches. C4 is also complete:
 schema 1 plans now preserve exact worker arguments, independently verify the
@@ -394,5 +394,6 @@ restoration gates. The same worker remained on the same plot and active turn,
 movement decreased, and the exact requested build became active without any
 observed popup, movement, other unit action, or turn advance. C6 is complete
 through the active-build branch; immediate completion remains offline-only.
-M10 proceeds to D4/C7 release preparation, with explicit approval still
-required before tagging or publication.
+The 1.2.0 compatibility surface and stable version are now prepared for D4/C7.
+Exact-commit CI, duplicate artifacts, clean installs, explicit approval, tag
+CI, publication, and downloaded-asset verification remain.
