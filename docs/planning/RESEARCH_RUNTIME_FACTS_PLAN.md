@@ -25,7 +25,8 @@ Status: complete.
 
 ### D1 — Freeze fields and provenance
 
-Status: complete under ADR-0035, with public naming superseded by ADR-0036.
+Status: complete under ADR-0035, with public naming superseded by ADR-0036 and
+the target research-progress binding corrected by ADR-0037.
 
 - Freeze exact names, units, null/unsupported behavior, phase, provenance, and
   runtime-context semantics.

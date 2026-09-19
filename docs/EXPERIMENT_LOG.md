@@ -1532,3 +1532,58 @@ second live write is neither necessary nor authorized.
 
 Prepare the D4/C7 compatibility, artifact, privacy, and release evidence for
 1.2.0. Tagging and publication still require explicit release approval.
+
+### 2026-09-19 — Schema 8 first target attempt and progress-binding diagnosis
+
+**Environment**
+
+- Original Civilization V: Campaign Edition on the target Apple Silicon Mac,
+  using guarded FireTuner preparation and development commit `bd5ba1e`.
+- Normal single-player ordinary-research action window with no technology
+  currently selected.
+- Schema 8 watcher with a private temporary audit location outside the
+  repository.
+
+**Procedure**
+
+1. Prepared the recoverable host state, passed live preflight, and started one
+   schema 8 watcher.
+2. Inspected only the schema, research capability status, and runtime context;
+   the operator confirmed no popup, selection, movement, research change, or
+   turn advance.
+3. Stopped the watcher and, after separate authorization, used bounded
+   `pcall` diagnostics containing only research-read methods. Handshake-only
+   timeouts sent no Lua and were not treated as evidence.
+4. Queried exact/whole progress on the active team's technology object to
+   identify the binding owner, then exited the game and restored the recorded
+   host baseline.
+
+**Observed result**
+
+- Schema 8 framing, parsing, runtime-context shape, and visible read purity
+  passed.
+- `research_runtime_facts` failed closed as `unavailable` with
+  `runtime_api_binding_unavailable`; no partial facts were emitted.
+- `CvPlayer` exposed science times-100, overflow, effective research cost, and
+  turns-left reads, but did not expose `GetResearchProgressTimes100`.
+- `CvTeamTechs` exposed both exact times-100 and whole-point research-progress
+  reads. The player whole-point value differed from team technology progress in
+  this state, so substitution or multiplication would not preserve semantics.
+- Shutdown verification returned FireTuner, port 4318, agent socket, firewall,
+  and the Civ V firewall rule to the exact recorded baseline. The private audit
+  was not independently inspected, so this attempt does not close the C4 audit
+  row.
+
+**Conclusion**
+
+Partial diagnostic evidence only. The provisional schema 8 collector assigned
+the exact progress method to the wrong Lua object and correctly failed closed.
+ADR-0037 moves that read and its provenance to `CvTeamTechs` without changing
+the field, units, schema, capability version, or any write contract. C4 remains
+pending.
+
+**Next step**
+
+Complete the offline regression and artifact gate for the corrected binding,
+then rerun the full bounded C4 procedure on its exact commit. Do not describe
+the first attempt as successful schema 8 verification.

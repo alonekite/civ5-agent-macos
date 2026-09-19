@@ -426,9 +426,10 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         'local b=p:GetEndTurnBlockingType();local m="normal";'
         'if b==EndTurnBlockingTypes.ENDTURN_BLOCKING_FREE_TECH then m="free" '
         'elseif b==EndTurnBlockingTypes.ENDTURN_BLOCKING_STEAL_TECH then m="steal" end;'
-        'local w=p:IsTurnActive()and not Game.IsProcessingMessages();local h=true;'
-        'for _,n in ipairs{"GetScienceTimes100","GetOverflowResearch",'
-        '"GetResearchProgressTimes100","GetResearchTurnsLeft"}do h=h and type(p[n])=="function"end;'
+        'local z=Teams[p:GetTeam()]:GetTeamTechs();'
+        'local w=p:IsTurnActive()and not Game.IsProcessingMessages();'
+        'local h=p.GetScienceTimes100 and p.GetOverflowResearch '
+        'and z.GetResearchProgressTimes100 and p.GetResearchTurnsLeft;'
         'if m=="normal"and w and h then local r=p:GetCurrentResearch();local y="";'
         'if r and r>=0 and GameInfo.Technologies[r]then y=GameInfo.Technologies[r].Type end;'
         f'print("{RESEARCH_RUNTIME_FACTS_MARKER}1|S||A|"'
@@ -438,15 +439,16 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         f'print("{RESEARCH_RUNTIME_FACTS_MARKER}1|"..s.."|"..q.."|O|||")end'
     )
     research_candidates = (
-        'local i=Game.GetActivePlayer();local p=Players[i];local b=p:GetEndTurnBlockingType();'
-        'local h=true;for _,n in ipairs{"GetScienceTimes100","GetOverflowResearch",'
-        '"GetResearchProgressTimes100","GetResearchTurnsLeft"}do h=h and type(p[n])=="function"end;'
+        'local i=Game.GetActivePlayer();local p=Players[i];'
+        'local z=Teams[p:GetTeam()]:GetTeamTechs();local b=p:GetEndTurnBlockingType();'
+        'local h=p.GetScienceTimes100 and p.GetOverflowResearch '
+        'and z.GetResearchProgressTimes100 and p.GetResearchTurnsLeft;'
         'if p:IsTurnActive()and not Game.IsProcessingMessages()and h and '
         'b~=EndTurnBlockingTypes.ENDTURN_BLOCKING_FREE_TECH and '
         'b~=EndTurnBlockingTypes.ENDTURN_BLOCKING_STEAL_TECH then '
         'for t in GameInfo.Technologies()do if p:CanResearch(t.ID)then '
         f'print("{RESEARCH_CANDIDATE_MARKER}"..t.Type.."|"..p:GetResearchCost(t.ID).."|"'
-        '..p:GetResearchProgressTimes100(t.ID).."|"..p:GetResearchTurnsLeft(t.ID,true))end end end'
+        '..z:GetResearchProgressTimes100(t.ID).."|"..p:GetResearchTurnsLeft(t.ID,true))end end end'
     )
     runtime_context = (
         'local i=Game.GetActivePlayer();local p=Players[i];'
@@ -1243,7 +1245,7 @@ def _research_runtime_facts_base(
         "candidates": [],
         "field_provenance": {
             "cost": "CvPlayer.GetResearchCost",
-            "progress_times100": "CvPlayer.GetResearchProgressTimes100",
+            "progress_times100": "CvTeamTechs.GetResearchProgressTimes100",
             "science_per_turn_times100": "CvPlayer.GetScienceTimes100",
             "overflow_research": "CvPlayer.GetOverflowResearch",
             "turns_left_with_overflow": "CvPlayer.GetResearchTurnsLeft(include_overflow=true)",

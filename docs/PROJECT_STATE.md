@@ -17,8 +17,10 @@ development log.
   repeated development wheel/sdist contents match and the wheel
   installs/imports cleanly.
   Exact-commit and `v1.2.0` GitHub Actions passed on Python 3.11/3.13.
-- Blocking issue: exact target-runtime overflow units and bindings must pass the
-  bounded read-only gate before 1.3.0 can be described as live-verified.
+- Blocking issue: the first C4 attempt identified and corrected exact progress
+  ownership from `CvPlayer` to `CvTeamTechs`; the corrected target-runtime
+  bindings and overflow behavior must pass a fresh bounded read-only gate before
+  1.3.0 can be described as live-verified.
 - User presence required next: yes for bounded target-machine verification.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and

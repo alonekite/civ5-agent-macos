@@ -16,6 +16,12 @@ All notable user-visible changes are recorded here. Development details belong i
   `research_runtime_facts` and `RESEARCH_RUNTIME_FACTS_CAPABILITY_VERSION`;
   no provisional-name compatibility alias is shipped.
 
+### Changed
+
+- Corrected the unreleased exact research-progress binding and provenance from
+  `CvPlayer` to the target-verified `CvTeamTechs` owner. The schema, field,
+  units, and capability version are unchanged.
+
 ## 1.2.0 - 2026-09-19
 
 ### Added

@@ -43,6 +43,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0034](ADR-0034-use-integer-flags-for-campaign-edition-canbuild.md) | Use integer option flags for Campaign Edition `CanBuild` | Accepted; supersedes ADR-0033's flag representation only |
 | [ADR-0035](ADR-0035-publish-runtime-research-forecast-facts.md) | Publish runtime research forecast facts without claiming a ruleset fingerprint | Accepted; public naming superseded by ADR-0036 |
 | [ADR-0036](ADR-0036-name-ordinary-research-runtime-facts.md) | Name the schema 8 observation ordinary research runtime facts | Accepted |
+| [ADR-0037](ADR-0037-read-exact-research-progress-from-team-techs.md) | Read exact research progress from team technologies | Accepted; supersedes ADR-0035's progress binding only |
 
 ## Template
 

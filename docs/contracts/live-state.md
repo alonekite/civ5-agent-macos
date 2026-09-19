@@ -88,7 +88,7 @@ the absence of a complete ruleset fingerprint are frozen by the
 
 Collection uses three additional read-only Lua programs: one facts/status
 record, one candidate stream, and one runtime-context record. The current
-generator therefore executes twelve bounded programs; the largest is 996 UTF-8
+generator therefore executes twelve bounded programs; the largest is 990 UTF-8
 bytes. Parser and validation coverage is offline only until the exact target
 bindings and overflow units pass the bounded M11 procedure.
 

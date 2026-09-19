@@ -15,6 +15,11 @@ KnowledgeBundle compatibility is a downstream adapter result. Its failure must
 not mutate or clear authoritative schema 8 runtime facts. It only blocks an
 exact-supported forecast and forecast-dependent automatic intent eligibility.
 
+The first bounded target attempt established schema 8 framing and read purity
+but exposed the incorrect provisional `CvPlayer` owner for times-100 progress.
+ADR-0037 corrects the owner to `CvTeamTechs`; that attempt is diagnostic only,
+and the target matrix remains pending until rerun on the corrected code.
+
 ## Offline matrix
 
 | ID | Case | Required result |

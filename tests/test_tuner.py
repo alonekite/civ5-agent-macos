@@ -817,6 +817,14 @@ class TunerProtocolTest(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, lua)
 
+    def test_schema_eight_reads_exact_progress_from_team_techs(self):
+        facts_program, candidate_program = snapshot_lua_programs()[9:11]
+        self.assertIn("Teams[p:GetTeam()]:GetTeamTechs()", facts_program)
+        self.assertIn("z.GetResearchProgressTimes100", facts_program)
+        self.assertIn("z:GetResearchProgressTimes100(t.ID)", candidate_program)
+        self.assertNotIn("p:GetResearchProgressTimes100", facts_program)
+        self.assertNotIn("p:GetResearchProgressTimes100", candidate_program)
+
     def test_snapshot_programs_fit_verified_firetuner_command_limit(self):
         programs = snapshot_lua_programs()
         self.assertEqual(len(programs), 12)

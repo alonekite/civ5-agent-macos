@@ -37,7 +37,7 @@ Every schema 8 state has exactly one object with this shape:
   "candidates": [],
   "field_provenance": {
     "cost": "CvPlayer.GetResearchCost",
-    "progress_times100": "CvPlayer.GetResearchProgressTimes100",
+    "progress_times100": "CvTeamTechs.GetResearchProgressTimes100",
     "science_per_turn_times100": "CvPlayer.GetScienceTimes100",
     "overflow_research": "CvPlayer.GetOverflowResearch",
     "turns_left_with_overflow": "CvPlayer.GetResearchTurnsLeft(include_overflow=true)",
@@ -70,7 +70,7 @@ unsupported object.
 - `cost` is the effective whole-point cost returned by `GetResearchCost` for
   that player and candidate in the current game.
 - `progress_times100` is the exact integer returned by
-  `GetResearchProgressTimes100`. One research point is 100 units.
+  `CvTeamTechs.GetResearchProgressTimes100`. One research point is 100 units.
 - `turns_left_with_overflow` is the non-negative integer returned by
   `GetResearchTurnsLeft(tech_id, true)`. It is a runtime fact, not a core
   recomputation.
@@ -87,6 +87,10 @@ When `status` is not `supported`, `phase` is `outside_action_window`, scalar
 facts and `current` are `null`, and `candidates` is empty. This fail-closed
 shape prevents a consumer from mixing partial exact facts with an unsupported
 mode.
+
+ADR-0037 records the target-machine correction from the provisional
+`CvPlayer` progress owner to `CvTeamTechs`; it changes provenance and binding
+ownership only, not this field's meaning or units.
 
 The optional recent-completed-technology fact requested by the consumer is not
 included in capability version 1 because no reliable runtime binding has been

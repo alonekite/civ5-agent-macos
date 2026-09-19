@@ -9,7 +9,7 @@ from civ5_agent.validation import StateValidationError, validate_live_state
 
 PROVENANCE = {
     "cost": "CvPlayer.GetResearchCost",
-    "progress_times100": "CvPlayer.GetResearchProgressTimes100",
+    "progress_times100": "CvTeamTechs.GetResearchProgressTimes100",
     "science_per_turn_times100": "CvPlayer.GetScienceTimes100",
     "overflow_research": "CvPlayer.GetOverflowResearch",
     "turns_left_with_overflow": "CvPlayer.GetResearchTurnsLeft(include_overflow=true)",
