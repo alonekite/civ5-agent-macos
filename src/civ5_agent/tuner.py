@@ -614,7 +614,7 @@ def worker_build_lua(
         'local g=GameInfoActions;local a,s;if b then for j=0,#g do '
         'local z=g[j];if z and z.Type==b.Type and '
         'z.SubType==ActionSubTypes.ACTIONSUBTYPE_BUILD and '
-        'z.MissionData==b.ID then a=z;break end end end;'
+        'z.MissionData==b.ID then a=j;break end end end;'
         'if not u then s="U" else local q=u:GetPlot();'
         f'if {source_x}~=u:GetX()or {source_y}~=u:GetY()then s="S";'
         'elseif not b or not a then s="B";'
@@ -625,8 +625,8 @@ def worker_build_lua(
         'else UI.ClearSelectionList();UI.SelectUnit(u);'
         'local h=UI.GetHeadSelectedUnit();'
         f'if not h or {unit_id}~=h:GetID()then s="X";'
-        'elseif not Game.CanHandleAction(a.ID)then s="R";'
-        'else Game.HandleAction(a.ID);s="A" end end end;'
+        'elseif not Game.CanHandleAction(a)then s="R";'
+        'else Game.HandleAction(a);s="A" end end end;'
         f'print("C5WB|"..s.."|{unit_id}|"..(b and b.Type or"BUILD_X"))'
     )
     _validate_lua_program(lua)

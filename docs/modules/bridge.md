@@ -107,8 +107,9 @@ exact `worker_build` admission, single stock dispatch, factual read-back,
 executor integration, and complete offline gate on the unreleased development
 head. C6 now confirms read/UI agreement and stale-source rejection, while
 successive no-retry attempts exposed target-specific iterator, flag, lexical,
-and action-resolution details without changing game state. Numeric action
-resolution is repaired offline; a verified write postcondition still requires
-fresh bounded C6 evidence. Optional evidence for other branches remains separate.
+action-resolution, and entry-ID-versus-loop-index details without changing game
+state. Numeric-index stock dispatch is repaired offline; a verified write
+postcondition still requires fresh bounded C6 evidence. Optional evidence for
+other branches remains separate.
 The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

@@ -978,6 +978,7 @@ class TunerProtocolTest(unittest.TestCase):
             "z.Type==b.Type",
             "ActionSubTypes.ACTIONSUBTYPE_BUILD",
             "z.MissionData==b.ID",
+            "then a=j;break",
             "9~=u:GetX()or 12~=u:GetY()then",
             "p:IsTurnActive()",
             "Game.IsProcessingMessages()",
@@ -990,10 +991,12 @@ class TunerProtocolTest(unittest.TestCase):
             "UI.SelectUnit(u)",
             "UI.GetHeadSelectedUnit()",
             "8~=h:GetID()then",
-            "Game.CanHandleAction(a.ID)",
+            "Game.CanHandleAction(a)",
         ):
             self.assertIn(required, lua)
-        self.assertEqual(lua.count("Game.HandleAction(a.ID)"), 1)
+        self.assertEqual(lua.count("Game.HandleAction(a)"), 1)
+        self.assertNotIn("Game.CanHandleAction(a.ID)", lua)
+        self.assertNotIn("Game.HandleAction(a.ID)", lua)
         self.assertNotIn("u:CanBuild(q,b.ID,false,true)", lua)
         self.assertNotIn("GameInfoActions[b.Type]", lua)
         for forbidden in ("PushMission", "SelectionListMove", "AcceptPopup"):

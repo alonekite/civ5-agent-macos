@@ -2,7 +2,7 @@
 
 Status: D0–D3, C0/D1, and C1–C5 complete offline; C6 read/admission evidence is
 partial, but write attempts have not reached a verified postcondition; a fresh
-C6 requires a published numeric action-resolution repair and authorization
+C6 requires a published numeric action-index repair and authorization
 
 Target milestone: M10
 
@@ -235,7 +235,7 @@ stock path requires it, dispatch once, and return one bounded marker. Preserve
 UUID duplicate suppression and no-retry semantics.
 
 Outcome: exact four-field validation and fresh schema 7 admission precede a
-997-byte worst-case selected-unit stock program. The program re-resolves the
+991-byte worst-case selected-unit stock program. The program re-resolves the
 unit, plot, build and matching action, repeats mutable guards, verifies exact
 selection and `CanHandleAction`, calls `Game.HandleAction` once, and emits one
 bounded private marker. Watcher forwarding retains its existing session, UUID,
@@ -324,6 +324,14 @@ type string. Before/after state and UI were unchanged, there was no retry, and
 restoration passed. The write program must instead perform bounded numeric
 iteration with exact Type/SubType/MissionData matching, remain below 1,000
 bytes, and pass the complete offline/CI gate before another fresh C6.
+
+The following attempt passed numeric resolution but returned explicit
+`blocked`. Installed BNW UI inspection showed the matched table entry's `ID`
+is not the value used by the stock click path: both `Game.CanHandleAction` and
+`Game.HandleAction` receive the numeric `GameInfoActions` loop index. State and
+UI remained unchanged, no retry occurred, and restoration passed. The compact
+program must retain and submit that exact index, forbid entry-ID dispatch in
+regression coverage, and pass the full offline/CI gate before another C6.
 
 ### D4/C7 — Publish the compatible release
 

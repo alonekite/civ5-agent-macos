@@ -1427,3 +1427,60 @@ matching its build Type, build SubType, and MissionData. Preserve every mutable
 guard and the 1,000-byte limit, add a regression forbidding string-key lookup,
 run and publish the complete offline gate, then require a fresh separately
 authorized C6 session.
+
+### 2026-09-19 — Schema 7 worker-build action-index retry
+
+**Hypothesis**
+
+Numeric action-table resolution allows the guarded write to pass build/action
+mapping and produce one exact worker-build success branch.
+
+**Environment**
+
+- Original App Store Civilization V: Campaign Edition on the target Apple
+  Silicon Mac.
+- Normal disposable single-player state with an idle owned worker on a blank,
+  featureless owned land plot and one enabled ordinary improvement action.
+- Exact implementation commit `4a6433f`, successful Python 3.11/3.13 CI, a
+  fresh recoverable guarded FireTuner session, and a fresh private watcher
+  audit path outside the repository.
+
+**Procedure**
+
+1. Prepared the guarded session, passed live preflight, and started one schema
+   7 watcher.
+2. Confirmed candidate/UI agreement and no read side effect, then proved one
+   stale-source request was rejected before submission with identical state.
+3. Read a fresh matching snapshot, obtained separate authorization, and sent
+   the exact build once.
+4. Stopped after the target returned an explicit `blocked` marker; did not
+   retry, exited the game, and restored the recorded host baseline.
+
+**Observed result**
+
+- The repaired numeric loop found the build action: the prior `invalid_build`
+  rejection did not recur.
+- The command returned a valid terminal `blocked` marker. Before/after state
+  remained identical, and the UI confirmed no build, movement loss, popup,
+  other unit action, or turn advance.
+- Inspection of the installed BNW `UnitPanel.lua` showed that the numeric loop
+  index is passed to `Game.CanHandleAction` and `Game.HandleAction`. The program
+  instead passed the matched table entry's `ID` field, which is not the stock
+  click-path action index.
+- No retry occurred. Restoration proved FireTuner disabled, no TCP 4318
+  listener or agent socket, firewall restored to disabled, and no Civ V rule,
+  matching the baseline.
+
+**Conclusion**
+
+Partially confirmed. Numeric resolution now reaches the executability guard,
+and terminal rejection, unchanged state, no-retry behavior, and restoration
+all passed. The write postcondition remains unproven because dispatch used the
+entry ID rather than the table index required by the stock UI path.
+
+**Next step**
+
+Retain the matched numeric loop index and pass that exact value to both
+`Game.CanHandleAction` and `Game.HandleAction`. Add regressions forbidding entry
+ID dispatch, preserve every guard and the byte bound, run and publish the full
+offline gate, then require a fresh separately authorized C6 session.

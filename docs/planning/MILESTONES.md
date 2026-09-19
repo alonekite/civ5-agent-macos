@@ -355,7 +355,7 @@ current-build, and bounded candidate facts through two selection-free programs,
 retains schema 2–6, and preserves `move_unit` on matching schema 6+ states.
 WB-S01–S06 pass. C2–C3 are now complete offline: the unreleased 1.2.0
 development head validates and admits the exact command, generates a worst-case
-997-byte guarded stock dispatch, treats its marker only as submission evidence,
+991-byte guarded stock dispatch, treats its marker only as submission evidence,
 and verifies both factual schema 7 result branches. C4 is also complete:
 schema 1 plans now preserve exact worker arguments, independently verify the
 result, cover only the exact unit, support ordered move/build, pause on newly
@@ -381,3 +381,9 @@ because the write path used a build-type string key on the target's numeric
 action table. State and UI remained unchanged, no retry occurred, and exact
 restoration passed. Numeric Type/SubType/MissionData action resolution must pass
 the complete offline/CI gate before another C6.
+
+The next fresh attempt resolved the action but returned explicit `blocked`.
+The installed BNW UI passes the numeric action-table loop index—not the matched
+entry's `ID`—to both stock APIs. State/UI remained unchanged, no retry occurred,
+and restoration passed. Numeric-index dispatch must pass the complete offline
+and CI gates before another C6.
