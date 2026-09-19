@@ -1588,6 +1588,24 @@ Repair and sanitized-evidence commit: `f28a9b4`.
 
 Repair and sanitized-evidence commit: `9ee4e55`.
 
+## 2026-09-19 — Close the bounded worker-build live gate
+
+- Recorded the successful schema 7 C6 run on exact implementation commit
+  `04dd70f`: read/UI agreement, read purity, stale-source pre-send rejection,
+  one separately authorized active-build result, independent watcher evidence,
+  private audit permissions, no observed extra side effect, and exact host
+  restoration all passed.
+- Updated the worker-build contract, downstream profile, module boundaries,
+  milestone, roadmap, risk register, test matrix, live-verification ledger,
+  project dashboard, experiment log, and changelog. The unobserved immediate-
+  completion branch remains offline-only; D4/C7 release preparation is next.
+- All 335 warning-enabled tests passed on Python 3.11 and the default runtime;
+  documentation links and Python 3.11 compilation passed. Sensitive-content
+  scans found no real session or unit IDs, local user paths, terminal identity,
+  credentials, tokens, or raw snapshots in the committed evidence.
+
+Sanitized C6 evidence commit: `138fa20`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
