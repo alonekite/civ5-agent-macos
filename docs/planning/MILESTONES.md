@@ -15,7 +15,7 @@ GitHub Issues and should link back to one milestone ID.
 | M7 | Public API stabilization | Complete | M4, M5, M6 |
 | M8 | 1.0 release readiness | Complete | M7 |
 | M9 | Verified unit movement | Complete | M8, M2, M6 |
-| M10 | Verified worker build | Target verification | M9, M2, M6 |
+| M10 | Verified worker build | Release preparation | M9, M2, M6 |
 
 ## M0 — Environment reconnaissance
 
@@ -387,3 +387,12 @@ The installed BNW UI passes the numeric action-table loop index—not the matche
 entry's `ID`—to both stock APIs. State/UI remained unchanged, no retry occurred,
 and restoration passed. Numeric-index dispatch must pass the complete offline
 and CI gates before another C6.
+
+The final fresh attempt on exact implementation commit `04dd70f` passed the
+read/UI, stale-source, sole-write, independent read-back, audit-permission, and
+restoration gates. The same worker remained on the same plot and active turn,
+movement decreased, and the exact requested build became active without any
+observed popup, movement, other unit action, or turn advance. C6 is complete
+through the active-build branch; immediate completion remains offline-only.
+M10 proceeds to D4/C7 release preparation, with explicit approval still
+required before tagging or publication.

@@ -1,7 +1,7 @@
 # Worker-Build Verification Specification
 
-Status: M10 D3 frozen; WB-S01–A02 complete offline; bounded target evidence and
-release publication remain
+Status: M10 D3 frozen; WB-S01–A02 complete offline; bounded C6 active-build
+target proof complete; release publication remains
 
 Owning semantic contract: [worker-build contract](../contracts/worker-build.md)
 
@@ -74,3 +74,10 @@ The single write may prove either the active-build or immediate-completion
 branch. The observed branch is recorded; the unobserved branch retains offline
 evidence only. Any unexpected or unknown outcome fails C6, ends the write
 portion, and leaves `worker_build` absent from the stable capability profile.
+
+C6 passed on 2026-09-19 through the active-build branch on exact implementation
+commit `04dd70f`. Read purity, UI agreement, stale-source rejection, one exact
+write, independent watcher read-back, private audit permissions, absence of
+observed extra side effects, and exact host restoration all passed. The
+immediate-completion branch remains offline-only. Stable publication remains a
+separate D4/C7 gate.

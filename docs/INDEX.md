@@ -45,7 +45,8 @@ do not belong in the repository.
 - [Worker-build contract](contracts/worker-build.md): frozen M10 schema 7,
   exact command, dual postcondition, executor, compatibility, and evidence
   boundary; C1–C4 bridge read/write and executor integration implemented
-  offline with the complete C5 gate passed; bounded live evidence pending.
+  offline with the complete C5 gate passed; bounded C6 active-build evidence
+  passed; 1.2.0 release preparation remains.
 - [Session and match identity contract](contracts/session-identity.md)
 - [Knowledge contract](KNOWLEDGE.md)
 - [Ruleset knowledge-view contract](contracts/resolver.md)

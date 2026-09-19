@@ -134,10 +134,10 @@ alone remain insufficient.
 
 Development head now reports `1.2.0.dev0`, implements schema 7 reads, the
 C2–C3 command, and C4 deterministic execution, and includes `worker_build` in
-`ALLOWED_ACTIONS`. This still does not satisfy the stable capability: C5 is
-complete but C6 target evidence remains; core 1.1.0 remains the stable
-profile, and downstream must continue emitting no worker-build action against
-released core.
+`ALLOWED_ACTIONS`. C5 and the bounded C6 active-build target proof are complete,
+but this still does not satisfy the stable capability until 1.2.0 is approved,
+tagged, and published. Core 1.1.0 remains the stable profile, and downstream
+must continue emitting no worker-build action against released core.
 
 The frozen action carries exactly `unit_id`, `x`, `y`, and `build_type`. The
 unit's schema 7 record supplies current-plot facts, current build, and zero to

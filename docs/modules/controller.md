@@ -117,4 +117,5 @@ nor chooses a build or alternate plot. If verified work leaves the unit ready
 without a remaining explicit move, build, or skip, execution pauses. Recovery
 requires an exact cached command, the same postcondition, and a matching fresh
 state, then pauses before any later action. Tagged core 1.1 still rejects this
-action; C5 is complete and bounded C6 target evidence remains pending.
+action; C5 and bounded C6 active-build target evidence are complete, while
+stable publication remains a separate D4/C7 gate.

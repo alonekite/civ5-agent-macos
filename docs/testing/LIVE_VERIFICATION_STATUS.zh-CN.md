@@ -39,6 +39,7 @@ Edition 对局中实际验证。它是便于快速阅读的状态表，不保存
 | M5 对局事实日志 | 2026-09-16 | 同一私有 journal 完整记录成功命令与自动回合转换；哈希链、连续回放、结构导出、`0600` 权限及恢复均通过 | [M5/M6 成功实验](../EXPERIMENT_LOG.md#2026-09-16--combined-m5m6-release-gate-successful-attempt) |
 | M6 确定性回合执行器 | 2026-09-16 | 新建并校验单动作显式计划；单次执行返回 `completed`，游戏与 watcher 均确认自动推进一个回合 | [M5/M6 成功实验](../EXPERIMENT_LOG.md#2026-09-16--combined-m5m6-release-gate-successful-attempt) |
 | schema 6 相邻普通移动 | 2026-09-17 | 源坐标请求在写入前被拒绝；另行授权的一次相邻空地移动到达精确目标、移动力下降，watcher 捕获新快照且无额外副作用；审计权限与主机恢复通过 | [移动实机实验](../EXPERIMENT_LOG.md#2026-09-17--schema-6-adjacent-movement-live-proof) |
+| schema 7 与 `worker_build` | 2026-09-19 | 候选与 UI 一致且读取无副作用；错误源坐标在写前拒绝；另行授权的一次矿场建造进入精确 active-build 状态、移动力下降，watcher 与 UI 一致且无额外副作用；私有审计与主机恢复通过 | [工人建造实机实验](../EXPERIMENT_LOG.md#2026-09-19--schema-7-worker-build-successful-active-build-proof) |
 
 ## 部分实机验证
 
@@ -51,13 +52,11 @@ Edition 对局中实际验证。它是便于快速阅读的状态表，不保存
 
 ## 待实机验证
 
-| 能力 | 当前证据 | 后续实机门槛 |
-|---|---|---|
-| schema 7 与 `worker_build` | 候选/UI 一致、读取无副作用和错误源坐标写前拒绝已反复通过。最新唯一写入已找到正确动作，但把表项 `ID` 而非数字循环索引传给 stock API，返回明确 `blocked`；前后状态与 UI 均无变化，无重试并完整恢复 | 保留匹配的数字循环索引并传给 `Game.CanHandleAction`/`Game.HandleAction`，重跑 C1–C5、推送并通过 CI，然后在全新会话重新授权第 8 节 |
+当前没有阻塞 M10 的待实机项目。`worker_build` 的 immediate-completion
+分支保留离线证据，不需要为了覆盖另一成功分支再执行一次真实写入。
 
-M5/M6 联合实机发布门槛和 M9 C6 相邻普通移动门槛均已完成；清单
-第 6、7 节保留为回归程序。M10 是当前唯一阻塞后续 1.2.0 能力发布的
-待实机项目，但在实现和离线门槛完成前不得提前运行。
+M5/M6 联合实机发布门槛、M9 C6 相邻普通移动门槛和 M10 C6 工人建造
+门槛均已完成；清单第 6、7、8 节保留为回归程序。
 免费科技与窃取科技分支保持待验证和手动处理；外交非空
 与科学胜利非零仍属于增强证据。
 

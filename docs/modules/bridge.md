@@ -105,11 +105,11 @@ still has a direct fallback; the supported Python bridge client is watcher-only.
 Maintain the 1.1.0 movement contract. M10 C1–C5 implement the schema 7 reads,
 exact `worker_build` admission, single stock dispatch, factual read-back,
 executor integration, and complete offline gate on the unreleased development
-head. C6 now confirms read/UI agreement and stale-source rejection, while
-successive no-retry attempts exposed target-specific iterator, flag, lexical,
-action-resolution, and entry-ID-versus-loop-index details without changing game
-state. Numeric-index stock dispatch is repaired offline; a verified write
-postcondition still requires fresh bounded C6 evidence. Optional evidence for
-other branches remains separate.
+head. C6 confirms read/UI agreement, stale-source rejection, and one verified
+active-build write through numeric-index stock dispatch. Earlier no-retry
+attempts exposed target-specific iterator, flag, lexical, action-resolution,
+and entry-ID-versus-loop-index details without changing game state. The
+immediate-completion branch remains offline-only, and stable publication still
+requires D4/C7 release evidence and explicit approval.
 The session envelope and public error semantics have offline
 tests; M5/M6 composition must preserve their fail-closed behavior.

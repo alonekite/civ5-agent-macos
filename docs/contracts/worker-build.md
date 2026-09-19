@@ -1,9 +1,7 @@
 # Worker-Build Contract
 
-Status: Frozen M10 contract; C1–C5 offline gate complete; live read/admission
-evidence is partial, but the write gate remains open after no-retry parse,
-resolution, and action-index failures with no observed game-state change;
-fresh evidence pending
+Status: Frozen M10 contract; C1–C5 offline gate and bounded C6 active-build
+target proof complete; 1.2.0 release preparation and publication remain
 
 Expected compatibility release: 1.2.0, only after the offline and bounded live
 gates pass
@@ -242,6 +240,7 @@ These changes require at least package version 1.2.0. Development head is
 admission, one stock submission, marker handling, polling, and both factual
 success branches, and C4 integrates schema 1 TurnPlans with independent result
 validation, exact-unit coverage, continuity, pause, and recovery behavior.
-The complete capability remains absent from the stable downstream profile until
-C5 offline reconciliation and C6 bounded target-machine evidence pass. A
-failed live gate leaves core 1.1.0 as the latest advertised capability.
+Both gates now pass, including the bounded active-build target proof. The
+complete capability remains absent from the stable downstream profile until an
+approved 1.2.0 release is tagged and published; core 1.1.0 remains the latest
+advertised capability until then.

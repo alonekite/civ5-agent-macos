@@ -1,8 +1,6 @@
 # Verified Worker Build Development Plan
 
-Status: D0–D3, C0/D1, and C1–C5 complete offline; C6 read/admission evidence is
-partial, but write attempts have not reached a verified postcondition; a fresh
-C6 requires a published numeric action-index repair and authorization
+Status: D0–D3, C0/D1, and C1–C6 complete; D4/C7 release preparation is next
 
 Target milestone: M10
 
@@ -332,6 +330,14 @@ is not the value used by the stock click path: both `Game.CanHandleAction` and
 UI remained unchanged, no retry occurred, and restoration passed. The compact
 program must retain and submit that exact index, forbid entry-ID dispatch in
 regression coverage, and pass the full offline/CI gate before another C6.
+
+The final fresh attempt on exact implementation commit `04dd70f` passed every
+bounded gate. The one separately authorized write reached the active-build
+postcondition: same unit, plot, turn, and player; lower movement; exact active
+build; no completed improvement; and unchanged protected plot facts. Watcher
+and UI agreed, no extra side effect was observed, the private audit was mode
+`600` with the expected two records, and exact restoration passed. C6 is
+complete. The immediate-completion branch remains offline-only.
 
 ### D4/C7 — Publish the compatible release
 

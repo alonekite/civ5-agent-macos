@@ -11,7 +11,8 @@ All notable user-visible changes are recorded here. Development details belong i
   build candidates, plus an exact `worker_build(unit_id, x, y, build_type)`
   bridge action with bounded stock dispatch, dual factual verification, and
   deterministic TurnPlan execution/recovery. The complete offline gate passes;
-  target-machine verification and stable 1.2.0 publication remain pending.
+  bounded active-build target-machine verification now passes; stable 1.2.0
+  publication remains pending.
 
 ## 1.1.0 - 2026-09-17
 

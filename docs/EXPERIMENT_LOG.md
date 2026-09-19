@@ -1484,3 +1484,51 @@ Retain the matched numeric loop index and pass that exact value to both
 `Game.CanHandleAction` and `Game.HandleAction`. Add regressions forbidding entry
 ID dispatch, preserve every guard and the byte bound, run and publish the full
 offline gate, then require a fresh separately authorized C6 session.
+
+### 2026-09-19 — Schema 7 worker-build successful active-build proof
+
+**Environment**
+
+- Original Civilization V: Campaign Edition on the target Apple Silicon Mac,
+  using the guarded FireTuner workflow and exact implementation commit
+  `04dd70f`.
+- Disposable single-player state with an idle owned worker on a manually
+  confirmed eligible plot and one enabled ordinary mine action.
+- Private watcher audit and temporary artifacts outside the repository.
+
+**Procedure**
+
+1. Prepared the recoverable host state, passed live preflight, and started one
+   schema 7 watcher.
+2. Confirmed candidate/UI agreement and no read side effect, then proved a
+   stale-source request was rejected before submission with unchanged state.
+3. Read a fresh matching snapshot, obtained separate authorization, and sent
+   the exact build once.
+4. Compared the command read-back with a fresh watcher snapshot and the game
+   UI, checked the private audit, exited the game, and restored the host.
+
+**Observed result**
+
+- The command returned verified success through the active-build branch. The
+  same worker remained on the same plot in the same active turn, its movement
+  fell from full to zero, and its current build became the exact requested
+  mine while the improvement remained incomplete.
+- All protected plot facts were unchanged. The independent watcher snapshot
+  and game UI agreed that construction had started.
+- No popup, unit movement, other unit action, or turn advance was observed.
+- The private audit file was mode `600` and contained exactly the expected two
+  lifecycle records.
+- Shutdown verification reported FireTuner disabled, no TCP 4318 listener or
+  agent socket, firewall restored to disabled, and no Civ V firewall rule,
+  matching the recorded baseline. A repeated restore was safely idempotent.
+
+**Conclusion**
+
+C6 passed for the active-build success branch on the target Mac. The separate
+immediate-completion branch retains deterministic offline evidence only; a
+second live write is neither necessary nor authorized.
+
+**Next step**
+
+Prepare the D4/C7 compatibility, artifact, privacy, and release evidence for
+1.2.0. Tagging and publication still require explicit release approval.

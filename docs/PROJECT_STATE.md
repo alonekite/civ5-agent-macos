@@ -9,18 +9,16 @@ development log.
 ## Dashboard
 
 - Current milestone: M10 — verified worker build — has passed its complete
-  offline gate through deterministic execution and artifact reconciliation.
-  M9 and the immutable 1.1.0 release remain complete.
-- Active next deliverable: publish the worker-write numeric action-index repair,
-  then restart M10 C6 only after the operator separately authorizes the
-  documented procedure in a fresh session.
+  offline gate and its bounded C6 target-machine verification. M9 and the
+  immutable 1.1.0 release remain complete.
+- Active next deliverable: prepare M10 D4/C7 compatibility, artifact, privacy,
+  and release evidence for 1.2.0.
 - Functional baseline: 335 tests pass locally on Python 3.11/default runtime;
   repeated wheel/sdist contents match and the wheel installs/imports cleanly.
   The previous pushed batch passed GitHub Actions Python 3.11/3.13.
 - Blocking issue: none.
-- User presence required next: yes. C6 requires the operator to prepare the
-  recoverable live session, manually confirm one candidate, and separately
-  authorize the sole build write.
+- User presence required next: no for offline release preparation. Explicit
+  approval is required before creating or publishing the 1.2.0 tag/release.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -113,9 +111,10 @@ development log.
   `Game.CanHandleAction`/`Game.HandleAction` path owns submission. Blank
   featureless land plus ordinary non-consuming improvements avoid popup and
   side-effect ambiguity. Exact active-build and completed-improvement branches
-  require the same unit/plot and lower movement. The final read programs and
-  991-byte worst-case compact write fits the 1,000-byte transport limit; target
-  behavior still awaits C6 evidence.
+  require the same unit/plot and lower movement. The final read programs fit
+  their segment bounds, and the 991-byte worst-case compact write fits the
+  1,000-byte transport limit; its active-build success branch is target-machine
+  verified.
 - M10 D2 is complete. The new owning worker-build contract freezes schema 7
   current-plot facts, current build, up to 32 bounded candidate pairs, the
   exact four-field `worker_build` action, both success branches, executor
@@ -140,7 +139,8 @@ development log.
   precedes one guarded 991-byte stock dispatch; its bounded marker is never
   success by itself. Polling proves either the exact active build or completed
   paired improvement with the same turn/player/unit/plot and lower movement.
-  All target-machine evidence remains pending.
+  The active-build branch is target-machine verified; immediate completion
+  retains offline evidence only.
 - M10 C4 is complete offline. Schema 1 TurnPlans admit the exact worker action
   only with a schema 7 basis, preserve all arguments through the watcher,
   independently revalidate both result branches, and cover only the exact unit.
@@ -191,6 +191,15 @@ development log.
   No retry occurred and restoration passed. The 991-byte repair retains and
   submits the matched loop index; full offline and CI gates remain mandatory
   before another C6.
+- The final fresh attempt on exact implementation commit `04dd70f` passed
+  candidate/UI agreement, read purity, and stale-source rejection. Its one
+  separately authorized write returned verified active-build success: the same
+  worker stayed on the same plot and active turn, movement fell, the exact
+  requested build became active, protected plot facts remained unchanged, and
+  the watcher and UI agreed. No popup, movement, other unit action, or turn
+  advance occurred. The private audit was mode `600` with the expected two
+  records, and shutdown restored the exact baseline. C6 is complete; the
+  immediate-completion branch remains offline-only.
 
 ## Current architecture
 
@@ -278,9 +287,8 @@ may enable FireTuner, launch Civ V, or change the firewall.
 
 ## Recommended order
 
-1. Pause for separately authorized C6 live verification.
-2. Only after C6 passes, prepare D4/C7 release evidence and request explicit
-   approval before tagging or publishing 1.2.0.
+1. Prepare D4/C7 compatibility, artifact, privacy, and release evidence.
+2. Request explicit approval before tagging or publishing 1.2.0.
 
 ## Recent governing decisions
 
