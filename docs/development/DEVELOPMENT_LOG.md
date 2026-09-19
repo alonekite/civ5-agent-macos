@@ -1664,6 +1664,20 @@ Sanitized C6 evidence commit: `138fa20`.
   installation imports the new public constants. Target-machine evidence is
   still pending.
 
+## 2026-09-19 — Rename schema 8 public research facts
+
+- Accepted ADR-0036, which supersedes only ADR-0035's provisional public
+  naming decision. The values, units, provenance, support states, runtime
+  context, and downstream boundary remain unchanged.
+- Renamed the unreleased live-state field, capability constant, segmented
+  protocol part/marker, parser and validation helpers, current contract, plan,
+  and verification specification to `research_runtime_facts` terminology.
+- Added canonical schema 8 key coverage and pinned canonical bytes/digests for
+  schemas 2–7. No compatibility alias, live write, target experiment, tag, or
+  release was added in this batch.
+
+Implementation and contract commit: `c67e096`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
