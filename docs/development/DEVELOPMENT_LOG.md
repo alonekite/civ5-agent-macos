@@ -1678,6 +1678,20 @@ Sanitized C6 evidence commit: `138fa20`.
 
 Implementation and contract commit: `c67e096`.
 
+## 2026-09-19 — Prepare bounded M11 target verification
+
+- Added a read-only schema 8 target procedure with guarded session setup,
+  watcher-summary commands, UI/unit comparison, a controlled 20-remaining and
+  22-produced overflow sequence, zero-command audit checks, exact host
+  restoration, stop conditions, and a sanitized evidence template.
+- Corrected the M11 verification status to distinguish completed C1–C3 offline
+  evidence from pending C4 target evidence. No game, firewall, bridge write,
+  tag, or release action was performed.
+- All 347 tests passed on Python 3.11; documentation links, diff hygiene, and
+  sensitive-content checks passed.
+
+Procedure and status commit: `d9c2a20`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
