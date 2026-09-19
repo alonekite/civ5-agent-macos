@@ -159,10 +159,10 @@ ordering, and any replanning.
 
 ## Compatibility and maintenance
 
-## Development 1.3.0 research facts forecast
+## Development 1.3.0 research runtime facts
 
 The development head adds live-state schema 8 and capability/context versions
-1. These are authoritative runtime facts when `research_forecast.status` is
+1. These are authoritative runtime facts when `research_runtime_facts.status` is
 `supported`; they are not a complete ruleset manifest. Exact-supported
 forecasting and forecast-dependent automatic intent eligibility additionally
 require a sufficient, non-conflicting downstream KnowledgeBundle binding.

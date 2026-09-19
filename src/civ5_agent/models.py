@@ -28,7 +28,7 @@ class GameState:
     researched_technologies: list[str] = field(default_factory=list)
     researchable_technologies: list[str] = field(default_factory=list)
     research_choice: dict[str, Any] | None = None
-    research_forecast: dict[str, Any] | None = None
+    research_runtime_facts: dict[str, Any] | None = None
     runtime_context: dict[str, Any] | None = None
 
 @dataclass
@@ -50,7 +50,7 @@ def game_state_to_dict(state: GameState) -> dict[str, Any]:
     """Serialize one state without adding schema-8 fields to legacy payloads."""
     value = asdict(state)
     if state.schema_version is None or state.schema_version < 8:
-        value.pop("research_forecast")
+        value.pop("research_runtime_facts")
         value.pop("runtime_context")
     return value
 

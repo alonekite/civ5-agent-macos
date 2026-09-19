@@ -141,11 +141,11 @@ release rather than treating an arbitrary checkout as published support.
 See the worker-build contract.
 
 Development core 1.3.0 adds schema 8 plus exported
-`RESEARCH_FORECAST_CAPABILITY_VERSION = 1` and
+`RESEARCH_RUNTIME_FACTS_CAPABILITY_VERSION = 1` and
 `RUNTIME_CONTEXT_VERSION = 1`. It adds fields to `GameState` but no model class,
 action, write, plan, result, executor, journal, or stable CLI schema. Consumers
 must not treat this development checkout as published or target-verified
-support. See the research-forecast contract.
+support. See the research-runtime-facts contract.
 
 ## Error inventory
 

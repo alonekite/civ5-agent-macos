@@ -18,7 +18,7 @@ HANDICAP_TYPE_PATTERN = re.compile(r"HANDICAP_[A-Z0-9_]+\Z")
 WORLD_SIZE_TYPE_PATTERN = re.compile(r"WORLDSIZE_[A-Z0-9_]+\Z")
 CIVILIZATION_TYPE_PATTERN = re.compile(r"CIVILIZATION_[A-Z0-9_]+\Z")
 SUPPORTED_LIVE_STATE_SCHEMA_VERSIONS = frozenset({2, 3, 4, 5, 6, 7, 8})
-RESEARCH_FORECAST_CAPABILITY_VERSION = 1
+RESEARCH_RUNTIME_FACTS_CAPABILITY_VERSION = 1
 RUNTIME_CONTEXT_VERSION = 1
 MAX_MAP_COORDINATE = 65_535
 MAX_BUILD_IDENTIFIER_LENGTH = 64
@@ -269,13 +269,13 @@ def validate_live_state(state: GameState) -> GameState:
                 "normal research_choice must match ordinary research availability"
             )
     if state.schema_version >= 8:
-        _validate_research_forecast(state)
+        _validate_research_runtime_facts(state)
         _validate_runtime_context(state.runtime_context)
     return state
 
 
-def _validate_research_forecast(state: GameState) -> None:
-    forecast = state.research_forecast
+def _validate_research_runtime_facts(state: GameState) -> None:
+    facts = state.research_runtime_facts
     expected = {
         "capability_version",
         "status",
@@ -287,11 +287,13 @@ def _validate_research_forecast(state: GameState) -> None:
         "candidates",
         "field_provenance",
     }
-    if not isinstance(forecast, dict) or set(forecast) != expected:
-        raise StateValidationError("schema 8 requires exact research_forecast")
-    if forecast["capability_version"] != RESEARCH_FORECAST_CAPABILITY_VERSION:
-        raise StateValidationError("research_forecast has invalid capability_version")
-    provenance = forecast["field_provenance"]
+    if not isinstance(facts, dict) or set(facts) != expected:
+        raise StateValidationError("schema 8 requires exact research_runtime_facts")
+    if facts["capability_version"] != RESEARCH_RUNTIME_FACTS_CAPABILITY_VERSION:
+        raise StateValidationError(
+            "research_runtime_facts has invalid capability_version"
+        )
+    provenance = facts["field_provenance"]
     expected_provenance = {
         "cost": "CvPlayer.GetResearchCost",
         "progress_times100": "CvPlayer.GetResearchProgressTimes100",
@@ -301,50 +303,67 @@ def _validate_research_forecast(state: GameState) -> None:
         "phase": "CvPlayer.IsTurnActive+Game.IsProcessingMessages",
     }
     if provenance != expected_provenance:
-        raise StateValidationError("research_forecast has invalid field_provenance")
-    status = forecast["status"]
-    reason = forecast["reason"]
+        raise StateValidationError(
+            "research_runtime_facts has invalid field_provenance"
+        )
+    status = facts["status"]
+    reason = facts["reason"]
     if status == "supported":
         if reason is not None:
-            raise StateValidationError("supported research_forecast cannot have reason")
-        if forecast["phase"] != "action_window_after_interturn_research_resolution":
-            raise StateValidationError("supported research_forecast has invalid phase")
+            raise StateValidationError(
+                "supported research_runtime_facts cannot have reason"
+            )
+        if facts["phase"] != "action_window_after_interturn_research_resolution":
+            raise StateValidationError(
+                "supported research_runtime_facts has invalid phase"
+            )
         if state.research_choice.get("mode") != "normal" or not state.turn_active:
-            raise StateValidationError("supported research_forecast is outside ordinary active mode")
+            raise StateValidationError(
+                "supported research_runtime_facts is outside ordinary active mode"
+            )
         for field in ("science_per_turn_times100", "overflow_research"):
-            value = forecast[field]
+            value = facts[field]
             if not isinstance(value, int) or isinstance(value, bool) or value < 0:
-                raise StateValidationError(f"research_forecast has invalid {field}")
-        candidates = forecast["candidates"]
+                raise StateValidationError(f"research_runtime_facts has invalid {field}")
+        candidates = facts["candidates"]
         if not isinstance(candidates, list):
-            raise StateValidationError("research_forecast candidates must be a list")
+            raise StateValidationError("research_runtime_facts candidates must be a list")
         normalized: list[str] = []
         for candidate in candidates:
-            _validate_research_candidate(candidate)
+            _validate_research_runtime_candidate(candidate)
             normalized.append(candidate["type"])
         if normalized != sorted(normalized) or len(set(normalized)) != len(normalized):
-            raise StateValidationError("research_forecast candidates must be sorted and unique")
+            raise StateValidationError(
+                "research_runtime_facts candidates must be sorted and unique"
+            )
         expected_types = sorted(
             set(state.researchable_technologies)
             | ({state.research["type"]} if state.research is not None else set())
         )
         if normalized != expected_types:
-            raise StateValidationError("research_forecast candidates disagree with researchable technologies")
-        current = forecast["current"]
+            raise StateValidationError(
+                "research_runtime_facts candidates disagree with "
+                "researchable technologies"
+            )
+        current = facts["current"]
         if state.research is None:
             if current is not None:
-                raise StateValidationError("research_forecast current must be null")
+                raise StateValidationError("research_runtime_facts current must be null")
         else:
             if not isinstance(current, dict):
-                raise StateValidationError("research_forecast current is missing")
+                raise StateValidationError("research_runtime_facts current is missing")
             match = next(
                 (item for item in candidates if item["type"] == state.research["type"]),
                 None,
             )
             if current != match:
-                raise StateValidationError("research_forecast current must match its candidate")
+                raise StateValidationError(
+                    "research_runtime_facts current must match its candidate"
+                )
             if current["cost"] != state.research["cost"]:
-                raise StateValidationError("research_forecast current cost disagrees with research")
+                raise StateValidationError(
+                    "research_runtime_facts current cost disagrees with research"
+                )
     elif status in {"unsupported", "unavailable"}:
         if reason not in {
             "free_technology_mode",
@@ -352,42 +371,50 @@ def _validate_research_forecast(state: GameState) -> None:
             "outside_action_window",
             "runtime_api_binding_unavailable",
         }:
-            raise StateValidationError("research_forecast has invalid unsupported reason")
-        if forecast["phase"] != "outside_action_window":
-            raise StateValidationError("unsupported research_forecast has invalid phase")
+            raise StateValidationError("research_runtime_facts has invalid unsupported reason")
+        if facts["phase"] != "outside_action_window":
+            raise StateValidationError(
+                "unsupported research_runtime_facts has invalid phase"
+            )
         if any(
-            forecast[field] is not None
+            facts[field] is not None
             for field in ("science_per_turn_times100", "overflow_research", "current")
-        ) or forecast["candidates"] != []:
-            raise StateValidationError("unsupported research_forecast contains partial facts")
+        ) or facts["candidates"] != []:
+            raise StateValidationError(
+                "unsupported research_runtime_facts contains partial facts"
+            )
         expected_status = (
             "unavailable"
             if reason == "runtime_api_binding_unavailable"
             else "unsupported"
         )
         if status != expected_status:
-            raise StateValidationError("research_forecast status disagrees with reason")
+            raise StateValidationError("research_runtime_facts status disagrees with reason")
         mode = state.research_choice.get("mode")
         if reason == "free_technology_mode" and mode != "free_technology":
-            raise StateValidationError("research_forecast free mode disagrees with research_choice")
+            raise StateValidationError(
+                "research_runtime_facts free mode disagrees with research_choice"
+            )
         if reason == "technology_steal_mode" and mode != "unsupported":
-            raise StateValidationError("research_forecast steal mode disagrees with research_choice")
+            raise StateValidationError(
+                "research_runtime_facts steal mode disagrees with research_choice"
+            )
     else:
-        raise StateValidationError("research_forecast has invalid status")
+        raise StateValidationError("research_runtime_facts has invalid status")
 
 
-def _validate_research_candidate(candidate: object) -> None:
+def _validate_research_runtime_candidate(candidate: object) -> None:
     expected = {"type", "cost", "progress_times100", "turns_left_with_overflow"}
     if not isinstance(candidate, dict) or set(candidate) != expected:
-        raise StateValidationError("research_forecast has malformed candidate")
+        raise StateValidationError("research_runtime_facts has malformed candidate")
     if not isinstance(candidate["type"], str) or not TECH_TYPE_PATTERN.fullmatch(
         candidate["type"]
     ):
-        raise StateValidationError("research_forecast has invalid candidate type")
+        raise StateValidationError("research_runtime_facts has invalid candidate type")
     for field in ("cost", "progress_times100", "turns_left_with_overflow"):
         value = candidate[field]
         if not isinstance(value, int) or isinstance(value, bool) or value < 0:
-            raise StateValidationError(f"research_forecast candidate has invalid {field}")
+            raise StateValidationError(f"research_runtime_facts candidate has invalid {field}")
 
 
 def _validate_runtime_context(context: object) -> None:

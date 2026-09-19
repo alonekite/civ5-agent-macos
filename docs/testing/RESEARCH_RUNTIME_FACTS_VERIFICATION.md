@@ -1,4 +1,4 @@
-# Runtime Research Forecast Verification Specification
+# Runtime Research Facts Verification Specification
 
 Status: Frozen design matrix; implementation evidence pending
 

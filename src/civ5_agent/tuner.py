@@ -63,7 +63,7 @@ DIPLOMACY_MARKER = "CIV5_AGENT_DIPLOMACY|"
 VICTORY_MARKER = "CIV5_AGENT_VICTORY|"
 TECHNOLOGY_MARKER = "CIV5_AGENT_TECHNOLOGY|"
 RESEARCH_CHOICE_MARKER = "CIV5_AGENT_RESEARCH_CHOICE|"
-RESEARCH_FORECAST_MARKER = "CIV5_AGENT_RESEARCH_FORECAST|"
+RESEARCH_RUNTIME_FACTS_MARKER = "CIV5_AGENT_RESEARCH_RUNTIME_FACTS|"
 RESEARCH_CANDIDATE_MARKER = "CIV5_AGENT_RESEARCH_CANDIDATE|"
 RUNTIME_CONTEXT_MARKER = "CIV5_AGENT_RUNTIME_CONTEXT|"
 COMMAND_MARKER = "CIV5_AGENT_COMMAND|"
@@ -420,9 +420,9 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         'if m=="normal" then q=(r==nil or r<0)and a end;'
         f'print("{RESEARCH_CHOICE_MARKER}"..tostring(q).."|"..m)'
     )
-    research_forecast = (
+    research_runtime_facts = (
         'local i=Game.GetActivePlayer();local p=Players[i];'
-        f'print("{PART_MARKER}research_forecast|"..Game.GetGameTurn().."|"..i);'
+        f'print("{PART_MARKER}research_runtime_facts|"..Game.GetGameTurn().."|"..i);'
         'local b=p:GetEndTurnBlockingType();local m="normal";'
         'if b==EndTurnBlockingTypes.ENDTURN_BLOCKING_FREE_TECH then m="free" '
         'elseif b==EndTurnBlockingTypes.ENDTURN_BLOCKING_STEAL_TECH then m="steal" end;'
@@ -431,11 +431,11 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         '"GetResearchProgressTimes100","GetResearchTurnsLeft"}do h=h and type(p[n])=="function"end;'
         'if m=="normal"and w and h then local r=p:GetCurrentResearch();local y="";'
         'if r and r>=0 and GameInfo.Technologies[r]then y=GameInfo.Technologies[r].Type end;'
-        f'print("{RESEARCH_FORECAST_MARKER}1|S||A|"'
+        f'print("{RESEARCH_RUNTIME_FACTS_MARKER}1|S||A|"'
         '..p:GetScienceTimes100().."|"..p:GetOverflowResearch().."|"..y)'
         'else local s="U";local q="O";if m=="free"then q="F"'
         'elseif m=="steal"then q="T"elseif not h then s="A";q="B"end;'
-        f'print("{RESEARCH_FORECAST_MARKER}1|"..s.."|"..q.."|O|||")end'
+        f'print("{RESEARCH_RUNTIME_FACTS_MARKER}1|"..s.."|"..q.."|O|||")end'
     )
     research_candidates = (
         'local i=Game.GetActivePlayer();local p=Players[i];local b=p:GetEndTurnBlockingType();'
@@ -470,7 +470,7 @@ def snapshot_lua_programs() -> tuple[str, ...]:
         move_targets,
         worker_context,
         worker_builds,
-        research_forecast,
+        research_runtime_facts,
         research_candidates,
         runtime_context,
     )
@@ -712,7 +712,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     move_targets: dict[int, list[dict[str, int]]] = {}
     worker_context: dict[int, dict[str, object]] = {}
     worker_builds: dict[int, list[dict[str, str]]] = {}
-    research_forecast: dict[str, object] | None = None
+    research_runtime_facts: dict[str, object] | None = None
     research_candidates: list[dict[str, object]] = []
     research_current_type: str | None = None
     runtime_context: dict[str, object] | None = None
@@ -782,7 +782,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     "move_targets",
                     "worker_context",
                     "worker_builds",
-                    "research_forecast",
+                    "research_runtime_facts",
                     "runtime_context",
                 }:
                     raise ValueError(f"malformed snapshot part: {line!r}")
@@ -801,7 +801,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     raise ValueError(
                         f"{part} part requires a schema 7+ snapshot header"
                     )
-                if part in {"research_forecast", "runtime_context"} and (
+                if part in {"research_runtime_facts", "runtime_context"} and (
                     snapshot.schema_version < 8
                 ):
                     raise ValueError(f"{part} part requires a schema 8+ snapshot header")
@@ -1040,14 +1040,19 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                         f"duplicate {fields[0]} technology: {fields[1]}"
                     )
                 target.append(fields[1])
-            elif RESEARCH_FORECAST_MARKER in line:
+            elif RESEARCH_RUNTIME_FACTS_MARKER in line:
                 if snapshot is None or snapshot.schema_version < 8:
-                    raise ValueError("research forecast requires a schema 8+ snapshot header")
-                if "research_forecast" not in parts or research_forecast is not None:
-                    raise ValueError("invalid or duplicate research forecast")
-                fields = line.split(RESEARCH_FORECAST_MARKER, 1)[1].split("|")
+                    raise ValueError(
+                        "research runtime facts require a schema 8+ snapshot header"
+                    )
+                if (
+                    "research_runtime_facts" not in parts
+                    or research_runtime_facts is not None
+                ):
+                    raise ValueError("invalid or duplicate research runtime facts")
+                fields = line.split(RESEARCH_RUNTIME_FACTS_MARKER, 1)[1].split("|")
                 if len(fields) != 7 or fields[0] != "1":
-                    raise ValueError(f"malformed research forecast: {line!r}")
+                    raise ValueError(f"malformed research runtime facts: {line!r}")
                 status = {"S": "supported", "U": "unsupported", "A": "unavailable"}.get(fields[1])
                 reason = {
                     "": "",
@@ -1061,34 +1066,42 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                     "O": "outside_action_window",
                 }.get(fields[3])
                 if status is None or reason is None or phase is None:
-                    raise ValueError(f"malformed research forecast code: {line!r}")
+                    raise ValueError(f"malformed research runtime facts code: {line!r}")
                 if status == "supported":
                     if reason or phase != "action_window_after_interturn_research_resolution":
-                        raise ValueError(f"malformed supported research forecast: {line!r}")
+                        raise ValueError(
+                            f"malformed supported research runtime facts: {line!r}"
+                        )
                     science = int(fields[4])
                     overflow = int(fields[5])
                     if science < 0 or overflow < 0:
-                        raise ValueError(f"negative research forecast value: {line!r}")
+                        raise ValueError(
+                            f"negative research runtime facts value: {line!r}"
+                        )
                     research_current_type = fields[6] or None
                     if research_current_type and not TECH_TYPE_PATTERN.fullmatch(
                         research_current_type
                     ):
-                        raise ValueError("invalid current research forecast type")
-                    research_forecast = _research_forecast_base(
+                        raise ValueError(
+                            "invalid current research runtime facts type"
+                        )
+                    research_runtime_facts = _research_runtime_facts_base(
                         status, None, phase, science, overflow
                     )
                 elif status in {"unsupported", "unavailable"}:
                     if any(fields[index] for index in (4, 5, 6)):
-                        raise ValueError("unsupported research forecast contains facts")
-                    research_forecast = _research_forecast_base(
+                        raise ValueError(
+                            "unsupported research runtime facts contains values"
+                        )
+                    research_runtime_facts = _research_runtime_facts_base(
                         status, reason, phase, None, None
                     )
                 else:
-                    raise ValueError(f"invalid research forecast status: {status!r}")
+                    raise ValueError(f"invalid research runtime facts status: {status!r}")
             elif RESEARCH_CANDIDATE_MARKER in line:
                 if snapshot is None or snapshot.schema_version < 8:
                     raise ValueError("research candidate requires a schema 8+ snapshot header")
-                if "research_forecast" not in parts:
+                if "research_runtime_facts" not in parts:
                     raise ValueError("research candidate appeared before its part")
                 fields = line.split(RESEARCH_CANDIDATE_MARKER, 1)[1].split("|")
                 if len(fields) != 4 or not TECH_TYPE_PATTERN.fullmatch(fields[0]):
@@ -1128,7 +1141,7 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
         if snapshot.schema_version >= 7:
             expected_parts.update({"worker_context", "worker_builds"})
         if snapshot.schema_version >= 8:
-            expected_parts.update({"research_forecast", "runtime_context"})
+            expected_parts.update({"research_runtime_facts", "runtime_context"})
         if parts != expected_parts:
             missing = ", ".join(sorted(expected_parts - parts))
             raise ValueError(f"incomplete snapshot parts: {missing}")
@@ -1180,20 +1193,26 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                 ),
             )
     if snapshot.schema_version >= 8:
-        if research_forecast is None or runtime_context is None:
-            raise ValueError("schema 8 snapshot omitted research forecast or runtime context")
+        if research_runtime_facts is None or runtime_context is None:
+            raise ValueError(
+                "schema 8 snapshot omitted research runtime facts or runtime context"
+            )
         candidates = sorted(research_candidates, key=lambda item: item["type"])
-        if research_forecast["status"] == "supported":
-            research_forecast["candidates"] = candidates
+        if research_runtime_facts["status"] == "supported":
+            research_runtime_facts["candidates"] = candidates
             if research_current_type is not None:
-                research_forecast["current"] = next(
-                    (item.copy() for item in candidates if item["type"] == research_current_type),
+                research_runtime_facts["current"] = next(
+                    (
+                        item.copy()
+                        for item in candidates
+                        if item["type"] == research_current_type
+                    ),
                     None,
                 )
-                if research_forecast["current"] is None:
-                    raise ValueError("current research forecast is not a candidate")
+                if research_runtime_facts["current"] is None:
+                    raise ValueError("current research runtime fact is not a candidate")
         elif research_candidates:
-            raise ValueError("unsupported research forecast emitted candidates")
+            raise ValueError("unsupported research runtime facts emitted candidates")
     snapshot.cities = cities
     snapshot.units = units
     snapshot.diplomacy = diplomacy
@@ -1201,12 +1220,12 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
     snapshot.researched_technologies = sorted(researched_technologies)
     snapshot.researchable_technologies = sorted(researchable_technologies)
     snapshot.research_choice = research_choice
-    snapshot.research_forecast = research_forecast
+    snapshot.research_runtime_facts = research_runtime_facts
     snapshot.runtime_context = runtime_context
     return snapshot
 
 
-def _research_forecast_base(
+def _research_runtime_facts_base(
     status: str,
     reason: str | None,
     phase: str,

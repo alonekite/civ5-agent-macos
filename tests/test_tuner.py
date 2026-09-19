@@ -86,8 +86,8 @@ def _schema_eight_messages():
         (
             TunerMessage(
                 -1,
-                "CIV5_AGENT_PART|research_forecast|2|0\n"
-                "CIV5_AGENT_RESEARCH_FORECAST|1|S||A|500|2|TECH_POTTERY",
+                "CIV5_AGENT_PART|research_runtime_facts|2|0\n"
+                "CIV5_AGENT_RESEARCH_RUNTIME_FACTS|1|S||A|500|2|TECH_POTTERY",
             ),
             TunerMessage(
                 -1,
@@ -539,13 +539,13 @@ class TunerProtocolTest(unittest.TestCase):
         )
         self.assertIs(validate_live_state(state), state)
 
-    def test_parses_schema_eight_research_forecast_and_runtime_context(self):
+    def test_parses_schema_eight_runtime_facts_and_context(self):
         state = parse_snapshot(tuple(_schema_eight_messages()))
 
         self.assertEqual(state.schema_version, 8)
-        self.assertEqual(state.research_forecast["overflow_research"], 2)
+        self.assertEqual(state.research_runtime_facts["overflow_research"], 2)
         self.assertEqual(
-            state.research_forecast["current"],
+            state.research_runtime_facts["current"],
             {
                 "type": "TECH_POTTERY",
                 "cost": 35,
@@ -554,7 +554,7 @@ class TunerProtocolTest(unittest.TestCase):
             },
         )
         self.assertEqual(
-            [item["type"] for item in state.research_forecast["candidates"]],
+            [item["type"] for item in state.research_runtime_facts["candidates"]],
             ["TECH_POTTERY", "TECH_WRITING"],
         )
         self.assertEqual(
@@ -563,14 +563,14 @@ class TunerProtocolTest(unittest.TestCase):
         )
         self.assertIs(validate_live_state(state), state)
 
-    def test_schema_eight_parses_fail_closed_unsupported_forecast(self):
+    def test_schema_eight_parses_fail_closed_unsupported_runtime_facts(self):
         messages = _schema_eight_messages()
         messages = [
             TunerMessage(
                 message.tag,
                 message.payload.replace(
-                    "CIV5_AGENT_RESEARCH_FORECAST|1|S||A|500|2|TECH_POTTERY",
-                    "CIV5_AGENT_RESEARCH_FORECAST|1|U|F|O|||",
+                    "CIV5_AGENT_RESEARCH_RUNTIME_FACTS|1|S||A|500|2|TECH_POTTERY",
+                    "CIV5_AGENT_RESEARCH_RUNTIME_FACTS|1|U|F|O|||",
                 ),
             )
             for message in messages
@@ -578,8 +578,10 @@ class TunerProtocolTest(unittest.TestCase):
         ]
         state = parse_snapshot(tuple(messages))
         state.research_choice = {"required": True, "mode": "free_technology"}
-        self.assertEqual(state.research_forecast["status"], "unsupported")
-        self.assertEqual(state.research_forecast["reason"], "free_technology_mode")
+        self.assertEqual(state.research_runtime_facts["status"], "unsupported")
+        self.assertEqual(
+            state.research_runtime_facts["reason"], "free_technology_mode"
+        )
         self.assertIs(validate_live_state(state), state)
 
     def test_schema_seven_requires_both_worker_parts(self):
@@ -837,7 +839,7 @@ class TunerProtocolTest(unittest.TestCase):
             "move_targets",
             "worker_context",
             "worker_builds",
-            "research_forecast",
+            "research_runtime_facts",
             "runtime_context",
         )
         part_messages = [
@@ -856,8 +858,8 @@ class TunerProtocolTest(unittest.TestCase):
         )
         part_messages[8] = TunerMessage(
             -1,
-            "CIV5_AGENT_PART|research_forecast|2|0\n"
-            "CIV5_AGENT_RESEARCH_FORECAST|1|S||A|500|0|",
+            "CIV5_AGENT_PART|research_runtime_facts|2|0\n"
+            "CIV5_AGENT_RESEARCH_RUNTIME_FACTS|1|S||A|500|0|",
         )
         part_messages[9] = TunerMessage(
             -1,

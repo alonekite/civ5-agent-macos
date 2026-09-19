@@ -8,14 +8,14 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M11 — runtime research forecast facts — has an accepted
+- Current milestone: M11 — runtime research facts — has an accepted
   strategy-neutral capability request and frozen schema 8/core 1.3.0 design.
   M10 and the immutable 1.2.0 release remain complete.
 - Active next deliverable: prepare and run the bounded M11 C4 target procedure.
   No new write action is planned.
-- Functional baseline: 346 tests pass locally on Python 3.11; repeated
-  development wheel/sdist contents match and a clean wheel import passes.
-  repeated wheel/sdist contents match and the wheel installs/imports cleanly.
+- Functional baseline: the full offline suite passes locally on Python 3.11;
+  repeated development wheel/sdist contents match and the wheel
+  installs/imports cleanly.
   Exact-commit and `v1.2.0` GitHub Actions passed on Python 3.11/3.13.
 - Blocking issue: exact target-runtime overflow units and bindings must pass the
   bounded read-only gate before 1.3.0 can be described as live-verified.

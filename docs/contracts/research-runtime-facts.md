@@ -1,6 +1,6 @@
-# Ordinary Research Forecast Facts Contract
+# Ordinary Research Runtime Facts Contract
 
-Status: Frozen design for M11; implementation and target evidence pending
+Status: Implemented offline for M11; target evidence pending
 
 Compatible release: 1.3.0
 
@@ -16,7 +16,7 @@ technology, compare candidates, simulate a route, bind a knowledge bundle, or
 change research. The existing `choose_research` command and every write/result
 contract remain unchanged.
 
-## `research_forecast`
+## `research_runtime_facts`
 
 Every schema 8 state has exactly one object with this shape:
 
@@ -119,7 +119,7 @@ unavailable dimension.
 
 This object is runtime context identity and provenance. It is not a complete
 ruleset manifest or cryptographic proof. A consumer that requires a complete
-ruleset identity must bind the available dimensions to a selected
+  ruleset identity must bind the available dimensions to a selected
 `KnowledgeBundle`, verify its source hashes, and fail closed on gaps or
 conflicts for exact-supported forecasting and forecast-dependent automation.
 That downstream binding result does not change the core object's `status` and
@@ -131,7 +131,7 @@ must not erase its authoritative runtime values.
   minor feature. Schemas 2–7 remain accepted and retain their exact shapes.
 - Consumers must negotiate schema 8 explicitly. A package version alone does
   not prove field presence.
-- On schemas 2–7, the forecast and runtime-context capabilities are absent, not
+- On schemas 2–7, the research-runtime-facts and runtime-context capabilities are absent, not
   zero, empty-supported, or inferable from whole-unit legacy fields.
 - A schema 8 consumer must require `status == "supported"`, the exact phase,
   and a sufficient external context/knowledge binding before claiming an

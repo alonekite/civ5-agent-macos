@@ -1,6 +1,6 @@
-# Runtime Research Forecast Facts Development Plan
+# Runtime Research Facts Development Plan
 
-Status: Design frozen; implementation pending
+Status: C1–C3 complete offline; C4 target evidence pending
 
 Target milestone: M11
 
@@ -9,7 +9,7 @@ Compatible release: 1.3.0
 ## Objective
 
 Add the strategy-neutral schema 8 facts defined by the
-[research-forecast contract](../contracts/research-forecast.md). The first slice
+[research-runtime-facts contract](../contracts/research-runtime-facts.md). The first slice
 is ordinary research only and introduces no write action.
 
 ## Delivery sequence
@@ -25,7 +25,7 @@ Status: complete.
 
 ### D1 — Freeze fields and provenance
 
-Status: complete under ADR-0035.
+Status: complete under ADR-0035, with public naming superseded by ADR-0036.
 
 - Freeze exact names, units, null/unsupported behavior, phase, provenance, and
   runtime-context semantics.
@@ -50,7 +50,7 @@ Status: complete offline.
 
 ### C3 — Complete the offline gate
 
-Status: complete offline; the 346-test suite and artifact gate pass.
+Status: complete offline; the full suite and artifact gate pass.
 
 - Add the negative and compatibility matrix required by the owning contract.
 - Preserve authoritative core facts when downstream KnowledgeBundle binding is

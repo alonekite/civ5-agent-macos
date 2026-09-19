@@ -16,9 +16,9 @@ GitHub Issues and should link back to one milestone ID.
 | M8 | 1.0 release readiness | Complete | M7 |
 | M9 | Verified unit movement | Complete | M8, M2, M6 |
 | M10 | Verified worker build | Complete | M9, M2, M6 |
-| M11 | Runtime research forecast facts | Planned | M8, M7 |
+| M11 | Runtime research facts | In progress | M8, M7 |
 
-## M11 — Runtime research forecast facts
+## M11 — Runtime research facts
 
 Acceptance criteria:
 
@@ -34,7 +34,7 @@ Acceptance criteria:
 - Pass the frozen offline matrix and bounded target-machine read/overflow
   verification before release as core 1.3.0.
 
-Owning plan: `docs/planning/RESEARCH_FORECAST_PLAN.md`.
+Owning plan: `docs/planning/RESEARCH_RUNTIME_FACTS_PLAN.md`.
 
 ## M0 — Environment reconnaissance
 

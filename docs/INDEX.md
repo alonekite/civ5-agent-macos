@@ -19,7 +19,7 @@ do not belong in the repository.
 - [Verified worker build plan](planning/WORKER_BUILD_PLAN.md): accepted M10
   capability request, boundary, research questions, staged implementation,
   verification, and 1.2.0 release gates.
-- [Runtime research forecast plan](planning/RESEARCH_FORECAST_PLAN.md): accepted
+- [Runtime research facts plan](planning/RESEARCH_RUNTIME_FACTS_PLAN.md): accepted
   M11 read-only schema 8 fields, provenance, compatibility, offline gate, and
   bounded target verification sequence.
 
@@ -49,7 +49,7 @@ do not belong in the repository.
   exact command, dual postcondition, executor, compatibility, and evidence
   boundary; complete offline and bounded C6 active-build gates passed and the
   capability is published in 1.2.0.
-- [Research-forecast facts contract](contracts/research-forecast.md): frozen M11
+- [Research runtime facts contract](contracts/research-runtime-facts.md): frozen M11
   schema 8 design for exact ordinary-research runtime facts and context
   provenance without a fabricated ruleset fingerprint.
 - [Session and match identity contract](contracts/session-identity.md)
@@ -76,7 +76,7 @@ behavior. Contract documents define intended compatibility and rejection rules.
 - [Verification matrix](testing/TEST_MATRIX.md)
 - [Worker-build verification specification](testing/WORKER_BUILD_VERIFICATION.md):
   frozen M10 offline matrix, evidence allocation, and target-machine pass rule.
-- [Research-forecast verification specification](testing/RESEARCH_FORECAST_VERIFICATION.md):
+- [Research runtime facts verification specification](testing/RESEARCH_RUNTIME_FACTS_VERIFICATION.md):
   frozen M11 offline and target matrix, including the runtime-fact versus
   downstream KnowledgeBundle-binding boundary.
 - [Live verification status (Chinese)](testing/LIVE_VERIFICATION_STATUS.zh-CN.md):
