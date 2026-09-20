@@ -31,6 +31,10 @@ DEFAULT_PORT = 4318
 MAX_LUA_PROGRAM_BYTES = 1000
 
 
+class SnapshotStreamDesynchronizedError(ValueError):
+    """A snapshot response began with output left by an earlier command."""
+
+
 @dataclass(frozen=True)
 class TunerMessage:
     tag: int
@@ -190,6 +194,8 @@ class FireTunerClient:
         original_timeout = connection.gettimeout()
         messages: list[TunerMessage] = []
         deadline = time.monotonic() + total_timeout
+        command_ack_seen = False
+        output_seen = False
         self.send(TAG_COMMAND, f"CMD:{state_index}:{lua}")
         try:
             while True:
@@ -206,6 +212,15 @@ class FireTunerClient:
                         continue
                     messages.append(message)
                     if message.tag == TAG_COMMAND:
+                        command_ack_seen = True
+                        if output_seen:
+                            break
+                        # During an interturn Civ V can acknowledge a command
+                        # before delivering its Lua output. Stopping here
+                        # leaves that output queued for the next split part.
+                        continue
+                    output_seen = True
+                    if command_ack_seen:
                         break
                 except socket.timeout:
                     break
@@ -773,7 +788,9 @@ def parse_snapshot(messages: tuple[TunerMessage, ...]) -> GameState:
                 )
             elif PART_MARKER in line:
                 if snapshot is None:
-                    raise ValueError("snapshot part appeared before snapshot header")
+                    raise SnapshotStreamDesynchronizedError(
+                        "snapshot part appeared before snapshot header"
+                    )
                 fields = line.split(PART_MARKER, 1)[1].split("|")
                 if len(fields) != 3 or fields[0] not in {
                     "cities",

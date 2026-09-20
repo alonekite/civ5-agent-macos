@@ -21,6 +21,11 @@ to reject a plan created for another connection epoch.
 It is not a save-file identifier and is not inferred from turn, player, map, or
 other mutable game fields.
 
+FireTuner response desynchronization ends the current connection epoch. A
+long-running watcher may reconnect for later reads, but the replacement
+connection always receives a new `bridge_session_id`; it does not silently
+preserve plan, command, journal, or match authority from the old session.
+
 ## Match identity
 
 `match_id` is a lowercase canonical UUIDv4 created explicitly with an M5

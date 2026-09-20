@@ -23,6 +23,10 @@ All notable user-visible changes are recorded here. Development details belong i
 - Corrected the unreleased exact research-progress binding and provenance from
   `CvPlayer` to the target-verified `CvTeamTechs` owner. The schema, field,
   units, and capability version are unchanged.
+- FireTuner collection now accepts bounded Lua output delivered after its
+  command acknowledgement. A still-desynchronized long-running watcher rotates
+  the connection and bridge-session identity instead of reusing shifted
+  segmented responses; submitted writes are never retried.
 
 ## 1.2.0 - 2026-09-19
 

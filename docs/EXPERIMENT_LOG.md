@@ -1587,3 +1587,66 @@ pending.
 Complete the offline regression and artifact gate for the corrected binding,
 then rerun the full bounded C4 procedure on its exact commit. Do not describe
 the first attempt as successful schema 8 verification.
+
+### 2026-09-21 — Corrected schema 8 overflow attempt and framing diagnosis
+
+**Environment**
+
+- Original Civilization V: Campaign Edition on the target Apple Silicon Mac,
+  using guarded FireTuner preparation and implementation commit `aaa4212`.
+- Ordinary single-player research action window with one naturally completing
+  technology and a qualifying exact positive-overflow precondition.
+- Published external supervisor v0.1.0, server-enforced read-only watcher, and
+  private temporary artifacts outside the repository.
+
+**Procedure**
+
+1. Prepared the recoverable host state. Simultaneous framework application and
+   watcher startup failed closed before TCP 4318 readiness; a separate generic
+   launch phase then kept the verified application open, live preflight passed,
+   and an `observe_verified` session started the watcher.
+2. Started one read-only schema 8 watcher, read the research summary twice, and
+   compared it with the stock UI in the same action window.
+3. Manually advanced exactly one turn, closed the stock completion popup without
+   selecting a replacement technology, and requested the next read.
+4. Stopped after repeated framing errors, checked the private audit, ran one
+   bounded read-only header diagnostic after the watcher stopped, exited the
+   game, and restored the recorded host baseline.
+
+**Observed result**
+
+- Schema 8 was supported with phase
+  `action_window_after_interturn_research_resolution`. Two reads were identical
+  and caused no observed popup, selection, movement, research change, or turn
+  advancement.
+- The stock UI agreed with effective cost `2200`, displayed progress about
+  `1900/2200`, science about `447`, and one turn remaining. The exact values
+  were progress `189998` times-100 and science `44721` times-100.
+- Exact remaining research was `30002` times-100 and the computed surplus was
+  `14719` times-100, satisfying the positive-overflow precondition. The initial
+  whole-point overflow was zero.
+- After the manual interturn, the same watcher connection repeatedly reported
+  `snapshot part appeared before snapshot header`; no post-completion overflow
+  value was accepted or inferred. Closing the popup did not clear the error.
+- After the watcher stopped, the exact header program returned a valid header
+  on a fresh isolated read-only connection. This bounded the defect to
+  response attribution on the old connection rather than the schema 8 header
+  binding. A later independent handshake timed out and supplied no evidence.
+- The private audit was mode `600` with zero records. Guarded shutdown restored
+  FireTuner, TCP 4318, the agent socket, firewall state, and the Civ V rule to
+  the exact original baseline.
+
+**Conclusion**
+
+Partial C4 evidence. Corrected `CvTeamTechs` progress, units, repeated-read
+stability, UI agreement, runtime context, and the exact pre-overflow condition
+passed. Post-interturn overflow and selection behavior remain pending. The run
+identified command acknowledgement arriving before Lua output as the framing
+condition addressed by ADR-0042; it is not a completed C4 proof.
+
+**Next step**
+
+Pass the complete offline, artifact, privacy, and CI gates for ADR-0042, then
+repeat the controlled sequence on the exact repaired commit. Require the same
+private bridge-session identity throughout the evidence sequence and stop
+rather than infer continuity if recovery rotates it.

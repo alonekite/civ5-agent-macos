@@ -1,6 +1,6 @@
 # Runtime Research Facts Verification Specification
 
-Status: C1–C3 complete offline; C4 target evidence pending
+Status: C1–C3 complete offline; C4 partial target evidence, repaired rerun pending
 
 Milestone: M11
 
@@ -19,6 +19,13 @@ The first bounded target attempt established schema 8 framing and read purity
 but exposed the incorrect provisional `CvPlayer` owner for times-100 progress.
 ADR-0037 corrects the owner to `CvTeamTechs`; that attempt is diagnostic only,
 and the target matrix remains pending until rerun on the corrected code.
+
+The corrected target attempt established repeated-read stability, UI agreement,
+the exact `CvTeamTechs` progress, and a qualifying positive-overflow
+precondition. The manual interturn then exposed acknowledgement-before-output
+FireTuner framing that left the watcher connection desynchronized. ADR-0042
+repairs that transport boundary; post-interturn overflow and selection behavior
+remain pending until a fresh exact-commit run.
 
 ## Offline matrix
 
@@ -59,6 +66,10 @@ and the target matrix remains pending until rerun on the corrected code.
    next interturn applies it. This is observation, not a new core write path.
 5. The private audit remains unchanged by read-only collection, and guarded
    shutdown restores the exact FireTuner/firewall baseline.
+6. The controlled sequence either retains one bridge-session identity or
+   explicitly fails the continuity gate. A framing recovery may rotate the
+   session for later reads, but evidence must not infer match continuity from
+   mutable snapshot fields across that boundary.
 
 If a suitable controlled save is unavailable or any exact runtime binding fails,
 the affected target gate remains pending. Approximation is not evidence.

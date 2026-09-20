@@ -31,7 +31,13 @@ from .journal import JournalCapture, JournalError
 from .models import Command, GameState, model_to_dict as asdict
 from .preflight import UnsafeSessionError, require_safe_tuner_session
 from .storage import UserDataStateReader, default_state_database
-from .tuner import DEFAULT_HOST, DEFAULT_PORT, FireTunerClient, _find_state
+from .tuner import (
+    DEFAULT_HOST,
+    DEFAULT_PORT,
+    FireTunerClient,
+    SnapshotStreamDesynchronizedError,
+    _find_state,
+)
 from .validation import validate_live_state
 
 
@@ -443,6 +449,12 @@ def _watch_tuner(args: argparse.Namespace) -> int:
                         try:
                             with connection_lock:
                                 state = validate_live_state(client.read_game_state(state_id))
+                        except SnapshotStreamDesynchronizedError:
+                            # This connection can no longer attribute split
+                            # snapshot output to the command that produced it.
+                            # Reconnect and issue a new bridge-session identity
+                            # instead of reusing corrupted response framing.
+                            raise
                         except ValueError as error:
                             if args.once:
                                 print(f"State unavailable: {error}", file=sys.stderr)

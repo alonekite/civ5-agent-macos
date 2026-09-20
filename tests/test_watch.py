@@ -3,13 +3,20 @@ import json
 import tempfile
 import threading
 import unittest
+from contextlib import nullcontext
 from pathlib import Path
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import MagicMock, patch
 
 from civ5_agent.audit import CommandAuditLog
 from civ5_agent.models import CommandResult, GameState
 from civ5_agent.preflight import UnsafeSessionError
-from civ5_agent.watch import main, make_control_handler
+from civ5_agent.tuner import (
+    LuaState,
+    SnapshotStreamDesynchronizedError,
+    TunerHandshake,
+)
+from civ5_agent.watch import _watch_tuner, main, make_control_handler
 
 END_TURN_ID = "123e4567-e89b-42d3-a456-426614174000"
 SKIP_ID = "123e4567-e89b-42d3-a456-426614174001"
@@ -539,6 +546,69 @@ class WatchControlHandlerTest(unittest.TestCase):
 
 
 class WatchArgumentsTest(unittest.TestCase):
+    def test_tuner_watch_reconnects_after_snapshot_stream_desynchronizes(self):
+        bad_client = MagicMock()
+        bad_client.__enter__.return_value = bad_client
+        bad_client.handshake.return_value = TunerHandshake(
+            "Civ V", (LuaState(172, "InGame"),)
+        )
+        bad_client.read_game_state.side_effect = SnapshotStreamDesynchronizedError(
+            "snapshot part appeared before snapshot header"
+        )
+
+        good_client = MagicMock()
+        good_client.__enter__.return_value = good_client
+        good_client.handshake.return_value = TunerHandshake(
+            "Civ V", (LuaState(172, "InGame"),)
+        )
+        good_client.read_game_state.side_effect = (
+            GameState(
+                schema_version=2,
+                turn=4,
+                active_player=0,
+                gold=9,
+                turn_active=True,
+                can_end_turn=True,
+                end_turn_blocking_type=-1,
+            ),
+            KeyboardInterrupt(),
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            args = SimpleNamespace(
+                audit_log=Path(directory) / "audit.jsonl",
+                host="127.0.0.1",
+                port=4318,
+                socket=Path(directory) / "watch.sock",
+                timeout=3.0,
+                journal=None,
+                journal_mode=None,
+                read_only=True,
+                once=False,
+                interval=0.01,
+            )
+            with patch(
+                "civ5_agent.watch.FireTunerClient",
+                side_effect=(bad_client, good_client),
+            ) as client_factory, patch(
+                "civ5_agent.watch.require_safe_tuner_session"
+            ), patch(
+                "civ5_agent.watch.LocalControlServer",
+                side_effect=lambda *_args, **_kwargs: nullcontext(),
+            ), patch(
+                "civ5_agent.watch.time.sleep"
+            ), patch(
+                "civ5_agent.watch._print_state"
+            ) as print_state, patch(
+                "sys.stderr", new=io.StringIO()
+            ) as stderr:
+                with self.assertRaises(KeyboardInterrupt):
+                    _watch_tuner(args)
+
+        self.assertEqual(client_factory.call_count, 2)
+        self.assertEqual(print_state.call_count, 1)
+        self.assertIn("Waiting for Civ V FireTuner", stderr.getvalue())
+
     def test_database_transport_rejects_journal_capture(self):
         with tempfile.TemporaryDirectory() as directory, patch(
             "sys.argv",

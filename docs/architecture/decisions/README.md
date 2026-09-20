@@ -47,6 +47,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0039](ADR-0039-expose-server-enforced-read-only-watcher.md) | Expose a server-enforced read-only watcher mode | Accepted |
 | [ADR-0040](ADR-0040-compose-external-supervision-through-json-and-cli.md) | Compose external supervision through JSON and CLI boundaries | Accepted |
 | [ADR-0041](ADR-0041-adopt-local-app-test-automation-v0.1.0.md) | Adopt local-app-test-automation v0.1.0 | Accepted |
+| [ADR-0042](ADR-0042-recover-from-firetuner-response-desynchronization.md) | Recover from FireTuner response desynchronization | Accepted |
 
 ## Template
 

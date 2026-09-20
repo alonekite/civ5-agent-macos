@@ -33,6 +33,13 @@ FireTuner safety, watcher semantics, validated game state, and redaction. No
 framework profile, Civ-specific framework code, shared Python object, local
 checkout path, or M11/C4 workflow is part of the contract.
 
+The watcher process may start only after guarded live preflight proves TCP 4318
+and every firewall condition. Because the target application exposes its
+listener after launch, a composition root may use a separate generic
+application-launch phase followed by a generated `observe_verified` watcher
+session. SessionSpec v1 does not express a Civ-specific readiness dependency,
+and the core does not weaken preflight to make simultaneous startup succeed.
+
 ## Compatibility
 
 The adopted surface is:
@@ -65,3 +72,10 @@ Quality run `35537130693` passed macOS 26 on Apple silicon and Intel with Python
 The published Release metadata independently reports the wheel name and digest
 recorded above. Execution-core regression tests freeze those identifiers and
 the generated SessionSpec version.
+
+A bounded target composition launched and identity-verified Civ V, then used a
+second `observe_verified` session to start the server-enforced read-only watcher
+and pass the sanitized probe. Simultaneous app/watcher startup failed closed
+while TCP 4318 was not yet listening, as required. Graceful watcher stop left
+the observed application open; the operator exited it before exact host
+restoration.

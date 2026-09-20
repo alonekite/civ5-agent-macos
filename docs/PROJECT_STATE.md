@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-09-20.
+Last updated: 2026-09-21.
 
 This is the short durable handoff for current work. Detailed completed history
 belongs in module documents, milestones, the experiment log, and the
@@ -11,15 +11,18 @@ development log.
 - Current milestone: M11 — runtime research facts — has an accepted
   strategy-neutral capability request and frozen schema 8/core 1.3.0 design.
   M10 and the immutable 1.2.0 release remain complete.
-- Active next deliverable: run the prepared bounded M11 C4 target procedure.
-  No core write action is included.
+- Active next deliverable: complete the ADR-0042 offline/CI gate, then rerun the
+  bounded M11 C4 target procedure on its exact commit. No core write action is
+  included.
 - Functional baseline: the full offline suite passes locally on Python 3.11;
   repeated development wheel/sdist contents match and the wheel
   installs/imports cleanly.
   Exact-commit and `v1.2.0` GitHub Actions passed on Python 3.11/3.13.
-- Blocking issue: the first C4 attempt identified and corrected exact progress
-  ownership from `CvPlayer` to `CvTeamTechs`; the corrected target-runtime
-  bindings and overflow behavior must pass a fresh bounded read-only gate before
+- Blocking issue: the corrected C4 attempt proved exact progress, repeated-read
+  stability, UI agreement, and a qualifying overflow precondition, then exposed
+  FireTuner acknowledgement-before-output framing across the interturn. ADR-0042
+  repairs collection and fail-closed reconnect behavior; a fresh bounded run
+  must still prove the post-interturn overflow and selection sequence before
   1.3.0 can be described as live-verified.
 - User presence required next: yes for bounded target-machine verification.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
@@ -40,8 +43,13 @@ development log.
 - Development schema 8 now emits and validates exact ordinary-research runtime
   facts and explicit context provenance through twelve bounded read-only
   programs. It preserves schemas 2–7 and every write/plan/result contract.
-  The complete offline/artifact gate passes; target runtime bindings and
-  overflow behavior remain pending.
+  Corrected runtime bindings and the pre-interturn/UI rows have target evidence;
+  post-interturn overflow and selection behavior remain pending after the
+  framing defect discovered by C4.
+- ADR-0042 drains Lua output that arrives after a FireTuner command
+  acknowledgement. A marked part before its header now ends that connection
+  epoch and causes a guarded long-running watcher reconnect with a new
+  bridge-session identity; no submitted write is retried.
 
 - The stock Campaign Edition `InGame` Lua runtime is connected to Python through
   the bundled FireTuner protocol without modifying the signed application.

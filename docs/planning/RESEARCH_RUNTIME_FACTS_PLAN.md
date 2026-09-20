@@ -1,6 +1,6 @@
 # Runtime Research Facts Development Plan
 
-Status: C1–C3 complete offline; C4 target evidence pending
+Status: C1–C3 complete offline; C4 partial evidence, repaired rerun pending
 
 Target milestone: M11
 
@@ -63,7 +63,7 @@ Status: complete offline; the full suite and artifact gate pass.
 
 ### C4 — Bounded target-machine verification
 
-Status: pending; operator required.
+Status: partial; operator required for a fresh repaired run.
 
 - Prove schema 8 reads without selection, popup, movement, write, or turn
   advancement.
@@ -72,6 +72,9 @@ Status: pending; operator required.
   prepared without debug writes.
 - Record only summarized evidence; never commit the real snapshot or save.
 - Restore the FireTuner/firewall baseline exactly.
+- Require bridge-session continuity for the controlled sequence; a recovered
+  replacement connection is useful diagnostics but not inferred match
+  continuity.
 
 See the [operator procedure and evidence template](../testing/RESEARCH_RUNTIME_FACTS_LIVE_TEST.md).
 

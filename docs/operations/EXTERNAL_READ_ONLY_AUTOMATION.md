@@ -59,6 +59,25 @@ Validate and run that file with the installed v0.1.0 framework's public
 `local-app-test` CLI. Framework command spelling and runtime-root handling are
 defined by that project, not this repository.
 
+### Target startup ordering
+
+The generated watcher fails closed while TCP 4318 is absent. On the target,
+Civ V does not make that listener available early enough for a single framework
+session that launches the application and starts the watcher simultaneously.
+The composition root must therefore either:
+
+1. launch and identity-verify the application in a separate generic framework
+   phase, wait for guarded live preflight, then run the generated specification
+   with `--existing-instance-policy observe_verified`; or
+2. have the operator start the application, pass guarded live preflight, and
+   then use the same `observe_verified` specification.
+
+The separate launch phase is generic composition, not a Civ/M11 framework
+profile, and is not emitted by this repository. Never weaken watcher preflight,
+sleep inside the watcher, or start a second FireTuner client to hide readiness.
+An observed instance remains open when the framework stops; the composition
+root or operator must quit it before `civ5-live-session restore`.
+
 ## Read one sanitized state
 
 While the framework-supervised watcher is running, the composition root invokes:

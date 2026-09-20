@@ -9,6 +9,7 @@ from civ5_agent.tuner import (
     TAG_HANDSHAKE,
     FireTunerClient,
     LuaState,
+    SnapshotStreamDesynchronizedError,
     TunerMessage,
     decode_states,
     encode_message,
@@ -183,6 +184,23 @@ class TunerProtocolTest(unittest.TestCase):
             responses = client.execute_collect(172, 'print("probe")')
 
         self.assertEqual([message.payload for message in responses], ["CIV5_AGENT_STATE:4:0:12", ""])
+
+    def test_collect_keeps_output_that_arrives_after_command_ack(self):
+        fake_socket = _FakeSocket(
+            [
+                encode_message(TAG_COMMAND, ""),
+                encode_message(-1, "CIV5_AGENT_SNAPSHOT|late"),
+            ]
+        )
+        client = FireTunerClient()
+        client._socket = fake_socket
+
+        responses = client.execute_collect(172, 'print("late")')
+
+        self.assertEqual(
+            [message.payload for message in responses],
+            ["", "CIV5_AGENT_SNAPSHOT|late"],
+        )
 
     def test_collect_reports_game_shutdown_concisely(self):
         fake_socket = _FakeSocket([encode_message(-1, "Closing")])
@@ -691,6 +709,11 @@ class TunerProtocolTest(unittest.TestCase):
             parse_snapshot(
                 (TunerMessage(-1, "CIV5_AGENT_UNIT|8|W|UNIT_W|1|2|0"),)
             )
+        with self.assertRaisesRegex(
+            SnapshotStreamDesynchronizedError,
+            "snapshot part appeared before snapshot header",
+        ):
+            parse_snapshot((TunerMessage(-1, "CIV5_AGENT_PART|cities|2|0"),))
         header = (
             "CIV5_AGENT_SNAPSHOT|4|2|0|7|4|5|9|0|1|33|0|Isabella|Spain|"
             "-1||-1|-1|true|true|-1"

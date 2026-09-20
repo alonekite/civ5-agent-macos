@@ -47,6 +47,13 @@ game connection. It exposes a per-user Unix socket with mode `0600` so the
 command CLI can share that exact connection. Requests are serialized with the
 watcher's reads.
 
+FireTuner may deliver a command acknowledgement before its Lua output during an
+interturn. The transport drains that bounded late output before sending the
+next segmented command. If a marked snapshot part nevertheless arrives before
+its header, the watcher treats the connection as desynchronized, closes it,
+and reconnects with a new bridge-session identity under ADR-0042. It never
+retries a submitted write or preserves execution authority across that change.
+
 The local protocol accepts one JSON object per line. Requests are capped at
 64 KiB and responses at 4 MiB; both peers reject oversized messages. The
 server converts malformed JSON, non-object callbacks, serialization failures,

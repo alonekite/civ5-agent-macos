@@ -44,6 +44,10 @@ or ruleset knowledge.
 - One watcher owns the game connection and serializes requests.
 - The connection owner issues one `bridge_session_id` per connection epoch;
   it never presents that value as a permanent save or match identifier.
+- A command acknowledgement that precedes its Lua output is drained within the
+  existing bounded response window. A snapshot part before its header marks the
+  connection desynchronized; the long-running watcher reconnects with a new
+  session identity and never retries a write.
 - Schema 6 is collected as bounded header/city/unit/diplomacy/victory/technology/
   move-target programs; every part must identify the same turn and active
   player. Schemas 2–5 remain readable.
@@ -64,7 +68,8 @@ or ruleset knowledge.
 - End-turn readiness compares the game-defined no-blocker enum in Lua and the
   verified target-build `NO_END_TURN_BLOCKING_TYPE` value in parsed-state
   consumers; UI clickability alone is insufficient.
-- Malformed, oversized, transient, and closing-state responses are bounded.
+- Malformed, oversized, transient, desynchronized, and closing-state responses
+  are bounded.
 
 ## Failure modes
 

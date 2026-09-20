@@ -1,6 +1,6 @@
 # M11 Runtime Research Facts Live-Test Procedure
 
-Status: Ready for bounded target-machine execution; no target evidence recorded
+Status: Ready for repaired bounded rerun; partial target evidence recorded
 
 Milestone: M11 C4
 
@@ -63,6 +63,11 @@ PYTHONPATH=src python3 -m civ5_agent.watch \
 The first validated state must have `schema_version: 8`. Keep the raw JSON
 private. The watcher must not select a technology, open a popup, select or move
 a unit, change production or research, or advance the turn.
+
+Keep the initial bridge-session identity private for the duration of the
+controlled sequence. Record only whether it remained the same. A replacement
+identity after framing recovery is valid for later independent reads but does
+not establish continuity for this sequence.
 
 In terminal 2, read a small summary from the watcher without contacting
 FireTuner independently:
@@ -141,6 +146,8 @@ not rewrite either observation to force agreement. Then:
 
 1. manually end the turn in the stock UI;
 2. wait for the next ordinary action-window snapshot;
+   if the watcher rotates its bridge-session identity, stop this sequence and
+   record the continuity row as failed rather than correlating mutable fields;
 3. confirm the prior technology completed and `overflow_research` is the
    game's positive whole-point representation of the computed exact surplus,
    not the times-100 integer;
@@ -198,6 +205,7 @@ Read purity and repeated-read stability: pass/fail
 UI agreement (cost/progress/science/turns): pass/fail, with rounding note
 Runtime-context available/unsupported dimensions: summarized
 Controlled exact pre-completion overflow case: pass/fail/pending; summarized values
+Bridge-session continuity across controlled sequence: preserved/rotated/pending
 Selection-before-next-interturn behavior: pass/fail/pending
 Audit records and permissions: zero/other; 600/not applicable/other
 Host baseline restoration: pass/fail
