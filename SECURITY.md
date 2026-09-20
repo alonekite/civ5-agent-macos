@@ -47,15 +47,6 @@ The preflight command reports JSON and makes no system changes. The explicit
 live-session restore command returns the settings to its private recorded
 baseline and verifies the shutdown state.
 
-The provisional `civ5-live-test` supervisor may compose those same operations
-for a bounded read-only profile. It runs in the foreground, launches Civ V only
-after the firewall guard is verified, starts a watcher whose server admits only
-`ping` and `read_state`, and requests a normal application quit before restoring
-the baseline. It never accepts an administrator password and never force-kills
-the game. Its private recovery record contains bounded checkpoint summaries,
-not complete snapshots. A safety-boundary failure triggers orderly cleanup; a
-data inconsistency pauses with the scene intact for operator inspection.
-
 The watcher and direct command path enforce the live check automatically. The
 watcher's local control socket rechecks it before each allowlisted write, so a
 removed firewall rule prevents the game action. The bridge refuses FireTuner
@@ -64,9 +55,11 @@ client enforces the same rule. The live-session manager accepts either the
 executable path or the canonical `.app` path reported by macOS for the Civ V
 firewall rule.
 
-`civ5-watch --read-only` is a server-enforced mode, not a client convention. In
-that mode every request other than `ping` and `read_state` is rejected before
-command parsing or execution, and journal capture is prohibited.
+`civ5-watch --read-only` is a server-enforced execution-core boundary for an
+external composition root. It admits only `ping` and `read_state`; completed-
+command lookup and every write request are rejected before execution. Read-only
+mode cannot capture a journal and does not launch, quit, or otherwise automate
+the game application.
 
 Never expose FireTuner through port forwarding, a public Wi-Fi network, a VPN
 that permits peer access, or an untrusted LAN. Do not pass arbitrary Lua from an

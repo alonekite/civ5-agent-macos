@@ -65,9 +65,6 @@ Status: complete offline; the full suite and artifact gate pass.
 
 Status: pending; operator required.
 
-- Use the provisional `m11-research-runtime-c4` live-test profile to supervise
-  the guarded session and bounded checkpoints; its offline tests are complete,
-  but do not count as target evidence.
 - Prove schema 8 reads without selection, popup, movement, write, or turn
   advancement.
 - Confirm exact source units and UI agreement.

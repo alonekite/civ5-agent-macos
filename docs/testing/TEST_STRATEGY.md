@@ -39,10 +39,9 @@ must state the actual level instead of using “verified” without qualificatio
 - Journal (M5): permissions, append semantics, crash/truncation recovery,
   concurrency, integrity, match/session isolation, explicit session binding,
   bounds, command-audit independence, and replay safety.
-- Live-test supervision: server-enforced read-only dispatch, private
-  permissions, single-session locking, sanitized recovery state, profile
-  checkpoint ordering, generalized overflow arithmetic, pause-on-inconsistency,
-  safe cleanup, and ambiguous-PID refusal.
+- Read-only watcher boundary: ping/state admission, command/status rejection
+  before execution, journal incompatibility, tuner-only admission, and normal-
+  mode compatibility.
 
 ## CI baseline
 
@@ -53,10 +52,10 @@ must state the actual level instead of using “verified” without qualificatio
 
 ## Target-machine rules
 
-- Use only the guarded `live_session` operations, or the provisional
-  `civ5-live-test` supervisor that composes them. Automation may launch and
-  normally quit Civ V, but must not automate menus, saves, gameplay, or forced
-  game termination.
+- Never enable FireTuner, start Civ V, or change the firewall without explicit
+  user authorization and the guarded host procedure. Generic launch/quit
+  automation, when used, belongs to an independent external composition root;
+  this repository retains the safety checks and domain verification only.
 - Follow `docs/LIVE_TEST_CHECKLIST.md` with the user present.
 - Capture the exact build/environment, action UUID, before/after evidence, and
   restored shutdown conditions.

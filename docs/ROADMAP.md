@@ -206,7 +206,6 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 - [x] Implement parsing, validation, public capability discovery, and schemas
   2–7 compatibility
 - [x] Complete the frozen offline negative/bounds/artifact matrix
-- [x] Add reusable read-only live-test supervision and the M11 C4 profile
 - [ ] Run bounded target verification for read purity, exact units, and the
   controlled interturn overflow sequence
 - [ ] Publish core 1.3.0 only after documentation, security scan, exact-commit

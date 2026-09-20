@@ -11,9 +11,8 @@ development log.
 - Current milestone: M11 — runtime research facts — has an accepted
   strategy-neutral capability request and frozen schema 8/core 1.3.0 design.
   M10 and the immutable 1.2.0 release remain complete.
-- Active next deliverable: run the bounded M11 C4 target procedure through the
-  provisional read-only live-test supervisor and record sanitized evidence. No
-  core write action is included.
+- Active next deliverable: run the prepared bounded M11 C4 target procedure.
+  No core write action is included.
 - Functional baseline: the full offline suite passes locally on Python 3.11;
   repeated development wheel/sdist contents match and the wheel
   installs/imports cleanly.
@@ -22,12 +21,10 @@ development log.
   ownership from `CvPlayer` to `CvTeamTechs`; the corrected target-runtime
   bindings and overflow behavior must pass a fresh bounded read-only gate before
   1.3.0 can be described as live-verified.
-- The reusable live-test application/operations layer now has a foreground
-  single-process supervisor, private control socket and recovery record,
-  server-enforced read-only watcher mode, pluggable M11 C4 checkpoints, and
-  pause-on-data-inconsistency behavior. This is offline-verified orchestration,
-  not target evidence.
 - User presence required next: yes for bounded target-machine verification.
+- `civ5-watch --read-only` exposes the minimum server-enforced read surface for
+  an independent external automation composition root; this repository does
+  not own generic application lifecycle or test profiles.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
@@ -301,9 +298,11 @@ development log.
 - Schema 4 diplomacy has only empty pre-contact live evidence.
 - Schema 4 science-victory data has only enabled/zero-progress live evidence.
 
-Future live tests require the user to start the game and explicitly authorize
-the documented `live_session prepare`/`restore` procedure. No background work
-may enable FireTuner, launch Civ V, or change the firewall.
+Future live tests require explicit user authorization for the documented
+`live_session prepare`/`restore` procedure and application launch. This
+repository does not own background application lifecycle. An independent
+external composition root may automate normal launch and quit after that
+authorization, but it cannot bypass or weaken the core's host safety checks.
 
 ## Recommended order
 

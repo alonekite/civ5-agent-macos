@@ -21,12 +21,15 @@ Current commands:
 - `civ5-knowledge`
 - `civ5-journal`
 - `civ5-turn`
-- `civ5-live-test` (provisional)
 
 `civ5-watch` also accepts the paired opt-in arguments `--journal PATH` and
 `--journal-mode new|resume`. `new` refuses an existing path; `resume` explicitly
 binds the new bridge session to an existing declared match. Journal capture is
 restricted to `--transport tuner`; the partial database fallback is rejected.
+`civ5-watch --read-only` is a server-enforced tuner mode that admits only
+`ping` and `read_state`. It rejects command lookup and all write operations,
+cannot be combined with journal capture, and reports the selected mode in its
+ping response. It does not manage application or terminal lifecycle.
 `civ5-journal verify PATH` validates the entire private journal and emits a
 payload-free JSON summary; it never executes actions or exports match contents.
 `civ5-journal replay PATH --include-private-payloads` emits the validated
@@ -65,13 +68,6 @@ invalid input, unsafe session, and failed action.
 deliberately modify the macOS firewall. They persist a private baseline outside
 the repository, verify every boundary after mutation, and roll back failed
 preparation.
-
-`civ5-live-test` is a provisional operator-present orchestration CLI. Its
-foreground supervisor invokes the existing live-session operations, launches
-and normally quits Civ V, owns a private control socket, and starts only a
-server-enforced read-only watcher. It persists bounded checkpoint summaries,
-never full snapshots, and has no controller, TurnPlan, knowledge, journal, or
-command-write dependency.
 
 ## Dependencies
 

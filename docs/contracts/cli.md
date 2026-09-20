@@ -15,6 +15,12 @@ compatibility promise: `civ5-watch`, `civ5-command`, `civ5-controller`,
 Their current safety, privacy, and write-verification requirements remain
 mandatory; “provisional” permits interface evolution, not weakened safeguards.
 
+The provisional `civ5-watch --read-only` option has a mandatory negative
+capability boundary: its local server admits only ping and validated state
+reads. It rejects completed-command lookup and every write before execution and
+cannot be combined with journal capture. Generic application or terminal
+automation is not part of this CLI.
+
 ## `civ5-turn` input
 
 Supported subcommands are `validate PLAN` and `execute PLAN`. Shared options are

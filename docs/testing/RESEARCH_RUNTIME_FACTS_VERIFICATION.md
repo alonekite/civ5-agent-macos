@@ -64,8 +64,3 @@ If a suitable controlled save is unavailable or any exact runtime binding fails,
 the affected target gate remains pending. Approximation is not evidence.
 The operator procedure and sanitized evidence template are in
 [M11 runtime research facts live test](RESEARCH_RUNTIME_FACTS_LIVE_TEST.md).
-Offline tests also cover the provisional profile automation: enforced
-read-only watcher dispatch, generalized exact overflow arithmetic including
-fractional surplus preservation, bounded summaries, private recovery state,
-single-session locking, confirmation provenance, and pause-on-inconsistency.
-These tests do not replace the pending target-machine C4 evidence.

@@ -9,14 +9,6 @@ authorize a core write action, debug mutation, save edit, tag, or release. The
 operator performs any research selection and turn advancement manually in the
 stock game UI.
 
-The preferred first-version orchestration is the foreground
-[`civ5-live-test`](../operations/LIVE_TEST_AUTOMATION.md) supervisor with profile
-`m11-research-runtime-c4`. It performs the same guarded preparation, launches
-and normally quits Civ V, owns a server-enforced read-only watcher, records only
-bounded summaries, and exposes each checkpoint in this procedure. It does not
-operate the menu, load the save, select research, or advance a turn. The manual
-commands below remain the auditable fallback and explain each invariant.
-
 ## Evidence boundary
 
 - Keep watcher output, temporary files, session identifiers, player names, and
@@ -150,8 +142,8 @@ not rewrite either observation to force agreement. Then:
 1. manually end the turn in the stock UI;
 2. wait for the next ordinary action-window snapshot;
 3. confirm the prior technology completed and `overflow_research` is the
-   game's whole-point representation of the computed exact surplus, not the
-   times-100 integer;
+   game's positive whole-point representation of the computed exact surplus,
+   not the times-100 integer;
 4. manually select the next ordinary technology in the stock UI;
 5. confirm selection alone does not immediately apply or erase the overflow;
 6. manually advance the following interturn and confirm the next snapshot

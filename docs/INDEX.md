@@ -34,8 +34,6 @@ do not belong in the repository.
 - [Turn-executor module](modules/controller.md): target M6 boundary; current
   Python package retains the provisional `controller` name.
 - [CLI module](modules/cli.md)
-- [Live-testing module](modules/live-testing.md): provisional read-only target-test
-  supervision, checkpoints, privacy, and crash recovery.
 - [Module documentation template](modules/TEMPLATE.md)
 
 ## Data and API contracts
@@ -89,8 +87,6 @@ behavior. Contract documents define intended compatibility and rejection rules.
 - [Bounded live-test checklist](LIVE_TEST_CHECKLIST.md)
 - [Experiment log](EXPERIMENT_LOG.md)
 - [Operations index](operations/README.md)
-- [Live-test automation](operations/LIVE_TEST_AUTOMATION.md): foreground
-  supervisor commands, M11 checkpoint sequence, and recovery procedure.
 - [Core capability requests](operations/CORE_CAPABILITY_REQUESTS.md): required
   request content, review sequence, rejection rules, and maintenance record.
 - [Release, upgrade, and rollback](operations/RELEASE.md)
