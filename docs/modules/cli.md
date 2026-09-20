@@ -21,6 +21,7 @@ Current commands:
 - `civ5-knowledge`
 - `civ5-journal`
 - `civ5-turn`
+- `civ5-live-test` (provisional)
 
 `civ5-watch` also accepts the paired opt-in arguments `--journal PATH` and
 `--journal-mode new|resume`. `new` refuses an existing path; `resume` explicitly
@@ -64,6 +65,13 @@ invalid input, unsafe session, and failed action.
 deliberately modify the macOS firewall. They persist a private baseline outside
 the repository, verify every boundary after mutation, and roll back failed
 preparation.
+
+`civ5-live-test` is a provisional operator-present orchestration CLI. Its
+foreground supervisor invokes the existing live-session operations, launches
+and normally quits Civ V, owns a private control socket, and starts only a
+server-enforced read-only watcher. It persists bounded checkpoint summaries,
+never full snapshots, and has no controller, TurnPlan, knowledge, journal, or
+command-write dependency.
 
 ## Dependencies
 

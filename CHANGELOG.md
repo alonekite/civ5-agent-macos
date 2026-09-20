@@ -15,6 +15,10 @@ All notable user-visible changes are recorded here. Development details belong i
 - Renamed the unreleased schema 8 object and capability discovery constant to
   `research_runtime_facts` and `RESEARCH_RUNTIME_FACTS_CAPABILITY_VERSION`;
   no provisional-name compatibility alias is shipped.
+- Provisional `civ5-live-test` foreground supervision with a private control
+  socket, crash recovery, server-enforced read-only watcher, and the first M11
+  C4 checkpoint profile. It launches and normally quits Civ V but never
+  navigates menus, loads saves, performs gameplay, or stores full snapshots.
 
 ### Changed
 

@@ -44,6 +44,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0035](ADR-0035-publish-runtime-research-forecast-facts.md) | Publish runtime research forecast facts without claiming a ruleset fingerprint | Accepted; public naming superseded by ADR-0036 |
 | [ADR-0036](ADR-0036-name-ordinary-research-runtime-facts.md) | Name the schema 8 observation ordinary research runtime facts | Accepted |
 | [ADR-0037](ADR-0037-read-exact-research-progress-from-team-techs.md) | Read exact research progress from team technologies | Accepted; supersedes ADR-0035's progress binding only |
+| [ADR-0038](ADR-0038-supervise-recoverable-read-only-live-tests.md) | Supervise recoverable read-only live tests outside execution | Accepted |
 
 ## Template
 

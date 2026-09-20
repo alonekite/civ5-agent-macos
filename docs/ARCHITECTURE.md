@@ -15,6 +15,10 @@
                            │
                            ▼
              [ watcher/CLI application composition ] ─► [ Turn Journal ]
+
+[ bounded live-test profile ] ─► [ read-only watcher ] ─► [ Live State ]
+             │                         ▲
+             └─ host lifecycle/private control/recovery
 ```
 
 The verified Phase 1 transport is the game's bundled FireTuner server on
@@ -51,6 +55,15 @@ The local protocol accepts one JSON object per line. Requests are capped at
 64 KiB and responses at 4 MiB; both peers reject oversized messages. The
 server converts malformed JSON, non-object callbacks, serialization failures,
 and unexpected callback exceptions into bounded structured errors.
+
+The provisional live-testing application layer composes a distinct read-only
+watcher mode for operator-present target tests. One foreground supervisor owns
+the test control socket, guarded host lifecycle, child watcher, private lock,
+and bounded recovery metadata. The layer reads validated state through
+`WatcherBridgeClient`; it has no controller, TurnPlan, command-write, knowledge,
+or journal dependency. Its first pluggable profile is M11 C4. It launches and
+normally quits Civ V but does not navigate menus, load saves, or perform game
+actions.
 
 The M7 `WatcherBridgeClient` is the bridge-facing Python surface over this
 private socket. It exposes validated session-aware reads, individual verified

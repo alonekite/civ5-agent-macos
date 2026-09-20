@@ -9,6 +9,14 @@ authorize a core write action, debug mutation, save edit, tag, or release. The
 operator performs any research selection and turn advancement manually in the
 stock game UI.
 
+The preferred first-version orchestration is the foreground
+[`civ5-live-test`](../operations/LIVE_TEST_AUTOMATION.md) supervisor with profile
+`m11-research-runtime-c4`. It performs the same guarded preparation, launches
+and normally quits Civ V, owns a server-enforced read-only watcher, records only
+bounded summaries, and exposes each checkpoint in this procedure. It does not
+operate the menu, load the save, select research, or advance a turn. The manual
+commands below remain the auditable fallback and explain each invariant.
+
 ## Evidence boundary
 
 - Keep watcher output, temporary files, session identifiers, player names, and
@@ -122,26 +130,38 @@ agree with the UI.
 This section is required for complete C4 evidence but may remain pending when no
 natural save or turn satisfies the precondition.
 
-Prefer an action window where:
+Use an action window where the exact pre-interturn values satisfy:
 
 ```text
-current.cost * 100 - current.progress_times100 == 2000
-science_per_turn_times100 == 2200
+remaining_times100 = current.cost * 100 - current.progress_times100
+0 < remaining_times100
+remaining_times100 + 100 <= science_per_turn_times100
 ```
 
-Record only those summarized values. Then:
+The previously documented 20-remaining/22-produced case is one example, not a
+required literal fixture. Requiring at least 100 times-100 units of surplus
+ensures that the whole-point overflow observation is positive rather than
+indistinguishable from zero. Record only the summarized exact values and compute
+`surplus_times100 = science_per_turn_times100 - remaining_times100`. When the
+surplus is not a whole research point, preserve the fractional remainder in the
+evidence and compare it with the whole-point `GetOverflowResearch` result; do
+not rewrite either observation to force agreement. Then:
 
 1. manually end the turn in the stock UI;
 2. wait for the next ordinary action-window snapshot;
-3. confirm the prior technology completed and `overflow_research == 2`;
+3. confirm the prior technology completed and `overflow_research` is the
+   game's whole-point representation of the computed exact surplus, not the
+   times-100 integer;
 4. manually select the next ordinary technology in the stock UI;
 5. confirm selection alone does not immediately apply or erase the overflow;
 6. manually advance the following interturn and confirm the next snapshot
    reflects the game's application of that overflow.
 
 No `civ5_agent.command`, TurnPlan, arbitrary Lua, debug write, or automatic
-retry is allowed in this sequence. If the exact precondition is unavailable,
-record the row as pending; do not infer overflow units from another case.
+retry is allowed in this sequence. If the exact inequalities cannot be observed
+immediately before completion, record the row as pending; do not infer overflow
+units from a non-overflowing turn or from values captured in different action
+windows.
 
 ## 5. Audit and shutdown
 
@@ -185,7 +205,7 @@ Facts status and phase: supported/other; phase
 Read purity and repeated-read stability: pass/fail
 UI agreement (cost/progress/science/turns): pass/fail, with rounding note
 Runtime-context available/unsupported dimensions: summarized
-Controlled 20-remaining/22-produced overflow case: pass/fail/pending
+Controlled exact pre-completion overflow case: pass/fail/pending; summarized values
 Selection-before-next-interturn behavior: pass/fail/pending
 Audit records and permissions: zero/other; 600/not applicable/other
 Host baseline restoration: pass/fail

@@ -15,6 +15,8 @@ Operational procedures must be safe to follow without remembering a prior chat.
 - `python -m civ5_agent.preflight live`: read-only check before live access.
 - `python -m civ5_agent.preflight shutdown`: read-only proof that the transport
   and local broker are closed.
+- [Live-test automation](LIVE_TEST_AUTOMATION.md): provisional single-process
+  supervision for bounded read-only profiles, starting with M11 C4.
 
 The live-session commands must run against the host system. A sandboxed process
 can receive a false empty/disabled view from `socketfilterfw`; do not weaken the

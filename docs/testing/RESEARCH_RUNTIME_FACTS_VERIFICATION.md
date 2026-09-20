@@ -48,8 +48,13 @@ and the target matrix remains pending until rerun on the corrected code.
    unit action, research change, or turn advance.
 2. UI/current research, effective costs, progress, science, and turns-left agree
    with the runtime facts at the captured action window.
-3. A controlled 20-remaining/22-produced case reports completion at interturn
-   and whole-point overflow `2` in the next action window.
+3. A controlled case with exact pre-interturn
+   `0 < remaining_times100` and
+   `remaining_times100 + 100 <= science_per_turn_times100` reports completion
+   and a positive whole-point representation of the computed exact surplus in
+   the next action window. The 20-remaining/22-produced case is illustrative,
+   not a required literal fixture; fractional surplus must be preserved in
+   evidence rather than rounded to force agreement.
 4. Selecting a new technology does not immediately consume the overflow; the
    next interturn applies it. This is observation, not a new core write path.
 5. The private audit remains unchanged by read-only collection, and guarded
@@ -59,3 +64,8 @@ If a suitable controlled save is unavailable or any exact runtime binding fails,
 the affected target gate remains pending. Approximation is not evidence.
 The operator procedure and sanitized evidence template are in
 [M11 runtime research facts live test](RESEARCH_RUNTIME_FACTS_LIVE_TEST.md).
+Offline tests also cover the provisional profile automation: enforced
+read-only watcher dispatch, generalized exact overflow arithmetic including
+fractional surplus preservation, bounded summaries, private recovery state,
+single-session locking, confirmation provenance, and pause-on-inconsistency.
+These tests do not replace the pending target-machine C4 evidence.

@@ -43,6 +43,7 @@ def make_control_handler(
     safety_check: Callable[[], None] | None = None,
     bridge_session_id: str | None = None,
     journal_capture: JournalCapture | None = None,
+    read_only: bool = False,
 ):
     session_id = validate_bridge_session_id(
         bridge_session_id if bridge_session_id is not None else new_bridge_session_id()
@@ -59,7 +60,11 @@ def make_control_handler(
     def handle_request(request: dict[str, object]) -> dict[str, object]:
         operation = request.get("op")
         if operation == "ping":
-            return {"ok": True, "bridge_session_id": session_id}
+            return {
+                "ok": True,
+                "bridge_session_id": session_id,
+                "read_only": read_only,
+            }
         if operation == "read_state":
             with connection_lock:
                 state = validate_live_state(client.read_game_state(state_id))
@@ -67,6 +72,11 @@ def make_control_handler(
                 "ok": True,
                 "bridge_session_id": session_id,
                 "state": asdict(state),
+            }
+        if read_only:
+            return {
+                "ok": False,
+                "error": "watcher is read-only; operation is not permitted",
             }
         if operation == "command_status":
             try:
@@ -425,6 +435,7 @@ def _watch_tuner(args: argparse.Namespace) -> int:
                     ),
                     bridge_session_id=bridge_session_id,
                     journal_capture=journal_capture,
+                    read_only=args.read_only,
                 )
 
                 with LocalControlServer(handler, args.socket):
@@ -520,6 +531,11 @@ def main() -> int:
     parser.add_argument("--journal-mode", choices=["new", "resume"])
     parser.add_argument("--interval", type=float, default=0.5)
     parser.add_argument("--once", action="store_true")
+    parser.add_argument(
+        "--read-only",
+        action="store_true",
+        help="server-enforced mode admitting only ping and state reads",
+    )
     args = parser.parse_args()
 
     if args.interval <= 0:
@@ -533,6 +549,12 @@ def main() -> int:
 
     if args.transport == "database" and args.journal is not None:
         parser.error("--journal requires --transport tuner")
+
+    if args.transport == "database" and args.read_only:
+        parser.error("--read-only requires --transport tuner")
+
+    if args.read_only and args.journal is not None:
+        parser.error("--read-only cannot capture a journal")
 
     try:
         if args.transport == "database":

@@ -39,6 +39,10 @@ must state the actual level instead of using “verified” without qualificatio
 - Journal (M5): permissions, append semantics, crash/truncation recovery,
   concurrency, integrity, match/session isolation, explicit session binding,
   bounds, command-audit independence, and replay safety.
+- Live-test supervision: server-enforced read-only dispatch, private
+  permissions, single-session locking, sanitized recovery state, profile
+  checkpoint ordering, generalized overflow arithmetic, pause-on-inconsistency,
+  safe cleanup, and ambiguous-PID refusal.
 
 ## CI baseline
 
@@ -49,7 +53,10 @@ must state the actual level instead of using “verified” without qualificatio
 
 ## Target-machine rules
 
-- Never automate enabling FireTuner, starting Civ V, or changing the firewall.
+- Use only the guarded `live_session` operations, or the provisional
+  `civ5-live-test` supervisor that composes them. Automation may launch and
+  normally quit Civ V, but must not automate menus, saves, gameplay, or forced
+  game termination.
 - Follow `docs/LIVE_TEST_CHECKLIST.md` with the user present.
 - Capture the exact build/environment, action UUID, before/after evidence, and
   restored shutdown conditions.

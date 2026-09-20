@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-09-19.
+Last updated: 2026-09-20.
 
 This is the short durable handoff for current work. Detailed completed history
 belongs in module documents, milestones, the experiment log, and the
@@ -11,8 +11,9 @@ development log.
 - Current milestone: M11 — runtime research facts — has an accepted
   strategy-neutral capability request and frozen schema 8/core 1.3.0 design.
   M10 and the immutable 1.2.0 release remain complete.
-- Active next deliverable: run the prepared bounded M11 C4 target procedure.
-  No core write action is included.
+- Active next deliverable: run the bounded M11 C4 target procedure through the
+  provisional read-only live-test supervisor and record sanitized evidence. No
+  core write action is included.
 - Functional baseline: the full offline suite passes locally on Python 3.11;
   repeated development wheel/sdist contents match and the wheel
   installs/imports cleanly.
@@ -21,6 +22,11 @@ development log.
   ownership from `CvPlayer` to `CvTeamTechs`; the corrected target-runtime
   bindings and overflow behavior must pass a fresh bounded read-only gate before
   1.3.0 can be described as live-verified.
+- The reusable live-test application/operations layer now has a foreground
+  single-process supervisor, private control socket and recovery record,
+  server-enforced read-only watcher mode, pluggable M11 C4 checkpoints, and
+  pause-on-data-inconsistency behavior. This is offline-verified orchestration,
+  not target evidence.
 - User presence required next: yes for bounded target-machine verification.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and

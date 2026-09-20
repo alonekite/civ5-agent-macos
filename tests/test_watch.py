@@ -46,6 +46,19 @@ class WatchControlHandlerTest(unittest.TestCase):
         self.assertEqual(response["state"]["turn"], 3)
         self.assertEqual(response["bridge_session_id"], self.session_id)
 
+    def test_read_only_handler_rejects_writes_before_execution(self):
+        handler = make_control_handler(
+            self.client,
+            172,
+            threading.Lock(),
+            read_only=True,
+        )
+        with patch("civ5_agent.watch.execute_end_turn") as execute:
+            response = handler({"op": "end_turn"})
+        self.assertFalse(response["ok"])
+        self.assertIn("read-only", response["error"])
+        execute.assert_not_called()
+
     def test_rejects_missing_or_changed_session_before_write(self):
         missing = self.handler({"op": "end_turn", "id": END_TURN_ID})
         self.assertFalse(missing["ok"])
@@ -514,6 +527,31 @@ class WatchArgumentsTest(unittest.TestCase):
             with self.assertRaises(SystemExit) as raised:
                 main()
 
+        self.assertEqual(raised.exception.code, 2)
+
+    def test_read_only_rejects_journal_capture(self):
+        with tempfile.TemporaryDirectory() as directory, patch(
+            "sys.argv",
+            [
+                "civ5_agent.watch",
+                "--read-only",
+                "--journal",
+                str(Path(directory) / "match.jsonl"),
+                "--journal-mode",
+                "new",
+            ],
+        ), patch("sys.stderr", new=io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                main()
+        self.assertEqual(raised.exception.code, 2)
+
+    def test_database_transport_rejects_read_only_server_mode(self):
+        with patch(
+            "sys.argv",
+            ["civ5_agent.watch", "--transport", "database", "--read-only"],
+        ), patch("sys.stderr", new=io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                main()
         self.assertEqual(raised.exception.code, 2)
 
 
