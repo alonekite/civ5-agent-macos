@@ -42,6 +42,10 @@ must state the actual level instead of using “verified” without qualificatio
 - Read-only watcher boundary: ping/state admission, command/status rejection
   before execution, journal incompatibility, tuner-only admission, and normal-
   mode compatibility.
+- External read-only composition: exact SessionSpec v1 arguments, empty
+  inherited environment, no raw-output retention, fail-closed capability and
+  session checks, bounded summary redaction, CLI exit classes, and black-box
+  validation through the independent framework's public CLI.
 
 ## CI baseline
 

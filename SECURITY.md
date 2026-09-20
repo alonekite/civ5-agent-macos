@@ -61,6 +61,15 @@ command lookup and every write request are rejected before execution. Read-only
 mode cannot capture a journal and does not launch, quit, or otherwise automate
 the game application.
 
+`civ5-read-only probe` fails closed unless the watcher declares this mode and
+the state read remains in the same bridge session. Its summary excludes names,
+IDs, coordinates, technology/resource names, diplomacy, and full state. The
+generated external SessionSpec inherits no environment and requests no raw
+output retention. SessionSpec files still contain local absolute paths and must
+remain private, mode-0600 artifacts outside the repository. The independent
+automation framework does not replace firewall preparation, live preflight, or
+restoration.
+
 Never expose FireTuner through port forwarding, a public Wi-Fi network, a VPN
 that permits peer access, or an untrusted LAN. Do not pass arbitrary Lua from an
 LLM or remote caller; keep actions on the audited allowlist.

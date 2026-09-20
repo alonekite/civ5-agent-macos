@@ -25,6 +25,9 @@ development log.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
+- The provisional `civ5-read-only` process boundary emits SessionSpec v1 JSON
+  and one same-session sanitized state summary. Neither repository imports the
+  other; the external composition root owns sequencing and graceful stop.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

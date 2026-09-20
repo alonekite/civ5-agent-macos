@@ -58,6 +58,14 @@ reach execution. This is the execution core's only automation-facing addition;
 generic application lifecycle, PTY supervision, visual observation, profiles,
 and recovery belong to an independent project and are composed externally.
 
+That independent repository may supervise the watcher through installed
+executables and a private SessionSpec v1 JSON file. The provisional
+`civ5-read-only` adapter emits the descriptor and reads one same-session,
+server-verified, sanitized summary. The external composition root—not either
+package—sequences framework start, probe, and graceful stop. There is no Python
+import dependency in either direction, and no C4/M11 profile belongs to this
+boundary. See ADR-0040.
+
 The M7 `WatcherBridgeClient` is the bridge-facing Python surface over this
 private socket. It exposes validated session-aware reads, individual verified
 commands, and read-only completed-result lookup without importing TurnPlan or

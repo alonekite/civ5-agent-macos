@@ -12,6 +12,7 @@ uses a minor version and compatible fixes use a patch version under ADR-0030.
 The following commands remain operational previews and carry no stable output
 compatibility promise: `civ5-watch`, `civ5-command`, `civ5-controller`,
 `civ5-preflight`, `civ5-live-session`, `civ5-knowledge`, and `civ5-journal`.
+`civ5-read-only` is also an operational preview.
 Their current safety, privacy, and write-verification requirements remain
 mandatory; “provisional” permits interface evolution, not weakened safeguards.
 
@@ -20,6 +21,14 @@ capability boundary: its local server admits only ping and validated state
 reads. It rejects completed-command lookup and every write before execution and
 cannot be combined with journal capture. Generic application or terminal
 automation is not part of this CLI.
+
+The provisional `civ5-read-only` command is the process boundary described by
+ADR-0040. `probe` fails unless ping declares `read_only: true` and the following
+validated state belongs to the same bridge session. It emits only a bounded
+summary and uses exit 0 for success, 1 for watcher/capability/state failure, and
+2 for invalid local input. `session-spec` emits framework SessionSpec version 1
+JSON but never imports or invokes the framework. Its output is private because
+it contains absolute runtime paths.
 
 ## `civ5-turn` input
 

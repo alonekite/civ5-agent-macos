@@ -24,6 +24,7 @@ observations belong in `docs/EXPERIMENT_LOG.md`.
 | Safety preflight/shutdown | Yes | Yes | Yes | Confirmed |
 | Local IPC bounds and permissions | Yes | Yes | Indirectly | Confirmed offline |
 | Server-enforced read-only watcher | ADR-0039; tuner-only; no journal | Ping/state admission, command/status rejection before execution, incompatible-option rejection, and normal-mode compatibility | Pending external composition test | Implemented offline; application lifecycle and domain profiles remain outside this repository |
+| External read-only process composition | ADR-0040; independent framework SessionSpec v1 and CLI boundary | Exact watcher argv, no inherited environment/raw retention, read-only-before-state gate, same-session gate, bounded redacted summary, exit classes | Disposable-app foreground run requires separate operator confirmation; not Civ/M11 evidence | Offline core tests complete; framework `validate` is a cross-repository black-box gate |
 | Command UUID/audit/idempotency | Yes | Yes | Partial | Confirmed offline; live core path observed |
 | Knowledge canonical codec/index | Yes | Yes | N/A | Confirmed offline |
 | Knowledge schema 1 compatibility / schema 2 reference attributes | ADR and contract reviewed | Round-trip, canonical shape, invalid schema, and non-finite attribute tests | N/A | Implemented offline |

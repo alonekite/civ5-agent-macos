@@ -18,6 +18,10 @@ Operational procedures must be safe to follow without remembering a prior chat.
 - `python -m civ5_agent.watch --read-only`: expose only ping and validated state
   reads to an external composition root; command lookup, writes, and journal
   capture are rejected by the watcher server.
+- `civ5-read-only session-spec` / `probe`: emit a private framework descriptor
+  and read one same-session sanitized summary without importing or invoking the
+  independent automation framework. See
+  [external read-only automation](EXTERNAL_READ_ONLY_AUTOMATION.md).
 
 The live-session commands must run against the host system. A sandboxed process
 can receive a false empty/disabled view from `socketfilterfw`; do not weaken the

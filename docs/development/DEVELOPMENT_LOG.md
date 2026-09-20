@@ -1728,6 +1728,19 @@ Implementation, ADR, and sanitized diagnostic-evidence commit: `41b06e3`.
   documents, and every architecture, roadmap, status, testing, and changelog
   claim about that ownership.
 
+## 2026-09-20 — Add the independent automation process boundary
+
+- Added a provisional `civ5-read-only` adapter without adding the external
+  automation package as a Python or runtime dependency.
+- Added a fail-closed probe that requires server-declared read-only mode and a
+  same-session validated state, then emits only a bounded non-identifying
+  summary.
+- Added pure SessionSpec v1 JSON generation for supervising only
+  `civ5-watch --read-only`; it inherits no environment, retains no raw child
+  output, and contains no C4/M11 or other domain workflow.
+- Recorded the independent-repository and external-composition-root boundary in
+  ADR-0040, CLI/security/operations documentation, and the verification matrix.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

@@ -21,6 +21,7 @@ Current commands:
 - `civ5-knowledge`
 - `civ5-journal`
 - `civ5-turn`
+- `civ5-read-only`
 
 `civ5-watch` also accepts the paired opt-in arguments `--journal PATH` and
 `--journal-mode new|resume`. `new` refuses an existing path; `resume` explicitly
@@ -41,6 +42,12 @@ checks it against fresh watcher state without writing. `civ5-turn execute PLAN`
 is the explicit write operation and delegates the complete plan to the
 watcher-owned executor. It never opens a direct FireTuner connection or creates
 missing plan content.
+`civ5-read-only probe` verifies that the watcher declares server-enforced
+read-only mode, reads one validated same-session state, and emits a bounded
+non-identifying summary. `civ5-read-only session-spec` emits the independent
+automation framework's version-1 JSON descriptor for the read-only watcher.
+Neither operation launches an app, supervises a process, invokes the framework,
+or encodes a domain test procedure.
 
 ## Non-responsibilities
 
@@ -55,7 +62,8 @@ missing plan content.
 Console scripts are declared in `pyproject.toml`; equivalent module execution is
 supported during development. `civ5-turn` is the sole supported stable
 machine-readable CLI under ADR-0027 and ADR-0030. Its exact JSON envelopes and
-exit meanings are in the CLI compatibility contract. Other entry points are explicitly provisional;
+exit meanings are in the CLI compatibility contract. Other entry points,
+including `civ5-read-only`, are explicitly provisional;
 their safety and privacy invariants are not provisional.
 
 ## Inputs and outputs
