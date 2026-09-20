@@ -28,6 +28,9 @@ development log.
 - The provisional `civ5-read-only` process boundary emits SessionSpec v1 JSON
   and one same-session sanitized state summary. Neither repository imports the
   other; the external composition root owns sequencing and graceful stop.
+- `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
+  identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
+  published wheel passed exact-boundary validation without a core dependency.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

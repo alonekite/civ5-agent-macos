@@ -16,6 +16,13 @@ from .ipc import default_socket_path, request
 from .watcher_client import WatcherBridgeClient
 
 READ_ONLY_INTEGRATION_VERSION = 1
+AUTOMATION_FRAMEWORK_RELEASE_TAG = "v0.1.0"
+AUTOMATION_FRAMEWORK_TAG_COMMIT = "bf71fb072d9111d8cc4bbab24c50fc670fc2239c"
+AUTOMATION_FRAMEWORK_WHEEL_NAME = "local_app_test_automation-0.1.0-py3-none-any.whl"
+AUTOMATION_FRAMEWORK_WHEEL_SHA256 = (
+    "6c0040ec2e4911c80b318687ad0fd53511972b517ca21dfbb5d0a3cd4af34eb3"
+)
+AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION = 1
 _BUNDLE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.-]{0,254}$")
 
 
@@ -186,7 +193,7 @@ def build_session_spec(
             }
         ],
         "session_timeout_ms": session_timeout_ms,
-        "spec_version": 1,
+        "spec_version": AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION,
     }
 
 

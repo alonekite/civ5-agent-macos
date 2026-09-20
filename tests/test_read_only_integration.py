@@ -1,12 +1,18 @@
 import contextlib
 import io
 import json
+import tomllib
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
 from civ5_agent.models import GameState
 from civ5_agent.read_only_integration import (
+    AUTOMATION_FRAMEWORK_RELEASE_TAG,
+    AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION,
+    AUTOMATION_FRAMEWORK_TAG_COMMIT,
+    AUTOMATION_FRAMEWORK_WHEEL_NAME,
+    AUTOMATION_FRAMEWORK_WHEEL_SHA256,
     ReadOnlyIntegrationError,
     build_session_spec,
     main,
@@ -36,6 +42,36 @@ def private_state() -> GameState:
 
 
 class ReadOnlyIntegrationTest(unittest.TestCase):
+    def test_framework_remains_outside_python_dependency_and_import_graph(self):
+        root = Path(__file__).resolve().parents[1]
+        project = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
+        dependencies = project["project"].get("dependencies", [])
+        self.assertFalse(
+            any("local-app-test-automation" in item.lower() for item in dependencies)
+        )
+
+        for source in (root / "src" / "civ5_agent").rglob("*.py"):
+            content = source.read_text(encoding="utf-8")
+            self.assertNotIn("import local_app_test_automation", content, source)
+            self.assertNotIn("from local_app_test_automation", content, source)
+
+    def test_pins_the_adopted_framework_release_without_importing_it(self):
+        self.assertEqual(AUTOMATION_FRAMEWORK_RELEASE_TAG, "v0.1.0")
+        self.assertEqual(
+            AUTOMATION_FRAMEWORK_TAG_COMMIT,
+            "bf71fb072d9111d8cc4bbab24c50fc670fc2239c",
+        )
+        self.assertEqual(
+            AUTOMATION_FRAMEWORK_WHEEL_NAME,
+            "local_app_test_automation-0.1.0-py3-none-any.whl",
+        )
+        self.assertRegex(AUTOMATION_FRAMEWORK_WHEEL_SHA256, r"^[0-9a-f]{64}$")
+        self.assertEqual(
+            AUTOMATION_FRAMEWORK_WHEEL_SHA256,
+            "6c0040ec2e4911c80b318687ad0fd53511972b517ca21dfbb5d0a3cd4af34eb3",
+        )
+        self.assertEqual(AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION, 1)
+
     def test_probe_requires_read_only_and_redacts_private_state(self):
         client = Mock()
         client.read_state.return_value = (SESSION_ID, private_state())
@@ -107,7 +143,9 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
             session_timeout_ms=60_000,
         )
 
-        self.assertEqual(spec["spec_version"], 1)
+        self.assertEqual(
+            spec["spec_version"], AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION
+        )
         self.assertEqual(len(spec["processes"]), 1)
         process = spec["processes"][0]
         self.assertEqual(process["argv"][0], "/opt/core/bin/civ5-watch")

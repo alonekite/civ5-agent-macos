@@ -63,6 +63,9 @@ do not belong in the repository.
   surface, implementation boundaries, error semantics, and current limits.
 - [CLI compatibility contract](contracts/cli.md): supported `civ5-turn`
   envelopes and exits, plus explicitly provisional entry points.
+- [External automation compatibility](contracts/external-automation.md): adopted
+  framework v0.1.0 artifact identity, process-only boundary, SessionSpec v1,
+  verification evidence, and upgrade rule.
 - [Downstream tactical integration](contracts/downstream-integration.md): stable
   1.1 capability profile, ownership boundary, absent capabilities, and consumer
   compatibility rules.

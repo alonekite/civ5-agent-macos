@@ -1741,6 +1741,18 @@ Implementation, ADR, and sanitized diagnostic-evidence commit: `41b06e3`.
 - Recorded the independent-repository and external-composition-root boundary in
   ADR-0040, CLI/security/operations documentation, and the verification matrix.
 
+## 2026-09-20 — Adopt local-app-test-automation v0.1.0
+
+- Replaced development-candidate/local-checkout assumptions with the published
+  v0.1.0 release identity: tag target, wheel name, and Release SHA-256.
+- Accepted ADR-0041 and added an external-automation compatibility contract for
+  SessionSpec v1, public CLI/process composition, artifact verification, and
+  explicit upgrade review.
+- Kept the framework optional and external: no Python import, package
+  dependency, shared live object, or Civ/M11/C4 framework profile was added.
+- Verified the published wheel digest and installed CLI, then repeated the
+  caller integration and complete execution-core regression gates.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

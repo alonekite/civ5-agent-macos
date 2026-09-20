@@ -46,6 +46,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0037](ADR-0037-read-exact-research-progress-from-team-techs.md) | Read exact research progress from team technologies | Accepted; supersedes ADR-0035's progress binding only |
 | [ADR-0039](ADR-0039-expose-server-enforced-read-only-watcher.md) | Expose a server-enforced read-only watcher mode | Accepted |
 | [ADR-0040](ADR-0040-compose-external-supervision-through-json-and-cli.md) | Compose external supervision through JSON and CLI boundaries | Accepted |
+| [ADR-0041](ADR-0041-adopt-local-app-test-automation-v0.1.0.md) | Adopt local-app-test-automation v0.1.0 | Accepted |
 
 ## Template
 

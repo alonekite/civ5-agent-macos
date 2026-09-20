@@ -20,7 +20,7 @@ Operational procedures must be safe to follow without remembering a prior chat.
   capture are rejected by the watcher server.
 - `civ5-read-only session-spec` / `probe`: emit a private framework descriptor
   and read one same-session sanitized summary without importing or invoking the
-  independent automation framework. See
+  independently installed, digest-verified v0.1.0 automation framework. See
   [external read-only automation](EXTERNAL_READ_ONLY_AUTOMATION.md).
 
 The live-session commands must run against the host system. A sandboxed process

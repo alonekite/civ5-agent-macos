@@ -64,7 +64,10 @@ executables and a private SessionSpec v1 JSON file. The provisional
 server-verified, sanitized summary. The external composition root—not either
 package—sequences framework start, probe, and graceful stop. There is no Python
 import dependency in either direction, and no C4/M11 profile belongs to this
-boundary. See ADR-0040.
+boundary. The formally adopted external implementation is
+`local-app-test-automation` v0.1.0, pinned by tag target and wheel digest under
+ADR-0041; it remains an optional process-level tool rather than a package
+dependency. See the external automation compatibility contract.
 
 The M7 `WatcherBridgeClient` is the bridge-facing Python surface over this
 private socket. It exposes validated session-aware reads, individual verified

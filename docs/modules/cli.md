@@ -47,7 +47,9 @@ read-only mode, reads one validated same-session state, and emits a bounded
 non-identifying summary. `civ5-read-only session-spec` emits the independent
 automation framework's version-1 JSON descriptor for the read-only watcher.
 Neither operation launches an app, supervises a process, invokes the framework,
-or encodes a domain test procedure.
+or encodes a domain test procedure. The descriptor is compatibility-tested
+against the separately installed, digest-verified framework v0.1.0 wheel; no
+framework import or package dependency is added.
 
 ## Non-responsibilities
 

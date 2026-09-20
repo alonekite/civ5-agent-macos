@@ -70,6 +70,12 @@ remain private, mode-0600 artifacts outside the repository. The independent
 automation framework does not replace firewall preparation, live preflight, or
 restoration.
 
+The adopted optional supervisor is `local-app-test-automation` v0.1.0 at the
+exact wheel digest recorded in the external automation contract. Verify that
+digest before installation. The framework is not imported by this package and
+does not receive FireTuner credentials, arbitrary Lua, or a write-capable
+watcher socket through this integration.
+
 Never expose FireTuner through port forwarding, a public Wi-Fi network, a VPN
 that permits peer access, or an untrusted LAN. Do not pass arbitrary Lua from an
 LLM or remote caller; keep actions on the audited allowlist.

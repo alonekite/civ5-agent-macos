@@ -28,7 +28,10 @@ validated state belongs to the same bridge session. It emits only a bounded
 summary and uses exit 0 for success, 1 for watcher/capability/state failure, and
 2 for invalid local input. `session-spec` emits framework SessionSpec version 1
 JSON but never imports or invokes the framework. Its output is private because
-it contains absolute runtime paths.
+it contains absolute runtime paths. SessionSpec version 1 is compatibility-
+tested against the adopted `local-app-test-automation` v0.1.0 wheel identified
+by the external automation contract; the framework remains an optional external
+executable, not a Python dependency.
 
 ## `civ5-turn` input
 

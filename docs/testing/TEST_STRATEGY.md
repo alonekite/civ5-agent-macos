@@ -45,7 +45,9 @@ must state the actual level instead of using “verified” without qualificatio
 - External read-only composition: exact SessionSpec v1 arguments, empty
   inherited environment, no raw-output retention, fail-closed capability and
   session checks, bounded summary redaction, CLI exit classes, and black-box
-  validation through the independent framework's public CLI.
+  validation through the digest-verified adopted framework v0.1.0 public CLI.
+  Tests freeze the release tag, tag target, wheel name, wheel SHA-256, and
+  SessionSpec version without importing the framework package.
 
 ## CI baseline
 

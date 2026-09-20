@@ -1,6 +1,6 @@
 # External read-only automation integration
 
-Status: Provisional process-boundary integration
+Status: Framework v0.1.0 adopted; caller CLI remains provisional
 
 ## Ownership
 
@@ -11,6 +11,29 @@ FireTuner watcher, state validation, and read-only capability boundary.
 
 Neither package imports the other. Codex, an operator tool, or another test
 runner is the composition root.
+
+## Adopted framework release
+
+Use [local-civ5-test-automation v0.1.0](https://github.com/alonekite/local-civ5-test-automation/releases/tag/v0.1.0),
+whose tag targets `bf71fb072d9111d8cc4bbab24c50fc670fc2239c`.
+The adopted asset is
+`local_app_test_automation-0.1.0-py3-none-any.whl` with SHA-256:
+
+```text
+6c0040ec2e4911c80b318687ad0fd53511972b517ca21dfbb5d0a3cd4af34eb3
+```
+
+Download the wheel into a private temporary directory and verify it before
+installation:
+
+```bash
+shasum -a 256 local_app_test_automation-0.1.0-py3-none-any.whl
+python3.12 -m pip install local_app_test_automation-0.1.0-py3-none-any.whl
+```
+
+Do not substitute a local checkout, an unverified same-name file, or framework
+`main`. The complete adopted surface and upgrade rule are in the
+[external automation compatibility contract](../contracts/external-automation.md).
 
 ## Generate a private SessionSpec
 
@@ -32,9 +55,9 @@ The generated framework `SessionSpec` version 1 contains one process:
 output, and requests graceful `SIGINT` shutdown. It does not contain an M11,
 C4, research, tactical, or other domain workflow.
 
-Validate and run that file with the independent framework's public CLI. The
-framework command spelling and runtime-root handling are defined by that
-project, not this repository.
+Validate and run that file with the installed v0.1.0 framework's public
+`local-app-test` CLI. Framework command spelling and runtime-root handling are
+defined by that project, not this repository.
 
 ## Read one sanitized state
 
@@ -74,9 +97,9 @@ framework; it is not part of the sanitized lifecycle report.
 
 ## Offline compatibility check
 
-The core test suite verifies exact arguments, fail-closed read-only admission,
-same-session state reading, summary redaction, exit classes, and SessionSpec v1
-shape. A cross-repository check invokes the installed framework's public
-`validate` command against generated JSON. Launch/quit acceptance uses only the
-framework's disposable app and requires separate operator confirmation; it is
-not M11 C4 evidence.
+The core test suite verifies the adopted release identifiers, exact arguments,
+fail-closed read-only admission, same-session state reading, summary redaction,
+exit classes, and SessionSpec v1 shape. Cross-repository checks invoked the
+installed v0.1.0 wheel's public `validate` command against generated JSON and
+verified graceful stop. The framework's disposable-app acceptance is not M11
+C4 evidence.
