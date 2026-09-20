@@ -1753,6 +1753,29 @@ Implementation, ADR, and sanitized diagnostic-evidence commit: `41b06e3`.
 - Verified the published wheel digest and installed CLI, then repeated the
   caller integration and complete execution-core regression gates.
 
+## 2026-09-21 — Recover FireTuner snapshot framing after interturn
+
+- Ran the corrected M11 C4 procedure through a naturally qualifying
+  positive-overflow precondition. Repeated schema 8 reads and UI agreement
+  passed; the manual interturn then exposed a persistent snapshot-part-before-
+  header error, so no post-completion overflow result was inferred.
+- Confirmed the private audit remained mode `600` with zero records and restored
+  the exact host baseline. Recorded only sanitized values and conclusions in
+  the experiment log.
+- Accepted ADR-0042. FireTuner collection now retains Lua output delivered after
+  an early command acknowledgement, while residual marked-part/header
+  desynchronization ends the connection epoch and causes a guarded watcher
+  reconnect with a new bridge-session identity. No submitted write is retried.
+- Recorded the target automation ordering constraint: simultaneous application
+  and watcher startup fails closed before TCP 4318 readiness; a separate
+  generic launch phase followed by `observe_verified` successfully supervised
+  the server-enforced read-only watcher without adding a framework profile.
+- Relevant tests passed 95/95 and the complete suite passed 361/361. Repeated
+  wheel and source-distribution contents matched, artifact inspection passed,
+  and the tracked sensitive-content scan was empty.
+
+Implementation, ADR, and partial target-evidence commit: `ff63552`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
