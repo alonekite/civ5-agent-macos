@@ -1713,6 +1713,31 @@ Procedure and status commit: `d9c2a20`.
 
 Implementation, ADR, and sanitized diagnostic-evidence commit: `41b06e3`.
 
+## 2026-09-20 — Add recoverable read-only live-test supervision
+
+- Accepted ADR-0038 and added the provisional `civ5-live-test` application and
+  operations layer with `start`, `status`, `checkpoint`, `confirm`, `finish`,
+  and `recover` commands, one foreground supervisor, private control IPC,
+  single-session locking, and bounded crash recovery.
+- Added server-enforced watcher `--read-only` mode. It admits only `ping` and
+  `read_state`, rejects command/status paths before execution, and prohibits
+  journal capture. The supervisor has no controller, TurnPlan, command-write,
+  knowledge, or journal dependency.
+- Added the first pluggable profile for M11 C4, including schema/action-window
+  checks, repeated-read stability, UI confirmation provenance, the generalized
+  positive-overflow inequalities with fractional surplus retained, completion,
+  selection-stability, following-interturn, and zero-command audit checks.
+- Runtime state is mode `0600` under a mode-`0700` directory, contains bounded
+  summaries rather than full snapshots, redacts paths, and rejects forbidden
+  snapshot fields. Safety failures request normal Civ V exit and restore the
+  guarded baseline; data inconsistencies pause with the live scene intact.
+- All 369 warning-enabled tests passed. Wheel and source distributions passed
+  artifact/sensitive-content checks and both clean-installed under Python 3.11;
+  the installed `civ5-live-test` entry point started successfully. No target
+  session, push, tag, or release was performed.
+
+Implementation and governance commit: `080baab`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
