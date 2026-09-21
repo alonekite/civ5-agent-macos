@@ -2091,6 +2091,11 @@ for development rather than removed solely for test coverage.
 
 Implementation commit: `97cb326`.
 
+Documentation commit `1da77e9` completed the compatibility contract, ADR,
+operations guide, state dashboard, verification matrix, and changelog. GitHub
+Actions run `35653863177` passed Python 3.11/3.13, repeatable wheel/source
+builds, artifact scans, and clean wheel/source-distribution installation gates.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
