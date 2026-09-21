@@ -15,6 +15,8 @@ from civ5_agent.read_only_integration import (
     AUTOMATION_FRAMEWORK_WHEEL_SHA256,
     AUTOMATION_FRAMEWORK_V2_CANDIDATE_COMMIT,
     AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION,
+    AUTOMATION_FRAMEWORK_V2_CANDIDATE_WHEEL_NAME,
+    AUTOMATION_FRAMEWORK_V2_CANDIDATE_WHEEL_SHA256,
     CIV5_APP_BUNDLE_ID,
     CIV5_APP_BUNDLE_PATH,
     CIV5_GAME_EXECUTABLE_PATH,
@@ -82,7 +84,15 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
         self.assertEqual(AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION, 1)
         self.assertEqual(
             AUTOMATION_FRAMEWORK_V2_CANDIDATE_COMMIT,
-            "c47b8cbd1d1a32363058ce528d4991b7f6637be6",
+            "f7514afeae7a317f940f204320465e761c2f5312",
+        )
+        self.assertEqual(
+            AUTOMATION_FRAMEWORK_V2_CANDIDATE_WHEEL_NAME,
+            "local_app_test_automation-0.2.0.dev0-py3-none-any.whl",
+        )
+        self.assertEqual(
+            AUTOMATION_FRAMEWORK_V2_CANDIDATE_WHEEL_SHA256,
+            "ec9b21d744b0e011df90bb533f516c18cba0de81c10fbfa5313b0aa66b9cbd0e",
         )
         self.assertEqual(AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION, 2)
 
