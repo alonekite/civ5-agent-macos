@@ -103,7 +103,9 @@ declared `psutil` and PyObjC dependencies in a
 new Python 3.12 environment. Its installed public CLI accepted mode-0600 v1 and
 v2 descriptors emitted by a separately wheel-installed core. The core's
 warning-enabled suite passes 367/367 on Python 3.11 and the default runtime.
-This is offline compatibility evidence, not a successful target UI run.
+Core GitHub Actions run `35622123787` passes Python 3.11/3.13 and artifact
+installation gates. This is offline compatibility evidence, not a successful
+target UI run.
 
 After one checkpoint is authorized, the framework may wait within the existing
 step timeout for the same fully verified target to become frontmost again. This

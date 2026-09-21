@@ -1997,6 +1997,12 @@ Implementation and offline compatibility commit: `72cead3`.
   contract, operations guide, state dashboard, verification matrix, test
   strategy, experiment evidence, and changelog. SessionSpec v2 and `latp/1`
   remain unchanged.
+- The warning-enabled core suite passed 367/367 on Python 3.11 and the default
+  runtime. Wheels built from exact framework commit `055d816` and exact core
+  commit `38a3b12` were installed in separate fresh Python 3.12 environments;
+  the installed core emitted a private mode-600 SessionSpec v2 and the installed
+  framework public CLI validated it. Core GitHub Actions run `35622123787`
+  passed Python 3.11/3.13 and artifact/install gates.
 
 ## Archive policy
 
