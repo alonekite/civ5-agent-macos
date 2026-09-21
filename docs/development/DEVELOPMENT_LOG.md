@@ -2029,6 +2029,11 @@ Implementation and offline compatibility commit: `72cead3`.
   its 20 members, RECORD, and privacy checks pass. Framework implementation CI
   `35636278046` and documentation CI `35636855812` pass all four macOS/Python
   cells plus wheel/clean-install gates.
+- The core warning-enabled suite passes 367/367 on Python 3.11 and the default
+  runtime. Exact core commit `f50083d` and framework implementation `c47b8cb`
+  were built/installed as wheels together in a new Python 3.12 environment;
+  the installed core emitted a mode-600 SessionSpec v2 and the installed
+  framework public CLI validated it.
 
 ## Archive policy
 
