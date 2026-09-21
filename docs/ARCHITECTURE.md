@@ -228,9 +228,10 @@ adapters. A downstream adapter may construct public core objects, but cannot
 broaden the allowlist, reinterpret results, open FireTuner, or bypass plan
 admission.
 
-Core 1.2.0 publishes a static capability profile through exported version,
-schema, allowlist, and limit constants, including schema 7 and the exact
-`worker_build` action. It does not publish a serialized
+Core 1.3.0 publishes a static capability profile through exported version,
+schema, allowlist, capability-version, and limit constants, including schema 8
+ordinary-research runtime facts and the existing exact `worker_build` action.
+It does not publish a serialized
 capability manifest or selective tactical-history view. Missing reusable facts
 or mechanics follow the strategy-neutral capability request procedure and ship
 only in a newly versioned core release after their own verification.

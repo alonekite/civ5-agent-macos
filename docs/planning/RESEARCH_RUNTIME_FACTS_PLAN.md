@@ -1,6 +1,6 @@
 # Runtime Research Facts Development Plan
 
-Status: C1–C4 complete; D2/C5 release gate pending
+Status: C1–C4 complete; D2/C5 release candidate in progress
 
 Target milestone: M11
 
@@ -83,7 +83,7 @@ See the [operator procedure and evidence template](../testing/RESEARCH_RUNTIME_F
 
 ### D2/C5 — Release 1.3.0
 
-Status: pending.
+Status: local release-candidate gates pass; exact-commit gates pending.
 
 - Update contracts, capability profile, matrix, changelog, project state, and
   development log.

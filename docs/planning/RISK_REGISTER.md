@@ -7,7 +7,7 @@ open until evidence justifies closing it; mitigation does not erase the risk.
 |---|---|---:|---:|---|---|
 | R-001 | FireTuner listens on all IPv4 interfaces and accepts unauthenticated Lua | High when enabled | High | Controlled | Keep disabled by default; use recoverable live-session prepare/restore; require firewall plus explicit Civ V block rule; verify shutdown |
 | R-002 | Civ V services only one reliable FireTuner client | High | High | Controlled | Watcher owns one persistent connection; local commands use private serialized IPC |
-| R-003 | A candidate Lua action differs across Civ V builds or UI states | Medium | High | Controlled for release scope | Four actions only; derive from bundled stock UI, validate arguments, check live capability, require exact read-back, and retain bounded target-build evidence; other builds remain unsupported until separately verified |
+| R-003 | A candidate Lua action differs across Civ V builds or UI states | Medium | High | Controlled for release scope | Six actions only; derive from bundled stock UI, validate arguments, check live capability, require exact read-back, and retain bounded target-build evidence; other builds remain unsupported until separately verified |
 | R-004 | DLC, Mod, or cache differences silently change knowledge semantics | Medium | High | Controlled by provenance | Version rulesets; detect active DLC, record declared mods plus source size/hash, reject family/context mismatch, and retain generated bundles locally; a new source hash or declared context requires separate review |
 | R-005 | Knowledge export redistributes copyrighted prose or assets | Low | High | Controlled | Explicit gameplay-field allowlists; exclude Civilopedia text, quotes, images, audio, and game databases |
 | R-006 | Leader AI flavor/personality fields enter the dataset | Medium | High | Controlled by positive allowlists | ADR-0005, importer column/table allowlists, generic forbidden-name validation, adversarial fixtures, reviewed remainder inventory, and source/artifact scans apply to every extension |
@@ -23,6 +23,7 @@ open until evidence justifies closing it; mitigation does not erase the risk.
 | R-016 | A downstream tactical consumer couples to private internals or moves planning policy into the core | Medium | High | Controlled by boundary | ADR-0031, the stable downstream capability profile, aggregate API, private-internal exclusions, and structured capability request review preserve one-way dependency and strategy-neutral core evolution |
 | R-017 | Selection drift or deferred mission processing moves the wrong unit or produces unexpected movement | Medium | High | Mitigated; monitor in release/regression | ADR-0032 requires exact selection verification, a visible adjacent empty target, no special movement modes, fresh before/after state, bounded polling, UUID no-retry behavior, and a controlled target-machine test; C6 passed on the target Mac |
 | R-018 | Selection-dependent worker legality or immediate completion makes the wrong build, wrong unit, or ambiguous result appear successful | Medium | High | Mitigated; monitor in release/regression | ADR-0033 and D2 freeze selection-free unit candidates, exact selected-unit stock dispatch, blank featureless land, ordinary non-consuming builds, lower-movement proof, separate active/completed postconditions, bounded Lua, and UUID no-retry behavior; D3 freezes WB-S01–A02 plus a single-write operator gate; C6 exposed and repaired action-table shape, integer `CanBuild` flags, lexical boundaries, string-key resolution, and loop-index dispatch defects, then passed the active-build branch with matching command/watcher/UI evidence, a private audit, no observed extra side effect, and exact host restoration |
+| R-019 | An early FireTuner acknowledgement followed by multiple Lua-output frames shifts segmented snapshot attribution across commands | Medium during interturns | High | Mitigated; monitor in release/regression | ADR-0042/0043 drain all late frames to bounded deadlines, fail closed and rotate the bridge session on residual desynchronization, and never retry a write; offline framing regressions and M11 C4 preserved one session across both controlled interturns |
 
 ## Review rules
 
@@ -81,6 +82,21 @@ ownership review.
 These dispositions bound the first stable release; they do not erase the
 underlying conditions or authorize additional game builds, actions, sources, or
 knowledge fields.
+
+## M11 high-impact disposition — 2026-09-21
+
+R-019 is **mitigated and monitored** after the exact `95ef3df` target proof.
+FireTuner can acknowledge a command before delivering one or more Lua-output
+frames. ADR-0042/0043 require the connection owner to drain every late frame to
+the existing bounded idle/total deadline; a residual part-before-header fault
+ends that connection epoch and creates a new bridge-session identity rather
+than silently correlating mutable state or retrying a write. Offline tests cover
+acknowledgement-first multi-frame output and fail-closed reconnect. The bounded
+M11 C4 sequence then retained one bridge session across both interturns while
+proving positive overflow, selection-time preservation, later application,
+zero command records, and exact host restoration. The risk remains monitored
+because framing order is runtime behavior and any transport/segmentation change
+must reopen this evidence.
 
 ## M9 high-impact disposition — 2026-09-17
 

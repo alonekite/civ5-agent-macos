@@ -5,9 +5,11 @@ All notable user-visible changes are recorded here. Development details belong i
 
 ## Unreleased
 
+## 1.3.0 - 2026-09-21
+
 ### Added
 
-- Development schema 8 read-only ordinary-research runtime facts: effective
+- Schema 8 read-only ordinary-research runtime facts: effective
   candidate costs, exact times-100 progress/science, whole-point overflow,
   runtime turns-left, action-window phase, field provenance, and explicit
   runtime context. Complete ruleset fingerprint binding remains downstream;

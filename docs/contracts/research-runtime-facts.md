@@ -1,6 +1,6 @@
 # Ordinary Research Runtime Facts Contract
 
-Status: Implemented and target-verified for M11; release pending
+Status: Stable 1.3.0 contract; release candidate target-verified
 
 Compatible release: 1.3.0
 

@@ -19,7 +19,7 @@ requirement inspection, and deterministic execution. The implementation in `mode
 | 5 | Live-verified for ordinary research | Schema 4 plus researched/researchable technology sets and research-choice mode; free/steal modes remain offline-only |
 | 6 | Live-verified; added in 1.1.0 | Schema 5 plus bounded per-unit `ordinary_move_targets` |
 | 7 | Live-verified for ordinary worker builds; added in 1.2.0 | Schema 6 plus current unit-plot context, current build, and bounded ordinary worker-build candidates |
-| 8 | Implemented and bounded target-verified on 1.3.0 development head; release pending | Schema 7 plus exact ordinary-research runtime facts and explicit runtime context/provenance |
+| 8 | Live-verified; included in the 1.3.0 release candidate | Schema 7 plus exact ordinary-research runtime facts and explicit runtime context/provenance |
 
 ## Stable requirements
 
@@ -75,7 +75,7 @@ schema.
 Collection uses a seventh independently bounded read-only Lua segment. All
 seven parts must identify the same turn and active player.
 
-Readers retain schema 2–7 support. A future
+Readers retain schema 2–8 support. A future
 breaking shape change increments `schema_version`; it does not reinterpret an
 existing field silently.
 

@@ -1,6 +1,6 @@
 # Public API Inventory
 
-Status: Stable 1.2 surface plus 1.3.0 development additions
+Status: Stable 1.3 surface
 
 ## Purpose
 
@@ -13,7 +13,7 @@ listed Python symbol into a stable API by itself.
 
 | Area | Version boundary | Current compatibility |
 |---|---|---|
-| Live state | `GameState.schema_version` | Stable 1.2.0 supports schemas 2–7; development 1.3.0 adds offline schema 8 |
+| Live state | `GameState.schema_version` | Stable 1.3.0 supports schemas 2–8 |
 | Knowledge | `KnowledgeBundle.schema_version` | Schemas 1–3 readable; current importer emits schema 3 |
 | Journal | journal record `schema_version` | Schema 1 only; unknown versions fail closed |
 | Turn plan | `TurnPlan.schema_version` | Schema 1 complete-turn plans only |
@@ -24,7 +24,7 @@ Existing schema compatibility rules remain authoritative. `civ5_agent.api` is
 the supported aggregate Python import path under ADR-0026; ADR-0027 separately
 stabilizes `civ5-turn` and explicitly classifies every other CLI as provisional.
 ADR-0031 defines how independent tactical consumers use this surface without
-creating an upward dependency; the exact 1.2 profile is in the
+creating an upward dependency; the exact 1.3 profile is in the
 [downstream integration contract](downstream-integration.md).
 
 ## Candidate supported Python surface
@@ -41,7 +41,7 @@ types.
 
 ## Supported aggregate import
 
-`civ5_agent.api.__all__` is contract-tested as the supported stable 1.2
+`civ5_agent.api.__all__` is contract-tested as the supported stable 1.3
 surface under ADR-0030. It re-exports the documented module models, operations,
 errors, schema versions, supported schema sets, and byte/count limits. Raw FireTuner, IPC
 server, watcher-handler, importer, and private codec helpers are deliberately
@@ -112,14 +112,14 @@ them to use the supported core.
 
 ## Capability discovery
 
-Version 1.2 does not expose a serialized capability manifest. A Python consumer
+Version 1.3 does not expose a serialized capability manifest. A Python consumer
 may construct a detached compatibility profile from `__version__`,
 `ALLOWED_ACTIONS`, the supported-schema constants, individual schema versions,
 and exported limits. It must still validate the actual live state and command;
 capability presence never proves current legality.
 
 Per-action capability versions, optional-field flags, evidence levels, and a
-selective factual-history view are not part of 1.2. A downstream need for them
+selective factual-history view are not part of 1.3. A downstream need for them
 follows the documented core capability request process rather than private
 module inspection.
 
@@ -140,12 +140,14 @@ verified command in `ALLOWED_ACTIONS`. Consumers must require an approved tagged
 release rather than treating an arbitrary checkout as published support.
 See the worker-build contract.
 
-Development core 1.3.0 adds schema 8 plus exported
+Core 1.3.0 adds schema 8 plus exported
 `RESEARCH_RUNTIME_FACTS_CAPABILITY_VERSION = 1` and
 `RUNTIME_CONTEXT_VERSION = 1`. It adds fields to `GameState` but no model class,
 action, write, plan, result, executor, journal, or stable CLI schema. Consumers
-must not treat this development checkout as published or target-verified
-support. See the research-runtime-facts contract.
+must require the tagged 1.3.0 release, schema 8, both capability constants, and
+the supported status/phase rather than infer field presence from a greater
+package number. The complete offline and bounded same-session target gates pass.
+See the research-runtime-facts contract.
 
 ## Error inventory
 

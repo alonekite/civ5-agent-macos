@@ -52,7 +52,7 @@ now applies. Do not broaden provisional interfaces merely to remove that label.
 Review before committing:
 
 ```bash
-version=1.2.0
+version=1.3.0
 test "$(PYTHONPATH=src python3 -c 'import civ5_agent; print(civ5_agent.__version__)')" = "$version"
 PYTHONPATH=src PYTHONWARNINGS=error python3.11 -m unittest discover -s tests
 PYTHONPATH=src PYTHONWARNINGS=error python3 -m unittest discover -s tests
@@ -116,7 +116,7 @@ After the exact release commit passes CI and the two selected artifacts pass
 inspection and clean installation:
 
 ```bash
-version=1.2.0
+version=1.3.0
 release_commit="$(git rev-parse HEAD)"
 test -z "$(git status --porcelain)"
 test "$(git rev-parse origin/main)" = "$release_commit"

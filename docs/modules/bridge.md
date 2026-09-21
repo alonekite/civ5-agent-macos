@@ -58,7 +58,7 @@ or ruleset knowledge.
   and the repaired 688/881-byte generated reads are included in the stable
   1.2.0 profile. Bounded target evidence confirms candidate/UI agreement and
   the active-build result branch; immediate completion remains offline-only.
-- Development schema 8 adds three bounded read-only research/runtime-context
+- Core 1.3.0 schema 8 adds three bounded read-only research/runtime-context
   programs and validated capability/context objects. It publishes runtime
   provenance but never invents a complete ruleset fingerprint. Offline tests
   pass. Target evidence establishes read purity, corrected exact progress
@@ -112,7 +112,7 @@ The schema 6 read model and coordinate movement write are target-verified and
 part of the 1.1.0 compatibility surface. The standalone legacy command CLI
 still has a direct fallback; the supported Python bridge client is watcher-only.
 
-## Planned extensions
+## Published and candidate extensions
 
 Maintain the 1.1.0 movement contract. Core 1.2.0 adds the schema 7 reads,
 exact `worker_build` admission, single stock dispatch, factual read-back,
@@ -123,5 +123,8 @@ attempts exposed target-specific iterator, flag, lexical, action-resolution,
 and entry-ID-versus-loop-index details without changing game state. The
 immediate-completion branch remains offline-only. The capability is published
 in the stable 1.2.0 profile.
-The session envelope and public error semantics have offline
-tests; M5/M6 composition must preserve their fail-closed behavior.
+The 1.3.0 release candidate adds schema 8 read-only ordinary-research runtime
+facts and explicit runtime-context provenance. Its exact target bindings and
+same-session overflow sequence are live-verified. The session envelope and
+public error semantics have offline tests; M5/M6 composition must preserve
+their fail-closed behavior.

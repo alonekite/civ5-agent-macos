@@ -1825,6 +1825,27 @@ Implementation, ADR, and partial target-evidence commit: `d99209d`.
 
 Sanitized target-evidence and reconciliation commit: `7e28b05`.
 
+## 2026-09-21 — Prepare the 1.3.0 release candidate
+
+- Promoted the package and public compatibility documents from development
+  version `1.3.0.dev0` to the untagged `1.3.0` release candidate while
+  preserving schemas 2–7 and every write, plan, result, executor, and journal
+  contract.
+- Reconciled project state, milestones, release readiness, module ownership,
+  downstream capability discovery, and the M11 risk disposition. The release
+  remains pending exact-commit CI and explicit tag/Release authorization.
+- The complete host-context suite passed 362/362 warning-enabled tests on both
+  Python 3.11 and the default runtime. Tracked sensitive-content and diff
+  checks passed.
+- Two independent wheel builds had normalized content SHA-256
+  `69b8f36eefd453a4e87200026db4984cac137cc714e133beb732636cf5976b7f`;
+  the two source distributions had normalized content SHA-256
+  `9223ae52634d1d4902f9816f29367b375bdbc98d7027a26099dac9d3aaae97d6`.
+  Both formats passed bounded artifact inspection and installed, imported, and
+  started the supported CLI in separate clean Python 3.11 environments. These
+  are working-tree rehearsal artifacts; the gate must be repeated from the
+  exact clean release commit.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

@@ -21,16 +21,18 @@ but this execution core never depends on tactical-layer code or owns tactical
 judgment, action-intent content, or cross-domain arbitration. See the
 [downstream integration contract](docs/contracts/downstream-integration.md).
 
-Version `1.2.0` adds target-verified ordinary worker construction to the stable
-core while retaining the 1.0 and 1.1 contracts. Immutable published source and
-artifacts are identified by matching version tags and GitHub releases; the
-stable compatibility surfaces are `civ5_agent.api` and `civ5-turn`. Other
-command-line entry points remain explicitly provisional.
+The `1.3.0` release candidate adds target-verified schema 8 ordinary-research
+runtime facts while retaining the stable 1.0–1.2 contracts. Immutable published
+source and artifacts are identified by matching version tags and GitHub
+releases; the stable compatibility surfaces are `civ5_agent.api` and
+`civ5-turn`. Other command-line entry points remain explicitly provisional.
 
-The published `1.2.0` release adds schema 7 worker facts, exact
-bridge-level `worker_build` submission/read-back, and deterministic TurnPlan
-integration. Its complete offline gate and bounded operator-authorized
-active-build target proof pass.
+The 1.3.0 release candidate adds exact effective research costs, times-100
+progress/science, whole-point overflow, runtime turns-left, explicit phase and
+runtime-context provenance without changing any write, plan, result, executor,
+journal, or stable CLI schema. Its complete offline and bounded same-session
+target gates pass; publication still requires exact-commit CI, inspected
+artifacts, explicit tag approval, tag CI, and GitHub Release verification.
 
 ## Documentation
 

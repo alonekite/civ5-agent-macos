@@ -14,9 +14,11 @@ development log.
 - Active next deliverable: complete the M11 D2/C5 compatibility, privacy,
   artifact, clean-install, and exact-commit CI gates for core 1.3.0. No core
   write action is included.
-- Functional baseline: the full offline suite passes locally on Python 3.11;
-  repeated development wheel/sdist contents match and the wheel
-  installs/imports cleanly.
+- Functional baseline: 362/362 tests pass warning-enabled in host context on
+  Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
+  and sdist builds have matching normalized contents; each format installs,
+  imports, and starts the supported CLI in a separate clean Python 3.11
+  environment. Exact-release-commit repetition remains pending.
   Exact-commit and `v1.2.0` GitHub Actions passed on Python 3.11/3.13.
 - Blocking issue: none for C4. The exact `95ef3df` rerun preserved one bridge
   session across both interturns and completed the read-only overflow gate.
@@ -40,9 +42,10 @@ development log.
 
 ## Implemented core
 
-- Development schema 8 now emits and validates exact ordinary-research runtime
-  facts and explicit context provenance through twelve bounded read-only
-  programs. It preserves schemas 2–7 and every write/plan/result contract.
+- The 1.3.0 release-candidate schema 8 emits and validates exact
+  ordinary-research runtime facts and explicit context provenance through
+  twelve bounded read-only programs. It preserves schemas 2–7 and every
+  write/plan/result contract.
   Corrected runtime bindings, UI agreement, positive overflow, selection
   preservation, later application, and one-session continuity now have bounded
   target evidence.
@@ -300,7 +303,8 @@ development log.
 - `civ5_agent.bridge` now exposes a session-aware `Bridge` protocol and
   watcher-only client for validated reads, individual verified commands, and
   read-only result lookup independently of M6.
-- `civ5_agent.api` is the contract-tested stable 1.1 Python surface.
+- `civ5_agent.api` is the contract-tested aggregate Python surface through the
+  stable 1.2 capabilities and the 1.3.0 schema 8 release candidate.
   Public errors distinguish validation, protocol, transport-ambiguous, and
   live-safety failures while preserving compatible built-in catch behavior.
   Supported schema sets and byte/count limits are exported constants.
@@ -322,8 +326,10 @@ authorization, but it cannot bypass or weaken the core's host safety checks.
 
 ## Recommended order
 
-1. Keep `v1.2.0` immutable and monitor downstream integration feedback.
-2. Route future mechanics through the strategy-neutral capability-request
+1. Complete the 1.3.0 reproducible-artifact, clean-install, privacy, and
+   exact-commit CI gates; request explicit approval before tagging or release.
+2. Keep `v1.2.0` immutable and monitor downstream integration feedback.
+3. Route future mechanics through the strategy-neutral capability-request
    process before changing the stable core surface.
 
 ## Recent governing decisions

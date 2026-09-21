@@ -36,6 +36,11 @@ Acceptance criteria:
 
 Owning plan: `docs/planning/RESEARCH_RUNTIME_FACTS_PLAN.md`.
 
+Current outcome: C1–C4 are complete, including the bounded same-session target
+proof. D2/C5 is preparing the 1.3.0 release candidate; the milestone remains in
+progress until exact-commit CI, artifact/install gates, and the authorized
+release complete.
+
 ## M0 — Environment reconnaissance
 
 Acceptance criteria:

@@ -1,12 +1,12 @@
 # Downstream Tactical Integration Contract
 
-Status: Stable capability profile for 1.2.0
+Status: Stable capability profile for 1.3.0
 
 ## Purpose
 
 Define the supported boundary between this execution core and independent plan
 producers such as `civ5-short-term-tactical-layer`. This document describes
-what core 1.2.0 exposes, who owns each concept, how a consumer detects
+what core 1.3.0 exposes, who owns each concept, how a consumer detects
 compatibility, and which capabilities remain absent. It does not define
 tactical policy or authorize a downstream game connection.
 
@@ -37,15 +37,17 @@ Consumer terms such as `CoreCapabilities` and `VerifiedActionResult` may be
 useful adapter views, but they do not replace or redefine the core's exported
 objects, status meanings, or success conditions.
 
-## Core 1.2.0 capability profile
+## Core 1.3.0 capability profile
 
 The stable aggregate API exposes the facts needed to construct this static
 release profile:
 
-| Capability | Core 1.2.0 value |
+| Capability | Core 1.3.0 value |
 |---|---|
-| Package/API identity | `civ5-agent-macos` 1.2.0; `civ5_agent.api` |
-| Live-state schemas | 2, 3, 4, 5, 6, 7 |
+| Package/API identity | `civ5-agent-macos` 1.3.0; `civ5_agent.api` |
+| Live-state schemas | 2, 3, 4, 5, 6, 7, 8 |
+| Research runtime facts | capability version 1; supported ordinary action-window facts only |
+| Runtime context | context version 1; explicit available/unavailable/unsupported dimensions |
 | Knowledge schemas | 1, 2, 3 |
 | Journal schema | 1 |
 | `TurnPlan` schema | 1 |
@@ -62,15 +64,15 @@ their individual contracts. A consumer must compare package and contract
 versions, required action names, and required fields explicitly. A greater
 schema or package number never implies an absent field or action.
 
-## Capability discovery in 1.2.0
+## Capability discovery in 1.3.0
 
-Core 1.2.0 does not define a serialized capability-manifest wire contract.
+Core 1.3.0 does not define a serialized capability-manifest wire contract.
 Python consumers may construct a detached compatibility profile from
 `__version__`, `ALLOWED_ACTIONS`, the exported supported-schema sets, schema
 constants, and limit constants. They must not inspect private modules or infer
 per-field availability from a package version alone.
 
-The 1.2.0 profile does not export per-action capability versions, field-level
+The 1.3.0 profile does not export per-action capability versions, field-level
 feature flags, or target-evidence labels. Consumers that require those values
 must use a reviewed static compatibility matrix or submit a capability request
 for a future public manifest. Absence of a manifest never permits optimistic
@@ -92,13 +94,13 @@ an assessment into verified success.
 
 ## Factual history boundary
 
-The journal is not an execution dependency. Core 1.2.0 exposes verification,
+The journal is not an execution dependency. Core 1.3.0 exposes verification,
 full private replay, and redacted structural export, but no bounded selective
 tactical-history query. Consumers must not parse journal storage or treat it as
 an execution cursor. A future history view requires its own privacy, ordering,
 provenance, bounds, compatibility, and no-write contract.
 
-## Capabilities absent from 1.2.0
+## Capabilities absent from 1.3.0
 
 - serialized capability manifest;
 - selective factual history view;
@@ -159,10 +161,10 @@ ordering, and any replanning.
 
 ## Compatibility and maintenance
 
-## Development 1.3.0 research runtime facts
+## 1.3.0 research runtime facts
 
-The development head adds live-state schema 8 and capability/context versions
-1. These are authoritative runtime facts when `research_runtime_facts.status` is
+Core 1.3.0 adds live-state schema 8 and capability/context versions 1. These are
+authoritative runtime facts when `research_runtime_facts.status` is
 `supported`; they are not a complete ruleset manifest. Exact-supported
 forecasting and forecast-dependent automatic intent eligibility additionally
 require a sufficient, non-conflicting downstream KnowledgeBundle binding.
@@ -170,9 +172,11 @@ That binding is not required to expose the live facts and does not, by itself,
 prohibit a separately approved core-only/manual-review `choose_research` intent
 that makes no exact-forecast claim.
 
-This section is a development compatibility forecast, not part of the stable
-1.2.0 profile. Bounded target evidence passes; the 1.3.0 release gate remains
-pending.
+Consumers require package 1.3.0 or later, schema 8 in the supported schema set,
+both exported capability versions, supported status, and the exact documented
+phase. Greater version numbers alone remain insufficient. The complete offline
+matrix and bounded same-session target sequence pass; free/steal modes remain
+explicitly unsupported rather than partially populated.
 
 Incompatible changes to the stable aggregate API or `civ5-turn` require a new
 major version. Backward-compatible capability additions require at least a

@@ -6,20 +6,20 @@ tests; discrepancies are defects that must be resolved explicitly.
 
 | Contract | Status | Owning module |
 |---|---|---|
-| [Live state](live-state.md) | Evolving; schemas 2–7 stable in 1.2.0 with documented live-evidence limits | bridge |
+| [Live state](live-state.md) | Evolving; schemas 2–8 stable in 1.3.0 with documented live-evidence limits | bridge |
 | [Commands](command.md) | Evolving, core writes live-verified | bridge |
 | [Unit movement](unit-movement.md) | Stable 1.1.0 schema 6 read/write/executor contract; offline and bounded live gates complete | bridge/executor |
 | [Worker build](worker-build.md) | Stable 1.2.0 contract; C1–C5 offline and bounded C6 active-build evidence complete | bridge/executor |
-| [Research runtime facts](research-runtime-facts.md) | Frozen schema 8/core 1.3.0 design; implementation complete offline and live evidence pending | bridge |
+| [Research runtime facts](research-runtime-facts.md) | Stable 1.3.0 schema 8 contract; offline and bounded same-session live gates complete | bridge |
 | [Session and match identity](session-identity.md) | Bridge session and journal match binding implemented offline | bridge/application/journal |
 | [Knowledge bundle](../KNOWLEDGE.md) | Evolving, implemented | knowledge |
 | [Ruleset knowledge view](resolver.md) | Structural M4 contract implemented | knowledge |
 | [Turn journal](journal.md) | M5 implemented; bounded live verification passed | journal |
 | [Turn plan and execution](turn-plan.md) | Schema 1 execution/recovery and bounded CLI implemented offline | controller/executor |
-| [Public Python API](public-api.md) | Stable 1.2 aggregate surface and error contract implemented | cross-module |
+| [Public Python API](public-api.md) | Stable 1.3 aggregate surface and error contract implemented | cross-module |
 | [CLI compatibility](cli.md) | `civ5-turn` stable since 1.0; other entry points provisional | cli |
 | [External automation compatibility](external-automation.md) | Framework v0.1.0 artifact and SessionSpec v1 adopted | cli/application boundary |
-| [Downstream tactical integration](downstream-integration.md) | Stable 1.2 capability and ownership profile | cross-module |
+| [Downstream tactical integration](downstream-integration.md) | Stable 1.3 capability and ownership profile | cross-module |
 
 ## Contract rules
 
