@@ -1861,6 +1861,25 @@ Sanitized target-evidence and reconciliation commit: `7e28b05`.
 - Marked M11 and the 1.3.0 release gate complete. The tag and attached assets
   are immutable; any correction requires a new semantic version.
 
+## 2026-09-21 — Add candidate SessionSpec v2 UI composition
+
+- Reviewed exact framework development commit `d7784a7` without changing the
+  independent repository or adopting an unpublished version. Preserved the
+  released v0.1.0/SessionSpec v1 contract and the CLI/JSON/process-only boundary.
+- Read the installed application metadata and observed the target UI. Bundle ID
+  `com.aspyr.civ5campaign` and window title `Civilization V: Campaign Edition`
+  identify both phases; the launcher exposes one unique `AXButton` titled
+  `PLAY`, while the continue canvas exposes no actionable AX element.
+- Added candidate SessionSpec v2 generation with an exact launcher AX press and
+  a caller-calibrated window-relative continue click. Both precede watcher
+  startup and require separate expiring human checkpoints. Invalid identity,
+  coordinates, or deadlines fail closed.
+- Added v1 compatibility, v2 ordering/shape, privacy separation, and refusal
+  tests. The warning-enabled host suite passes 366/366 on Python 3.11 and the
+  default runtime. The pinned framework checkout accepted the generated
+  mode-600 private v2 descriptor through its public `validate` command. A
+  complete operator-present two-checkpoint action run remains pending.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

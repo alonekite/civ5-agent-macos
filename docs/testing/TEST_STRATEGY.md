@@ -48,6 +48,11 @@ must state the actual level instead of using “verified” without qualificatio
   validation through the digest-verified adopted framework v0.1.0 public CLI.
   Tests freeze the release tag, tag target, wheel name, wheel SHA-256, and
   SessionSpec version without importing the framework package.
+- Candidate UI composition: preserve v1 unchanged; validate exact SessionSpec
+  v2 step order and selectors, coordinate/time bounds, identity refusal,
+  selector isolation from watcher fields, process start-after-UI semantics, and
+  acceptance by the pinned framework development commit without cross-project
+  imports.
 
 ## CI baseline
 

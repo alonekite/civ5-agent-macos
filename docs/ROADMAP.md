@@ -208,7 +208,7 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 - [x] Complete the frozen offline negative/bounds/artifact matrix
 - [x] Run bounded target verification for read purity, exact units, and the
   controlled interturn overflow sequence
-- [ ] Publish core 1.3.0 only after documentation, security scan, exact-commit
+- [x] Publish core 1.3.0 only after documentation, security scan, exact-commit
   CI, reproducible artifacts, and target evidence pass
 
 M11 adds no write action and does not move forecasting or technology selection

@@ -13,8 +13,16 @@ from civ5_agent.read_only_integration import (
     AUTOMATION_FRAMEWORK_TAG_COMMIT,
     AUTOMATION_FRAMEWORK_WHEEL_NAME,
     AUTOMATION_FRAMEWORK_WHEEL_SHA256,
+    AUTOMATION_FRAMEWORK_V2_CANDIDATE_COMMIT,
+    AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION,
+    CIV5_APP_BUNDLE_ID,
+    CIV5_APP_BUNDLE_PATH,
+    CIV5_LAUNCHER_BUTTON_ROLE,
+    CIV5_LAUNCHER_BUTTON_TITLE,
+    CIV5_WINDOW_TITLE,
     ReadOnlyIntegrationError,
     build_session_spec,
+    build_ui_session_spec,
     main,
     read_sanitized_summary,
 )
@@ -71,6 +79,11 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
             "6c0040ec2e4911c80b318687ad0fd53511972b517ca21dfbb5d0a3cd4af34eb3",
         )
         self.assertEqual(AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION, 1)
+        self.assertEqual(
+            AUTOMATION_FRAMEWORK_V2_CANDIDATE_COMMIT,
+            "d7784a747637a8775c5d1dc9c5eb02ad644252b3",
+        )
+        self.assertEqual(AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION, 2)
 
     def test_probe_requires_read_only_and_redacts_private_state(self):
         client = Mock()
@@ -157,6 +170,114 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
         self.assertNotIn("research", encoded)
         self.assertNotIn("c4", encoded)
 
+    def test_ui_session_spec_preserves_v1_process_and_orders_two_ui_gates(self):
+        spec = build_ui_session_spec(
+            label="core-read-only-ui",
+            app_bundle_id=CIV5_APP_BUNDLE_ID,
+            app_bundle_path=None,
+            existing_instance_policy="reject",
+            leave_open_on_success=True,
+            watcher_executable=Path("/opt/core/bin/civ5-watch"),
+            cwd=Path("/opt/core"),
+            socket_path=Path("/private/tmp/core.sock"),
+            audit_log=Path("/private/tmp/audit.jsonl"),
+            session_timeout_ms=60_000,
+            continue_x_ratio=0.5,
+            continue_y_ratio=0.64,
+        )
+
+        self.assertEqual(spec["spec_version"], 2)
+        self.assertEqual(len(spec["processes"]), 1)
+        self.assertIn("--read-only", spec["processes"][0]["argv"])
+        self.assertFalse(spec["processes"][0]["retain_raw_output"])
+        self.assertEqual(
+            [step["step_id"] for step in spec["ui_steps"]],
+            ["press_launcher_play", "click_game_continue"],
+        )
+        launcher, game = spec["ui_steps"]
+        self.assertEqual(
+            launcher,
+            {
+                "step_id": "press_launcher_play",
+                "target": {
+                    "bundle_id": CIV5_APP_BUNDLE_ID,
+                    "window_title": CIV5_WINDOW_TITLE,
+                },
+                "action": {
+                    "kind": "accessibility_press",
+                    "role": CIV5_LAUNCHER_BUTTON_ROLE,
+                    "title": CIV5_LAUNCHER_BUTTON_TITLE,
+                },
+                "timeout_ms": 300_000,
+                "authorization_timeout_ms": 300_000,
+            },
+        )
+        self.assertEqual(game["action"]["kind"], "window_relative_click")
+        self.assertEqual(game["action"]["x_ratio"], 0.5)
+        self.assertEqual(game["action"]["y_ratio"], 0.64)
+
+    def test_ui_session_spec_fails_closed_for_unverified_identity_and_coordinates(self):
+        arguments = dict(
+            label="core-read-only-ui",
+            app_bundle_id=CIV5_APP_BUNDLE_ID,
+            app_bundle_path=None,
+            existing_instance_policy="reject",
+            leave_open_on_success=True,
+            watcher_executable=Path("/opt/core/bin/civ5-watch"),
+            cwd=Path("/opt/core"),
+            socket_path=Path("/private/tmp/core.sock"),
+            audit_log=Path("/private/tmp/audit.jsonl"),
+            session_timeout_ms=60_000,
+            continue_x_ratio=0.5,
+            continue_y_ratio=0.64,
+        )
+        with self.assertRaisesRegex(ValueError, "verified Civ V bundle"):
+            build_ui_session_spec(**(arguments | {"app_bundle_id": "com.example.Other"}))
+        with self.assertRaisesRegex(ValueError, "verified Civ V bundle"):
+            build_ui_session_spec(
+                **(
+                    arguments
+                    | {
+                        "app_bundle_id": None,
+                        "app_bundle_path": Path("/Applications/Other.app"),
+                    }
+                )
+            )
+        path_spec = build_ui_session_spec(
+            **(
+                arguments
+                | {
+                    "app_bundle_id": None,
+                    "app_bundle_path": CIV5_APP_BUNDLE_PATH,
+                }
+            )
+        )
+        self.assertEqual(path_spec["app"]["bundle_path"], str(CIV5_APP_BUNDLE_PATH))
+        for value in (0, 1, float("nan"), float("inf"), True):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                build_ui_session_spec(**(arguments | {"continue_x_ratio": value}))
+
+    def test_ui_session_spec_keeps_private_selectors_out_of_watcher_fields(self):
+        spec = build_ui_session_spec(
+            label="core-read-only-ui",
+            app_bundle_id=CIV5_APP_BUNDLE_ID,
+            app_bundle_path=None,
+            existing_instance_policy="reject",
+            leave_open_on_success=True,
+            watcher_executable=Path("/opt/core/bin/civ5-watch"),
+            cwd=Path("/opt/core"),
+            socket_path=Path("/private/tmp/core.sock"),
+            audit_log=Path("/private/tmp/audit.jsonl"),
+            session_timeout_ms=60_000,
+            continue_x_ratio=0.5,
+            continue_y_ratio=0.64,
+        )
+        process_json = json.dumps(spec["processes"], sort_keys=True)
+        for private in (CIV5_WINDOW_TITLE, "PLAY", "x_ratio", "y_ratio"):
+            self.assertNotIn(private, process_json)
+        self.assertEqual(spec["app"]["bundle_id"], CIV5_APP_BUNDLE_ID)
+        self.assertNotIn("bundle_path", spec["app"])
+
     def test_cli_emits_one_json_object_and_stable_exit_classes(self):
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
@@ -197,6 +318,33 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
             )
         self.assertEqual(status, 2)
         self.assertEqual(json.loads(output.getvalue())["error"]["code"], "invalid_input")
+
+    def test_cli_emits_candidate_v2_without_changing_v1_default(self):
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            status = main(
+                [
+                    "ui-session-spec",
+                    "--app-bundle-id",
+                    CIV5_APP_BUNDLE_ID,
+                    "--watcher-executable",
+                    "/opt/core/bin/civ5-watch",
+                    "--cwd",
+                    "/opt/core",
+                    "--socket",
+                    "/private/tmp/core.sock",
+                    "--audit-log",
+                    "/private/tmp/audit.jsonl",
+                    "--continue-x-ratio",
+                    "0.5",
+                    "--continue-y-ratio",
+                    "0.64",
+                ]
+            )
+        self.assertEqual(status, 0)
+        spec = json.loads(output.getvalue())
+        self.assertEqual(spec["spec_version"], 2)
+        self.assertEqual(len(spec["ui_steps"]), 2)
 
 
 if __name__ == "__main__":

@@ -127,3 +127,52 @@ exit classes, and SessionSpec v1 shape. Cross-repository checks invoked the
 installed v0.1.0 wheel's public `validate` command against generated JSON and
 verified graceful stop. The framework's disposable-app acceptance is not M11
 C4 evidence.
+
+## Candidate SessionSpec v2 launcher sequence
+
+The development `ui-session-spec` command is compatibility-tested only against
+framework commit `d7784a747637a8775c5d1dc9c5eb02ad644252b3`. Do not substitute
+it for the adopted v0.1.0 path in unattended or release workflows.
+
+Target inspection verified:
+
+- bundle ID `com.aspyr.civ5campaign`;
+- optional bundle path `/Applications/Civilization V Campaign Edition.app`;
+- exact launcher/game window title `Civilization V: Campaign Edition`;
+- one unique launcher `AXButton` titled `PLAY`;
+- no actionable AX element on the game continue canvas.
+
+Calibrate the continue point with the exact target window configuration. Capture
+the window bounds and a reviewed point inside the visible continue target, then
+compute `x_ratio = point_x / window_width` and
+`y_ratio = point_y / window_height`. Repeat the observation after any display,
+resolution, full-screen, window-size, or letterboxing change. Do not reuse a
+coordinate merely because it worked in a differently sized screenshot.
+
+Generate a private mode-0600 descriptor only after that review:
+
+```bash
+civ5-read-only ui-session-spec \
+  --app-bundle-id com.aspyr.civ5campaign \
+  --watcher-executable /absolute/path/to/civ5-watch \
+  --cwd /absolute/path/to/runtime-directory \
+  --socket /absolute/private/path/civ5-agent.sock \
+  --audit-log /absolute/private/path/command-audit.jsonl \
+  --continue-x-ratio REVIEWED_X_RATIO \
+  --continue-y-ratio REVIEWED_Y_RATIO
+```
+
+Before running, manually grant Accessibility permission to the terminal or
+automation host process. The framework will request two checkpoints:
+
+1. bring the exact launcher window to the foreground, visually confirm the
+   unique `PLAY` button, then pass the checkpoint for one AX press;
+2. wait through game startup, bring the exact game window to the foreground,
+   visually confirm `Click to Continue` and the calibrated point, then pass the
+   checkpoint for one relative click.
+
+The framework starts the watcher only after both checkpoints pass. The operator
+must still observe that the second click reached the intended screen; neither
+the framework nor the core performs screenshot/OCR outcome inference. Missing
+Accessibility permission, non-unique identity/window/AX target, an expired or
+refused checkpoint, invalid coordinates, or absent live preflight fails closed.

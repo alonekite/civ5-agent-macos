@@ -2,6 +2,10 @@
 
 Status: Adopted for `local-app-test-automation` v0.1.0
 
+Candidate extension: SessionSpec v2 compatibility is validated against exact
+framework development commit `d7784a747637a8775c5d1dc9c5eb02ad644252b3`.
+It is not an adopted framework release or runtime dependency.
+
 ## Adopted artifact
 
 The execution core formally supports the independently released framework:
@@ -59,6 +63,27 @@ Any framework version other than v0.1.0, any SessionSpec version other than 1,
 or any artifact digest change requires a new compatibility review and contract
 update before adoption. Compatible documentation-only changes in the framework
 do not alter the adopted tag or wheel.
+
+## Candidate SessionSpec v2 boundary
+
+Development core 1.4 may emit SessionSpec v2 through the separate
+`civ5-read-only ui-session-spec` command. The v1 command and adopted v0.1.0
+identity remain unchanged. The candidate descriptor adds exactly two ordered
+and independently authorized UI steps before the existing watcher process:
+
+1. exact `AXButton`/`PLAY` activation in the verified launcher window;
+2. one caller-calibrated window-relative click after the operator confirms the
+   game canvas is showing `Click to Continue`.
+
+The application identity is fixed to bundle ID `com.aspyr.civ5campaign` or the
+verified `/Applications/Civilization V Campaign Edition.app` path. Both UI
+targets use exact window title `Civilization V: Campaign Edition`. The second
+step has no AX fallback because target observation found no actionable canvas
+element. Coordinates must be finite and strictly between zero and one and are
+private test configuration, not a stable universal game coordinate.
+
+Candidate v2 validation does not amend the adopted release above. Adoption
+requires a published framework version and immutable wheel digest.
 
 ## Verification evidence
 

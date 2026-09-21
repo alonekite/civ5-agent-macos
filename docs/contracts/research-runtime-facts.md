@@ -1,6 +1,6 @@
 # Ordinary Research Runtime Facts Contract
 
-Status: Stable 1.3.0 contract; release candidate target-verified
+Status: Stable, target-verified contract published in 1.3.0
 
 Compatible release: 1.3.0
 

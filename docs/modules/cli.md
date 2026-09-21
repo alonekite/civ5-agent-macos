@@ -44,10 +44,13 @@ watcher-owned executor. It never opens a direct FireTuner connection or creates
 missing plan content.
 `civ5-read-only probe` verifies that the watcher declares server-enforced
 read-only mode, reads one validated same-session state, and emits a bounded
-non-identifying summary. `civ5-read-only session-spec` emits the independent
-automation framework's version-1 JSON descriptor for the read-only watcher.
-Neither operation launches an app, supervises a process, invokes the framework,
-or encodes a domain test procedure. The descriptor is compatibility-tested
+non-identifying summary. `civ5-read-only session-spec` emits the adopted
+automation framework version-1 JSON descriptor for the read-only watcher.
+Development `civ5-read-only ui-session-spec` separately emits candidate
+SessionSpec v2 with two ordered, operator-authorized Civ V startup gates; it
+does not change the v1 contract. Neither operation launches an app, supervises
+a process, invokes the framework, or encodes a domain test procedure. The
+version-1 descriptor is compatibility-tested
 against the separately installed, digest-verified framework v0.1.0 wheel; no
 framework import or package dependency is added.
 

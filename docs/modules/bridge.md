@@ -123,7 +123,7 @@ attempts exposed target-specific iterator, flag, lexical, action-resolution,
 and entry-ID-versus-loop-index details without changing game state. The
 immediate-completion branch remains offline-only. The capability is published
 in the stable 1.2.0 profile.
-The 1.3.0 release candidate adds schema 8 read-only ordinary-research runtime
+The published 1.3.0 release adds schema 8 read-only ordinary-research runtime
 facts and explicit runtime-context provenance. Its exact target bindings and
 same-session overflow sequence are live-verified. The session envelope and
 public error semantics have offline tests; M5/M6 composition must preserve

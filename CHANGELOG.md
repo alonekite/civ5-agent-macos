@@ -5,6 +5,14 @@ All notable user-visible changes are recorded here. Development details belong i
 
 ## Unreleased
 
+### Added
+
+- Candidate SessionSpec v2 generation for the independently owned automation
+  framework. It declares two ordered, separately authorized UI steps: the
+  target-verified unique launcher `PLAY` AX button and a caller-calibrated
+  window-relative continue click. The watcher remains server-enforced
+  read-only and starts only after both checkpoints pass.
+
 ## 1.3.0 - 2026-09-21
 
 ### Added

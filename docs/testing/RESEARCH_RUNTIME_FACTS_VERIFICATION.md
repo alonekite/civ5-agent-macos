@@ -1,6 +1,6 @@
 # Runtime Research Facts Verification Specification
 
-Status: C1–C4 complete; release gate pending
+Status: Complete in immutable release `v1.3.0`
 
 Milestone: M11
 

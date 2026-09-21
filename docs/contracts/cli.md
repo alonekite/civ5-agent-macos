@@ -33,6 +33,13 @@ tested against the adopted `local-app-test-automation` v0.1.0 wheel identified
 by the external automation contract; the framework remains an optional external
 executable, not a Python dependency.
 
+Development `ui-session-spec` emits candidate SessionSpec version 2 with the
+exact verified Civ V bundle/window identity, a unique launcher AX press, a
+caller-reviewed normalized continue click, and the unchanged read-only watcher
+process. It requires finite open-interval click ratios and fails closed for an
+unverified bundle identity. This candidate is not part of the adopted v0.1.0
+framework contract.
+
 ## `civ5-turn` input
 
 Supported subcommands are `validate PLAN` and `execute PLAN`. Shared options are

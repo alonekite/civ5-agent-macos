@@ -12,8 +12,10 @@ development log.
   release `v1.3.0`. M10 and the earlier 1.2.0 release remain complete.
 - Active next deliverable: monitor downstream integration and route any next
   reusable fact or mechanic through the strategy-neutral capability-request
-  process. No new capability is currently scheduled.
-- Functional baseline: 362/362 tests pass warning-enabled in host context on
+  process. The post-1.3 provisional SessionSpec v2 adapter is implemented and
+  offline-validated; its operator-present live gate remains pending. It adds no
+  game-state or write capability.
+- Functional baseline: 366/366 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
   and sdist builds have matching normalized contents; each format installs,
   imports, and starts the supported CLI in a separate clean Python 3.11
@@ -24,8 +26,10 @@ development log.
   The observed `3.19` point difference remains recorded without normalization;
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
-- User presence required next: no; a future live capability must obtain its own
-  bounded authorization and evidence.
+- User presence required next: yes, but only for the pending candidate
+  SessionSpec v2 two-checkpoint UI run. No live run is scheduled while the
+  operator is away; every future live capability must obtain its own bounded
+  authorization and evidence.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -35,13 +39,18 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
+- Candidate framework commit `d7784a7` accepts the generated SessionSpec v2
+  startup sequence. Target observation verified exact Civ V bundle/window
+  identity, one unique launcher `PLAY` AX button, and no actionable AX element
+  on the continue canvas. A two-checkpoint operator-present run remains pending;
+  no framework 0.2 release has been adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
 
 ## Implemented core
 
-- The 1.3.0 release-candidate schema 8 emits and validates exact
+- Published 1.3.0 schema 8 emits and validates exact
   ordinary-research runtime facts and explicit context provenance through
   twelve bounded read-only programs. It preserves schemas 2–7 and every
   write/plan/result contract.

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 import time
@@ -23,6 +24,15 @@ AUTOMATION_FRAMEWORK_WHEEL_SHA256 = (
     "6c0040ec2e4911c80b318687ad0fd53511972b517ca21dfbb5d0a3cd4af34eb3"
 )
 AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION = 1
+AUTOMATION_FRAMEWORK_V2_CANDIDATE_COMMIT = (
+    "d7784a747637a8775c5d1dc9c5eb02ad644252b3"
+)
+AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION = 2
+CIV5_APP_BUNDLE_ID = "com.aspyr.civ5campaign"
+CIV5_APP_BUNDLE_PATH = Path("/Applications/Civilization V Campaign Edition.app")
+CIV5_WINDOW_TITLE = "Civilization V: Campaign Edition"
+CIV5_LAUNCHER_BUTTON_ROLE = "AXButton"
+CIV5_LAUNCHER_BUTTON_TITLE = "PLAY"
 _BUNDLE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.-]{0,254}$")
 
 
@@ -197,6 +207,89 @@ def build_session_spec(
     }
 
 
+def build_ui_session_spec(
+    *,
+    label: str,
+    app_bundle_id: str | None,
+    app_bundle_path: Path | None,
+    existing_instance_policy: str,
+    leave_open_on_success: bool,
+    watcher_executable: Path,
+    cwd: Path,
+    socket_path: Path,
+    audit_log: Path,
+    session_timeout_ms: int,
+    continue_x_ratio: float,
+    continue_y_ratio: float,
+    ui_timeout_ms: int = 300_000,
+    authorization_timeout_ms: int = 300_000,
+) -> dict[str, object]:
+    """Build a private candidate SessionSpec v2 for the two verified UI gates."""
+    if app_bundle_id is not None and app_bundle_id != CIV5_APP_BUNDLE_ID:
+        raise ValueError("UI session app bundle identifier is not the verified Civ V bundle")
+    if app_bundle_path is not None and app_bundle_path != CIV5_APP_BUNDLE_PATH:
+        raise ValueError("UI session app bundle path is not the verified Civ V bundle")
+    for name, value in (
+        ("continue x ratio", continue_x_ratio),
+        ("continue y ratio", continue_y_ratio),
+    ):
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(f"{name} must be a number")
+        if not math.isfinite(value) or not 0 < value < 1:
+            raise ValueError(f"{name} must be finite and strictly between zero and one")
+    for name, value in (
+        ("UI timeout", ui_timeout_ms),
+        ("authorization timeout", authorization_timeout_ms),
+    ):
+        if not 1 <= value <= 300_000:
+            raise ValueError(f"{name} must be in 1..300000 milliseconds")
+
+    spec = build_session_spec(
+        label=label,
+        app_bundle_id=app_bundle_id,
+        app_bundle_path=app_bundle_path,
+        existing_instance_policy=existing_instance_policy,
+        leave_open_on_success=leave_open_on_success,
+        watcher_executable=watcher_executable,
+        cwd=cwd,
+        socket_path=socket_path,
+        audit_log=audit_log,
+        session_timeout_ms=session_timeout_ms,
+    )
+    spec["spec_version"] = AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION
+    spec["ui_steps"] = [
+        {
+            "step_id": "press_launcher_play",
+            "target": {
+                "bundle_id": CIV5_APP_BUNDLE_ID,
+                "window_title": CIV5_WINDOW_TITLE,
+            },
+            "action": {
+                "kind": "accessibility_press",
+                "role": CIV5_LAUNCHER_BUTTON_ROLE,
+                "title": CIV5_LAUNCHER_BUTTON_TITLE,
+            },
+            "timeout_ms": ui_timeout_ms,
+            "authorization_timeout_ms": authorization_timeout_ms,
+        },
+        {
+            "step_id": "click_game_continue",
+            "target": {
+                "bundle_id": CIV5_APP_BUNDLE_ID,
+                "window_title": CIV5_WINDOW_TITLE,
+            },
+            "action": {
+                "kind": "window_relative_click",
+                "x_ratio": float(continue_x_ratio),
+                "y_ratio": float(continue_y_ratio),
+            },
+            "timeout_ms": ui_timeout_ms,
+            "authorization_timeout_ms": authorization_timeout_ms,
+        },
+    ]
+    return spec
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="civ5-read-only",
@@ -225,6 +318,30 @@ def _parser() -> argparse.ArgumentParser:
     spec.add_argument("--socket", required=True, type=Path)
     spec.add_argument("--audit-log", required=True, type=Path)
     spec.add_argument("--session-timeout-ms", type=int, default=900_000)
+
+    ui_spec = subparsers.add_parser(
+        "ui-session-spec",
+        help="emit candidate external SessionSpec v2 JSON with two UI checkpoints",
+    )
+    ui_spec.add_argument("--label", default="civ5-read-only-ui-session")
+    ui_identity = ui_spec.add_mutually_exclusive_group(required=True)
+    ui_identity.add_argument("--app-bundle-id")
+    ui_identity.add_argument("--app-bundle-path", type=Path)
+    ui_spec.add_argument(
+        "--existing-instance-policy",
+        choices=["reject", "observe_verified"],
+        default="reject",
+    )
+    ui_spec.add_argument("--leave-open-on-success", action="store_true")
+    ui_spec.add_argument("--watcher-executable", required=True, type=Path)
+    ui_spec.add_argument("--cwd", required=True, type=Path)
+    ui_spec.add_argument("--socket", required=True, type=Path)
+    ui_spec.add_argument("--audit-log", required=True, type=Path)
+    ui_spec.add_argument("--session-timeout-ms", type=int, default=900_000)
+    ui_spec.add_argument("--continue-x-ratio", required=True, type=float)
+    ui_spec.add_argument("--continue-y-ratio", required=True, type=float)
+    ui_spec.add_argument("--ui-timeout-ms", type=int, default=300_000)
+    ui_spec.add_argument("--authorization-timeout-ms", type=int, default=300_000)
     return parser
 
 
@@ -258,6 +375,26 @@ def main(argv: Sequence[str] | None = None) -> int:
                     socket_path=args.socket,
                     audit_log=args.audit_log,
                     session_timeout_ms=args.session_timeout_ms,
+                )
+            )
+            return 0
+        if args.command == "ui-session-spec":
+            _emit(
+                build_ui_session_spec(
+                    label=args.label,
+                    app_bundle_id=args.app_bundle_id,
+                    app_bundle_path=args.app_bundle_path,
+                    existing_instance_policy=args.existing_instance_policy,
+                    leave_open_on_success=args.leave_open_on_success,
+                    watcher_executable=args.watcher_executable,
+                    cwd=args.cwd,
+                    socket_path=args.socket,
+                    audit_log=args.audit_log,
+                    session_timeout_ms=args.session_timeout_ms,
+                    continue_x_ratio=args.continue_x_ratio,
+                    continue_y_ratio=args.continue_y_ratio,
+                    ui_timeout_ms=args.ui_timeout_ms,
+                    authorization_timeout_ms=args.authorization_timeout_ms,
                 )
             )
             return 0
