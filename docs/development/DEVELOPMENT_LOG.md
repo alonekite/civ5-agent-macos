@@ -2003,6 +2003,9 @@ Implementation and offline compatibility commit: `72cead3`.
   the installed core emitted a private mode-600 SessionSpec v2 and the installed
   framework public CLI validated it. Core GitHub Actions run `35622123787`
   passed Python 3.11/3.13 and artifact/install gates.
+- Framework GitHub Quality run `35620699629` attempt 2 passed all four Apple
+  silicon/Intel Python 3.12/3.13 jobs and the wheel/clean-install gate. The
+  first attempt's queued Intel job was cancelled and is not used as evidence.
 
 ## Archive policy
 

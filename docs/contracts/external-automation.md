@@ -97,9 +97,11 @@ is tested through an isolated install of a wheel built from the exact candidate
 commit, not through `PYTHONPATH` or a source checkout. Adoption requires a
 published framework version and immutable wheel digest.
 
-The repaired candidate's own task reports 108/108 host tests. At the core
-boundary, a wheel built from exact commit `055d816` was installed with its
-declared `psutil` and PyObjC dependencies in a
+The repaired candidate's own task reports 108/108 host tests. GitHub Quality
+run `35620699629` attempt 2 passes Python 3.12/3.13 on Apple silicon and Intel,
+plus wheel inspection and clean installation. At the core boundary, a wheel
+built from exact commit `055d816` was installed with its declared `psutil` and
+PyObjC dependencies in a
 new Python 3.12 environment. Its installed public CLI accepted mode-0600 v1 and
 v2 descriptors emitted by a separately wheel-installed core. The core's
 warning-enabled suite passes 367/367 on Python 3.11 and the default runtime.
