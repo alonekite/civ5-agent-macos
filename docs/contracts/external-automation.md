@@ -3,7 +3,9 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `c47b8cbd1d1a32363058ce528d4991b7f6637be6`.
+framework development commit `f7514afeae7a317f940f204320465e761c2f5312`
+and candidate wheel SHA-256
+`ec9b21d744b0e011df90bb533f516c18cba0de81c10fbfa5313b0aa66b9cbd0e`.
 It is not an adopted framework release or runtime dependency.
 
 ## Adopted artifact
@@ -97,17 +99,16 @@ is tested through an isolated install of a wheel built from the exact candidate
 commit, not through `PYTHONPATH` or a source checkout. Adoption requires a
 published framework version and immutable wheel digest.
 
-The repaired candidate's own task reports 112/112 host tests. GitHub Quality
-run `35636278046` passes Python 3.12/3.13 on Apple silicon and Intel, plus wheel
-inspection and clean installation. At the core boundary, a wheel built from
-exact commit `c47b8cb` was installed with its declared `psutil` and
-PyObjC dependencies in a
-new Python 3.12 environment. Its installed public CLI accepted mode-0600 v1 and
-v2 descriptors emitted by a separately wheel-installed core. The core's
-warning-enabled suite passes 367/367 on Python 3.11 and the default runtime.
-Core GitHub Actions run `35637799813` passes Python 3.11/3.13 and artifact
-installation gates. This is offline compatibility evidence, not a successful
-target UI run.
+The repaired candidate's own task reports 114/114 host tests. The suite includes
+a real-socket silent-peer case followed by a valid status request and a complete
+checkpoint creation/status/response/delivery/cleanup lifecycle. GitHub Quality
+runs `35646528948` and `35646907497` pass the framework gates. At the core
+boundary, the exact candidate wheel named above is installed with its declared
+dependencies in a fresh Python 3.12 environment. Its installed public CLI
+accepts a private mode-0600 v2 descriptor emitted by a separately
+wheel-installed core. The core's warning-enabled suite passes 374/374 on Python
+3.11 and the default runtime. This is offline compatibility evidence, not a
+successful target UI run after the control-connection repair.
 
 After one checkpoint is authorized, the framework may wait within the existing
 step timeout for the same fully verified target to become frontmost again. This
@@ -135,6 +136,12 @@ persistence enforce the allowlist; unknown or mutated values become
 `unspecified`. Exception text and observed paths, identities, process values,
 titles, AX content, and selectors are excluded. This diagnostic event change
 does not alter SessionSpec v2, `latp/1`, or sanitized reports.
+
+Every accepted candidate control connection has a 0.5-second socket I/O
+timeout. This bounds an incomplete same-user request so it cannot monopolize
+the serialized supervisor loop for the remaining session lifetime. The timeout
+does not authorize a request, retry `respond_checkpoint`, replay UI delivery,
+or change checkpoint authority, expiry, durable state, or report semantics.
 
 ## Verification evidence
 

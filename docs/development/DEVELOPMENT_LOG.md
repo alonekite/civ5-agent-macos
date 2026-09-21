@@ -2067,6 +2067,30 @@ host-context `preflight hardened` confirmed the persistent guard with
 FireTuner, TCP 4318, and the watcher closed. The installed guard was retained
 for development rather than removed solely for test coverage.
 
+## 2026-09-21 — Bound candidate automation control connections
+
+- Independently reviewed framework implementation
+  `f7514afeae7a317f940f204320465e761c2f5312`. It gives every accepted private
+  control connection a 0.5-second socket I/O timeout so an incomplete same-user
+  request cannot monopolize the serialized checkpoint loop. It does not change
+  request authority, checkpoint expiry, UI delivery, durable state, reports,
+  or no-retry semantics.
+- Pinned the exact candidate wheel name and SHA-256 in the core's public
+  compatibility constants and added ADR-0051. The prior live
+  `control_unavailable` observation is not treated as proof that this concrete
+  starvation path caused that incident.
+- Independently ran the framework's 114/114 host tests, including its real
+  silent-peer and complete checkpoint-lifecycle socket tests. Framework CI runs
+  `35646528948` and `35646907497` pass.
+- Installed the exact framework wheel with its declared dependencies and a
+  separately built core wheel in fresh Python 3.12 environments. The installed
+  core emitted a private mode-0600 SessionSpec v2 descriptor and the installed
+  framework public CLI validated it.
+- The warning-enabled core suite passed 374/374 in host context on Python 3.11
+  and the default Python 3.14 runtime. No live application action was performed.
+
+Implementation commit: `97cb326`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

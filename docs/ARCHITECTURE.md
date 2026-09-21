@@ -95,7 +95,7 @@ ADR-0041; it remains an optional process-level tool rather than a package
 dependency. See the external automation compatibility contract.
 
 Development core 1.4 also has a process-only candidate adapter for SessionSpec
-v2 at exact framework commit `c47b8cb`. The core owns the verified Civ V
+v2 at exact framework commit `f7514af`. The core owns the verified Civ V
 bundle/window selectors, exact launcher-to-game successor executable, and
 caller-calibrated continue coordinate; the generic framework owns
 checkpoint-gated delivery, bounded waiting for the unchanged target to regain
@@ -119,6 +119,12 @@ If the bounded pre-delivery wait expires, the framework persists only its last
 closed-set readiness class. Construction and persistence both sanitize the
 value; unknown input becomes `unspecified`. This is diagnostic metadata, not a
 new fallback, action, or core runtime dependency.
+
+The candidate framework bounds every accepted control connection to 0.5
+seconds of socket I/O so a silent same-user peer cannot monopolize the
+serialized control loop across a checkpoint. Timeout returns the server to
+`accept`; it never retries a checkpoint answer or UI action. Candidate identity
+is additionally pinned by exact wheel name and SHA-256 under ADR-0051.
 
 The M7 `WatcherBridgeClient` is the bridge-facing Python surface over this
 private socket. It exposes validated session-aware reads, individual verified

@@ -37,6 +37,11 @@ All notable user-visible changes are recorded here. Development details belong i
   allowlisted readiness class. This improves target diagnosis without changing
   deadlines, authorization, identity, delivery, handoff, watcher ordering, or
   post-delivery no-retry behavior.
+- Candidate SessionSpec v2 compatibility now pins a framework repair that
+  bounds every accepted control connection to 0.5 seconds. A silent same-user
+  peer can no longer monopolize the serialized checkpoint control loop;
+  request authority, protocol, UI delivery, and no-retry semantics are
+  unchanged.
 
 ## 1.3.0 - 2026-09-21
 

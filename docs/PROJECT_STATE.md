@@ -14,13 +14,15 @@ development log.
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is implemented and
   its exact launcher-to-game handoff has been adapted to repaired framework
-  commit `c47b8cb`. Offline validation is complete; five checkpoint runs failed
+  commit `f7514af`. Offline validation is complete; five checkpoint runs failed
   safely before delivery and led respectively to focus readiness, closed-set
   diagnostics, bounded temporary focused-application unavailability,
   preservation of the final readiness class at timeout, and discovery that the
   supervisor control socket was unavailable while the first checkpoint still
-  appeared active. The framework must repair and prove control-plane lifetime
-  before another target run.
+  appeared active. The resulting per-connection lifetime repair has passed
+  independent source review and the framework's 114/114 host tests. Exact
+  candidate/core wheels also pass isolated installation and public-CLI
+  descriptor validation; another target run is now the remaining gate.
   The adapter adds no game-state or write capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
@@ -53,7 +55,7 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- Candidate framework commit `c47b8cb` supplies refreshed frontmost checks,
+- Candidate framework commit `f7514af` supplies refreshed frontmost checks,
   bounded pre-delivery readiness retry, and durable same-PID executable handoff
   required by the generated SessionSpec v2
   startup sequence. Target observation verified exact Civ V bundle/window
@@ -77,8 +79,11 @@ development log.
   distinguish the remaining cases. The fifth run reached the first checkpoint
   but could not answer it because the active supervisor control socket was
   unavailable; it expired fail-closed with zero UI delivery and exact host
-  restoration. A framework repair and compatibility review are required before
-  another run; no 0.2 release is adopted.
+  restoration. The reviewed repair bounds each accepted private control
+  connection to 0.5 seconds without changing request authority, checkpoint
+  expiry, UI delivery, or no-retry semantics. Its exact candidate wheel and
+  digest are pinned; one new target run remains pending and no 0.2 release is
+  adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
