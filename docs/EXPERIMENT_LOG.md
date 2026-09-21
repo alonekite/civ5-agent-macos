@@ -1714,3 +1714,76 @@ Pass the complete offline and artifact gates for ADR-0043, then rerun the exact
 controlled sequence. Preserve one bridge-session identity across both
 interturns before closing C4, and separately investigate the observed `3.19`
 point difference without inventing an overflow formula.
+
+### 2026-09-21 — Schema 8 same-session controlled overflow proof
+
+**Environment**
+
+- Original Civilization V: Campaign Edition on the target Apple Silicon Mac,
+  using guarded FireTuner preparation and exact implementation commit
+  `95ef3df`.
+- The same ordinary single-player save supplied a natural positive-overflow
+  case without debug writes or save editing.
+- Published external supervisor v0.1.0, one server-enforced read-only watcher,
+  and private temporary artifacts outside the repository.
+
+**Procedure**
+
+1. Passed guarded preparation and host-context live preflight. The generic
+   framework launched and identity-verified the application, while direct
+   operator tooling passed the product launcher and continue screen; those UI
+   steps were not execution-core evidence.
+2. Started one `observe_verified` read-only watcher and read the pre-completion
+   action window twice. The operator confirmed UI agreement and no visible read
+   side effect.
+3. Manually advanced one interturn, closed the completion popup without
+   selecting a replacement, and read the no-research window twice.
+4. Manually selected the ordinary replacement technology without advancing,
+   read twice, then manually advanced the following interturn and read twice.
+5. Stopped the watcher through the supervisor, checked the private audit and
+   socket, exited the game, and restored the recorded host baseline. The
+   attempted direct coordinate click on the game's exit confirmation did not
+   activate `Yes`; the operator completed that confirmation manually.
+
+**Observed result**
+
+- Every repeated pair was stable and read-only. One bridge-session identity
+  remained unchanged across the initial window, both interturns, and the
+  selection-only window.
+- The pre-completion state reported cost `2200`, exact progress `189998`
+  times-100, science `44721` times-100, remaining `30002` times-100, computed
+  surplus `14719` times-100, and whole-point overflow zero. The stock UI showed
+  the corresponding rounded progress, science, and one turn remaining.
+- The next action window had no current research, required a choice, and
+  reported whole-point overflow `144`. Its science value was `44455`
+  times-100 rather than the prior window's `44721`.
+- Selecting the replacement technology left exact progress at zero and
+  preserved overflow `144` in the same turn and bridge session.
+- After the following interturn, exact progress was `59174` times-100 and
+  overflow was zero, proving later application while retaining the same bridge
+  session.
+- The `3.19` point difference between the direct pre-completion surplus and
+  reported whole-point overflow was preserved. The observed cross-turn science
+  change is a plausible production-change explanation, but no formula or cause
+  is claimed without a same-resolution binding.
+- The private audit was mode `600` with zero records and the watcher socket was
+  removed. The supervisor reports an explicitly requested SIGINT stop as exit
+  130/failure; its sanitized report showed no output gap, truncation, timeout,
+  recovery, or application shutdown.
+- Guarded restoration returned FireTuner, TCP 4318, the agent socket, firewall,
+  and the Civ V rule to the exact original baseline.
+
+**Conclusion**
+
+M11 C4 passes. ADR-0043 preserved framing and one bridge session across both
+interturns, while schema 8 proved exact progress ownership, runtime units,
+read purity, UI agreement, positive overflow, selection-time preservation, and
+later application. The failed automated exit-confirmation click is external
+UI-automation evidence only and does not weaken the completed read-only core
+gate.
+
+**Next step**
+
+Complete D2/C5 documentation reconciliation, privacy and artifact scans,
+reproducible builds, clean-install checks, and exact-commit CI for core 1.3.0.
+Tagging and GitHub Release publication still require explicit approval.

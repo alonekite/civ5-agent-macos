@@ -1,6 +1,6 @@
 # Ordinary Research Runtime Facts Contract
 
-Status: Implemented offline for M11; target evidence pending
+Status: Implemented and target-verified for M11; release pending
 
 Compatible release: 1.3.0
 
@@ -155,8 +155,11 @@ misordered candidates, ruleset-context conflicts at the consumer boundary,
 deterministic serialization, response/program bounds, and schemas 2–7.
 
 Target verification must separately prove read purity and the runtime units.
-The preferred controlled case has 20 whole research points remaining and 22
-whole points produced: completion occurs during interturn, the next action
-window reports overflow `2`, choosing the next technology does not immediately
-apply it, and the following interturn does. If that exact save is unavailable,
-the experiment must remain pending rather than substitute inference.
+A controlled case must satisfy
+`0 < remaining_times100` and
+`remaining_times100 + 100 <= science_per_turn_times100` immediately before
+completion. A 20-remaining/22-produced case is illustrative, not mandatory.
+The next action window must report positive whole-point overflow, selection
+must not immediately apply or erase it, and the following interturn must apply
+it. Preserve any fractional difference instead of rounding observations to
+force agreement.

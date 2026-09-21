@@ -1,6 +1,6 @@
 # Runtime Research Facts Development Plan
 
-Status: C1–C3 complete offline; C4 partial evidence, multi-frame repair pending rerun
+Status: C1–C4 complete; D2/C5 release gate pending
 
 Target milestone: M11
 
@@ -34,7 +34,7 @@ the target research-progress binding corrected by ADR-0037.
 
 ### C1 — Implement schema 8 collection and parsing
 
-Status: complete offline; target evidence pending.
+Status: complete offline and target-verified through the aggregate schema 8 state.
 
 - Add independently bounded, read-only research and runtime-context segments.
 - Preserve schemas 2–7 unchanged.
@@ -63,7 +63,7 @@ Status: complete offline; the full suite and artifact gate pass.
 
 ### C4 — Bounded target-machine verification
 
-Status: partial; operator required for a fresh ADR-0043 repaired run.
+Status: complete on target commit `95ef3df`.
 
 - Prove schema 8 reads without selection, popup, movement, write, or turn
   advancement.
@@ -75,8 +75,9 @@ Status: partial; operator required for a fresh ADR-0043 repaired run.
 - Require bridge-session continuity for the controlled sequence; a recovered
   replacement connection is useful diagnostics but not inferred match
   continuity.
-- Retain the observed positive overflow and selection/application facts as
-  diagnostic evidence only until both interturns remain in one bridge session.
+- Preserve one bridge session across both interturns; the repaired run retained
+  the same private identity through completion, selection, and later overflow
+  application.
 
 See the [operator procedure and evidence template](../testing/RESEARCH_RUNTIME_FACTS_LIVE_TEST.md).
 

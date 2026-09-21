@@ -1,6 +1,6 @@
 # Runtime Research Facts Verification Specification
 
-Status: C1–C3 complete offline; C4 partial target evidence, multi-frame repair pending rerun
+Status: C1–C4 complete; release gate pending
 
 Milestone: M11
 
@@ -25,14 +25,24 @@ the exact `CvTeamTechs` progress, and a qualifying positive-overflow
 precondition. The manual interturn then exposed acknowledgement-before-output
 FireTuner framing that left the watcher connection desynchronized. ADR-0042
 repairs that transport boundary; post-interturn overflow and selection behavior
-remain pending until a fresh exact-commit run.
+remained pending until a fresh exact-commit run.
 
 The first ADR-0042 rerun observed positive whole-point overflow, preserved it
 through selection, and observed its later application. The first interturn kept
 the original connection, but the second interturn rotated the bridge session.
 ADR-0043 repairs the remaining assumption that only one output frame follows an
 early acknowledgement. The observations are diagnostic across the rotation and
-do not close the same-session C4 gate.
+did not close the same-session C4 gate.
+
+The exact `95ef3df` ADR-0043 rerun completed that gate. Repeated reads were
+stable and side-effect-free; the same bridge session covered the pre-completion
+window, positive whole-point overflow, selection without consumption, and the
+following interturn where exact progress included the overflow. The audit was
+mode `600` with zero records and guarded shutdown restored the exact baseline.
+The direct pre-interturn surplus exceeded the reported whole-point overflow by
+`3.19` points. Science changed from `447.21` in the pre-completion window to
+`444.55` afterward, which is a plausible cross-turn production explanation but
+not a claimed overflow formula.
 
 ## Offline matrix
 

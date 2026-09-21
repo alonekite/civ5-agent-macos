@@ -1,6 +1,6 @@
 # M11 Runtime Research Facts Live-Test Procedure
 
-Status: Ready for repaired bounded rerun; partial target evidence recorded
+Status: Completed on `95ef3df`; retained as the bounded regression procedure
 
 Milestone: M11 C4
 

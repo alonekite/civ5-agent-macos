@@ -61,9 +61,10 @@ or ruleset knowledge.
 - Development schema 8 adds three bounded read-only research/runtime-context
   programs and validated capability/context objects. It publishes runtime
   provenance but never invents a complete ruleset fingerprint. Offline tests
-  pass. The first target attempt established read purity and corrected exact
-  progress ownership to `CvTeamTechs` under ADR-0037; the complete corrected
-  binding, UI-agreement, and overflow gate remains pending.
+  pass. Target evidence establishes read purity, corrected exact progress
+  ownership through `CvTeamTechs`, UI agreement, positive whole-point overflow,
+  selection preservation, later application, and one-session continuity across
+  both interturns after ADR-0043.
 - Every successful write includes a proved postcondition.
 - Every FireTuner Lua program is at most 1,000 UTF-8 bytes; oversized programs
   fail before transport contact.

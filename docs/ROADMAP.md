@@ -206,7 +206,7 @@ See `docs/ARCHITECTURE.md` and `docs/PROJECT_STATE.md`.
 - [x] Implement parsing, validation, public capability discovery, and schemas
   2–7 compatibility
 - [x] Complete the frozen offline negative/bounds/artifact matrix
-- [ ] Run bounded target verification for read purity, exact units, and the
+- [x] Run bounded target verification for read purity, exact units, and the
   controlled interturn overflow sequence
 - [ ] Publish core 1.3.0 only after documentation, security scan, exact-commit
   CI, reproducible artifacts, and target evidence pass

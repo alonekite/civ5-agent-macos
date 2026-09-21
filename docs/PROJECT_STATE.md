@@ -11,21 +11,20 @@ development log.
 - Current milestone: M11 — runtime research facts — has an accepted
   strategy-neutral capability request and frozen schema 8/core 1.3.0 design.
   M10 and the immutable 1.2.0 release remain complete.
-- Active next deliverable: complete the ADR-0043 offline/CI gate, then rerun the
-  bounded M11 C4 target procedure on its exact commit. No core write action is
-  included.
+- Active next deliverable: complete the M11 D2/C5 compatibility, privacy,
+  artifact, clean-install, and exact-commit CI gates for core 1.3.0. No core
+  write action is included.
 - Functional baseline: the full offline suite passes locally on Python 3.11;
   repeated development wheel/sdist contents match and the wheel
   installs/imports cleanly.
   Exact-commit and `v1.2.0` GitHub Actions passed on Python 3.11/3.13.
-- Blocking issue: the ADR-0042 rerun observed positive overflow, selection
-  preservation, and later application, but the second interturn rotated the
-  connection and failed C4 continuity. ADR-0043 drains every output frame after
-  an early acknowledgement; a fresh bounded run must preserve one bridge
-  session before 1.3.0 can be described as live-verified. The observed `3.19`
-  point difference between direct exact surplus and whole-point overflow also
-  remains unexplained rather than normalized away.
-- User presence required next: yes for bounded target-machine verification.
+- Blocking issue: none for C4. The exact `95ef3df` rerun preserved one bridge
+  session across both interturns and completed the read-only overflow gate.
+  The observed `3.19` point difference remains recorded without normalization;
+  the action-window science change from `447.21` to `444.55` is a plausible
+  cross-turn production explanation, not a proved formula.
+- User presence required next: no for the offline 1.3.0 release gate; explicit
+  approval remains required for the version tag and GitHub Release.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -44,9 +43,9 @@ development log.
 - Development schema 8 now emits and validates exact ordinary-research runtime
   facts and explicit context provenance through twelve bounded read-only
   programs. It preserves schemas 2–7 and every write/plan/result contract.
-  Corrected runtime bindings and the pre-interturn/UI rows have target evidence;
-  post-interturn overflow and selection behavior remain pending after the
-  framing defect discovered by C4.
+  Corrected runtime bindings, UI agreement, positive overflow, selection
+  preservation, later application, and one-session continuity now have bounded
+  target evidence.
 - ADR-0042 drains Lua output that arrives after a FireTuner command
   acknowledgement. A marked part before its header now ends that connection
   epoch and causes a guarded long-running watcher reconnect with a new

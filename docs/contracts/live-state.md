@@ -19,7 +19,7 @@ requirement inspection, and deterministic execution. The implementation in `mode
 | 5 | Live-verified for ordinary research | Schema 4 plus researched/researchable technology sets and research-choice mode; free/steal modes remain offline-only |
 | 6 | Live-verified; added in 1.1.0 | Schema 5 plus bounded per-unit `ordinary_move_targets` |
 | 7 | Live-verified for ordinary worker builds; added in 1.2.0 | Schema 6 plus current unit-plot context, current build, and bounded ordinary worker-build candidates |
-| 8 | Implemented offline on 1.3.0 development head; target evidence pending | Schema 7 plus exact ordinary-research runtime facts and explicit runtime context/provenance |
+| 8 | Implemented and bounded target-verified on 1.3.0 development head; release pending | Schema 7 plus exact ordinary-research runtime facts and explicit runtime context/provenance |
 
 ## Stable requirements
 
@@ -89,8 +89,9 @@ the absence of a complete ruleset fingerprint are frozen by the
 Collection uses three additional read-only Lua programs: one facts/status
 record, one candidate stream, and one runtime-context record. The current
 generator therefore executes twelve bounded programs; the largest is 990 UTF-8
-bytes. Parser and validation coverage is offline only until the exact target
-bindings and overflow units pass the bounded M11 procedure.
+bytes. Parser and validation coverage is complete offline, and the exact target
+bindings, units, and same-session overflow sequence passed the bounded M11
+procedure.
 
 ## Frozen schema 7 worker state
 

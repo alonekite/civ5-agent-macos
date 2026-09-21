@@ -28,6 +28,10 @@ All notable user-visible changes are recorded here. Development details belong i
   deadline. A still-desynchronized long-running watcher rotates the connection
   and bridge-session identity instead of reusing shifted segmented responses;
   submitted writes are never retried.
+- The repaired schema 8 read path passed bounded target verification across two
+  interturns with one bridge session, positive overflow, selection-time
+  preservation, later application, a zero-record private audit, and exact host
+  restoration.
 
 ## 1.2.0 - 2026-09-19
 

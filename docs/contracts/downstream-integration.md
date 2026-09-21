@@ -171,7 +171,8 @@ prohibit a separately approved core-only/manual-review `choose_research` intent
 that makes no exact-forecast claim.
 
 This section is a development compatibility forecast, not part of the stable
-1.2.0 profile. Target evidence and the 1.3.0 release gate remain pending.
+1.2.0 profile. Bounded target evidence passes; the 1.3.0 release gate remains
+pending.
 
 Incompatible changes to the stable aggregate API or `civ5-turn` require a new
 major version. Backward-compatible capability additions require at least a
