@@ -1930,7 +1930,9 @@ Implementation and offline compatibility commit: `72cead3`.
 - A separately wheel-installed working-tree core emitted private mode-600 v1
   and v2 descriptors. The installed framework public CLI validated both. No
   source `PYTHONPATH`, live application action, or new target evidence was used.
-- Exact-commit CI reference will be appended after publication.
+- Follow-up documentation commit `088753c` and GitHub Actions run
+  `35593563156` passed the Python 3.11/3.13 test, repeat-build artifact,
+  clean-wheel-install, and clean-sdist-install gates.
 
 ## Archive policy
 
