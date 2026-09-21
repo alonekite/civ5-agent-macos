@@ -1863,6 +1863,8 @@ Sanitized target-evidence and reconciliation commit: `7e28b05`.
 
 ## 2026-09-21 — Add candidate SessionSpec v2 UI composition
 
+Implementation commit: `2ced4b8`.
+
 - Reviewed exact framework development commit `d7784a7` without changing the
   independent repository or adopting an unpublished version. Preserved the
   released v0.1.0/SessionSpec v1 contract and the CLI/JSON/process-only boundary.
