@@ -1910,6 +1910,8 @@ Evidence and reconciliation commit: `a4d5b4a`.
 
 ## 2026-09-21 — Adapt candidate v2 to the repaired identity handoff
 
+Implementation and offline compatibility commit: `72cead3`.
+
 - Reviewed exact clean framework candidate commit `ccae54f`, whose generic v2
   contract adds durable same-process executable handoff, refreshed frontmost
   observation, and bounded pre-delivery readiness retry without changing the
@@ -1928,7 +1930,7 @@ Evidence and reconciliation commit: `a4d5b4a`.
 - A separately wheel-installed working-tree core emitted private mode-600 v1
   and v2 descriptors. The installed framework public CLI validated both. No
   source `PYTHONPATH`, live application action, or new target evidence was used.
-- Commit and exact-commit CI references will be appended after publication.
+- Exact-commit CI reference will be appended after publication.
 
 ## Archive policy
 
