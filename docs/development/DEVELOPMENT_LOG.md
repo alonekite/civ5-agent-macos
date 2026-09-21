@@ -1886,6 +1886,8 @@ Implementation commit: `2ced4b8`.
 
 ## 2026-09-21 — Stop candidate v2 live gate at framework boundaries
 
+Evidence and reconciliation commit: `a4d5b4a`.
+
 - Ran exact framework candidate `d7784a7` from a private isolated Python 3.12
   environment after discovering that source-only JSON validation did not prove
   its declared PyObjC and process-inspection runtime dependencies were installed.
