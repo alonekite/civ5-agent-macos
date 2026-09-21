@@ -1908,6 +1908,28 @@ Evidence and reconciliation commit: `a4d5b4a`.
   4318, the agent socket, firewall state, and the Civ V rule to the exact
   original baseline.
 
+## 2026-09-21 — Adapt candidate v2 to the repaired identity handoff
+
+- Reviewed exact clean framework candidate commit `ccae54f`, whose generic v2
+  contract adds durable same-process executable handoff, refreshed frontmost
+  observation, and bounded pre-delivery readiness retry without changing the
+  independently adopted v0.1.0 path.
+- Required the exact target-verified game successor executable in the
+  provisional descriptor CLI and attached its bounded handoff to `PLAY` only.
+  Wrong paths, missing CLI input, invalid deadlines, and leakage into watcher
+  process configuration fail closed.
+- Added ADR-0045 and reconciled the external automation contract, CLI/module
+  boundaries, operations guide, architecture, test strategy/matrix, changelog,
+  and project dashboard. No new target-machine result is claimed.
+- The warning-enabled core suite passed 367/367 on Python 3.11 and the default
+  runtime. A wheel built from exact framework commit `ccae54f` was installed
+  with all declared runtime dependencies in a new Python 3.12 environment;
+  `psutil`, AppKit, ApplicationServices, and Quartz imports passed.
+- A separately wheel-installed working-tree core emitted private mode-600 v1
+  and v2 descriptors. The installed framework public CLI validated both. No
+  source `PYTHONPATH`, live application action, or new target evidence was used.
+- Commit and exact-commit CI references will be appended after publication.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

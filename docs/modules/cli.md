@@ -48,8 +48,10 @@ non-identifying summary. `civ5-read-only session-spec` emits the adopted
 automation framework version-1 JSON descriptor for the read-only watcher.
 Development `civ5-read-only ui-session-spec` separately emits candidate
 SessionSpec v2 with two ordered, operator-authorized Civ V startup gates; it
-does not change the v1 contract. Neither operation launches an app, supervises
-a process, invokes the framework, or encodes a domain test procedure. The
+requires the exact verified game successor executable and declares its bounded
+same-process handoff on `PLAY` only. It does not change the v1 contract. Neither
+operation launches an app, supervises a process, invokes the framework, or
+encodes a domain test procedure. The
 version-1 descriptor is compatibility-tested
 against the separately installed, digest-verified framework v0.1.0 wheel; no
 framework import or package dependency is added.

@@ -65,7 +65,8 @@ do not belong in the repository.
   envelopes and exits, plus explicitly provisional entry points.
 - [External automation compatibility](contracts/external-automation.md): adopted
   framework v0.1.0 artifact identity, process-only boundary, SessionSpec v1,
-  verification evidence, and upgrade rule.
+  repaired exact-commit v2 handoff candidate, verification evidence, and
+  upgrade rule.
 - [Downstream tactical integration](contracts/downstream-integration.md): stable
   1.3 capability profile, ownership boundary, absent capabilities, and consumer
   compatibility rules.

@@ -36,9 +36,11 @@ executable, not a Python dependency.
 Development `ui-session-spec` emits candidate SessionSpec version 2 with the
 exact verified Civ V bundle/window identity, a unique launcher AX press, a
 caller-reviewed normalized continue click, and the unchanged read-only watcher
-process. It requires finite open-interval click ratios and fails closed for an
-unverified bundle identity. This candidate is not part of the adopted v0.1.0
-framework contract.
+process. It requires finite open-interval click ratios, the exact verified game
+successor executable, and a bounded `PLAY`-only same-process identity handoff.
+It fails closed for an unverified bundle or successor identity. Omitting the
+required successor argument is ordinary `argparse` invocation error exit 2.
+This candidate is not part of the adopted v0.1.0 framework contract.
 
 ## `civ5-turn` input
 

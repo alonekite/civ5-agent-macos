@@ -12,6 +12,10 @@ All notable user-visible changes are recorded here. Development details belong i
   target-verified unique launcher `PLAY` AX button and a caller-calibrated
   window-relative continue click. The watcher remains server-enforced
   read-only and starts only after both checkpoints pass.
+- Exact launcher-to-game identity handoff for the candidate v2 path. The
+  `PLAY` step alone declares the verified same-process successor executable;
+  invalid paths and handoff deadlines fail closed, while the released v1
+  integration remains unchanged.
 
 ## 1.3.0 - 2026-09-21
 

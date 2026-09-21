@@ -23,8 +23,9 @@ Operational procedures must be safe to follow without remembering a prior chat.
   independently installed, digest-verified v0.1.0 automation framework. See
   [external read-only automation](EXTERNAL_READ_ONLY_AUTOMATION.md).
 - `civ5-read-only ui-session-spec`: emit the provisional SessionSpec v2
-  two-checkpoint launcher/continue sequence for exact-commit candidate testing;
-  it does not change the adopted v1 path.
+  two-checkpoint launcher/continue sequence with an exact `PLAY`-only identity
+  handoff for exact-commit candidate testing; it does not change the adopted v1
+  path.
 
 The live-session commands must run against the host system. A sandboxed process
 can receive a false empty/disabled view from `socketfilterfw`; do not weaken the

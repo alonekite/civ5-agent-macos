@@ -49,10 +49,11 @@ must state the actual level instead of using “verified” without qualificatio
   Tests freeze the release tag, tag target, wheel name, wheel SHA-256, and
   SessionSpec version without importing the framework package.
 - Candidate UI composition: preserve v1 unchanged; validate exact SessionSpec
-  v2 step order and selectors, coordinate/time bounds, identity refusal,
-  selector isolation from watcher fields, process start-after-UI semantics, and
-  acceptance by the pinned framework development commit without cross-project
-  imports.
+  v2 step order and selectors, coordinate/time bounds, exact successor and
+  bundle identity refusal, `PLAY`-only handoff placement, selector isolation
+  from watcher fields, process start-after-UI semantics, and acceptance by an
+  isolated wheel installation built from the pinned framework development
+  commit without cross-project imports.
 
 ## CI baseline
 

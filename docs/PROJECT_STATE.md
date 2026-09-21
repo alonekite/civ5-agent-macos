@@ -13,11 +13,11 @@ development log.
 - Active next deliverable: monitor downstream integration and route any next
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is implemented and
-  offline-validated. Its first operator-present run exposed external-framework
-  lifecycle/readiness blockers before watcher startup; no further live run is
-  scheduled until a repaired framework contract and exact commit return. The
-  adapter adds no game-state or write capability.
-- Functional baseline: 366/366 tests pass warning-enabled in host context on
+  its exact launcher-to-game handoff has been adapted to repaired framework
+  commit `ccae54f`. Offline validation is complete; the first failed live run
+  remains the strongest target evidence until a new jointly reviewed run.
+  The adapter adds no game-state or write capability.
+- Functional baseline: 367/367 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
   and sdist builds have matching normalized contents; each format installs,
   imports, and starts the supported CLI in a separate clean Python 3.11
@@ -28,9 +28,9 @@ development log.
   The observed `3.19` point difference remains recorded without normalization;
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
-- User presence required next: no. Candidate SessionSpec v2 retesting is blocked
-  on an external-framework repair; a later operator-present run must obtain new
-  bounded authorization and evidence.
+- User presence required next: no for offline review. A later candidate
+  SessionSpec v2 target retest requires the user at the Mac for fresh bounded
+  authorization and visual evidence.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -40,13 +40,17 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- Candidate framework commit `d7784a7` accepts the generated SessionSpec v2
+- Candidate framework commit `ccae54f` supplies the repaired frontmost refresh,
+  bounded pre-delivery readiness retry, and durable same-PID executable handoff
+  required by the generated SessionSpec v2
   startup sequence. Target observation verified exact Civ V bundle/window
   identity, one unique launcher `PLAY` AX button, and no actionable AX element
   on the continue canvas. The first live run verified the launcher AX press but
   failed before completing the relative click or starting the watcher. It also
-  exposed the launcher's same-PID executable-identity transition. Framework
-  repair and a fresh exact-commit run remain pending; no 0.2 release is adopted.
+  exposed the launcher's same-PID executable-identity transition. Offline
+  adapter verification now passes through separately installed core and
+  framework wheels for both v1 and v2 descriptors. A fresh exact-commit live
+  run remains pending; no 0.2 release is adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

@@ -25,11 +25,15 @@ AUTOMATION_FRAMEWORK_WHEEL_SHA256 = (
 )
 AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION = 1
 AUTOMATION_FRAMEWORK_V2_CANDIDATE_COMMIT = (
-    "d7784a747637a8775c5d1dc9c5eb02ad644252b3"
+    "ccae54ff5c4a3bd2a311a089a12926c8680f23c6"
 )
 AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION = 2
 CIV5_APP_BUNDLE_ID = "com.aspyr.civ5campaign"
 CIV5_APP_BUNDLE_PATH = Path("/Applications/Civilization V Campaign Edition.app")
+CIV5_GAME_EXECUTABLE_PATH = Path(
+    "/Applications/Civilization V Campaign Edition.app/Contents/MacOS/"
+    "Civilization V Campaign Edition"
+)
 CIV5_WINDOW_TITLE = "Civilization V: Campaign Edition"
 CIV5_LAUNCHER_BUTTON_ROLE = "AXButton"
 CIV5_LAUNCHER_BUTTON_TITLE = "PLAY"
@@ -221,14 +225,20 @@ def build_ui_session_spec(
     session_timeout_ms: int,
     continue_x_ratio: float,
     continue_y_ratio: float,
+    expected_game_executable_path: Path,
     ui_timeout_ms: int = 300_000,
     authorization_timeout_ms: int = 300_000,
+    identity_handoff_timeout_ms: int = 300_000,
 ) -> dict[str, object]:
     """Build a private candidate SessionSpec v2 for the two verified UI gates."""
     if app_bundle_id is not None and app_bundle_id != CIV5_APP_BUNDLE_ID:
         raise ValueError("UI session app bundle identifier is not the verified Civ V bundle")
     if app_bundle_path is not None and app_bundle_path != CIV5_APP_BUNDLE_PATH:
         raise ValueError("UI session app bundle path is not the verified Civ V bundle")
+    if expected_game_executable_path != CIV5_GAME_EXECUTABLE_PATH:
+        raise ValueError(
+            "UI session successor executable is not the verified Civ V game executable"
+        )
     for name, value in (
         ("continue x ratio", continue_x_ratio),
         ("continue y ratio", continue_y_ratio),
@@ -240,7 +250,10 @@ def build_ui_session_spec(
     for name, value in (
         ("UI timeout", ui_timeout_ms),
         ("authorization timeout", authorization_timeout_ms),
+        ("identity handoff timeout", identity_handoff_timeout_ms),
     ):
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(f"{name} must be an integer")
         if not 1 <= value <= 300_000:
             raise ValueError(f"{name} must be in 1..300000 milliseconds")
 
@@ -271,6 +284,11 @@ def build_ui_session_spec(
             },
             "timeout_ms": ui_timeout_ms,
             "authorization_timeout_ms": authorization_timeout_ms,
+            "identity_handoff": {
+                "kind": "same_process_executable",
+                "expected_executable_path": str(expected_game_executable_path),
+                "timeout_ms": identity_handoff_timeout_ms,
+            },
         },
         {
             "step_id": "click_game_continue",
@@ -340,8 +358,10 @@ def _parser() -> argparse.ArgumentParser:
     ui_spec.add_argument("--session-timeout-ms", type=int, default=900_000)
     ui_spec.add_argument("--continue-x-ratio", required=True, type=float)
     ui_spec.add_argument("--continue-y-ratio", required=True, type=float)
+    ui_spec.add_argument("--expected-game-executable", required=True, type=Path)
     ui_spec.add_argument("--ui-timeout-ms", type=int, default=300_000)
     ui_spec.add_argument("--authorization-timeout-ms", type=int, default=300_000)
+    ui_spec.add_argument("--identity-handoff-timeout-ms", type=int, default=300_000)
     return parser
 
 
@@ -393,8 +413,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                     session_timeout_ms=args.session_timeout_ms,
                     continue_x_ratio=args.continue_x_ratio,
                     continue_y_ratio=args.continue_y_ratio,
+                    expected_game_executable_path=args.expected_game_executable,
                     ui_timeout_ms=args.ui_timeout_ms,
                     authorization_timeout_ms=args.authorization_timeout_ms,
+                    identity_handoff_timeout_ms=args.identity_handoff_timeout_ms,
                 )
             )
             return 0

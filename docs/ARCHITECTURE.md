@@ -79,10 +79,12 @@ ADR-0041; it remains an optional process-level tool rather than a package
 dependency. See the external automation compatibility contract.
 
 Development core 1.4 also has a process-only candidate adapter for SessionSpec
-v2 at exact framework commit `d7784a7`. The core owns the verified Civ V
-bundle/window selectors and caller-calibrated continue coordinate; the generic
-framework owns checkpoint-gated delivery. The adopted v1 path remains
-unchanged, and the candidate adds no cross-repository import or dependency.
+v2 at exact framework commit `ccae54f`. The core owns the verified Civ V
+bundle/window selectors, exact launcher-to-game successor executable, and
+caller-calibrated continue coordinate; the generic framework owns
+checkpoint-gated delivery and durable same-process executable handoff. The
+adopted v1 path remains unchanged, and the candidate adds no cross-repository
+import or dependency.
 
 The M7 `WatcherBridgeClient` is the bridge-facing Python surface over this
 private socket. It exposes validated session-aware reads, individual verified

@@ -131,13 +131,17 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `d7784a747637a8775c5d1dc9c5eb02ad644252b3`. Do not substitute
+framework commit `ccae54ff5c4a3bd2a311a089a12926c8680f23c6`. Do not substitute
 it for the adopted v0.1.0 path in unattended or release workflows.
 
 Target inspection verified:
 
 - bundle ID `com.aspyr.civ5campaign`;
 - optional bundle path `/Applications/Civilization V Campaign Edition.app`;
+- launcher executable
+  `/Applications/Civilization V Campaign Edition.app/Contents/MacOS/AppBundleExe`;
+- same-process game successor executable
+  `/Applications/Civilization V Campaign Edition.app/Contents/MacOS/Civilization V Campaign Edition`;
 - exact launcher/game window title `Civilization V: Campaign Edition`;
 - one unique launcher `AXButton` titled `PLAY`;
 - no actionable AX element on the game continue canvas.
@@ -159,8 +163,16 @@ civ5-read-only ui-session-spec \
   --socket /absolute/private/path/civ5-agent.sock \
   --audit-log /absolute/private/path/command-audit.jsonl \
   --continue-x-ratio REVIEWED_X_RATIO \
-  --continue-y-ratio REVIEWED_Y_RATIO
+  --continue-y-ratio REVIEWED_Y_RATIO \
+  --expected-game-executable \
+    "/Applications/Civilization V Campaign Edition.app/Contents/MacOS/Civilization V Campaign Edition"
 ```
+
+Only `press_launcher_play` declares the bounded
+`same_process_executable` handoff. The continue step must not declare one. The
+framework records delivery before waiting for the exact successor and must not
+advance, start the watcher, clean up the old identity, or retry `PLAY` while the
+handoff is pending. Failure after delivery is recovery-required.
 
 Before running, manually grant Accessibility permission to the terminal or
 automation host process. The framework will request two checkpoints:
@@ -179,11 +191,13 @@ refused checkpoint, invalid coordinates, or absent live preflight fails closed.
 
 ### Exact candidate-retest descriptor generation
 
-Do not run this until the external framework returns a repaired contract and
-an exact reviewed commit. Install this core into a private virtual environment
-so the descriptor can name real entry-point executables rather than a local
-wrapper. Set the three absolute private paths, re-review the target window and
-the two ratios, then generate the mode-0600 descriptor exactly as follows:
+The repaired framework contract is available at the exact candidate commit
+above and has passed execution-core offline review. A new live run still
+requires joint review, an operator-present window, and fresh checkpoint
+authorization. Install both projects as wheels in separate private virtual
+environments; source checkout or `PYTHONPATH` validation is insufficient. Set
+the three absolute private paths, re-review the target window and the two
+ratios, then generate the mode-0600 descriptor exactly as follows:
 
 ```bash
 umask 077
@@ -200,10 +214,13 @@ export CIV5_UI_RUN_ROOT=/absolute/private/path/to/ui-run
   --audit-log "$CIV5_UI_RUN_ROOT/command-audit.jsonl" \
   --continue-x-ratio 0.5 \
   --continue-y-ratio 0.64 \
+  --expected-game-executable \
+    "/Applications/Civilization V Campaign Edition.app/Contents/MacOS/Civilization V Campaign Edition" \
   > "$CIV5_UI_RUN_ROOT/session.json"
 chmod 600 "$CIV5_UI_RUN_ROOT/session.json"
 ```
 
 The `0.5/0.64` ratios are evidence for the tested window configuration only,
-not universal Civ V coordinates. The repaired framework must still validate
-the descriptor and request fresh per-step authorization before any action.
+not universal Civ V coordinates. Validate the descriptor with the public CLI
+from the separately installed exact-candidate wheel. The framework must still
+request fresh per-step authorization before any action.

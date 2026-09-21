@@ -3,7 +3,7 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `d7784a747637a8775c5d1dc9c5eb02ad644252b3`.
+framework development commit `ccae54ff5c4a3bd2a311a089a12926c8680f23c6`.
 It is not an adopted framework release or runtime dependency.
 
 ## Adopted artifact
@@ -82,8 +82,28 @@ step has no AX fallback because target observation found no actionable canvas
 element. Coordinates must be finite and strictly between zero and one and are
 private test configuration, not a stable universal game coordinate.
 
-Candidate v2 validation does not amend the adopted release above. Adoption
-requires a published framework version and immutable wheel digest.
+The launcher step additionally requires one `same_process_executable` identity
+handoff to the exact verified successor
+`/Applications/Civilization V Campaign Edition.app/Contents/MacOS/Civilization V Campaign Edition`.
+The framework must durably record the post-delivery pending state, retain the
+same PID, process creation time, bundle ID, and resolved bundle path, and admit
+only that exact executable before the continue checkpoint or watcher starts.
+It must not retry `PLAY` after delivery begins. The continue step declares no
+handoff. Missing, mismatched, timed-out, or crash-interrupted handoff state is a
+fail-closed recovery condition.
+
+Candidate v2 validation does not amend the adopted release above. Compatibility
+is tested through an isolated install of a wheel built from the exact candidate
+commit, not through `PYTHONPATH` or a source checkout. Adoption requires a
+published framework version and immutable wheel digest.
+
+The repaired candidate's own task reports 98/98 host tests and passing Python
+3.12/3.13 GitHub Actions. At the core boundary, a wheel built from exact commit
+`ccae54f` was installed with its declared `psutil` and PyObjC dependencies in a
+new Python 3.12 environment. Its installed public CLI accepted mode-0600 v1 and
+v2 descriptors emitted by a separately wheel-installed core. The core's
+warning-enabled suite passes 367/367 on Python 3.11 and the default runtime.
+This is offline compatibility evidence, not a successful target UI run.
 
 ## Verification evidence
 
