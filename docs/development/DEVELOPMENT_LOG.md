@@ -1934,6 +1934,27 @@ Implementation and offline compatibility commit: `72cead3`.
   `35593563156` passed the Python 3.11/3.13 test, repeat-build artifact,
   clean-wheel-install, and clean-sdist-install gates.
 
+## 2026-09-21 — Reconcile pre-delivery checkpoint focus readiness
+
+- Recorded the handoff-capable live attempt that stopped before `PLAY`
+  delivery when replying in Codex moved focus away from the unchanged launcher.
+  No UI delivery marker, watcher, read, write, or recovery-required state was
+  produced; host-context shutdown preflight returned the exact baseline.
+- Reviewed framework fix `e7bc316`: only temporary non-frontmost state for the
+  otherwise unchanged verified target becomes bounded pre-delivery readiness.
+  Identity changes, ambiguity, permission failure, timeout, and post-delivery
+  failures remain terminal; delivery is still at most once.
+- Added ADR-0046 and updated the candidate pin, contract, operations guide,
+  architecture, state dashboard, verification matrix, test strategy, and
+  changelog. The descriptor schema and existing 300-second UI timeout do not
+  change.
+- Framework Quality run `35596443653` passed. A wheel built from the exact
+  commit was installed with all declared dependencies in a fresh Python 3.12
+  environment. A separately wheel-installed execution core pinned that exact
+  commit, emitted a mode-600 descriptor, and the installed framework public CLI
+  validated it. The warning-enabled core suite passed 367/367 on Python 3.11
+  and the default runtime.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

@@ -14,8 +14,9 @@ development log.
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is implemented and
   its exact launcher-to-game handoff has been adapted to repaired framework
-  commit `ccae54f`. Offline validation is complete; the first failed live run
-  remains the strongest target evidence until a new jointly reviewed run.
+  commit `e7bc316`. Offline validation is complete; a checkpoint-focus run
+  failed safely before delivery and led to a further framework-only readiness
+  correction. A new jointly reviewed run remains pending.
   The adapter adds no game-state or write capability.
 - Functional baseline: 367/367 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
@@ -40,14 +41,17 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- Candidate framework commit `ccae54f` supplies the repaired frontmost refresh,
+- Candidate framework commit `e7bc316` supplies refreshed frontmost checks,
   bounded pre-delivery readiness retry, and durable same-PID executable handoff
   required by the generated SessionSpec v2
   startup sequence. Target observation verified exact Civ V bundle/window
   identity, one unique launcher `PLAY` AX button, and no actionable AX element
   on the continue canvas. The first live run verified the launcher AX press but
   failed before completing the relative click or starting the watcher. It also
-  exposed the launcher's same-PID executable-identity transition. Offline
+  exposed the launcher's same-PID executable-identity transition. A later run
+  stopped before `PLAY` delivery when checkpoint confirmation moved focus to
+  Codex; the corrected framework now waits for the unchanged target to regain
+  focus within the existing step timeout. Offline
   adapter verification now passes through separately installed core and
   framework wheels for both v1 and v2 descriptors. A fresh exact-commit live
   run remains pending; no 0.2 release is adopted.

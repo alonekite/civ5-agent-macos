@@ -1850,3 +1850,53 @@ fresh private descriptor. Repeat both independently authorized UI gates, then
 require server-reported `read_only: true`, same-session sanitized probes, zero
 audit records, and exact host restoration. Do not relax identity, retry, or
 cleanup constraints in this repository.
+
+### 2026-09-21 — Handoff-capable v2 pre-delivery focus diagnostic
+
+**Environment**
+
+- Target Apple Silicon Mac and original Civilization V: Campaign Edition.
+- Execution-core commit `8ac5023` and independently installed framework
+  candidate commit `ccae54f`.
+- Guarded preparation began from firewall disabled, no Civ V rule, and
+  FireTuner disabled, then reached the expected ready state before launch.
+
+**Procedure**
+
+1. Generated and validated one private mode-`600` SessionSpec v2 with the exact
+   successor executable and two UI gates.
+2. Started the framework session, visually confirmed the unique launcher
+   `PLAY` button, and authorized only that checkpoint once.
+3. Stopped immediately when the framework reported an identity error before
+   action delivery. No authorization or action was replayed.
+4. Ran guarded restoration and independently repeated host-context shutdown
+   preflight.
+
+**Observed result**
+
+- Moving from the launcher to Codex to confirm the checkpoint made Codex the
+  frontmost application at final pre-delivery revalidation.
+- The framework recorded neither `ui.action_delivery_started` nor
+  `ui.action_completed`; therefore `PLAY` was not delivered and no ambiguous
+  click occurred.
+- No identity handoff, second checkpoint, watcher, watcher socket, audit event,
+  FireTuner read, or game write occurred.
+- Framework cleanup terminated the still-verified application without a
+  recovery requirement.
+- Host-context shutdown preflight confirmed firewall disabled, no Civ V rule,
+  no incoming block, FireTuner disabled, no agent socket, and TCP 4318 closed.
+
+**Conclusion**
+
+This is a safe pre-delivery failure and external-framework evidence only. It
+identified a control-client focus race rather than an execution-core descriptor
+or game-bridge defect. Framework commit `e7bc316` now treats only unchanged
+target focus loss as bounded pre-delivery readiness; identity changes and all
+post-delivery failures remain terminal.
+
+**Next step**
+
+Review the exact framework fix through an isolated wheel and CI. In the next
+operator-present run, authorize each checkpoint once, return to the exact Civ V
+window, and keep it frontmost while the framework waits and delivers at most
+one action.

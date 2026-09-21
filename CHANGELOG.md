@@ -16,6 +16,9 @@ All notable user-visible changes are recorded here. Development details belong i
   `PLAY` step alone declares the verified same-process successor executable;
   invalid paths and handoff deadlines fail closed, while the released v1
   integration remains unchanged.
+- Candidate-framework compatibility now permits bounded waiting for the same
+  verified target to regain focus before delivery. Identity changes and every
+  post-delivery failure remain terminal and non-retryable.
 
 ## 1.3.0 - 2026-09-21
 

@@ -3,7 +3,7 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `ccae54ff5c4a3bd2a311a089a12926c8680f23c6`.
+framework development commit `e7bc316bd61d79b4e3ec9c43090dab7ee7a6766e`.
 It is not an adopted framework release or runtime dependency.
 
 ## Adopted artifact
@@ -97,13 +97,19 @@ is tested through an isolated install of a wheel built from the exact candidate
 commit, not through `PYTHONPATH` or a source checkout. Adoption requires a
 published framework version and immutable wheel digest.
 
-The repaired candidate's own task reports 98/98 host tests and passing Python
+The repaired candidate's own task reports 100/100 host tests and passing Python
 3.12/3.13 GitHub Actions. At the core boundary, a wheel built from exact commit
-`ccae54f` was installed with its declared `psutil` and PyObjC dependencies in a
+`e7bc316` was installed with its declared `psutil` and PyObjC dependencies in a
 new Python 3.12 environment. Its installed public CLI accepted mode-0600 v1 and
 v2 descriptors emitted by a separately wheel-installed core. The core's
 warning-enabled suite passes 367/367 on Python 3.11 and the default runtime.
 This is offline compatibility evidence, not a successful target UI run.
+
+After one checkpoint is authorized, the framework may wait within the existing
+step timeout for the same fully verified target to become frontmost again. This
+is pre-delivery readiness only: it does not activate the app, weaken identity,
+extend authorization, or permit action replay. The operator must return focus
+to the exact target and keep it frontmost.
 
 ## Verification evidence
 

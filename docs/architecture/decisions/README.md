@@ -51,6 +51,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0043](ADR-0043-drain-multiframe-output-after-early-firetuner-ack.md) | Drain multi-frame output after an early FireTuner acknowledgement | Accepted; refines ADR-0042 collection only |
 | [ADR-0044](ADR-0044-generate-candidate-session-spec-v2-ui-gates.md) | Generate candidate SessionSpec v2 UI gates at the core boundary | Accepted |
 | [ADR-0045](ADR-0045-declare-launcher-game-identity-handoff.md) | Declare the launcher-to-game identity handoff | Accepted |
+| [ADR-0046](ADR-0046-wait-for-pre-delivery-target-focus.md) | Wait for target focus before UI action delivery | Accepted |
 
 ## Template
 

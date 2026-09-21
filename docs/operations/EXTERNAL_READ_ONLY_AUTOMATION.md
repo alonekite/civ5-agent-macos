@@ -131,7 +131,7 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `ccae54ff5c4a3bd2a311a089a12926c8680f23c6`. Do not substitute
+framework commit `e7bc316bd61d79b4e3ec9c43090dab7ee7a6766e`. Do not substitute
 it for the adopted v0.1.0 path in unattended or release workflows.
 
 Target inspection verified:
@@ -188,6 +188,11 @@ must still observe that the second click reached the intended screen; neither
 the framework nor the core performs screenshot/OCR outcome inference. Missing
 Accessibility permission, non-unique identity/window/AX target, an expired or
 refused checkpoint, invalid coordinates, or absent live preflight fails closed.
+
+After replying to a checkpoint in the control client, return to the exact Civ V
+window and keep it frontmost. The framework waits up to the step timeout for
+that same verified target before delivery. It does not focus the app itself.
+Identity change or ambiguity remains terminal; no delivered action is retried.
 
 ### Exact candidate-retest descriptor generation
 

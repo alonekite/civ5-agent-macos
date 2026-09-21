@@ -53,7 +53,9 @@ must state the actual level instead of using “verified” without qualificatio
   bundle identity refusal, `PLAY`-only handoff placement, selector isolation
   from watcher fields, process start-after-UI semantics, and acceptance by an
   isolated wheel installation built from the pinned framework development
-  commit without cross-project imports.
+  commit without cross-project imports. Target procedure must also prove that
+  checkpoint-induced focus loss waits only before delivery and never replays an
+  action.
 
 ## CI baseline
 
