@@ -4,13 +4,20 @@ Operational procedures must be safe to follow without remembering a prior chat.
 
 - [Security policy](../../SECURITY.md): FireTuner exposure and mandatory safety
   boundaries.
+- [Persistent host hardening](HOST_HARDENING.md): one-time firewall/Civ V
+  protection, per-test FireTuner lifecycle, drift handling, and exact rollback.
 - [Bounded live-test checklist](../LIVE_TEST_CHECKLIST.md): ordered target-Mac
   procedure and restoration steps, including the operator-present M8 combined
   M5/M6 release gate.
-- `python -m civ5_agent.live_session prepare`: record the private baseline,
-  establish the Civ V firewall guard, enable FireTuner, and verify readiness.
-- `python -m civ5_agent.live_session restore`: restore the recorded game config,
-  Civ V rule, and global firewall state after the game and watcher stop.
+- `python -m civ5_agent.live_session harden`: record the original firewall/rule
+  baseline and persist the verified Civ V network guard across tests.
+- `python -m civ5_agent.live_session prepare`: record the per-session baseline,
+  verify any persistent guard, enable FireTuner, and verify readiness.
+- `python -m civ5_agent.live_session restore`: restore the per-session game
+  config and retain a recorded persistent guard after the game and watcher stop.
+- `python -m civ5_agent.live_session unharden`: restore the exact firewall/rule
+  state recorded by `harden`, only after the live session is closed.
+- `python -m civ5_agent.preflight hardened`: verify the protected idle state.
 - `python -m civ5_agent.preflight ready`: read-only check before starting Civ V.
 - `python -m civ5_agent.preflight live`: read-only check before live access.
 - `python -m civ5_agent.preflight shutdown`: read-only proof that the transport

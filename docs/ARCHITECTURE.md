@@ -39,6 +39,22 @@ team's own Apollo Program and spacecraft project counts.
 Mods browser. This App Store Campaign Edition discovers custom mods but keeps
 them disabled because its vendor UI forcibly hides that browser.
 
+## Host safety lifecycle
+
+FireTuner's wildcard unauthenticated listener is guarded independently from
+the game bridge. ADR-0050 separates a persistent host-hardening lifecycle from
+each bounded live session. `harden` records the original firewall/rule state,
+keeps the macOS application firewall enabled, and retains an explicit Civ V
+block-incoming rule. `prepare` and `restore` then enable and disable FireTuner
+without repeatedly changing that persistent guard. `unharden` is the only
+operation that restores the recorded pre-hardening firewall/rule baseline.
+
+The private hardening and live-session recovery records are operational state,
+not bridge, journal, or match identity. They never enter the repository. Every
+operation fails closed on drift, incomplete recovery state, a listener, or a
+watcher socket. Authoritative firewall inspection must run in the host context
+because an application sandbox can report a false disabled/empty state.
+
 ## Connection ownership
 
 This Civ V build reliably services one FireTuner client at a time and may delay

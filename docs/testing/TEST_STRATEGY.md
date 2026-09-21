@@ -36,6 +36,9 @@ must state the actual level instead of using “verified” without qualificatio
   output, and explicit execution.
 - CLI/contracts: exit status, structured errors, stable schemas, and supported
   Python versions.
+- Host safety lifecycle: mode-0600 persistent baseline, idempotent hardening,
+  exact rollback, drift refusal, live-session exclusion, hardened-session
+  firewall preservation, legacy temporary behavior, and read-only phase policy.
 - Journal (M5): permissions, append semantics, crash/truncation recovery,
   concurrency, integrity, match/session isolation, explicit session binding,
   bounds, command-audit independence, and replay safety.

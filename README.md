@@ -102,18 +102,35 @@ Every command must return an id, status, before-state, after-state, and error if
 
 ## Verified live read
 
-Before starting a live session, enable the macOS application firewall, add an
-explicit block-incoming rule for Civ V, and enable FireTuner. Then run the
-read-only preflight check:
+For sustained development, establish the firewall guard once while Civ V,
+FireTuner, and the watcher are stopped:
 
 ```bash
+PYTHONPATH=src python3 -m civ5_agent.live_session harden
+PYTHONPATH=src python3 -m civ5_agent.preflight hardened
+```
+
+`harden` records the original host firewall/rule baseline privately, enables
+the macOS application firewall, and gives Civ V an explicit block-incoming
+rule. Each later live session changes only FireTuner:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.live_session prepare
 PYTHONPATH=src python3 -m civ5_agent.preflight ready
 ```
 
-The check fails closed unless FireTuner, the firewall, and the explicit Civ V
-rule are all present. The configuration helper itself refuses `enable` until
-the firewall and rule are verified, then creates a timestamp-preserving backup
-and verifies the changed line:
+The `ready` check fails closed unless FireTuner, the firewall, and the explicit
+Civ V rule are all present. If no persistent hardening record exists,
+`prepare` retains the compatible temporary behavior and records every changed
+boundary for exact restoration.
+
+Run firewall mutations and authoritative firewall checks in an interactive
+host terminal. A sandboxed process can receive a false disabled/empty view from
+`socketfilterfw`.
+
+The lower-level configuration helper also refuses `enable` until the firewall
+and rule are verified, then creates a timestamp-preserving backup and verifies
+the changed line:
 
 ```bash
 bash scripts/configure_firetuner.sh enable
@@ -121,8 +138,10 @@ bash scripts/configure_firetuner.sh enable
 
 Security note: this specific game build was observed listening on `*:4318`,
 not only loopback. Do not leave FireTuner enabled on an untrusted network,
-especially if the macOS application firewall is disabled. Restore the setting
-and quit Civ V when the test session ends.
+including a home network; the firewall guard mitigates but does not remove the
+risk. Restore the FireTuner setting and quit Civ V when the test session ends.
+See the [persistent host-hardening procedure](docs/operations/HOST_HARDENING.md)
+for normal use and exact `unharden` rollback.
 
 Then run:
 

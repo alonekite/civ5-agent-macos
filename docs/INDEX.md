@@ -91,6 +91,8 @@ behavior. Contract documents define intended compatibility and rejection rules.
 - [Bounded live-test checklist](LIVE_TEST_CHECKLIST.md)
 - [Experiment log](EXPERIMENT_LOG.md)
 - [Operations index](operations/README.md)
+- [Persistent host hardening](operations/HOST_HARDENING.md): one-time network
+  guard, bounded FireTuner sessions, drift checks, and exact host rollback.
 - [External read-only automation integration](operations/EXTERNAL_READ_ONLY_AUTOMATION.md):
   independent-repository ownership, adopted SessionSpec v1 generation,
   candidate v2 UI gates, sanitized probe, and composition-root responsibilities.

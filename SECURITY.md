@@ -7,10 +7,22 @@ FireTuner is enabled. This exposes the game's Lua execution interface on every
 IPv4 network interface, not only `127.0.0.1`. The protocol has no authentication
 observed by this project.
 
-Only enable FireTuner for a bounded test on a trusted machine. Turn on the
-macOS application firewall, explicitly block incoming connections to
-Civilization V, and verify the rule before starting the game. A firewall rule
-is mitigation: the game still owns a wildcard listener.
+Only enable FireTuner for a bounded test. A home network is not a sufficient
+security boundary: local, guest, VPN, or compromised peers may still reach the
+host. Keep the macOS application firewall enabled, explicitly block incoming
+connections to Civilization V, and verify the rule before starting the game. A
+firewall rule is mitigation: the game still owns a wildcard listener.
+
+For sustained development, create the persistent firewall guard once:
+
+```bash
+PYTHONPATH=src python3 -m civ5_agent.live_session harden
+PYTHONPATH=src python3 -m civ5_agent.preflight hardened
+```
+
+The private hardening record preserves the original firewall/rule baseline for
+an explicit later `unharden`. FireTuner is not part of the persistent state and
+must remain disabled while idle.
 
 Prepare a bounded session from the host environment:
 
@@ -44,8 +56,12 @@ PYTHONPATH=src python3 -m civ5_agent.preflight shutdown
 ```
 
 The preflight command reports JSON and makes no system changes. The explicit
-live-session restore command returns the settings to its private recorded
-baseline and verifies the shutdown state.
+live-session restore command returns session settings to its private recorded
+baseline and verifies the shutdown state. Under persistent hardening, this
+disables FireTuner while intentionally retaining the firewall and Civ V block
+rule; verify that stronger idle state with `preflight hardened`. See
+[persistent host hardening](docs/operations/HOST_HARDENING.md) for exact
+installation and rollback commands.
 
 The watcher and direct command path enforce the live check automatically. The
 watcher's local control socket rechecks it before each allowlisted write, so a

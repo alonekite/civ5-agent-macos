@@ -2039,3 +2039,53 @@ Use a reviewed framework that preserves only the last allowlisted readiness
 class at timeout. Do not introduce a focus fallback or repeat this target run
 until exact-commit wheel, tests, CI, and execution-layer compatibility review
 all pass.
+
+### 2026-09-21 — First-checkpoint control-plane lifetime failure
+
+**Environment**
+
+- Target Apple Silicon Mac and original Civilization V: Campaign Edition.
+- Execution-core commit `9346395` and independently installed framework
+  implementation commit `c47b8cb`.
+- Fresh guarded preparation, host-context ready preflight, a new private
+  mode-`600` SessionSpec v2/runtime/session, and one visually confirmed first
+  checkpoint.
+
+**Procedure**
+
+1. Established the guarded session in the execution layer and verified it in
+   the unsandboxed host context. The ordinary Codex sandbox simultaneously
+   reproduced its known false disabled/empty `socketfilterfw` view and was not
+   accepted as authoritative.
+2. Authorized one fresh framework launch only to the first `PLAY` checkpoint.
+   Confirmed zero UI delivery and visually confirmed the yellow button.
+3. Authorized that exact checkpoint once. The public control request failed
+   because the active supervisor control socket was unavailable; no retry or
+   replacement session was authorized.
+4. Allowed the checkpoint to expire fail-closed, then restored the guarded host
+   session and independently verified shutdown in host context.
+
+**Observed result**
+
+- The checkpoint remained recorded as awaiting a human until its five-minute
+  deadline, but its control socket could not accept the answer.
+- The final state was `checkpoint_expired` / `deadline_exceeded`.
+- No checkpoint-answer event, `ui.action_delivery_started`, completed UI
+  action, process handoff, second checkpoint, watcher, FireTuner read, or game
+  write occurred.
+- Framework cleanup terminated the owned application without recovery.
+- Guarded restore and authoritative shutdown preflight returned FireTuner,
+  listener, watcher socket, firewall, and Civ V rule to the original baseline.
+
+**Conclusion**
+
+Safe external-framework failure before delivery. The candidate framework does
+not yet prove that its supervisor control plane remains reachable for the full
+checkpoint lifetime. This is not a game-bridge write failure and must not be
+worked around by replaying authorization or creating a replacement session.
+
+**Next step**
+
+Repair and independently verify framework control-socket lifetime, package the
+exact candidate, and repeat execution-layer compatibility review before any
+further target attempt.

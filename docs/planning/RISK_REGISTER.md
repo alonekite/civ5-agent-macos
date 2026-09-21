@@ -5,7 +5,7 @@ open until evidence justifies closing it; mitigation does not erase the risk.
 
 | ID | Risk | Probability | Impact | State | Mitigation / next evidence |
 |---|---|---:|---:|---|---|
-| R-001 | FireTuner listens on all IPv4 interfaces and accepts unauthenticated Lua | High when enabled | High | Controlled | Keep disabled by default; use recoverable live-session prepare/restore; require firewall plus explicit Civ V block rule; verify shutdown |
+| R-001 | FireTuner listens on all IPv4 interfaces and accepts unauthenticated Lua | High when enabled | High | Controlled | Keep FireTuner disabled while idle; prefer recorded persistent host hardening with firewall plus explicit Civ V block rule; verify `hardened` between tests and preserve exact `unharden` rollback; retain recoverable temporary sessions as fallback |
 | R-002 | Civ V services only one reliable FireTuner client | High | High | Controlled | Watcher owns one persistent connection; local commands use private serialized IPC |
 | R-003 | A candidate Lua action differs across Civ V builds or UI states | Medium | High | Controlled for release scope | Six actions only; derive from bundled stock UI, validate arguments, check live capability, require exact read-back, and retain bounded target-build evidence; other builds remain unsupported until separately verified |
 | R-004 | DLC, Mod, or cache differences silently change knowledge semantics | Medium | High | Controlled by provenance | Version rulesets; detect active DLC, record declared mods plus source size/hash, reject family/context mismatch, and retain generated bundles locally; a new source hash or declared context requires separate review |

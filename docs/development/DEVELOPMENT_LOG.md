@@ -2038,6 +2038,27 @@ Implementation and offline compatibility commit: `72cead3`.
   GitHub Actions run `35637799813` passed Python 3.11/3.13, repeated artifact,
   and clean wheel/source-distribution installation gates.
 
+## 2026-09-21 — Separate persistent host hardening from live sessions
+
+- Added explicit `harden` and `unharden` operations that record a private
+  mode-0600 firewall/rule baseline, verify a protected idle phase, and restore
+  that exact baseline only when FireTuner, the game listener, watcher socket,
+  and per-session recovery state are closed.
+- Made `prepare` fail closed when recorded hardening has drifted. Under intact
+  hardening, normal prepare/restore changes only FireTuner and retains the
+  firewall plus Civ V block rule. The original temporary guard remains a
+  compatibility fallback when no hardening record exists.
+- Added ADR-0050, the host-hardening operations guide, security/architecture/
+  risk updates, and offline coverage for persistence, idempotence, drift,
+  rollback, session preservation, and refusal boundaries.
+- The warning-enabled host suite passed 374/374. The ordinary Codex sandbox
+  reproduced its known false disabled/empty firewall view and cannot run Unix-
+  socket tests; authoritative firewall checks and the complete suite passed in
+  host context. No target firewall mutation was performed by this development
+  batch.
+
+Implementation commit: `67dce37`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

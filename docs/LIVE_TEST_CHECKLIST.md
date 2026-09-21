@@ -17,6 +17,9 @@ Do not enable FireTuner until the firewall guard is in place.
 ## 1. Prepare the bounded session
 
 - Quit Civilization V and stop any watcher.
+- For sustained development, install and verify the one-time persistent guard
+  according to `docs/operations/HOST_HARDENING.md`. When it is installed,
+  `preflight hardened` must pass before session preparation.
 - Run the recoverable preparation command from the host environment:
 
 ```bash
@@ -25,9 +28,10 @@ PYTHONPATH=src python3 -m civ5_agent.live_session prepare
 
 Expected: `result` is `prepared` or `already_prepared`, `ok` is `true`, and the
 embedded safety result proves FireTuner enabled, firewall enabled, and Civ V
-blocked. The command records the original settings and rolls back if readiness
-cannot be proved. On macOS, enter the administrator password in the terminal if
-`sudo` requests it; only the firewall subcommand is elevated.
+blocked. The command records the per-session settings and rolls back if
+readiness cannot be proved. Under persistent hardening it does not change the
+firewall. Without hardening it retains the temporary compatibility path and may
+request the administrator password for its narrow firewall subcommand.
 If `sudo -v` was run separately, run `prepare` in that same terminal because
 macOS may scope the authorization ticket to the terminal session.
 

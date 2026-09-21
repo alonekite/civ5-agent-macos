@@ -14,13 +14,21 @@ development log.
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is implemented and
   its exact launcher-to-game handoff has been adapted to repaired framework
-  commit `c47b8cb`. Offline validation is complete; four checkpoint runs failed
+  commit `c47b8cb`. Offline validation is complete; five checkpoint runs failed
   safely before delivery and led respectively to focus readiness, closed-set
-  diagnostics, bounded temporary focused-application unavailability, and
-  preservation of the final readiness class at timeout. A fresh jointly
-  reviewed target run remains pending.
+  diagnostics, bounded temporary focused-application unavailability,
+  preservation of the final readiness class at timeout, and discovery that the
+  supervisor control socket was unavailable while the first checkpoint still
+  appeared active. The framework must repair and prove control-plane lifetime
+  before another target run.
   The adapter adds no game-state or write capability.
-- Functional baseline: 367/367 tests pass warning-enabled in host context on
+- Provisional persistent host hardening is complete offline at implementation
+  commit `67dce37`. It records an exact private firewall/rule baseline,
+  verifies a protected idle phase, keeps per-test prepare/restore scoped to
+  FireTuner, detects guard drift, and provides explicit rollback. Target-Mac
+  installation plus one prepare/restore/unharden cycle remain pending and must
+  be recorded as live evidence before adoption.
+- Functional baseline: 374/374 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
   and sdist builds have matching normalized contents; each format installs,
   imports, and starts the supported CLI in a separate clean Python 3.11
@@ -64,8 +72,11 @@ development log.
   delivery. A fourth run expired with generic `target_not_ready_timeout`, zero
   delivery, exact cleanup, and exact host restoration; the candidate now
   preserves only the last allowlisted readiness class so the next run can
-  distinguish the remaining cases. A fresh exact-commit live run remains
-  pending; no 0.2 release is adopted.
+  distinguish the remaining cases. The fifth run reached the first checkpoint
+  but could not answer it because the active supervisor control socket was
+  unavailable; it expired fail-closed with zero UI delivery and exact host
+  restoration. A framework repair and compatibility review are required before
+  another run; no 0.2 release is adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

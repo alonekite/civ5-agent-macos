@@ -7,6 +7,12 @@ All notable user-visible changes are recorded here. Development details belong i
 
 ### Added
 
+- Provisional persistent host hardening separates the one-time macOS firewall
+  and Civ V block rule from each bounded FireTuner session. New `harden`,
+  `unharden`, and read-only `preflight hardened` operations keep normal
+  prepare/restore cycles free of repeated firewall mutations while preserving
+  an exact private rollback baseline.
+
 - Candidate SessionSpec v2 generation for the independently owned automation
   framework. It declares two ordered, separately authorized UI steps: the
   target-verified unique launcher `PLAY` AX button and a caller-calibrated
