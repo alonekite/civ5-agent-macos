@@ -8,25 +8,24 @@ development log.
 
 ## Dashboard
 
-- Current milestone: M11 — runtime research facts — has an accepted
-  strategy-neutral capability request and frozen schema 8/core 1.3.0 design.
-  M10 and the immutable 1.2.0 release remain complete.
-- Active next deliverable: complete the M11 D2/C5 compatibility, privacy,
-  artifact, clean-install, and exact-commit CI gates for core 1.3.0. No core
-  write action is included.
+- Current milestone: M11 — runtime research facts — is complete in immutable
+  release `v1.3.0`. M10 and the earlier 1.2.0 release remain complete.
+- Active next deliverable: monitor downstream integration and route any next
+  reusable fact or mechanic through the strategy-neutral capability-request
+  process. No new capability is currently scheduled.
 - Functional baseline: 362/362 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
   and sdist builds have matching normalized contents; each format installs,
   imports, and starts the supported CLI in a separate clean Python 3.11
-  environment. Exact-release-commit repetition remains pending.
-  Exact-commit and `v1.2.0` GitHub Actions passed on Python 3.11/3.13.
+  environment. Exact-commit and `v1.3.0` tag GitHub Actions pass on Python
+  3.11/3.13, and downloaded Release assets match the recorded hashes.
 - Blocking issue: none for C4. The exact `95ef3df` rerun preserved one bridge
   session across both interturns and completed the read-only overflow gate.
   The observed `3.19` point difference remains recorded without normalization;
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
-- User presence required next: no for the offline 1.3.0 release gate; explicit
-  approval remains required for the version tag and GitHub Release.
+- User presence required next: no; a future live capability must obtain its own
+  bounded authorization and evidence.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -326,10 +325,8 @@ authorization, but it cannot bypass or weaken the core's host safety checks.
 
 ## Recommended order
 
-1. Complete the 1.3.0 reproducible-artifact, clean-install, privacy, and
-   exact-commit CI gates; request explicit approval before tagging or release.
-2. Keep `v1.2.0` immutable and monitor downstream integration feedback.
-3. Route future mechanics through the strategy-neutral capability-request
+1. Keep `v1.3.0` immutable and monitor downstream integration feedback.
+2. Route future mechanics through the strategy-neutral capability-request
    process before changing the stable core surface.
 
 ## Recent governing decisions

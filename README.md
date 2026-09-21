@@ -21,18 +21,18 @@ but this execution core never depends on tactical-layer code or owns tactical
 judgment, action-intent content, or cross-domain arbitration. See the
 [downstream integration contract](docs/contracts/downstream-integration.md).
 
-The `1.3.0` release candidate adds target-verified schema 8 ordinary-research
-runtime facts while retaining the stable 1.0–1.2 contracts. Immutable published
-source and artifacts are identified by matching version tags and GitHub
-releases; the stable compatibility surfaces are `civ5_agent.api` and
-`civ5-turn`. Other command-line entry points remain explicitly provisional.
+The published `1.3.0` release adds target-verified schema 8 ordinary-research
+runtime facts while retaining the stable 1.0–1.2 contracts. Immutable source and
+artifacts are identified by matching version tags and GitHub releases; the
+stable compatibility surfaces are `civ5_agent.api` and `civ5-turn`. Other
+command-line entry points remain explicitly provisional.
 
-The 1.3.0 release candidate adds exact effective research costs, times-100
+Version 1.3.0 adds exact effective research costs, times-100
 progress/science, whole-point overflow, runtime turns-left, explicit phase and
 runtime-context provenance without changing any write, plan, result, executor,
-journal, or stable CLI schema. Its complete offline and bounded same-session
-target gates pass; publication still requires exact-commit CI, inspected
-artifacts, explicit tag approval, tag CI, and GitHub Release verification.
+journal, or stable CLI schema. Its complete offline, bounded same-session target,
+exact-commit CI, reproducible artifact, clean-install, tag-CI, and published-
+asset verification gates pass.
 
 ## Documentation
 

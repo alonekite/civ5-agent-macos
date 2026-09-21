@@ -1,6 +1,6 @@
 # Release Readiness
 
-Status: Complete for 1.0.0, 1.1.0, and 1.2.0; 1.3.0 release candidate in progress
+Status: Complete for 1.0.0, 1.1.0, 1.2.0, and 1.3.0
 
 Last reviewed: 2026-09-21
 
@@ -14,14 +14,14 @@ register, contracts, or live experiment evidence.
 |---|---|---|
 | Required live verification | M11 C4 passed on exact commit `95ef3df`: schema 8/UI agreement, repeated read purity, one bridge session across both controlled interturns, positive overflow, selection-time preservation, later application, private zero-record audit, and exact host restoration | Preserve the bounded C4 procedure for regression use |
 | High-impact risk | R-019 is mitigated and monitored after the same-session target proof; earlier release dispositions remain in force | Reopen review if transport framing, segmentation, research bindings, or schema scope changes |
-| Public compatibility | Version 1.3.0 adds schema 8 plus research/context capability version 1; schemas 2–7 and every write, plan, result, executor, and journal contract remain unchanged | Freeze this boundary on the exact release commit |
-| Tests and scans | 362 tests pass warning-enabled on Python 3.11 and the default runtime in host context; documentation diff and tracked sensitive-content scans are clean; both candidate artifact formats pass bounded content/privacy inspection | Repeat from the exact release commit and require exact-commit and tag CI |
-| Packaging | Two independent 1.3.0 candidate wheel/sdist builds have matching normalized contents; both formats install, import, and start `civ5-turn` in separate clean Python 3.11 environments | Repeat the build and clean-install gate from the exact clean release commit |
-| Release | Changelog and compatibility documents describe the 1.3.0 candidate | Commit and push the candidate, require exact-commit CI, then obtain explicit operator approval before creating `v1.3.0` or a GitHub Release |
+| Public compatibility | Version 1.3.0 adds schema 8 plus research/context capability version 1; schemas 2–7 and every write, plan, result, executor, and journal contract remain unchanged | Preserve this boundary in later compatible releases |
+| Tests and scans | 362 tests pass warning-enabled on Python 3.11 and the default runtime in host context; documentation, tracked-content, exact-commit artifact, and privacy gates pass; exact-commit and tag CI pass on Python 3.11/3.13 | Preserve these gates for later changes |
+| Packaging | Two independent exact-commit wheel/sdist builds have matching normalized contents; both formats pass inspection and install/import/CLI checks in separate clean Python 3.11 environments | Preserve the artifact gate for later releases |
+| Release | Immutable `v1.3.0` points to `d914089`; the GitHub Release contains exactly the inspected wheel and sdist, and downloaded assets match the recorded SHA-256 values | Never move the tag or replace its assets; use a new semantic version for changes |
 
-The target-machine gate is complete, but the candidate is not a release until
-every remaining row is closed on one exact commit. No tag or release approval
-is implied by this document.
+The 1.3.0 release completed on 2026-09-21 after explicit operator authorization.
+Future releases must repeat every gate rather than treating this evidence as a
+blanket authorization.
 
 ## 1.2.0 worker-build release gate
 

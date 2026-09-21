@@ -1846,6 +1846,21 @@ Sanitized target-evidence and reconciliation commit: `7e28b05`.
   are working-tree rehearsal artifacts; the gate must be repeated from the
   exact clean release commit.
 
+## 2026-09-21 — Publish core 1.3.0
+
+- Exact release commit `d914089` passed main and immutable `v1.3.0` GitHub
+  Actions on Python 3.11 and 3.13, including repeated artifact comparison and
+  separate wheel/sdist installation checks.
+- Created the explicitly authorized annotated `v1.3.0` tag and GitHub Release
+  with exactly the inspected wheel and source distribution.
+- Downloaded both published assets into a new private directory. The wheel
+  matched SHA-256
+  `123f136b911ac14554194be7047f1c723eb808c69df35ec1510777b4f61cdddf`;
+  the source distribution matched
+  `d80279927f7535f489323f2b8dc6c4346f52a58729a554d2985aa3382d1072cc`.
+- Marked M11 and the 1.3.0 release gate complete. The tag and attached assets
+  are immutable; any correction requires a new semantic version.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

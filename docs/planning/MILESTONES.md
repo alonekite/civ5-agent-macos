@@ -16,7 +16,7 @@ GitHub Issues and should link back to one milestone ID.
 | M8 | 1.0 release readiness | Complete | M7 |
 | M9 | Verified unit movement | Complete | M8, M2, M6 |
 | M10 | Verified worker build | Complete | M9, M2, M6 |
-| M11 | Runtime research facts | In progress | M8, M7 |
+| M11 | Runtime research facts | Complete | M8, M7 |
 
 ## M11 — Runtime research facts
 
@@ -36,10 +36,10 @@ Acceptance criteria:
 
 Owning plan: `docs/planning/RESEARCH_RUNTIME_FACTS_PLAN.md`.
 
-Current outcome: C1–C4 are complete, including the bounded same-session target
-proof. D2/C5 is preparing the 1.3.0 release candidate; the milestone remains in
-progress until exact-commit CI, artifact/install gates, and the authorized
-release complete.
+M11 completed on 2026-09-21. The bounded same-session target proof,
+exact-commit and tag CI, reproducible artifact inspection, separate clean
+installs, authorized `v1.3.0` tag/Release, and downloaded-asset hash
+verification all pass.
 
 ## M0 — Environment reconnaissance
 
