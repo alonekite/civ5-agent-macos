@@ -1977,8 +1977,10 @@ Implementation and offline compatibility commit: `72cead3`.
   and dependency imports pass. A separately wheel-installed execution core
   emitted a mode-600 descriptor pinned to `cca95b4`, and the installed framework
   public CLI accepted it. The warning-enabled core suite passed 367/367 on
-  Python 3.11 and the default runtime; exact-commit core CI remained to be
-  completed at this point.
+  Python 3.11 and the default runtime.
+- Execution-core implementation and evidence commit `29a7f79` passed GitHub
+  Actions run `35614727747` on Python 3.11/3.13, including repeated artifact
+  checks and clean wheel/source-distribution installations.
 
 ## Archive policy
 
