@@ -1,6 +1,6 @@
 # Runtime Research Facts Verification Specification
 
-Status: C1–C3 complete offline; C4 partial target evidence, repaired rerun pending
+Status: C1–C3 complete offline; C4 partial target evidence, multi-frame repair pending rerun
 
 Milestone: M11
 
@@ -26,6 +26,13 @@ precondition. The manual interturn then exposed acknowledgement-before-output
 FireTuner framing that left the watcher connection desynchronized. ADR-0042
 repairs that transport boundary; post-interturn overflow and selection behavior
 remain pending until a fresh exact-commit run.
+
+The first ADR-0042 rerun observed positive whole-point overflow, preserved it
+through selection, and observed its later application. The first interturn kept
+the original connection, but the second interturn rotated the bridge session.
+ADR-0043 repairs the remaining assumption that only one output frame follows an
+early acknowledgement. The observations are diagnostic across the rotation and
+do not close the same-session C4 gate.
 
 ## Offline matrix
 

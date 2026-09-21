@@ -1650,3 +1650,67 @@ Pass the complete offline, artifact, privacy, and CI gates for ADR-0042, then
 repeat the controlled sequence on the exact repaired commit. Require the same
 private bridge-session identity throughout the evidence sequence and stop
 rather than infer continuity if recovery rotates it.
+
+### 2026-09-21 — Repaired schema 8 controlled overflow and second framing diagnosis
+
+**Environment**
+
+- Original Civilization V: Campaign Edition on the target Apple Silicon Mac,
+  using guarded FireTuner preparation and implementation commit `57c92a9`.
+- The same ordinary single-player save supplied a natural positive-overflow
+  case without debug writes or save editing.
+- Published external supervisor v0.1.0, one server-enforced read-only watcher,
+  and private temporary artifacts outside the repository.
+
+**Procedure**
+
+1. Passed guarded preparation and host-context live preflight, then supervised
+   one repaired read-only watcher against the already running game.
+2. Read the pre-completion snapshot twice, manually advanced one interturn,
+   closed the completion popup, and read the no-research action window twice.
+3. Manually selected the only ordinary candidate without advancing the turn,
+   read twice, then manually advanced the following interturn and read again.
+4. Stopped at the observed bridge-session rotation, checked the private audit,
+   exited the game, and restored the recorded host baseline.
+
+**Observed result**
+
+- Schema 8 repeated reads were stable and read-only. The initial exact values
+  again showed cost `2200`, progress `189998` times-100, science `44721`
+  times-100, remaining `30002` times-100, and computed surplus `14719`
+  times-100.
+- The first interturn completed the technology on the original FireTuner TCP
+  connection. The next action window required a new research choice and exposed
+  positive whole-point overflow `144`. The difference between that game value
+  and the direct exact surplus remained `3.19` research points and was not
+  rewritten or explained away.
+- Selecting the next ordinary technology left its exact team progress at zero
+  and preserved overflow `144`. The legacy current-research progress field
+  reported `144` in that same window, demonstrating that it cannot substitute
+  for the schema 8 exact team-progress field.
+- After the following interturn, the selected technology had exact progress
+  `59174` times-100 and overflow was zero. The watcher had recovered a valid
+  state, but both its bridge-session hash and FireTuner TCP endpoint changed,
+  so the controlled sequence failed the same-session continuity gate.
+- The private audit was mode `600` with zero records. Guarded shutdown restored
+  FireTuner, TCP 4318, the agent socket, firewall state, and the Civ V rule to
+  the exact original baseline.
+- Host-context checks confirmed that restricted orchestration can misreport
+  the firewall or reject private Unix-socket access; those sandbox results were
+  excluded from safety evidence.
+
+**Conclusion**
+
+Partial C4 evidence. Post-completion positive overflow, selection-without-
+consumption, and later application were observed, and ADR-0042 converted the
+old permanent framing failure into bounded recovery. C4 is not complete because
+the second interturn rotated the connection. The run exposed that an early
+acknowledgement may be followed by multiple Lua-output frames; ADR-0043 drains
+all such frames to the existing idle/total deadline.
+
+**Next step**
+
+Pass the complete offline and artifact gates for ADR-0043, then rerun the exact
+controlled sequence. Preserve one bridge-session identity across both
+interturns before closing C4, and separately investigate the observed `3.19`
+point difference without inventing an overflow formula.

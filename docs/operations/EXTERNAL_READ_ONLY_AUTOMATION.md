@@ -110,6 +110,11 @@ This integration does not prepare the firewall or enable FireTuner. The guarded
 remain mandatory. A SessionSpec, watcher output, audit file, and probe output
 are local test artifacts and must never be committed.
 
+Run macOS firewall inspection and private Unix-socket probes in the actual host
+execution context. A restricted orchestration sandbox can return a different
+firewall view or reject the socket connection with `EPERM`; neither result is
+target safety evidence. Never weaken the preflight because of that discrepancy.
+
 The generated process sets `retain_raw_output` to false. The full watcher state
 may still pass through its private pipe and is counted then discarded by the
 framework; it is not part of the sanitized lifecycle report.

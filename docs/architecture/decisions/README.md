@@ -48,6 +48,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0040](ADR-0040-compose-external-supervision-through-json-and-cli.md) | Compose external supervision through JSON and CLI boundaries | Accepted |
 | [ADR-0041](ADR-0041-adopt-local-app-test-automation-v0.1.0.md) | Adopt local-app-test-automation v0.1.0 | Accepted |
 | [ADR-0042](ADR-0042-recover-from-firetuner-response-desynchronization.md) | Recover from FireTuner response desynchronization | Accepted |
+| [ADR-0043](ADR-0043-drain-multiframe-output-after-early-firetuner-ack.md) | Drain multi-frame output after an early FireTuner acknowledgement | Accepted; refines ADR-0042 collection only |
 
 ## Template
 

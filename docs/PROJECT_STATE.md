@@ -11,19 +11,20 @@ development log.
 - Current milestone: M11 — runtime research facts — has an accepted
   strategy-neutral capability request and frozen schema 8/core 1.3.0 design.
   M10 and the immutable 1.2.0 release remain complete.
-- Active next deliverable: complete the ADR-0042 offline/CI gate, then rerun the
+- Active next deliverable: complete the ADR-0043 offline/CI gate, then rerun the
   bounded M11 C4 target procedure on its exact commit. No core write action is
   included.
 - Functional baseline: the full offline suite passes locally on Python 3.11;
   repeated development wheel/sdist contents match and the wheel
   installs/imports cleanly.
   Exact-commit and `v1.2.0` GitHub Actions passed on Python 3.11/3.13.
-- Blocking issue: the corrected C4 attempt proved exact progress, repeated-read
-  stability, UI agreement, and a qualifying overflow precondition, then exposed
-  FireTuner acknowledgement-before-output framing across the interturn. ADR-0042
-  repairs collection and fail-closed reconnect behavior; a fresh bounded run
-  must still prove the post-interturn overflow and selection sequence before
-  1.3.0 can be described as live-verified.
+- Blocking issue: the ADR-0042 rerun observed positive overflow, selection
+  preservation, and later application, but the second interturn rotated the
+  connection and failed C4 continuity. ADR-0043 drains every output frame after
+  an early acknowledgement; a fresh bounded run must preserve one bridge
+  session before 1.3.0 can be described as live-verified. The observed `3.19`
+  point difference between direct exact surplus and whole-point overflow also
+  remains unexplained rather than normalized away.
 - User presence required next: yes for bounded target-machine verification.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
@@ -50,6 +51,8 @@ development log.
   acknowledgement. A marked part before its header now ends that connection
   epoch and causes a guarded long-running watcher reconnect with a new
   bridge-session identity; no submitted write is retried.
+- ADR-0043 drains every frame of a multi-frame response after an early
+  acknowledgement instead of stopping at the first late output frame.
 
 - The stock Campaign Edition `InGame` Lua runtime is connected to Python through
   the bundled FireTuner protocol without modifying the signed application.

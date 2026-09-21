@@ -190,6 +190,7 @@ class TunerProtocolTest(unittest.TestCase):
             [
                 encode_message(TAG_COMMAND, ""),
                 encode_message(-1, "CIV5_AGENT_SNAPSHOT|late"),
+                socket.timeout(),
             ]
         )
         client = FireTunerClient()
@@ -200,6 +201,25 @@ class TunerProtocolTest(unittest.TestCase):
         self.assertEqual(
             [message.payload for message in responses],
             ["", "CIV5_AGENT_SNAPSHOT|late"],
+        )
+
+    def test_collect_drains_every_output_frame_after_command_ack(self):
+        fake_socket = _FakeSocket(
+            [
+                encode_message(TAG_COMMAND, ""),
+                encode_message(-1, "CIV5_AGENT_SNAPSHOT|late"),
+                encode_message(-1, "CIV5_AGENT_CITY|late"),
+                socket.timeout(),
+            ]
+        )
+        client = FireTunerClient()
+        client._socket = fake_socket
+
+        responses = client.execute_collect(172, 'print("late")')
+
+        self.assertEqual(
+            [message.payload for message in responses],
+            ["", "CIV5_AGENT_SNAPSHOT|late", "CIV5_AGENT_CITY|late"],
         )
 
     def test_collect_reports_game_shutdown_concisely(self):

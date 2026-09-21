@@ -195,6 +195,7 @@ class FireTunerClient:
         messages: list[TunerMessage] = []
         deadline = time.monotonic() + total_timeout
         command_ack_seen = False
+        command_ack_preceded_output = False
         output_seen = False
         self.send(TAG_COMMAND, f"CMD:{state_index}:{lua}")
         try:
@@ -218,10 +219,15 @@ class FireTunerClient:
                         # During an interturn Civ V can acknowledge a command
                         # before delivering its Lua output. Stopping here
                         # leaves that output queued for the next split part.
+                        command_ack_preceded_output = True
                         continue
                     output_seen = True
-                    if command_ack_seen:
+                    if command_ack_seen and not command_ack_preceded_output:
                         break
+                    # An acknowledgement-first response can contain more than
+                    # one Lua-output frame.  Drain it to the existing bounded
+                    # idle deadline instead of assuming the first frame is the
+                    # complete command response.
                 except socket.timeout:
                     break
         finally:

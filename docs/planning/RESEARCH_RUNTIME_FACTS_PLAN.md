@@ -1,6 +1,6 @@
 # Runtime Research Facts Development Plan
 
-Status: C1–C3 complete offline; C4 partial evidence, repaired rerun pending
+Status: C1–C3 complete offline; C4 partial evidence, multi-frame repair pending rerun
 
 Target milestone: M11
 
@@ -63,7 +63,7 @@ Status: complete offline; the full suite and artifact gate pass.
 
 ### C4 — Bounded target-machine verification
 
-Status: partial; operator required for a fresh repaired run.
+Status: partial; operator required for a fresh ADR-0043 repaired run.
 
 - Prove schema 8 reads without selection, popup, movement, write, or turn
   advancement.
@@ -75,6 +75,8 @@ Status: partial; operator required for a fresh repaired run.
 - Require bridge-session continuity for the controlled sequence; a recovered
   replacement connection is useful diagnostics but not inferred match
   continuity.
+- Retain the observed positive overflow and selection/application facts as
+  diagnostic evidence only until both interturns remain in one bridge session.
 
 See the [operator procedure and evidence template](../testing/RESEARCH_RUNTIME_FACTS_LIVE_TEST.md).
 

@@ -44,10 +44,12 @@ or ruleset knowledge.
 - One watcher owns the game connection and serializes requests.
 - The connection owner issues one `bridge_session_id` per connection epoch;
   it never presents that value as a permanent save or match identifier.
-- A command acknowledgement that precedes its Lua output is drained within the
-  existing bounded response window. A snapshot part before its header marks the
-  connection desynchronized; the long-running watcher reconnects with a new
-  session identity and never retries a write.
+- A command acknowledgement that precedes its Lua output causes every following
+  output frame to be drained to the existing bounded idle/total deadline. The
+  ordinary output-then-acknowledgement path still ends at the acknowledgement.
+  A snapshot part before its header marks the connection desynchronized; the
+  long-running watcher reconnects with a new session identity and never retries
+  a write.
 - Schema 6 is collected as bounded header/city/unit/diplomacy/victory/technology/
   move-target programs; every part must identify the same turn and active
   player. Schemas 2–5 remain readable.
