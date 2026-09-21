@@ -1776,6 +1776,29 @@ Implementation, ADR, and sanitized diagnostic-evidence commit: `41b06e3`.
 
 Implementation, ADR, and partial target-evidence commit: `ff63552`.
 
+## 2026-09-21 — Drain multi-frame output after early FireTuner acknowledgement
+
+- Repeated M11 C4 on repaired commit `57c92a9`. The first interturn preserved
+  the connection and exposed positive whole-point overflow; selection preserved
+  it, and the following interturn applied it, but that second interturn rotated
+  the bridge session and therefore failed the continuity gate.
+- Recorded only sanitized target evidence. The private audit remained mode
+  `600` with zero records, and guarded shutdown restored the exact host
+  baseline.
+- Accepted ADR-0043 and changed acknowledgement-first collection to drain every
+  subsequent output frame to the existing bounded idle/total deadline. Ordinary
+  output-before-acknowledgement behavior and fail-closed reconnect semantics are
+  unchanged.
+- Added a multi-frame acknowledgement-first regression. Relevant transport and
+  watcher tests passed 89/89; the complete host-context suite passed 362/362.
+- Repeated wheel and source-distribution builds matched normalized content with
+  hashes `8b127fc2593729ec6e9178dd89104821a5b663f4a251899daf1bd0c2b177e67e`
+  and `31f994744d9b25eefeafd4d7cefc702ae84f5714d3363e579b992e2bbb2b16cc`.
+  Artifact inspection, compilation, documentation links, diff checks, and the
+  tracked sensitive-content scan passed.
+
+Implementation, ADR, and partial target-evidence commit: `d99209d`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
