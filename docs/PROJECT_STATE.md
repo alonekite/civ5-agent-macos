@@ -13,8 +13,10 @@ development log.
 - Active next deliverable: monitor downstream integration and route any next
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is implemented and
-  offline-validated; its operator-present live gate remains pending. It adds no
-  game-state or write capability.
+  offline-validated. Its first operator-present run exposed external-framework
+  lifecycle/readiness blockers before watcher startup; no further live run is
+  scheduled until a repaired framework contract and exact commit return. The
+  adapter adds no game-state or write capability.
 - Functional baseline: 366/366 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
   and sdist builds have matching normalized contents; each format installs,
@@ -26,10 +28,9 @@ development log.
   The observed `3.19` point difference remains recorded without normalization;
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
-- User presence required next: yes, but only for the pending candidate
-  SessionSpec v2 two-checkpoint UI run. No live run is scheduled while the
-  operator is away; every future live capability must obtain its own bounded
-  authorization and evidence.
+- User presence required next: no. Candidate SessionSpec v2 retesting is blocked
+  on an external-framework repair; a later operator-present run must obtain new
+  bounded authorization and evidence.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -42,8 +43,10 @@ development log.
 - Candidate framework commit `d7784a7` accepts the generated SessionSpec v2
   startup sequence. Target observation verified exact Civ V bundle/window
   identity, one unique launcher `PLAY` AX button, and no actionable AX element
-  on the continue canvas. A two-checkpoint operator-present run remains pending;
-  no framework 0.2 release has been adopted.
+  on the continue canvas. The first live run verified the launcher AX press but
+  failed before completing the relative click or starting the watcher. It also
+  exposed the launcher's same-PID executable-identity transition. Framework
+  repair and a fresh exact-commit run remain pending; no 0.2 release is adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

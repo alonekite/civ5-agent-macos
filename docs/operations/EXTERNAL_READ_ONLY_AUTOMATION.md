@@ -176,3 +176,34 @@ must still observe that the second click reached the intended screen; neither
 the framework nor the core performs screenshot/OCR outcome inference. Missing
 Accessibility permission, non-unique identity/window/AX target, an expired or
 refused checkpoint, invalid coordinates, or absent live preflight fails closed.
+
+### Exact candidate-retest descriptor generation
+
+Do not run this until the external framework returns a repaired contract and
+an exact reviewed commit. Install this core into a private virtual environment
+so the descriptor can name real entry-point executables rather than a local
+wrapper. Set the three absolute private paths, re-review the target window and
+the two ratios, then generate the mode-0600 descriptor exactly as follows:
+
+```bash
+umask 077
+export CIV5_CORE_ROOT=/absolute/path/to/civ5-agent-macos
+export CIV5_CORE_VENV=/absolute/private/path/to/core-venv
+export CIV5_UI_RUN_ROOT=/absolute/private/path/to/ui-run
+
+"$CIV5_CORE_VENV/bin/civ5-read-only" ui-session-spec \
+  --app-bundle-path "/Applications/Civilization V Campaign Edition.app" \
+  --leave-open-on-success \
+  --watcher-executable "$CIV5_CORE_VENV/bin/civ5-watch" \
+  --cwd "$CIV5_CORE_ROOT" \
+  --socket "$CIV5_UI_RUN_ROOT/civ5-agent.sock" \
+  --audit-log "$CIV5_UI_RUN_ROOT/command-audit.jsonl" \
+  --continue-x-ratio 0.5 \
+  --continue-y-ratio 0.64 \
+  > "$CIV5_UI_RUN_ROOT/session.json"
+chmod 600 "$CIV5_UI_RUN_ROOT/session.json"
+```
+
+The `0.5/0.64` ratios are evidence for the tested window configuration only,
+not universal Civ V coordinates. The repaired framework must still validate
+the descriptor and request fresh per-step authorization before any action.

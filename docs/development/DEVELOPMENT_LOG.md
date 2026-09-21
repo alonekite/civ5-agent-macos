@@ -1880,7 +1880,31 @@ Implementation commit: `2ced4b8`.
   tests. The warning-enabled host suite passes 366/366 on Python 3.11 and the
   default runtime. The pinned framework checkout accepted the generated
   mode-600 private v2 descriptor through its public `validate` command. A
-  complete operator-present two-checkpoint action run remains pending.
+  complete operator-present two-checkpoint action run remained pending at this
+  point; the later bounded attempt and its framework blockers are recorded
+  below.
+
+## 2026-09-21 — Stop candidate v2 live gate at framework boundaries
+
+- Ran exact framework candidate `d7784a7` from a private isolated Python 3.12
+  environment after discovering that source-only JSON validation did not prove
+  its declared PyObjC and process-inspection runtime dependencies were installed.
+- Verified one separately authorized exact `AXButton`/`PLAY` action on the
+  target launcher. A fresh, external frontmost observation was required before
+  authorization because the long-running controller did not observe a later
+  foreground change.
+- The separately authorized relative continue action failed before completion;
+  watcher startup, socket creation, sanitized probing, and audit creation never
+  occurred. Immediate read-only diagnosis could resolve the unique target
+  window and calibrated point, bounding the failure to the framework action-
+  readiness/lifecycle path rather than the core descriptor schema.
+- The launcher-to-game transition retained the PID while changing executable
+  identity. The framework correctly refused cleanup across that identity change
+  and retained `recovery_required`; the operator exited the game manually.
+- Stopped further live retries and sent a bounded capability report to the
+  independent framework task. Guarded restoration returned FireTuner, TCP
+  4318, the agent socket, firewall state, and the Civ V rule to the exact
+  original baseline.
 
 ## Archive policy
 

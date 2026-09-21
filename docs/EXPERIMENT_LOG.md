@@ -1787,3 +1787,66 @@ gate.
 Complete D2/C5 documentation reconciliation, privacy and artifact scans,
 reproducible builds, clean-install checks, and exact-commit CI for core 1.3.0.
 Tagging and GitHub Release publication still require explicit approval.
+
+### 2026-09-21 — Candidate SessionSpec v2 UI-gate diagnostic
+
+**Environment**
+
+- Original Civilization V: Campaign Edition on the target Apple Silicon Mac,
+  guarded FireTuner preparation, and core commit `7b0ef47`.
+- Candidate `local-app-test-automation` commit `d7784a7`, installed with its
+  declared dependencies in a private temporary Python 3.12 environment.
+- A core-generated mode-`600` SessionSpec v2 using the verified application
+  path, exact window title, exact `AXButton`/`PLAY` selector, and reviewed
+  `0.5/0.64` continue ratios. Private descriptors, runtime state, process IDs,
+  checkpoint IDs, and raw diagnostics remained outside the repository.
+
+**Procedure**
+
+1. Passed guarded preparation and host-context ready preflight, then validated
+   the private descriptor with the exact candidate framework.
+2. Confirmed the launcher target out of band, authorized one AX press, and
+   required a fresh frontmost observation before submitting the checkpoint.
+3. Waited for the continue canvas, confirmed the calibrated target out of band,
+   and separately authorized one relative click.
+4. Stopped when that action failed, ran only bounded read-only selector and
+   identity diagnostics, invoked cleanup-only recovery, and did not retry.
+5. The operator exited the identity-changed application. Guarded restoration
+   returned the host to its recorded baseline.
+
+**Observed result**
+
+- The exact launcher selector resolved one unique target and the framework
+  recorded `ui.action_completed` for the authorized `PLAY` press.
+- A long-running controller created while another app was frontmost did not
+  observe a later foreground change, although a fresh process did. Ordering
+  authorization after a fresh frontmost check allowed the first action.
+- The relative continue step failed immediately with `ui_action_error` and no
+  `ui.action_completed`. A subsequent read-only diagnostic found one frontmost
+  target, the exact window, and the reviewed point; no successful click is
+  inferred from that later observation.
+- During launcher-to-game startup, the application retained its PID while its
+  executable identity changed. Cleanup therefore returned `identity_changed`
+  and retained `recovery_required` rather than acting on a different identity.
+- The watcher never started. No watcher socket or command-audit file was
+  created, and no core read or write command ran.
+- After manual application exit, TCP 4318 was not listening and no target,
+  watcher, or supervisor process remained. Guarded restore returned FireTuner,
+  firewall state, and the Civ V firewall rule to the exact original baseline.
+
+**Conclusion**
+
+Partial external-automation evidence only. The exact launcher AX action passed,
+but the two-step gate did not complete and supplies no watcher or read-only-
+probe evidence. Further live runs are blocked on a framework-owned repair for
+long-running frontmost refresh, a formal launcher-to-game identity handoff, and
+retry of only proven pre-delivery transient UI-readiness failures. Core bridge,
+schema, command, and executor behavior were not exercised or changed.
+
+**Next step**
+
+Review the repaired framework contract and exact commit before generating a
+fresh private descriptor. Repeat both independently authorized UI gates, then
+require server-reported `read_only: true`, same-session sanitized probes, zero
+audit records, and exact host restoration. Do not relax identity, retry, or
+cleanup constraints in this repository.
