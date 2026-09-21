@@ -2120,6 +2120,12 @@ builds, artifact scans, and clean wheel/source-distribution installation gates.
 
 Implementation commit: `94bb6de`.
 
+Documentation commit `7172184` completed ADR-0052, the compatibility contract,
+operations guide, current-state dashboard, target evidence, verification matrix,
+and changelog. GitHub Actions run `35664559542` passed Python 3.11/3.13,
+repeatable wheel/source builds, artifact scans, and clean wheel/source-
+distribution installation gates.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
