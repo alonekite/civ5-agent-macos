@@ -2034,6 +2034,9 @@ Implementation and offline compatibility commit: `72cead3`.
   were built/installed as wheels together in a new Python 3.12 environment;
   the installed core emitted a mode-600 SessionSpec v2 and the installed
   framework public CLI validated it.
+- Execution-core commits `f50083d` and `827d848` were pushed to `main`;
+  GitHub Actions run `35637799813` passed Python 3.11/3.13, repeated artifact,
+  and clean wheel/source-distribution installation gates.
 
 ## Archive policy
 
