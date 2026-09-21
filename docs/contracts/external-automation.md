@@ -3,9 +3,9 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `f7514afeae7a317f940f204320465e761c2f5312`
+framework development commit `51cebff18a57929ef888609efe69a1af381841ad`
 and candidate wheel SHA-256
-`ec9b21d744b0e011df90bb533f516c18cba0de81c10fbfa5313b0aa66b9cbd0e`.
+`6d0fe2669af58c0a77ce22f47a0c5df03c90e9f77956f67a4eb16aea9c185ee3`.
 It is not an adopted framework release or runtime dependency.
 
 ## Adopted artifact
@@ -99,16 +99,17 @@ is tested through an isolated install of a wheel built from the exact candidate
 commit, not through `PYTHONPATH` or a source checkout. Adoption requires a
 published framework version and immutable wheel digest.
 
-The repaired candidate's own task reports 114/114 host tests. The suite includes
+The repaired candidate's own task reports 119/119 host tests. The suite includes
 a real-socket silent-peer case followed by a valid status request and a complete
-checkpoint creation/status/response/delivery/cleanup lifecycle. GitHub Quality
-runs `35646528948` and `35646907497` pass the framework gates. At the core
-boundary, the exact candidate wheel named above is installed with its declared
-dependencies in a fresh Python 3.12 environment. Its installed public CLI
+checkpoint creation/status/response/delivery/cleanup lifecycle, plus strict AX
+no-value/error classification at candidate selection and final delivery
+revalidation. GitHub Quality run `35663468813` passes the framework gates. At
+the core boundary, the exact candidate wheel named above is installed with its
+declared dependencies in a fresh Python 3.12 environment. Its installed public CLI
 accepts a private mode-0600 v2 descriptor emitted by a separately
 wheel-installed core. The core's warning-enabled suite passes 374/374 on Python
-3.11 and the default runtime. This is offline compatibility evidence, not a
-successful target UI run after the control-connection repair.
+3.11 and the default runtime. This is offline compatibility evidence for the
+strict AX candidate, not a successful target UI run of that candidate.
 
 After one checkpoint is authorized, the framework may wait within the existing
 step timeout for the same fully verified target to become frontmost again. This
@@ -142,6 +143,15 @@ timeout. This bounds an incomplete same-user request so it cannot monopolize
 the serialized supervisor loop for the remaining session lifetime. The timeout
 does not authorize a request, retry `respond_checkpoint`, replay UI delivery,
 or change checkpoint authority, expiry, durable state, or report semantics.
+
+When system-wide `AXFocusedApplication` explicitly has no value on macOS 26,
+the candidate may corroborate only the exact already verified PID through a
+0.25-second application-level `AXFrontmost` query. Only `kAXErrorNoValue` or a
+successful null system value enters this path. Other nonzero AX errors,
+exceptions, invalid PIDs, non-Boolean candidate values, and permission failures
+are terminal. Boolean false remains bounded `target_not_frontmost`; no AppKit
+foreground fallback, application activation, request retry, or delivery retry
+is permitted.
 
 ## Verification evidence
 

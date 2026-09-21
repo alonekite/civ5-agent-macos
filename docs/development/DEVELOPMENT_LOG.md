@@ -2096,6 +2096,30 @@ operations guide, state dashboard, verification matrix, and changelog. GitHub
 Actions run `35653863177` passed Python 3.11/3.13, repeatable wheel/source
 builds, artifact scans, and clean wheel/source-distribution installation gates.
 
+## 2026-09-22 — Pin strict macOS 26 AX frontmost corroboration
+
+- Reviewed framework candidate `5ca887a` and rejected it because every nonzero
+  system AX result could enter candidate-level corroboration, contrary to its
+  stated no-value-only boundary. No live action was run against that artifact.
+- Re-reviewed corrected framework commit
+  `51cebff18a57929ef888609efe69a1af381841ad`. Only
+  `kAXErrorNoValue` or successful null may query the exact candidate PID's
+  bounded `AXFrontmost`; failure, cannot-complete, attribute-unsupported,
+  exceptions, invalid values, and permission failures remain terminal. The same
+  path runs immediately before delivery, with no AppKit fallback or activation.
+- Independently ran the framework's complete host suite at 119/119. The exact
+  20-member candidate wheel SHA-256 is
+  `6d0fe2669af58c0a77ce22f47a0c5df03c90e9f77956f67a4eb16aea9c185ee3`.
+  It installed with declared dependencies in fresh Python 3.12, and its public
+  CLI validated a private mode-0600 v2 descriptor emitted by a separately
+  installed core wheel. An installed-wheel spot check preserved terminal
+  `focused_application_query` for `kAXErrorCannotComplete`.
+- The warning-enabled core suite passed 374/374 in host context on Python 3.11
+  and the default Python 3.14 runtime. Persistent host hardening remained
+  unchanged; no application, session, checkpoint, watcher, or UI action ran.
+
+Implementation commit: `94bb6de`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

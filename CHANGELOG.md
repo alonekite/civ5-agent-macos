@@ -42,6 +42,11 @@ All notable user-visible changes are recorded here. Development details belong i
   peer can no longer monopolize the serialized checkpoint control loop;
   request authority, protocol, UI delivery, and no-retry semantics are
   unchanged.
+- Candidate macOS 26 frontmost verification now permits an Accessibility-only
+  corroboration from the exact verified candidate PID when and only when the
+  system-wide focused-application value is explicitly absent. Other AX errors,
+  invalid values, and permission failures remain terminal; AppKit fallback and
+  application activation remain forbidden.
 
 ## 1.3.0 - 2026-09-21
 

@@ -131,9 +131,9 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `f7514afeae7a317f940f204320465e761c2f5312` and wheel
+framework commit `51cebff18a57929ef888609efe69a1af381841ad` and wheel
 SHA-256
-`ec9b21d744b0e011df90bb533f516c18cba0de81c10fbfa5313b0aa66b9cbd0e`.
+`6d0fe2669af58c0a77ce22f47a0c5df03c90e9f77956f67a4eb16aea9c185ee3`.
 Do not substitute it for the adopted v0.1.0 path in unattended or release
 workflows.
 
@@ -141,6 +141,11 @@ This candidate bounds each accepted private control connection to 0.5 seconds.
 The bound releases a serialized control loop from an incomplete same-user
 request; it does not retry checkpoint responses, authorize UI delivery, or
 change checkpoint expiry and action no-retry rules.
+
+On macOS 26, an absent system-wide focused-application value may be
+corroborated only by a bounded `AXFrontmost` Boolean read from the exact
+verified candidate PID. Other system or candidate AX errors are terminal.
+This is not application activation and does not authorize another PID.
 
 Target inspection verified:
 

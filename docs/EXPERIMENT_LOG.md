@@ -2133,3 +2133,29 @@ During the next authorized live test, prove that `prepare` and `restore` toggle
 FireTuner while retaining the hardened firewall/rule state. Exercise
 `unharden` only when the user actually wants to remove the persistent guard;
 do not undo the desired development configuration merely to add coverage.
+
+## 2026-09-22 — Candidate control repair and macOS 26 focus boundary
+
+- Scope: operator-present SessionSpec v2 runs against core commit `38b43a3`
+  and exact framework candidate `f7514af`; no game-state write was authorized.
+- The first run reached and answered the unique launcher `PLAY` checkpoint
+  through the repaired control socket. The framework remained before its
+  delivery boundary for the full declared deadline and failed with sanitized
+  `focused_application_unavailable`. It recorded zero UI deliveries, handoffs,
+  later checkpoints, watcher starts, and game access.
+- A second fresh run reached a new `PLAY` checkpoint but received no answer
+  after operator presence was withdrawn. It expired as `checkpoint_expired`
+  with zero delivery and terminated the owned launcher without recovery.
+- A third fresh run answered its `PLAY` checkpoint and the operator returned
+  the launcher to the foreground under the adjusted procedure. The same
+  system-wide AX focused-application lookup remained unavailable for the full
+  deadline. It again failed before delivery with zero handoff, later
+  checkpoint, watcher, or game access.
+- The execution layer exclusively ran each safety session. Every restore
+  returned FireTuner, TCP 4318, and the watcher socket to closed state while
+  retaining the enabled firewall and explicit Civ V incoming-block rule.
+  Independent host-context `preflight hardened` passed after the final run.
+- Result: the 0.5-second control-connection repair is target-confirmed for one
+  checkpoint response. The remaining target gap is macOS 26 frontmost
+  corroboration. Framework commit `51cebff` is accepted offline only after
+  strict AX error classification; it has not yet received target evidence.

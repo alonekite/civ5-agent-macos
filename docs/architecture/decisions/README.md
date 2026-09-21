@@ -57,6 +57,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0049](ADR-0049-preserve-final-ui-readiness-reason.md) | Preserve the final pre-delivery UI readiness reason | Accepted |
 | [ADR-0050](ADR-0050-separate-persistent-host-hardening-from-live-sessions.md) | Separate persistent host hardening from live sessions | Accepted |
 | [ADR-0051](ADR-0051-bound-external-control-connection-lifetime.md) | Bound external control-connection lifetime | Accepted; supersedes ADR-0049 only for the candidate implementation pin |
+| [ADR-0052](ADR-0052-corroborate-macos-frontmost-through-exact-ax-candidate.md) | Corroborate macOS frontmost state through the exact AX candidate | Accepted; supersedes ADR-0051 only for the candidate implementation pin |
 
 ## Template
 

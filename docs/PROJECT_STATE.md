@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-09-21.
+Last updated: 2026-09-22.
 
 This is the short durable handoff for current work. Detailed completed history
 belongs in module documents, milestones, the experiment log, and the
@@ -13,25 +13,24 @@ development log.
 - Active next deliverable: monitor downstream integration and route any next
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is implemented and
-  its exact launcher-to-game handoff has been adapted to repaired framework
-  commit `f7514af`. Offline validation is complete; five checkpoint runs failed
-  safely before delivery and led respectively to focus readiness, closed-set
-  diagnostics, bounded temporary focused-application unavailability,
-  preservation of the final readiness class at timeout, and discovery that the
-  supervisor control socket was unavailable while the first checkpoint still
-  appeared active. The resulting per-connection lifetime repair has passed
-  independent source review and the framework's 114/114 host tests. Exact
-  candidate/core wheels also pass isolated installation and public-CLI
-  descriptor validation; another target run is now the remaining gate.
+  its exact launcher-to-game handoff is now pinned to strict framework commit
+  `51cebff`. Earlier runs exposed focus readiness, sanitized diagnostics, a
+  stalled control connection, and macOS 26 system-wide AX focus unavailability;
+  each failed before delivery and restored safely. The control-lifetime and
+  exact-candidate AX corroboration repairs have passed independent review. The
+  framework host suite passes 119/119, exact candidate/core wheels install in
+  isolation, and the installed public CLI validates the private descriptor.
+  Another fresh operator-present target run is now the remaining gate.
   The adapter adds no game-state or write capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
   verifies a protected idle phase, keeps per-test prepare/restore scoped to
   FireTuner, detects guard drift, and provides explicit rollback. Target-Mac
   installation is target-verified: one-time `harden` and a later independent
-  host-context `preflight hardened` agreed on the protected idle state. The next
-  live session must prove prepare/restore preservation; `unharden` remains
-  pending until the user actually requests removal of the desired guard.
+  host-context `preflight hardened` agreed on the protected idle state. Multiple
+  later `prepare`/`restore` cycles retained the firewall and Civ V block rule
+  while returning FireTuner, listener, and watcher to closed state. `unharden`
+  remains pending until the user actually requests removal of the desired guard.
 - Functional baseline: 374/374 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
   and sdist builds have matching normalized contents; each format installs,
@@ -55,7 +54,7 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- Candidate framework commit `f7514af` supplies refreshed frontmost checks,
+- Candidate framework commit `51cebff` supplies refreshed frontmost checks,
   bounded pre-delivery readiness retry, and durable same-PID executable handoff
   required by the generated SessionSpec v2
   startup sequence. Target observation verified exact Civ V bundle/window
@@ -79,11 +78,16 @@ development log.
   distinguish the remaining cases. The fifth run reached the first checkpoint
   but could not answer it because the active supervisor control socket was
   unavailable; it expired fail-closed with zero UI delivery and exact host
-  restoration. The reviewed repair bounds each accepted private control
+  restoration. The reviewed control repair bounds each accepted private control
   connection to 0.5 seconds without changing request authority, checkpoint
-  expiry, UI delivery, or no-retry semantics. Its exact candidate wheel and
-  digest are pinned; one new target run remains pending and no 0.2 release is
-  adopted.
+  expiry, UI delivery, or no-retry semantics. Two later runs answered the first
+  checkpoint through that repaired control path but expired with zero delivery
+  because macOS 26 exposed no system-wide AX focused-application value. The
+  strict candidate now permits a 0.25-second `AXFrontmost` corroboration only
+  from the same exact PID and only after `kAXErrorNoValue` or successful null;
+  all other AX errors remain terminal. Its exact candidate wheel and digest are
+  pinned, 119/119 framework host tests and isolated installed-wheel validation
+  pass, and no 0.2 release is adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
