@@ -3,7 +3,7 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `cca95b4a5f3b7d69d64a710bc5e3c567c657c9e4`.
+framework development commit `055d81676495acfd625f4eb51ddbe633bc68b54e`.
 It is not an adopted framework release or runtime dependency.
 
 ## Adopted artifact
@@ -97,9 +97,9 @@ is tested through an isolated install of a wheel built from the exact candidate
 commit, not through `PYTHONPATH` or a source checkout. Adoption requires a
 published framework version and immutable wheel digest.
 
-The repaired candidate's own task reports 102/102 host tests and passing Python
-3.12/3.13 GitHub Actions. At the core boundary, a wheel built from exact commit
-`cca95b4` was installed with its declared `psutil` and PyObjC dependencies in a
+The repaired candidate's own task reports 108/108 host tests. At the core
+boundary, a wheel built from exact commit `055d816` was installed with its
+declared `psutil` and PyObjC dependencies in a
 new Python 3.12 environment. Its installed public CLI accepted mode-0600 v1 and
 v2 descriptors emitted by a separately wheel-installed core. The core's
 warning-enabled suite passes 367/367 on Python 3.11 and the default runtime.
@@ -110,6 +110,13 @@ step timeout for the same fully verified target to become frontmost again. This
 is pre-delivery readiness only: it does not activate the app, weaken identity,
 extend authorization, or permit action replay. The operator must return focus
 to the exact target and keep it frontmost.
+
+During that pre-delivery wait, only the exact allowlisted
+`focused_application_unavailable` observation may be treated as temporary
+readiness, and only while Accessibility permission remains normal. Focus-query,
+permission, PID, identity, ambiguity, timeout, and every post-delivery failure
+remain terminal. Persistent unavailability expires with zero delivery; the
+framework neither activates the application nor replays authorization.
 
 For `ui_identity_error`, durable `session.failure` events may add one
 allowlisted, value-free `error_reason`. Both exception construction and event

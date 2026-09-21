@@ -82,7 +82,7 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
         self.assertEqual(AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION, 1)
         self.assertEqual(
             AUTOMATION_FRAMEWORK_V2_CANDIDATE_COMMIT,
-            "cca95b4a5f3b7d69d64a710bc5e3c567c657c9e4",
+            "055d81676495acfd625f4eb51ddbe633bc68b54e",
         )
         self.assertEqual(AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION, 2)
 

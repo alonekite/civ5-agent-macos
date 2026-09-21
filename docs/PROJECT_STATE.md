@@ -14,10 +14,10 @@ development log.
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is implemented and
   its exact launcher-to-game handoff has been adapted to repaired framework
-  commit `cca95b4`. Offline validation is complete; two checkpoint runs failed
-  safely before delivery and led to framework-only readiness correction and
-  then closed-set redacted identity diagnostics. A new jointly reviewed
-  diagnostic run remains pending.
+  commit `055d816`. Offline validation is complete; three checkpoint runs
+  failed safely before delivery and led respectively to focus readiness,
+  closed-set diagnostics, and narrowly bounded temporary focused-application
+  unavailability. A fresh jointly reviewed target run remains pending.
   The adapter adds no game-state or write capability.
 - Functional baseline: 367/367 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
@@ -42,7 +42,7 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- Candidate framework commit `cca95b4` supplies refreshed frontmost checks,
+- Candidate framework commit `055d816` supplies refreshed frontmost checks,
   bounded pre-delivery readiness retry, and durable same-PID executable handoff
   required by the generated SessionSpec v2
   startup sequence. Target observation verified exact Civ V bundle/window
@@ -52,11 +52,16 @@ development log.
   exposed the launcher's same-PID executable-identity transition. A later run
   stopped before `PLAY` delivery when checkpoint confirmation moved focus to
   Codex; the corrected framework now waits for the unchanged target to regain
-  focus within the existing step timeout. Offline
+  focus within the existing step timeout. Only the exact pre-delivery
+  `focused_application_unavailable` condition may share that wait; permission,
+  query, PID, identity, ambiguity, timeout, and post-delivery failures remain
+  terminal. Offline
   adapter verification now passes through separately installed core and
   framework wheels for both v1 and v2 descriptors. The next diagnostic run may
   record only one dual-boundary-allowlisted reason token on identity failure.
-  A fresh exact-commit live run remains pending; no 0.2 release is adopted.
+  The third run safely identified that exact unavailable condition before
+  delivery. A fresh exact-commit live run remains pending; no 0.2 release is
+  adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

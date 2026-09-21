@@ -55,7 +55,9 @@ must state the actual level instead of using “verified” without qualificatio
   isolated wheel installation built from the pinned framework development
   commit without cross-project imports. Target procedure must also prove that
   checkpoint-induced focus loss waits only before delivery and never replays an
-  action.
+  action. Only `focused_application_unavailable` with permission intact may be
+  temporary; query, permission, PID, identity, ambiguity, timeout, and
+  post-delivery failures remain terminal.
 
 ## CI baseline
 

@@ -1851,6 +1851,52 @@ require server-reported `read_only: true`, same-session sanitized probes, zero
 audit records, and exact host restoration. Do not relax identity, retry, or
 cleanup constraints in this repository.
 
+### 2026-09-21 — Redacted focused-application-unavailable diagnostic
+
+**Environment**
+
+- Target Apple Silicon Mac and original Civilization V: Campaign Edition.
+- Execution-core commit `97257c2` and independently installed framework
+  candidate commit `cca95b4`.
+- Fresh guarded preparation, private mode-`600` descriptor, framework runtime,
+  session, and checkpoint; no earlier authorization was reused.
+
+**Procedure**
+
+1. Independently verified ready preflight, generated and validated the private
+   SessionSpec v2, launched one fresh session, and stopped at `PLAY`.
+2. The operator visually confirmed `PLAY`, authorized that checkpoint exactly
+   once, then returned focus toward Civ V.
+3. Stopped on the first allowlisted failure reason without replaying the
+   checkpoint or action.
+4. Ran guarded restoration and independently verified host-context shutdown.
+
+**Observed result**
+
+- About 1.78 seconds after authorization, the durable reason was exactly
+  `focused_application_unavailable`.
+- No `ui.action_delivery_started` marker existed. No UI action, executable
+  handoff, second checkpoint, watcher, watcher socket, audit record, FireTuner
+  read, or game write occurred.
+- The application terminated normally without recovery-required state.
+- Restore and shutdown preflight confirmed firewall disabled, no Civ V rule or
+  incoming block, FireTuner disabled, no agent socket, and TCP 4318 closed.
+
+**Conclusion**
+
+This was another safe external-framework failure before delivery, now bounded
+to a temporary Accessibility focused-application observation gap. It is not an
+execution-core descriptor or game-bridge failure. Framework commit `055d816`
+treats only that exact condition, before delivery and with permission intact,
+as readiness within the existing timeout; every other identity failure remains
+terminal.
+
+**Next step**
+
+Complete exact-commit isolated-wheel and CI review, pin the repaired candidate,
+then run a fresh operator-present two-checkpoint test. Do not reuse this session
+or authorization.
+
 ### 2026-09-21 — Handoff-capable v2 pre-delivery focus diagnostic
 
 **Environment**

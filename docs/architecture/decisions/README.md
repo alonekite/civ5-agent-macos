@@ -53,6 +53,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0045](ADR-0045-declare-launcher-game-identity-handoff.md) | Declare the launcher-to-game identity handoff | Accepted |
 | [ADR-0046](ADR-0046-wait-for-pre-delivery-target-focus.md) | Wait for target focus before UI action delivery | Accepted |
 | [ADR-0047](ADR-0047-accept-redacted-ui-identity-reasons.md) | Accept redacted UI identity failure reasons | Accepted |
+| [ADR-0048](ADR-0048-bound-focused-application-unavailability.md) | Bound focused-application unavailability before delivery | Accepted |
 
 ## Template
 

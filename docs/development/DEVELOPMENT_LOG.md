@@ -1982,6 +1982,22 @@ Implementation and offline compatibility commit: `72cead3`.
   Actions run `35614727747` on Python 3.11/3.13, including repeated artifact
   checks and clean wheel/source-distribution installations.
 
+## 2026-09-21 — Bound temporary focused-application unavailability
+
+- Recorded the third fresh target diagnostic against framework `cca95b4` and
+  execution core `97257c2`. The allowlisted failure reason was exactly
+  `focused_application_unavailable`; no delivery marker, UI action, handoff,
+  watcher, read, write, or recovery-required state occurred, and exact host
+  restoration passed.
+- Reviewed framework commit `055d816`: only that exact pre-delivery condition,
+  with Accessibility permission intact, enters the existing readiness deadline.
+  Query, permission, invalid PID, identity, ambiguity, timeout, and all
+  post-delivery failures remain terminal; no activation or replay was added.
+- Added ADR-0048 and updated the candidate pin, architecture, compatibility
+  contract, operations guide, state dashboard, verification matrix, test
+  strategy, experiment evidence, and changelog. SessionSpec v2 and `latp/1`
+  remain unchanged.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

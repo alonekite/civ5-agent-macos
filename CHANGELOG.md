@@ -22,6 +22,11 @@ All notable user-visible changes are recorded here. Development details belong i
 - Candidate-framework UI identity failures may expose only an allowlisted,
   value-free reason token in durable events. Unknown or mutated values become
   `unspecified`; exception text and target details remain excluded.
+- Candidate-framework compatibility treats only the exact pre-delivery
+  `focused_application_unavailable` condition as bounded readiness within the
+  existing step deadline. Permission, query, process, identity, ambiguity,
+  timeout, and all post-delivery failures remain terminal; no action is
+  activated or replayed.
 
 ## 1.3.0 - 2026-09-21
 
