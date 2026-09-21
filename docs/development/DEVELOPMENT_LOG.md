@@ -1799,6 +1799,32 @@ Implementation, ADR, and partial target-evidence commit: `ff63552`.
 
 Implementation, ADR, and partial target-evidence commit: `d99209d`.
 
+## 2026-09-21 — Complete M11 same-session target verification
+
+- Repeated the full C4 sequence on exact commit `95ef3df` after ADR-0043.
+  Stable schema 8 reads agreed with the stock UI and one bridge session
+  persisted across both interturns.
+- Observed positive whole-point overflow `144`, preservation through manual
+  technology selection with exact progress still zero, and later application
+  as `59174` times-100 progress with overflow cleared.
+- Preserved the `3.19` point surplus/overflow difference without inventing a
+  formula. Science changed from `447.21` before completion to `444.55` in the
+  following action window, which is recorded only as a plausible production-
+  change explanation.
+- Confirmed the private audit was mode `600` with zero records, removed the
+  watcher socket, and restored the exact host baseline. The generic supervisor
+  launched and observed the application, but its published v0.1.0 does not own
+  product-specific launcher/continue actions. A direct exit-confirmation click
+  missed and the operator completed that confirmation manually.
+- Reconciled the owning contract, bridge and downstream profiles, roadmap,
+  plan, verification matrix, live ledger, changelog, and project dashboard.
+  Corrected the old contract wording so the 20-remaining/22-produced case is
+  illustrative rather than the only valid controlled fixture.
+- Documentation links, diff checks, and the tracked sensitive-content scan
+  passed.
+
+Sanitized target-evidence and reconciliation commit: `7e28b05`.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
