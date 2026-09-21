@@ -3,7 +3,7 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `055d81676495acfd625f4eb51ddbe633bc68b54e`.
+framework development commit `c47b8cbd1d1a32363058ce528d4991b7f6637be6`.
 It is not an adopted framework release or runtime dependency.
 
 ## Adopted artifact
@@ -97,10 +97,10 @@ is tested through an isolated install of a wheel built from the exact candidate
 commit, not through `PYTHONPATH` or a source checkout. Adoption requires a
 published framework version and immutable wheel digest.
 
-The repaired candidate's own task reports 108/108 host tests. GitHub Quality
-run `35620699629` attempt 2 passes Python 3.12/3.13 on Apple silicon and Intel,
-plus wheel inspection and clean installation. At the core boundary, a wheel
-built from exact commit `055d816` was installed with its declared `psutil` and
+The repaired candidate's own task reports 112/112 host tests. GitHub Quality
+run `35636278046` passes Python 3.12/3.13 on Apple silicon and Intel, plus wheel
+inspection and clean installation. At the core boundary, a wheel built from
+exact commit `c47b8cb` was installed with its declared `psutil` and
 PyObjC dependencies in a
 new Python 3.12 environment. Its installed public CLI accepted mode-0600 v1 and
 v2 descriptors emitted by a separately wheel-installed core. The core's
@@ -121,6 +121,13 @@ readiness, and only while Accessibility permission remains normal. Focus-query,
 permission, PID, identity, ambiguity, timeout, and every post-delivery failure
 remain terminal. Persistent unavailability expires with zero delivery; the
 framework neither activates the application nor replays authorization.
+
+If that wait expires, only the last closed-set readiness reason may reach the
+existing sanitized identity-error event. Candidate absence, focused-application
+unavailability, non-frontmost target, and unavailable window, element, or
+geometry have distinct value-free tokens. Both construction and persistence
+sanitize the token; unknown values become `unspecified`. The deadline,
+descriptor, protocol, report shape, and action semantics do not change.
 
 For `ui_identity_error`, durable `session.failure` events may add one
 allowlisted, value-free `error_reason`. Both exception construction and event

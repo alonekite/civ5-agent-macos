@@ -2007,6 +2007,29 @@ Implementation and offline compatibility commit: `72cead3`.
   silicon/Intel Python 3.12/3.13 jobs and the wheel/clean-install gate. The
   first attempt's queued Intel job was cancelled and is not used as evidence.
 
+## 2026-09-21 — Preserve final pre-delivery readiness diagnosis
+
+- Recorded the fresh `055d816` target run that answered one `PLAY` checkpoint,
+  waited exactly 300 seconds, and failed with generic
+  `target_not_ready_timeout`. No delivery marker, UI action, handoff, watcher,
+  read, write, or recovery requirement occurred; guarded restore and independent
+  shutdown preflight returned the exact baseline.
+- Reviewed framework implementation `c47b8cb`: candidate absence, focused-
+  application unavailability, non-frontmost target, and unavailable window,
+  element, or geometry remain closed-set pre-delivery readiness reasons. The
+  last reason alone reaches timeout metadata after construction and persistence
+  allowlisting; private canaries become `unspecified`.
+- Confirmed no change to SessionSpec v2, `latp/1`, report shape, deadline,
+  checkpoint authority, activation, identity, delivery, handoff, watcher
+  ordering, or post-delivery no-retry behavior. Added ADR-0049 and updated the
+  candidate compatibility documents.
+- Independent UI tests pass 20/20 and the full dependency-installed host suite
+  passes 112/112. The exact candidate wheel SHA-256 is
+  `f959b76fcefec57a816c126f0d2ae170eedc5378b02c1a9ff4e26fb6c266e408`;
+  its 20 members, RECORD, and privacy checks pass. Framework implementation CI
+  `35636278046` and documentation CI `35636855812` pass all four macOS/Python
+  cells plus wheel/clean-install gates.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

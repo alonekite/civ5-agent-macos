@@ -131,7 +131,7 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `055d81676495acfd625f4eb51ddbe633bc68b54e`. Do not substitute
+framework commit `c47b8cbd1d1a32363058ce528d4991b7f6637be6`. Do not substitute
 it for the adopted v0.1.0 path in unattended or release workflows.
 
 Target inspection verified:
@@ -198,6 +198,8 @@ remain terminal, as does every post-delivery failure; no action is retried.
 If a UI identity failure occurs, preserve only the framework's allowlisted
 `error_reason` token for diagnosis. Never copy exception text or private event
 files into this repository.
+On a pre-delivery timeout, that token is the last observed closed-set readiness
+class, not an authorization to retry or select a different focus source.
 
 ### Exact candidate-retest descriptor generation
 

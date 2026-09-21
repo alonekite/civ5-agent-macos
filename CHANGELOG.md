@@ -27,6 +27,10 @@ All notable user-visible changes are recorded here. Development details belong i
   existing step deadline. Permission, query, process, identity, ambiguity,
   timeout, and all post-delivery failures remain terminal; no action is
   activated or replayed.
+- Candidate-framework pre-delivery timeouts now preserve only the last
+  allowlisted readiness class. This improves target diagnosis without changing
+  deadlines, authorization, identity, delivery, handoff, watcher ordering, or
+  post-delivery no-retry behavior.
 
 ## 1.3.0 - 2026-09-21
 

@@ -58,6 +58,9 @@ must state the actual level instead of using “verified” without qualificatio
   action. Only `focused_application_unavailable` with permission intact may be
   temporary; query, permission, PID, identity, ambiguity, timeout, and
   post-delivery failures remain terminal.
+  If the pre-delivery deadline expires, verify that only the final closed-set
+  readiness class is exposed, unknown values become `unspecified`, and private
+  target details never reach durable metadata.
 
 ## CI baseline
 

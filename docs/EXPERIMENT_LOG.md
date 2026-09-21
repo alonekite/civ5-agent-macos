@@ -1991,3 +1991,51 @@ Use only a closed-set, value-free reason token on a future diagnostic attempt.
 Do not persist exception messages or observed paths, identities, process
 values, titles, AX content, or selectors. Review and pin the corrected
 framework before another target run.
+
+### 2026-09-21 — Bounded-readiness timeout diagnostic
+
+**Environment**
+
+- Target Apple Silicon Mac and original Civilization V: Campaign Edition.
+- Execution-core commit `b19f915` and independently installed framework
+  implementation commit `055d816`.
+- Fresh guarded preparation, independent ready preflight, private mode-`600`
+  descriptor/runtime/session, and one newly authorized `PLAY` checkpoint.
+
+**Procedure**
+
+1. Started exactly one fresh application/session and stopped at the first
+   checkpoint with zero delivery.
+2. The operator visually confirmed the unique yellow `PLAY` button and
+   authorized that checkpoint once, then was instructed to return to Civ V.
+3. Waited through the existing 300-second pre-delivery readiness deadline
+   without replaying authorization or action.
+4. On terminal failure, restored the guarded host session and independently
+   repeated shutdown preflight.
+
+**Observed result**
+
+- The checkpoint was answered once. Exactly 300 seconds later the framework
+  failed with `ui_identity_error` and generic reason
+  `target_not_ready_timeout`.
+- `ui.action_delivery_started` remained absent: no `PLAY` press, handoff,
+  second checkpoint, relative click, watcher, audit event, FireTuner read, or
+  game write occurred.
+- Framework cleanup terminated the owned application; recovery was not needed.
+- Restore and host-context shutdown preflight confirmed firewall disabled, no
+  Civ V rule or incoming block, FireTuner disabled, no agent socket, TCP 4318
+  closed, and no issues.
+
+**Conclusion**
+
+This is safe external-framework evidence before delivery. It confirms that a
+readiness condition persisted for the entire deadline but the generic timeout
+cannot identify which one. It does not contradict the earlier successful
+launcher press, and it does not expose an execution-core or game-bridge defect.
+
+**Next step**
+
+Use a reviewed framework that preserves only the last allowlisted readiness
+class at timeout. Do not introduce a focus fallback or repeat this target run
+until exact-commit wheel, tests, CI, and execution-layer compatibility review
+all pass.

@@ -54,6 +54,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0046](ADR-0046-wait-for-pre-delivery-target-focus.md) | Wait for target focus before UI action delivery | Accepted |
 | [ADR-0047](ADR-0047-accept-redacted-ui-identity-reasons.md) | Accept redacted UI identity failure reasons | Accepted |
 | [ADR-0048](ADR-0048-bound-focused-application-unavailability.md) | Bound focused-application unavailability before delivery | Accepted |
+| [ADR-0049](ADR-0049-preserve-final-ui-readiness-reason.md) | Preserve the final pre-delivery UI readiness reason | Accepted |
 
 ## Template
 
