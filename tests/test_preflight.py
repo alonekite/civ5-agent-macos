@@ -51,6 +51,23 @@ class PreflightParsingTest(unittest.TestCase):
 
 
 class PreflightPolicyTest(unittest.TestCase):
+    def test_hardened_requires_idle_transport_and_persistent_network_guard(self):
+        status = SafetyStatus(
+            phase="hardened",
+            firetuner_enabled=False,
+            firewall_enabled=True,
+            civ_rule_present=True,
+            civ_incoming_blocked=True,
+            port_4318_listening=False,
+            agent_socket_present=False,
+        )
+        self.assertEqual(_phase_issues(status), [])
+        status.firewall_enabled = False
+        status.firetuner_enabled = True
+        issues = " ".join(_phase_issues(status))
+        self.assertIn("remain enabled", issues)
+        self.assertIn("disabled while the host is idle", issues)
+
     def test_live_requires_every_network_guard(self):
         status = SafetyStatus(
             phase="live",

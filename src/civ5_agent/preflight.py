@@ -191,12 +191,25 @@ def _phase_issues(status: SafetyStatus) -> list[str]:
             issues.append("TCP 4318 must not be listening")
         if status.agent_socket_present is not False:
             issues.append("agent Unix socket must be absent")
+    if status.phase == "hardened":
+        if status.firetuner_enabled is not False:
+            issues.append("FireTuner must be disabled while the host is idle")
+        if status.firewall_enabled is not True:
+            issues.append("macOS application firewall must remain enabled")
+        if status.civ_rule_present is not True or status.civ_incoming_blocked is not True:
+            issues.append("Civ V must retain an explicit block-incoming firewall rule")
+        if status.port_4318_listening is not False:
+            issues.append("TCP 4318 must not be listening while the host is idle")
+        if status.agent_socket_present is not False:
+            issues.append("agent Unix socket must be absent while the host is idle")
     return issues
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Read-only Civ V bridge safety checks")
-    parser.add_argument("phase", choices=["status", "ready", "live", "shutdown"])
+    parser.add_argument(
+        "phase", choices=["status", "hardened", "ready", "live", "shutdown"]
+    )
     parser.add_argument("--config", type=Path, default=default_config_path())
     parser.add_argument("--socket", type=Path, default=default_socket_path())
     args = parser.parse_args()

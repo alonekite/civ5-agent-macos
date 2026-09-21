@@ -22,6 +22,8 @@ from .preflight import (
 
 STATE_SCHEMA_VERSION = 1
 SUDO_TOOL = Path("/usr/bin/sudo")
+HARDENING_STATE_NAME = "host-hardening.json"
+SESSION_STATE_NAME = "live-session.json"
 CommandRunner = Callable[[Path, str, str], str]
 
 
@@ -50,9 +52,11 @@ def prepare(
 ) -> dict[str, object]:
     config = config_path or default_config_path()
     directory = session_dir or default_session_dir()
-    state_path = directory / "live-session.json"
+    state_path = directory / SESSION_STATE_NAME
     backup_path = directory / "live-session-config.backup"
     runner = command_runner or _run_firewall_command
+
+    _require_recorded_hardening(directory, config_path=config)
 
     if state_path.exists():
         baseline = _read_state(state_path)
@@ -133,7 +137,7 @@ def restore(
 ) -> dict[str, object]:
     config = config_path or default_config_path()
     directory = session_dir or default_session_dir()
-    state_path = directory / "live-session.json"
+    state_path = directory / SESSION_STATE_NAME
     backup_path = directory / "live-session-config.backup"
     runner = command_runner or _run_firewall_command
 
@@ -169,17 +173,155 @@ def restore(
     return _result("restored", baseline, restored)
 
 
+def harden(
+    *,
+    config_path: Path | None = None,
+    session_dir: Path | None = None,
+    command_runner: CommandRunner | None = None,
+) -> dict[str, object]:
+    """Persist the firewall guard independently of bounded live sessions."""
+    config = config_path or default_config_path()
+    directory = session_dir or default_session_dir()
+    state_path = directory / HARDENING_STATE_NAME
+    session_path = directory / SESSION_STATE_NAME
+    runner = command_runner or _run_firewall_command
+
+    if session_path.exists():
+        raise LiveSessionError("restore the active live session before hardening")
+    if state_path.exists():
+        baseline = _read_state(state_path, allowed_phases={"hardening", "hardened"})
+        if baseline.phase != "hardened":
+            raise LiveSessionError(
+                "an interrupted host hardening exists; run live-session unharden first"
+            )
+        status = inspect_safety("hardened", config_path=config)
+        if not status.ok:
+            raise LiveSessionError(
+                "recorded host hardening has drifted: " + "; ".join(status.issues)
+            )
+        return _result("already_hardened", baseline, status)
+
+    starting = inspect_safety("status", config_path=config)
+    _require_clean_start(starting)
+    baseline = SessionBaseline(
+        schema_version=STATE_SCHEMA_VERSION,
+        phase="hardening",
+        firewall_enabled=bool(starting.firewall_enabled),
+        civ_rule_present=bool(starting.civ_rule_present),
+        civ_incoming_blocked=bool(starting.civ_incoming_blocked),
+    )
+    directory.mkdir(parents=True, exist_ok=True)
+    os.chmod(directory, 0o700)
+    _write_state(state_path, baseline)
+
+    try:
+        if not baseline.civ_rule_present:
+            runner(FIREWALL_TOOL, "--add", str(CIV_EXECUTABLE))
+            runner(FIREWALL_TOOL, "--blockapp", str(CIV_EXECUTABLE))
+        elif not baseline.civ_incoming_blocked:
+            runner(FIREWALL_TOOL, "--blockapp", str(CIV_EXECUTABLE))
+        guarded = inspect_safety("status", config_path=config)
+        if (
+            guarded.civ_rule_present is not True
+            or guarded.civ_incoming_blocked is not True
+        ):
+            raise LiveSessionError("Civ V block-incoming rule verification failed")
+        if not baseline.firewall_enabled:
+            runner(FIREWALL_TOOL, "--setglobalstate", "on")
+        status = inspect_safety("hardened", config_path=config)
+        if not status.ok:
+            raise LiveSessionError(
+                "host hardening verification failed: " + "; ".join(status.issues)
+            )
+        hardened = SessionBaseline(**{**asdict(baseline), "phase": "hardened"})
+        _write_state(state_path, hardened)
+        return _result("hardened", hardened, status)
+    except Exception as error:
+        try:
+            current = inspect_safety("status", config_path=config)
+            _restore_firewall_baseline(baseline, runner=runner, current=current)
+        except Exception as rollback_error:
+            raise LiveSessionError(
+                f"host hardening failed ({error}); rollback also failed ({rollback_error})"
+            ) from error
+        state_path.unlink(missing_ok=True)
+        raise LiveSessionError(
+            f"host hardening failed and was rolled back: {error}"
+        ) from error
+
+
+def unharden(
+    *,
+    config_path: Path | None = None,
+    session_dir: Path | None = None,
+    command_runner: CommandRunner | None = None,
+) -> dict[str, object]:
+    """Restore the exact firewall baseline recorded by :func:`harden`."""
+    config = config_path or default_config_path()
+    directory = session_dir or default_session_dir()
+    state_path = directory / HARDENING_STATE_NAME
+    session_path = directory / SESSION_STATE_NAME
+    runner = command_runner or _run_firewall_command
+
+    if session_path.exists():
+        raise LiveSessionError("restore the active live session before unharden")
+    if not state_path.exists():
+        status = inspect_safety("shutdown", config_path=config)
+        if not status.ok:
+            raise LiveSessionError(
+                "no host-hardening state exists and shutdown is unsafe: "
+                + "; ".join(status.issues)
+            )
+        return {"ok": True, "result": "already_unhardened", "safety": asdict(status)}
+
+    baseline = _read_state(state_path, allowed_phases={"hardening", "hardened"})
+    current = inspect_safety("status", config_path=config)
+    _require_idle(current)
+    _restore_firewall_baseline(baseline, runner=runner, current=current)
+    restored = inspect_safety("shutdown", config_path=config)
+    _verify_restored(restored, baseline)
+    state_path.unlink()
+    return _result("unhardened", baseline, restored)
+
+
 def _require_clean_start(status: SafetyStatus) -> None:
     if status.issues:
         raise LiveSessionError("cannot inspect starting state: " + "; ".join(status.issues))
     if status.firetuner_enabled is not False:
-        raise LiveSessionError("FireTuner must be disabled before preparing a session")
+        raise LiveSessionError("FireTuner must be disabled before preparing or hardening")
     if status.port_4318_listening is not False:
         raise LiveSessionError("Civilization V must be quit before preparing a session")
     if status.agent_socket_present is not False:
         raise LiveSessionError("the watcher must be stopped before preparing a session")
     if status.firewall_enabled is None or status.civ_rule_present is None:
         raise LiveSessionError("firewall baseline is incomplete")
+
+
+def _require_idle(status: SafetyStatus) -> None:
+    if status.issues:
+        raise LiveSessionError("cannot inspect idle host: " + "; ".join(status.issues))
+    if status.firetuner_enabled is not False:
+        raise LiveSessionError("FireTuner must be disabled before changing hardening")
+    if status.port_4318_listening is not False:
+        raise LiveSessionError("quit Civilization V before changing hardening")
+    if status.agent_socket_present is not False:
+        raise LiveSessionError("stop the watcher before changing hardening")
+
+
+def _require_recorded_hardening(directory: Path, *, config_path: Path) -> None:
+    state_path = directory / HARDENING_STATE_NAME
+    if not state_path.exists():
+        return
+    baseline = _read_state(state_path, allowed_phases={"hardening", "hardened"})
+    if baseline.phase != "hardened":
+        raise LiveSessionError(
+            "host hardening is incomplete; run live-session unharden first"
+        )
+    status = inspect_safety("hardened", config_path=config_path)
+    if not status.ok:
+        raise LiveSessionError(
+            "recorded host hardening has drifted: " + "; ".join(status.issues)
+        )
 
 
 def _restore_baseline(
@@ -191,7 +333,18 @@ def _restore_baseline(
     current: SafetyStatus,
 ) -> None:
     shutil.copy2(backup, config)
+    _restore_firewall_baseline(baseline, runner=runner, current=current)
+
+
+def _restore_firewall_baseline(
+    baseline: SessionBaseline,
+    *,
+    runner: CommandRunner,
+    current: SafetyStatus,
+) -> None:
     if baseline.civ_rule_present:
+        if current.civ_rule_present is not True:
+            runner(FIREWALL_TOOL, "--add", str(CIV_EXECUTABLE))
         if (
             current.civ_rule_present is not True
             or current.civ_incoming_blocked is not baseline.civ_incoming_blocked
@@ -276,7 +429,11 @@ def _write_state(path: Path, baseline: SessionBaseline) -> None:
         raise
 
 
-def _read_state(path: Path) -> SessionBaseline:
+def _read_state(
+    path: Path,
+    *,
+    allowed_phases: set[str] | None = None,
+) -> SessionBaseline:
     try:
         payload = json.loads(path.read_text())
         baseline = SessionBaseline(**payload)
@@ -284,7 +441,8 @@ def _read_state(path: Path) -> SessionBaseline:
         raise LiveSessionError(f"invalid live-session state: {error}") from error
     if baseline.schema_version != STATE_SCHEMA_VERSION:
         raise LiveSessionError("unsupported live-session state schema")
-    if baseline.phase not in {"preparing", "prepared"}:
+    phases = allowed_phases or {"preparing", "prepared"}
+    if baseline.phase not in phases:
         raise LiveSessionError("invalid live-session phase")
     for value in (
         baseline.firewall_enabled,
@@ -313,10 +471,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Prepare or restore a bounded, firewall-guarded Civ V session"
     )
-    parser.add_argument("action", choices=("prepare", "restore"))
+    parser.add_argument("action", choices=("harden", "prepare", "restore", "unharden"))
     args = parser.parse_args()
     try:
-        result = prepare() if args.action == "prepare" else restore()
+        operations = {
+            "harden": harden,
+            "prepare": prepare,
+            "restore": restore,
+            "unharden": unharden,
+        }
+        result = operations[args.action]()
     except (LiveSessionError, OSError, subprocess.CalledProcessError) as error:
         print(json.dumps({"ok": False, "error": str(error)}, sort_keys=True))
         return 1
