@@ -2089,3 +2089,47 @@ worked around by replaying authorization or creating a replacement session.
 Repair and independently verify framework control-socket lifetime, package the
 exact candidate, and repeat execution-layer compatibility review before any
 further target attempt.
+
+### 2026-09-21 — Persistent host-hardening installation proof
+
+**Environment**
+
+- Target Apple Silicon Mac with Civilization V and the watcher stopped.
+- Execution-core implementation commit `67dce37` and documentation commit
+  `87c98a9`.
+- Starting state: FireTuner disabled, TCP 4318 closed, no watcher socket,
+  application firewall disabled, and no Civ V firewall rule.
+
+**Procedure**
+
+1. Ran the new `live_session harden` operation once from an interactive host
+   terminal and completed local administrator authorization.
+2. Required its structured result to identify the recorded original baseline
+   and the protected idle state separately.
+3. Independently ran `preflight hardened` in the host context after the
+   mutation completed.
+
+**Observed result**
+
+- `harden` returned `ok=true` and `result=hardened`.
+- The recorded baseline preserved firewall disabled, Civ V rule absent, and
+  incoming block absent.
+- Both the operation result and the later independent read showed FireTuner
+  disabled, firewall enabled, Civ V rule present and blocking incoming
+  connections, TCP 4318 closed, no watcher socket, and no issues.
+- No game, watcher, FireTuner listener, UI action, bridge read, or game write
+  occurred.
+
+**Conclusion**
+
+The one-time persistent guard and the read-only `hardened` phase are verified
+on the target Mac. The private recovery record remains installed so subsequent
+development sessions can retain the guard. Its contents and path were not
+committed.
+
+**Next step**
+
+During the next authorized live test, prove that `prepare` and `restore` toggle
+FireTuner while retaining the hardened firewall/rule state. Exercise
+`unharden` only when the user actually wants to remove the persistent guard;
+do not undo the desired development configuration merely to add coverage.

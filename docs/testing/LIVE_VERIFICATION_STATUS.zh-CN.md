@@ -33,6 +33,7 @@ Edition 对局中实际验证。它是便于快速阅读的状态表，不保存
 | 旧 controller 的就绪检查证明 | 2026-09-12 | dry-run 指出必选事项；显式执行后验证回合推进；不代表未来 M6 战术策略 | [schema 2 实验](../EXPERIMENT_LOG.md#2026-09-12--schema-2-research-production-and-controller-live-proof) |
 | FireTuner 安全边界与恢复 | 2026-09-12 | 防火墙临时开启、Civ V 入站被阻止；测试后配置、端口、socket 和防火墙恢复 | [schema 2 实验](../EXPERIMENT_LOG.md#2026-09-12--schema-2-research-production-and-controller-live-proof) |
 | 只读安全预检 | 2026-09-13 | 恢复后的主机通过 shutdown 检查：FireTuner 关闭且无监听端口和 agent socket | [预检实验](../EXPERIMENT_LOG.md#2026-09-13--read-only-safety-preflight) |
+| 持久主机加固 | 2026-09-21 | 一次性记录原始防火墙/规则基线，启用防火墙并永久阻止 Civ V 入站；随后独立 `hardened` 预检确认 FireTuner、端口和 watcher 均关闭 | [持久加固实验](../EXPERIMENT_LOG.md#2026-09-21--persistent-host-hardening-installation-proof) |
 | schema 4 分段读取 | 2026-09-14 | 读取分数、时代、城市经济、单位状态及早期外交/胜利分支；分段长度受限并检查回合/玩家一致性 | [分段读取实验](../EXPERIMENT_LOG.md#2026-09-14--segmented-live-state-and-corrected-unit-skip-proof) |
 | `skip_unit` | 2026-09-14 | readiness 从 true 变为 false，单位 ID、坐标及剩余移动力不变，自动回读返回成功 | [单位跳过实验](../EXPERIMENT_LOG.md#2026-09-14--segmented-live-state-and-corrected-unit-skip-proof) |
 | schema 5 普通科技状态 | 2026-09-15 | 已研究/可研究集合与游戏界面一致；普通科研从待选择变为已选择后，当前科研及 `required` 同步变化 | [科技状态实验](../EXPERIMENT_LOG.md#2026-09-15--schema-5-ordinary-technology-state-live-proof) |
@@ -50,6 +51,7 @@ Edition 对局中实际验证。它是便于快速阅读的状态表，不保存
 | schema 4：外交非空分支 | 未接触任何主要文明时已确认列表为空 | 遇到主要文明后确认只返回已接触对象 |
 | schema 4：科学胜利非零分支 | 启用标志及五个早期零进度计数已读取 | 用合适后期存档确认非零项目计数 |
 | schema 5：特殊科技选择模式 | 普通科研模式已经实机验证；免费/窃取模式的 API 与控制器拒绝路径已离线测试 | 在自然出现且可安全复现的免费科技或窃取科技场景中验证；保持手动处理 |
+| 持久加固会话生命周期 | `harden` 与独立 `preflight hardened` 已通过，保护状态保留在主机上 | 下次实机测试证明 `prepare/restore` 只切换 FireTuner 并保留防火墙规则；仅在用户确实要撤销加固时验证 `unharden` |
 
 ## 待实机验证
 

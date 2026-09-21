@@ -2062,6 +2062,10 @@ Implementation commit: `67dce37`.
 Documentation commit `87c98a9` completed ADR, security, operations, evidence,
 and current-state governance. GitHub Actions run `35645386536` passed Python
 3.11/3.13, repeatable wheel/source builds, artifact scans, and clean installs.
+The target Mac then completed one authorized `harden`; an independent
+host-context `preflight hardened` confirmed the persistent guard with
+FireTuner, TCP 4318, and the watcher closed. The installed guard was retained
+for development rather than removed solely for test coverage.
 
 ## Archive policy
 

@@ -26,8 +26,10 @@ development log.
   commit `67dce37`. It records an exact private firewall/rule baseline,
   verifies a protected idle phase, keeps per-test prepare/restore scoped to
   FireTuner, detects guard drift, and provides explicit rollback. Target-Mac
-  installation plus one prepare/restore/unharden cycle remain pending and must
-  be recorded as live evidence before adoption.
+  installation is target-verified: one-time `harden` and a later independent
+  host-context `preflight hardened` agreed on the protected idle state. The next
+  live session must prove prepare/restore preservation; `unharden` remains
+  pending until the user actually requests removal of the desired guard.
 - Functional baseline: 374/374 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
   and sdist builds have matching normalized contents; each format installs,
