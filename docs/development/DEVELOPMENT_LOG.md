@@ -2059,6 +2059,10 @@ Implementation and offline compatibility commit: `72cead3`.
 
 Implementation commit: `67dce37`.
 
+Documentation commit `87c98a9` completed ADR, security, operations, evidence,
+and current-state governance. GitHub Actions run `35645386536` passed Python
+3.11/3.13, repeatable wheel/source builds, artifact scans, and clean installs.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
