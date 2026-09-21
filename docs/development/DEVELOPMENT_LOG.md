@@ -1955,6 +1955,31 @@ Implementation and offline compatibility commit: `72cead3`.
   validated it. The warning-enabled core suite passed 367/367 on Python 3.11
   and the default runtime.
 
+## 2026-09-21 — Admit closed-set external UI identity diagnostics
+
+- Recorded a second new-session target attempt against framework `e7bc316` and
+  execution core `1bdc5f9`. It failed with generic `ui_identity_error` before
+  any delivery marker; no action, handoff, watcher, read, write, or recovery-
+  required state occurred, and host shutdown restoration passed.
+- Rejected the first diagnostic candidate because arbitrary `reason` strings
+  could reach durable metadata despite documentation claiming a closed set.
+- Reviewed corrected framework implementation `cca95b4`: reason allowlisting is
+  enforced at exception construction and again at persistence; unknown or
+  mutated values become `unspecified`. An installed-wheel canary containing a
+  private path, window title, AX role, and selector in the reason did not enter
+  metadata.
+- Added ADR-0047 and updated the exact candidate pin, automation contract,
+  operations guide, architecture, state dashboard, verification matrix,
+  experiment evidence, and changelog. SessionSpec v2 and `latp/1` remain
+  unchanged.
+- Framework suites pass 102/102, implementation CI `35613874009` and final
+  documentation CI `35614084845` pass, and exact-commit isolated-wheel install
+  and dependency imports pass. A separately wheel-installed execution core
+  emitted a mode-600 descriptor pinned to `cca95b4`, and the installed framework
+  public CLI accepted it. The warning-enabled core suite passed 367/367 on
+  Python 3.11 and the default runtime; exact-commit core CI remained to be
+  completed at this point.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

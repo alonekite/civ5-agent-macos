@@ -19,6 +19,9 @@ All notable user-visible changes are recorded here. Development details belong i
 - Candidate-framework compatibility now permits bounded waiting for the same
   verified target to regain focus before delivery. Identity changes and every
   post-delivery failure remain terminal and non-retryable.
+- Candidate-framework UI identity failures may expose only an allowlisted,
+  value-free reason token in durable events. Unknown or mutated values become
+  `unspecified`; exception text and target details remain excluded.
 
 ## 1.3.0 - 2026-09-21
 

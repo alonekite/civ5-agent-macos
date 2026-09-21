@@ -1900,3 +1900,48 @@ Review the exact framework fix through an isolated wheel and CI. In the next
 operator-present run, authorize each checkpoint once, return to the exact Civ V
 window, and keep it frontmost while the framework waits and delivers at most
 one action.
+
+### 2026-09-21 — Focus-wait v2 generic-identity diagnostic
+
+**Environment**
+
+- Target Apple Silicon Mac and original Civilization V: Campaign Edition.
+- Execution-core commit `1bdc5f9` and independently installed framework
+  candidate commit `e7bc316`.
+- Fresh private descriptor, runtime, session, and checkpoint; no prior
+  authorization or session state was reused.
+
+**Procedure**
+
+1. Repeated guarded preparation and ready preflight from the restored baseline.
+2. Generated and validated a new private SessionSpec v2, launched one new
+   framework session, visually confirmed `PLAY`, and passed its checkpoint once.
+3. Stopped on the first framework failure without retrying authorization or UI
+   delivery.
+4. Restored the host and verified shutdown in the host execution context.
+
+**Observed result**
+
+- About 1.5 seconds after the new checkpoint response, the session reported
+  generic `ui_identity_error`.
+- No `ui.action_delivery_started` or `ui.action_completed` event existed, so no
+  UI action was delivered and no ambiguous click occurred.
+- No handoff, second checkpoint, watcher, watcher socket, audit record,
+  FireTuner read, or game write occurred.
+- The application terminated normally without recovery-required state.
+- Guarded restore and host-context shutdown preflight returned firewall,
+  Civ V rule, FireTuner, socket, and TCP 4318 to the original baseline.
+
+**Conclusion**
+
+Safe external-framework failure before delivery. The generic error code was
+insufficient to determine whether focus-query, process identity, window, or
+element validation failed. It does not prove the earlier focus hypothesis and
+does not expose an execution-core defect.
+
+**Next step**
+
+Use only a closed-set, value-free reason token on a future diagnostic attempt.
+Do not persist exception messages or observed paths, identities, process
+values, titles, AX content, or selectors. Review and pin the corrected
+framework before another target run.

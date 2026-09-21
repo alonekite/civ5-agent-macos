@@ -131,7 +131,7 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `e7bc316bd61d79b4e3ec9c43090dab7ee7a6766e`. Do not substitute
+framework commit `cca95b4a5f3b7d69d64a710bc5e3c567c657c9e4`. Do not substitute
 it for the adopted v0.1.0 path in unattended or release workflows.
 
 Target inspection verified:
@@ -193,6 +193,9 @@ After replying to a checkpoint in the control client, return to the exact Civ V
 window and keep it frontmost. The framework waits up to the step timeout for
 that same verified target before delivery. It does not focus the app itself.
 Identity change or ambiguity remains terminal; no delivered action is retried.
+If a UI identity failure occurs, preserve only the framework's allowlisted
+`error_reason` token for diagnosis. Never copy exception text or private event
+files into this repository.
 
 ### Exact candidate-retest descriptor generation
 
