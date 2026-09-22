@@ -52,6 +52,12 @@ All notable user-visible changes are recorded here. Development details belong i
   bundle, bundle path, executable path, and regular GUI activation policy are
   revalidated. Accessory and prohibited applications remain terminal, and the
   same checks repeat immediately before delivery.
+- Candidate UI checkpoints now have a private one-use execution-layer challenge
+  gate. It binds authorization to a post-request checkpoint UUID, exact step,
+  task UUID, short nonce, freshness window, owned mode-0600 ticket, and exact
+  operator-presence response. Historical, cross-task, generic, stale, or
+  replayed confirmations are rejected before the composition root may submit
+  framework `pass`.
 
 ## 1.3.0 - 2026-09-21
 

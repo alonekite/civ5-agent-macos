@@ -109,6 +109,15 @@ construction and persistence; exception text and observed target values remain
 private. This does not change the descriptor or make framework events a core
 runtime dependency.
 
+Candidate checkpoint authorization has a separate execution-layer ticket gate.
+It creates and consumes a private one-use challenge only after an exact
+framework checkpoint exists, binding checkpoint UUID, step, execution task,
+request time, freshness, and nonce without importing or speaking the framework
+protocol. The composition root may translate the newly received exact operator
+response to framework `pass` only after local validation succeeds. Because the
+current framework protocol does not carry the nonce, direct bypass remains a
+composition error and a future protocol-enhancement requirement.
+
 Only the exact pre-delivery `focused_application_unavailable` observation may
 enter the existing readiness deadline while Accessibility permission remains
 normal. Query, permission, process, identity, ambiguity, timeout, and all

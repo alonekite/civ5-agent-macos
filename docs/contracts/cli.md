@@ -42,6 +42,17 @@ It fails closed for an unverified bundle or successor identity. Omitting the
 required successor argument is ordinary `argparse` invocation error exit 2.
 This candidate is not part of the adopted v0.1.0 framework contract.
 
+Development `checkpoint-challenge` and `checkpoint-authorize` implement the
+ADR-0054 local operator-presence gate without invoking the framework.
+`checkpoint-challenge` exclusively creates one private mode-0600 ticket after a
+declared checkpoint request and emits the exact nonce-bearing prompt.
+`checkpoint-authorize` accepts only matching canonical checkpoint/task UUIDs,
+supported step, owned regular file, schema, request/creation order, nonce,
+freshness, and response, then deletes the ticket. Both use exit 0 for success
+and the existing provisional exit 2 `invalid_input` envelope for rejected local
+input. The ticket and prompt are not framework protocol fields; a composition
+root must not call framework `pass` unless this gate succeeds.
+
 ## `civ5-turn` input
 
 Supported subcommands are `validate PLAN` and `execute PLAN`. Shared options are

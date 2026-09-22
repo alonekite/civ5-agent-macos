@@ -14,6 +14,35 @@ naturally; do not alter a save to manufacture them.
 
 Do not enable FireTuner until the firewall guard is in place.
 
+## 0. Human checkpoint authorization
+
+This section applies whenever an external automation framework requests a UI
+checkpoint. It is mandatory even for launcher-only actions and applies before
+the rest of this checklist.
+
+- The operator must be physically present at the Mac.
+- Wait until the framework emits the exact `checkpoint.requested` event. A
+  confirmation written before that event is invalid.
+- Create a private `civ5-read-only checkpoint-challenge` bound to the current
+  checkpoint UUID, its exact step, this execution-layer task UUID, and the
+  framework event timestamp.
+- Show the generated prompt to the operator. Accept only a new reply in this
+  same task that exactly reproduces the prompt, including the step and nonce,
+  while stating current Mac presence.
+- Run `checkpoint-authorize` against the same private ticket. Continue only if
+  it returns `authorized: true` and consumes the ticket.
+- Never translate a historical, cross-task, generic, or pre-checkpoint message
+  into `pass`. If presence is unknown, withdrawn, or contradictory, use only
+  fail, abort, or stop.
+- Repeat the entire procedure for every later checkpoint. Authorization for
+  `PLAY` never authorizes `Click to Continue`.
+
+The local helper makes ID/step/task/nonce/freshness/replay mistakes
+machine-detectable, but the current external protocol does not carry the nonce.
+The composition root must still prevent direct `respond-checkpoint pass` calls
+that bypass the helper. Do not run a UI session until this procedure can be
+followed end to end.
+
 ## 1. Prepare the bounded session
 
 - Quit Civilization V and stop any watcher.

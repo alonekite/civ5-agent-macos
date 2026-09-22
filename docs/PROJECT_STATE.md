@@ -35,7 +35,7 @@ development log.
   later `prepare`/`restore` cycles retained the firewall and Civ V block rule
   while returning FireTuner, listener, and watcher to closed state. `unharden`
   remains pending until the user actually requests removal of the desired guard.
-- Functional baseline: 374/374 tests pass warning-enabled in host context on
+- Functional baseline: 378/378 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
   and sdist builds have matching normalized contents; each format installs,
   imports, and starts the supported CLI in a separate clean Python 3.11
@@ -93,7 +93,10 @@ development log.
   nonregular targets, and identity changes remain terminal. Its exact candidate
   wheel and digest are pinned, 124/124 framework host tests pass, and isolated
   installed-wheel validation passes. A fresh operator-present target retest is
-  the next gate. No 0.2 release is adopted.
+  the next gate. After an unattended attempt exposed improper reuse of a
+  pre-checkpoint user message, ADR-0054 adds a private one-use checkpoint/step/
+  task/nonce gate; no retest may proceed without its post-request exact prompt.
+  No 0.2 release is adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

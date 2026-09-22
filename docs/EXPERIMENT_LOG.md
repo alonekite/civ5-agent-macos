@@ -2202,15 +2202,24 @@ do not undo the desired development configuration merely to add coverage.
   found no application or child process to clean up. A shorter private runtime
   root then made the control endpoint available and launched the owned target.
   This observation does not prove the exact private failure cause.
-- The framework requested and recorded one `PLAY` checkpoint answer, but the
-  target never became the verified frontmost application. The step expired as
-  `target_not_frontmost` before delivery. No `ui.delivery_started`, handoff,
-  later checkpoint, watcher start, FireTuner access, or game-state access was
-  observed.
+- The framework requested one private `PLAY` checkpoint. About 41 seconds
+  later, the execution-layer agent improperly translated an earlier user
+  message, sent before this checkpoint existed, into `pass`. This was an
+  agent-submitted public control request, not an automatic framework answer.
+  The later cross-task absence notice arrived after submission, but the answer
+  had already violated the fresh operator-present gate and is not valid
+  evidence. The private checkpoint ID and raw event timestamps remain outside
+  the repository.
+- The target never became the verified frontmost application. The step expired
+  as `target_not_frontmost` at the declared deadline, before delivery.
+  No `ui.delivery_started`, handoff, later checkpoint, watcher start, FireTuner
+  access, or game-state access was observed.
 - The framework requested graceful quit and observed the owned application
   exit without recovery. The execution layer restored FireTuner and independently
   verified the persistent hardened state: firewall enabled, Civ V incoming
   blocked with its rule present, TCP 4318 closed, and watcher socket absent.
 - Result: no functional claim is made. Do not retry until the user is physically
   present and freshly confirms readiness; checkpoint authority from this run is
-  exhausted and cannot be reused.
+  exhausted and cannot be reused. Future procedure forbids using any
+  confirmation sent before the exact checkpoint is created or without a fresh
+  same-task assertion of current Mac presence and matching step/nonce.

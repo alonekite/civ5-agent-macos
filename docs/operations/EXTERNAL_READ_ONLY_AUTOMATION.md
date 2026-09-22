@@ -205,6 +205,30 @@ the framework nor the core performs screenshot/OCR outcome inference. Missing
 Accessibility permission, non-unique identity/window/AX target, an expired or
 refused checkpoint, invalid coordinates, or absent live preflight fails closed.
 
+A checkpoint answer is valid only after the framework has emitted that exact
+checkpoint ID and the execution layer has created a private challenge bound to
+that ID, its current step, and this execution-layer task. The operator must then
+send the exact nonce-bearing prompt as a new message in this task while
+explicitly present at the Mac. A confirmation that predates checkpoint
+creation, belongs to another task or session, omits the current step/nonce, or
+does not assert current presence is never reusable. Unknown, withdrawn, or
+conflicting presence permits only fail, abort, or stop—never `pass`.
+
+Use `civ5-read-only checkpoint-challenge` only after observing
+`checkpoint.requested`, then require the operator to copy its exact prompt.
+Use `civ5-read-only checkpoint-authorize` to validate and consume the private
+mode-0600 ticket before calling the framework's public `respond-checkpoint`.
+The ticket is bound to canonical checkpoint/task UUIDs, one supported step, the
+recorded request time, an eight-hex nonce, and a maximum five-minute age. It is
+deleted on success and cannot authorize a later step.
+
+This local gate cannot prove that a message came from the Codex task because the
+current framework protocol carries neither task identity nor nonce. The
+composition root must enforce message provenance. A future protocol should
+carry a caller nonce in checkpoint creation/response so the framework can
+reject bypasses itself; until then, direct `pass` calls that bypass this ticket
+are outside the supported procedure.
+
 After replying to a checkpoint in the control client, return to the exact Civ V
 window and keep it frontmost. The framework waits up to the step timeout for
 that same verified target before delivery. It does not focus the app itself.

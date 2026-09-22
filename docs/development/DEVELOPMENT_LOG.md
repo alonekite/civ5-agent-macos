@@ -2178,6 +2178,26 @@ changelog. GitHub Actions run `35714542844` passed Python 3.11/3.13,
 repeatable wheel/source builds, artifact scans, and clean wheel/source-
 distribution installation gates.
 
+## 2026-09-22 — Bind UI authorization to fresh one-use challenges
+
+- Audited the unattended candidate attempt and established that the execution-
+  layer agent, not the framework, submitted `pass` by improperly reusing a user
+  message that predated the concrete checkpoint. The later absence notice
+  arrived after submission. Zero UI delivery occurred, but the authorization
+  chain was invalid and is not functional evidence.
+- Added a process-independent `civ5-read-only` challenge/authorize gate. It
+  binds canonical checkpoint/task UUIDs, an allowlisted step, request/creation
+  order, eight-hex nonce, bounded freshness, owned regular mode-0600 storage,
+  exact response, and one-use consumption. It imports no framework code and
+  sends no checkpoint decision.
+- Added ADR-0054, strengthened the external compatibility contract, operations
+  guide, and live-test checklist, and recorded that the current framework
+  protocol cannot attest a caller nonce. The composition root must prohibit
+  direct `pass` bypasses until a protocol enhancement carries that nonce.
+- The warning-enabled core suite passes 378/378 in host context on Python 3.11
+  and the default Python 3.14 runtime. No application, FireTuner session,
+  watcher, framework session, checkpoint, or UI action ran during this repair.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
