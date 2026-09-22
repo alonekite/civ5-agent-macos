@@ -2243,6 +2243,10 @@ log; no core runtime change is indicated by this run.
   The next gate is a wholly fresh operator-present target run with independent
   authorization for PLAY and continue.
 
+Documentation commit `551dbab` recorded the compatibility and evidence
+boundary. GitHub Actions run `35772634016` passed Python 3.11/3.13, repeatable
+wheel/source builds, artifact scans, and clean-install gates.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
