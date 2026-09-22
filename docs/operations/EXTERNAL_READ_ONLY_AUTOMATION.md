@@ -131,9 +131,9 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `51cebff18a57929ef888609efe69a1af381841ad` and wheel
+framework commit `b1f99ef988d376b61269e1cdc377e2033d6d736e` and wheel
 SHA-256
-`6d0fe2669af58c0a77ce22f47a0c5df03c90e9f77956f67a4eb16aea9c185ee3`.
+`cc57a78719507ac65795169d7f87a7c8c58de7d793680f8360bb1de4d2175685`.
 Do not substitute it for the adopted v0.1.0 path in unattended or release
 workflows.
 
@@ -142,10 +142,13 @@ The bound releases a serialized control loop from an incomplete same-user
 request; it does not retry checkpoint responses, authorize UI delivery, or
 change checkpoint expiry and action no-retry rules.
 
-On macOS 26, an absent system-wide focused-application value may be
-corroborated only by a bounded `AXFrontmost` Boolean read from the exact
-verified candidate PID. Other system or candidate AX errors are terminal.
-This is not application activation and does not authorize another PID.
+On macOS 26, an absent system-wide focused-application value or the
+target-observed `kAXErrorCannotComplete` may be corroborated only by a bounded
+`AXFrontmost` Boolean read from the exact verified candidate PID. Before that
+read, the framework revalidates exact bundle and executable identity and
+requires `NSApplicationActivationPolicyRegular`. Other system or candidate AX
+errors, nonregular processes, and identity changes are terminal. This is not
+application activation and does not authorize another PID.
 
 Target inspection verified:
 

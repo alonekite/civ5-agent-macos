@@ -95,7 +95,7 @@ ADR-0041; it remains an optional process-level tool rather than a package
 dependency. See the external automation compatibility contract.
 
 Development core 1.4 also has a process-only candidate adapter for SessionSpec
-v2 at exact framework commit `51cebff`. The core owns the verified Civ V
+v2 at exact framework commit `b1f99ef`. The core owns the verified Civ V
 bundle/window selectors, exact launcher-to-game successor executable, and
 caller-calibrated continue coordinate; the generic framework owns
 checkpoint-gated delivery, bounded waiting for the unchanged target to regain
@@ -124,16 +124,18 @@ The candidate framework bounds every accepted control connection to 0.5
 seconds of socket I/O so a silent same-user peer cannot monopolize the
 serialized control loop across a checkpoint. Timeout returns the server to
 `accept`; it never retries a checkpoint answer or UI action. Candidate identity
-is additionally pinned by exact wheel name and SHA-256 under ADR-0052.
+is additionally pinned by exact wheel name and SHA-256 under ADR-0053.
 
 On macOS 26, candidate frontmost identity remains Accessibility-only. The
 framework queries system-wide `AXFocusedApplication` first. Only
-`kAXErrorNoValue`, or a successful null value, permits a bounded
-application-level `AXFrontmost` read from the already verified candidate PID.
-Every other AX error, an invalid value, missing permission, or a query exception
-is terminal. This corroboration is repeated during final pre-delivery identity
-validation and never activates the application or consults AppKit foreground
-state.
+`kAXErrorNoValue`, a successful null value, or the target-observed
+`kAXErrorCannotComplete` may enter a bounded application-level `AXFrontmost`
+read. Before that read, the framework revalidates the exact PID, bundle,
+resolved bundle and executable paths, and requires the regular GUI activation
+policy. Every other AX error, nonregular or changed target, invalid value,
+missing permission, or query exception is terminal. The complete check repeats
+during final pre-delivery identity validation and never activates the
+application or consults AppKit foreground state.
 
 The M7 `WatcherBridgeClient` is the bridge-facing Python surface over this
 private socket. It exposes validated session-aware reads, individual verified

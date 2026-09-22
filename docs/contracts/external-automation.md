@@ -3,9 +3,9 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `51cebff18a57929ef888609efe69a1af381841ad`
+framework development commit `b1f99ef988d376b61269e1cdc377e2033d6d736e`
 and candidate wheel SHA-256
-`6d0fe2669af58c0a77ce22f47a0c5df03c90e9f77956f67a4eb16aea9c185ee3`.
+`cc57a78719507ac65795169d7f87a7c8c58de7d793680f8360bb1de4d2175685`.
 It is not an adopted framework release or runtime dependency.
 
 ## Adopted artifact
@@ -99,7 +99,7 @@ is tested through an isolated install of a wheel built from the exact candidate
 commit, not through `PYTHONPATH` or a source checkout. Adoption requires a
 published framework version and immutable wheel digest.
 
-The repaired candidate's own task reports 119/119 host tests. The suite includes
+The repaired candidate's own task reports 124/124 host tests. The suite includes
 a real-socket silent-peer case followed by a valid status request and a complete
 checkpoint creation/status/response/delivery/cleanup lifecycle, plus strict AX
 no-value/error classification at candidate selection and final delivery
@@ -109,7 +109,7 @@ declared dependencies in a fresh Python 3.12 environment. Its installed public C
 accepts a private mode-0600 v2 descriptor emitted by a separately
 wheel-installed core. The core's warning-enabled suite passes 374/374 on Python
 3.11 and the default runtime. This is offline compatibility evidence for the
-strict AX candidate, not a successful target UI run of that candidate.
+exact-regular AX candidate, not a successful target UI run of that candidate.
 
 After one checkpoint is authorized, the framework may wait within the existing
 step timeout for the same fully verified target to become frontmost again. This
@@ -144,14 +144,17 @@ the serialized supervisor loop for the remaining session lifetime. The timeout
 does not authorize a request, retry `respond_checkpoint`, replay UI delivery,
 or change checkpoint authority, expiry, durable state, or report semantics.
 
-When system-wide `AXFocusedApplication` explicitly has no value on macOS 26,
-the candidate may corroborate only the exact already verified PID through a
-0.25-second application-level `AXFrontmost` query. Only `kAXErrorNoValue` or a
-successful null system value enters this path. Other nonzero AX errors,
-exceptions, invalid PIDs, non-Boolean candidate values, and permission failures
-are terminal. Boolean false remains bounded `target_not_frontmost`; no AppKit
-foreground fallback, application activation, request retry, or delivery retry
-is permitted.
+When system-wide `AXFocusedApplication` explicitly has no value or returns the
+target-observed `kAXErrorCannotComplete` on macOS 26, the candidate may
+corroborate only the exact already verified PID through a 0.25-second
+application-level `AXFrontmost` query. Before that query, the candidate must
+still have the same bundle identifier, resolved bundle and executable paths,
+and regular GUI activation policy. Other nonzero system errors, a nonregular or
+changed candidate, candidate AX errors, invalid PIDs, non-Boolean values, and
+permission failures are terminal. Boolean false remains bounded
+`target_not_frontmost`; no AppKit foreground fallback, application activation,
+request retry, or delivery retry is permitted. The entire identity, activation-
+policy, and focus sequence repeats at final pre-delivery revalidation.
 
 ## Verification evidence
 

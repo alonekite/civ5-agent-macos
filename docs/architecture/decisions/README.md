@@ -58,6 +58,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0050](ADR-0050-separate-persistent-host-hardening-from-live-sessions.md) | Separate persistent host hardening from live sessions | Accepted |
 | [ADR-0051](ADR-0051-bound-external-control-connection-lifetime.md) | Bound external control-connection lifetime | Accepted; supersedes ADR-0049 only for the candidate implementation pin |
 | [ADR-0052](ADR-0052-corroborate-macos-frontmost-through-exact-ax-candidate.md) | Corroborate macOS frontmost state through the exact AX candidate | Accepted; supersedes ADR-0051 only for the candidate implementation pin |
+| [ADR-0053](ADR-0053-bind-cannot-complete-corroboration-to-regular-applications.md) | Bind cannot-complete corroboration to the exact regular application | Accepted; supersedes ADR-0052 only for the candidate implementation pin and cannot-complete classification |
 
 ## Template
 

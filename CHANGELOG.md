@@ -47,6 +47,11 @@ All notable user-visible changes are recorded here. Development details belong i
   system-wide focused-application value is explicitly absent. Other AX errors,
   invalid values, and permission failures remain terminal; AppKit fallback and
   application activation remain forbidden.
+- Candidate macOS 26 frontmost verification may also corroborate the observed
+  system-wide `kAXErrorCannotComplete` result, but only after the exact PID,
+  bundle, bundle path, executable path, and regular GUI activation policy are
+  revalidated. Accessory and prohibited applications remain terminal, and the
+  same checks repeat immediately before delivery.
 
 ## 1.3.0 - 2026-09-21
 

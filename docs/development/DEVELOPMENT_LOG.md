@@ -2145,6 +2145,32 @@ distribution installation gates.
   the exact regular application and preserves final revalidation, no
   activation, and no retry.
 
+## 2026-09-22 — Accept exact-regular AX corroboration candidate offline
+
+- Independently reviewed framework commit
+  `b1f99ef988d376b61269e1cdc377e2033d6d736e`. Only system
+  `kAXErrorNoValue`, successful null, or the target-observed
+  `kAXErrorCannotComplete` can reach candidate corroboration. The path first
+  revalidates exact PID, bundle identifier, resolved bundle and executable
+  paths, and regular GUI activation policy; it repeats these checks at the
+  final delivery boundary without activation or retry.
+- Confirmed on the target host that all 118 currently queried AppKit
+  `activationPolicy()` values and the regular-policy constant have the integer
+  type required by the candidate. No application identities were retained.
+- Ran the framework's complete host suite at 124/124. The exact 20-member
+  candidate wheel SHA-256 is
+  `cc57a78719507ac65795169d7f87a7c8c58de7d793680f8360bb1de4d2175685`.
+- Installed the exact framework wheel with its declared dependencies and a
+  separately built core wheel in fresh Python 3.12 environments. The installed
+  core emitted a private mode-0600 SessionSpec v2 descriptor and the installed
+  framework public CLI validated it.
+- The warning-enabled core suite passed 374/374 in host context on Python 3.11
+  and the default Python 3.14 runtime. No application, live safety session,
+  checkpoint, watcher, or UI action ran.
+- Added ADR-0053 and advanced only the provisional v2 compatibility pin. The
+  adopted framework v0.1.0 boundary remains unchanged; a fresh operator-present
+  target run is required before any 0.2 release adoption.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

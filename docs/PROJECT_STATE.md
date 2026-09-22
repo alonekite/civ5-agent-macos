@@ -13,18 +13,19 @@ development log.
 - Active next deliverable: monitor downstream integration and route any next
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is implemented and
-  its exact launcher-to-game handoff is now pinned to strict framework commit
-  `51cebff`. Earlier runs exposed focus readiness, sanitized diagnostics, a
+  its exact launcher-to-game handoff is now pinned to framework commit
+  `b1f99ef`. Earlier runs exposed focus readiness, sanitized diagnostics, a
   stalled control connection, and macOS 26 system-wide AX focus unavailability;
   each failed before delivery and restored safely. The control-lifetime and
-  exact-candidate AX corroboration repairs have passed independent review. The
-  framework host suite passes 119/119, exact candidate/core wheels install in
+  exact-regular AX corroboration repairs have passed independent review. The
+  framework host suite passes 124/124, exact candidate/core wheels install in
   isolation, and the installed public CLI validates the private descriptor.
   A fresh operator-present run then correctly rejected system-wide
-  `kAXErrorCannotComplete` before delivery. The strict candidate is safe but
-  not functional on the target; a narrower exact-regular-application
-  corroboration model is under offline review before any further target run.
-  The adapter adds no game-state or write capability.
+  `kAXErrorCannotComplete` before delivery. The successor now permits that
+  result to enter bounded candidate AX corroboration only after exact identity
+  and regular GUI activation-policy revalidation. Offline review is complete;
+  a fresh target run is the next gate. The adapter adds no game-state or write
+  capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
   verifies a protected idle phase, keeps per-test prepare/restore scoped to
@@ -45,9 +46,9 @@ development log.
   The observed `3.19` point difference remains recorded without normalization;
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
-- User presence required next: no for offline review. A later candidate
-  SessionSpec v2 target retest requires the user at the Mac for fresh bounded
-  authorization and visual evidence.
+- User presence required next: yes. The candidate SessionSpec v2 target retest
+  requires the user at the Mac for fresh bounded authorization and visual
+  evidence.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -57,7 +58,7 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- Candidate framework commit `51cebff` supplies refreshed frontmost checks,
+- Candidate framework commit `b1f99ef` supplies refreshed frontmost checks,
   bounded pre-delivery readiness retry, and durable same-PID executable handoff
   required by the generated SessionSpec v2
   startup sequence. Target observation verified exact Civ V bundle/window
@@ -86,13 +87,13 @@ development log.
   expiry, UI delivery, or no-retry semantics. Two later runs answered the first
   checkpoint through that repaired control path but expired with zero delivery
   because macOS 26 exposed no system-wide AX focused-application value. The
-  strict candidate now permits a 0.25-second `AXFrontmost` corroboration only
-  from the same exact PID and only after `kAXErrorNoValue` or successful null;
-  all other AX errors remain terminal. Its exact candidate wheel and digest are
-  pinned, 119/119 framework host tests and isolated installed-wheel validation
-  pass. Its target run failed closed on `kAXErrorCannotComplete` with zero
-  delivery. It remains the safe compatibility pin while a stricter functional
-  successor is reviewed; no 0.2 release is adopted.
+  successor permits a 0.25-second `AXFrontmost` corroboration only from the
+  revalidated exact regular GUI PID and only after `kAXErrorNoValue`, successful
+  null, or the target-observed `kAXErrorCannotComplete`; all other AX errors,
+  nonregular targets, and identity changes remain terminal. Its exact candidate
+  wheel and digest are pinned, 124/124 framework host tests pass, and isolated
+  installed-wheel validation passes. A fresh operator-present target retest is
+  the next gate. No 0.2 release is adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
