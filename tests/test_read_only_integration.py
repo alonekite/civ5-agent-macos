@@ -1,11 +1,19 @@
 import contextlib
 import io
 import json
+import os
+import stat
 import tomllib
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import Mock, patch
 
+from civ5_agent.checkpoint_authorization import (
+    CHECKPOINT_AUTHORIZATION_VERSION,
+    authorize_checkpoint_challenge,
+    create_checkpoint_challenge,
+)
 from civ5_agent.models import GameState
 from civ5_agent.read_only_integration import (
     AUTOMATION_FRAMEWORK_RELEASE_TAG,
@@ -32,6 +40,8 @@ from civ5_agent.read_only_integration import (
 
 
 SESSION_ID = "123e4567-e89b-42d3-a456-426614174070"
+CHECKPOINT_ID = "123e4567-e89b-42d3-a456-426614174071"
+TASK_ID = "123e4567-e89b-42d3-a456-426614174072"
 
 
 def private_state() -> GameState:
@@ -53,6 +63,183 @@ def private_state() -> GameState:
 
 
 class ReadOnlyIntegrationTest(unittest.TestCase):
+    def test_checkpoint_challenge_is_private_exact_and_one_time(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "challenge.json"
+            challenge = create_checkpoint_challenge(
+                path,
+                checkpoint_id=CHECKPOINT_ID,
+                step_id="press_launcher_play",
+                task_id=TASK_ID,
+                requested_at_unix=99.0,
+                now=100.0,
+                nonce="0123abcd",
+            )
+
+            self.assertEqual(challenge["schema_version"], CHECKPOINT_AUTHORIZATION_VERSION)
+            self.assertEqual(
+                challenge["prompt"],
+                "I am at the Mac; authorize press_launcher_play 0123abcd",
+            )
+            self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+            with self.assertRaisesRegex(ValueError, "could not be created"):
+                create_checkpoint_challenge(
+                    path,
+                    checkpoint_id=CHECKPOINT_ID,
+                    step_id="press_launcher_play",
+                    task_id=TASK_ID,
+                    requested_at_unix=99.0,
+                    now=100.0,
+                    nonce="89abcdef",
+                )
+            authorized = authorize_checkpoint_challenge(
+                path,
+                checkpoint_id=CHECKPOINT_ID,
+                step_id="press_launcher_play",
+                task_id=TASK_ID,
+                response=challenge["prompt"],
+                now=101.0,
+            )
+            self.assertTrue(authorized["authorized"])
+            self.assertFalse(path.exists())
+            with self.assertRaisesRegex(ValueError, "unavailable"):
+                authorize_checkpoint_challenge(
+                    path,
+                    checkpoint_id=CHECKPOINT_ID,
+                    step_id="press_launcher_play",
+                    task_id=TASK_ID,
+                    response=challenge["prompt"],
+                    now=102.0,
+                )
+
+    def test_checkpoint_challenge_rejects_predating_or_mismatched_authority(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "challenge.json"
+            with self.assertRaisesRegex(ValueError, "after checkpoint.requested"):
+                create_checkpoint_challenge(
+                    path,
+                    checkpoint_id=CHECKPOINT_ID,
+                    step_id="press_launcher_play",
+                    task_id=TASK_ID,
+                    requested_at_unix=101.0,
+                    now=100.0,
+                    nonce="0123abcd",
+                )
+            challenge = create_checkpoint_challenge(
+                path,
+                checkpoint_id=CHECKPOINT_ID,
+                step_id="press_launcher_play",
+                task_id=TASK_ID,
+                requested_at_unix=99.0,
+                now=100.0,
+                nonce="0123abcd",
+            )
+            for changed in (
+                {"checkpoint_id": SESSION_ID},
+                {"step_id": "click_game_continue"},
+                {"task_id": "123e4567-e89b-42d3-a456-426614174073"},
+                {"response": "确认 PLAY"},
+            ):
+                arguments = {
+                    "checkpoint_id": CHECKPOINT_ID,
+                    "step_id": "press_launcher_play",
+                    "task_id": TASK_ID,
+                    "response": challenge["prompt"],
+                } | changed
+                with self.subTest(changed=changed), self.assertRaises(ValueError):
+                    authorize_checkpoint_challenge(path, **arguments, now=101.0)
+                self.assertTrue(path.exists())
+
+    def test_checkpoint_challenge_rejects_stale_insecure_and_replayed_files(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            stale = root / "stale.json"
+            challenge = create_checkpoint_challenge(
+                stale,
+                checkpoint_id=CHECKPOINT_ID,
+                step_id="press_launcher_play",
+                task_id=TASK_ID,
+                requested_at_unix=99.0,
+                now=100.0,
+                nonce="0123abcd",
+            )
+            with self.assertRaisesRegex(ValueError, "not fresh"):
+                authorize_checkpoint_challenge(
+                    stale,
+                    checkpoint_id=CHECKPOINT_ID,
+                    step_id="press_launcher_play",
+                    task_id=TASK_ID,
+                    response=challenge["prompt"],
+                    max_age_seconds=10,
+                    now=111.0,
+                )
+            os.chmod(stale, 0o644)
+            with self.assertRaisesRegex(ValueError, "0600"):
+                authorize_checkpoint_challenge(
+                    stale,
+                    checkpoint_id=CHECKPOINT_ID,
+                    step_id="press_launcher_play",
+                    task_id=TASK_ID,
+                    response=challenge["prompt"],
+                    now=101.0,
+                )
+            os.chmod(stale, 0o600)
+            link = root / "link.json"
+            link.symlink_to(stale)
+            with self.assertRaisesRegex(ValueError, "unavailable"):
+                authorize_checkpoint_challenge(
+                    link,
+                    checkpoint_id=CHECKPOINT_ID,
+                    step_id="press_launcher_play",
+                    task_id=TASK_ID,
+                    response=challenge["prompt"],
+                    now=101.0,
+                )
+
+    def test_checkpoint_challenge_cli_requires_post_request_exact_response(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "challenge.json"
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                status = main(
+                    [
+                        "checkpoint-challenge",
+                        "--file",
+                        str(path),
+                        "--checkpoint-id",
+                        CHECKPOINT_ID,
+                        "--step-id",
+                        "press_launcher_play",
+                        "--task-id",
+                        TASK_ID,
+                        "--checkpoint-requested-at",
+                        "2020-01-01T00:00:00Z",
+                    ]
+                )
+            self.assertEqual(status, 0)
+            challenge = json.loads(output.getvalue())
+
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                status = main(
+                    [
+                        "checkpoint-authorize",
+                        "--file",
+                        str(path),
+                        "--checkpoint-id",
+                        CHECKPOINT_ID,
+                        "--step-id",
+                        "press_launcher_play",
+                        "--task-id",
+                        TASK_ID,
+                        "--response",
+                        challenge["prompt"],
+                    ]
+                )
+            self.assertEqual(status, 0)
+            self.assertTrue(json.loads(output.getvalue())["authorized"])
+            self.assertFalse(path.exists())
+
     def test_framework_remains_outside_python_dependency_and_import_graph(self):
         root = Path(__file__).resolve().parents[1]
         project = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))

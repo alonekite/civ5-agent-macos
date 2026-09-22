@@ -11,6 +11,12 @@ import time
 from pathlib import Path, PurePosixPath
 from typing import Sequence
 
+from .checkpoint_authorization import (
+    CHECKPOINT_STEPS,
+    authorize_checkpoint_challenge,
+    create_checkpoint_challenge,
+    parse_checkpoint_time,
+)
 from .errors import ProtocolError, TransportError
 from .identity import validate_bridge_session_id
 from .ipc import default_socket_path, request
@@ -368,6 +374,29 @@ def _parser() -> argparse.ArgumentParser:
     ui_spec.add_argument("--ui-timeout-ms", type=int, default=300_000)
     ui_spec.add_argument("--authorization-timeout-ms", type=int, default=300_000)
     ui_spec.add_argument("--identity-handoff-timeout-ms", type=int, default=300_000)
+
+    challenge = subparsers.add_parser(
+        "checkpoint-challenge",
+        help="create a private fresh operator-presence challenge",
+    )
+    challenge.add_argument("--file", required=True, type=Path)
+    challenge.add_argument("--checkpoint-id", required=True)
+    challenge.add_argument("--step-id", required=True, choices=sorted(CHECKPOINT_STEPS))
+    challenge.add_argument("--task-id", required=True)
+    challenge.add_argument(
+        "--checkpoint-requested-at", required=True, type=parse_checkpoint_time
+    )
+
+    authorize = subparsers.add_parser(
+        "checkpoint-authorize",
+        help="validate and consume one exact operator-presence challenge",
+    )
+    authorize.add_argument("--file", required=True, type=Path)
+    authorize.add_argument("--checkpoint-id", required=True)
+    authorize.add_argument("--step-id", required=True, choices=sorted(CHECKPOINT_STEPS))
+    authorize.add_argument("--task-id", required=True)
+    authorize.add_argument("--response", required=True)
+    authorize.add_argument("--max-age-seconds", type=int, default=300)
     return parser
 
 
@@ -423,6 +452,29 @@ def main(argv: Sequence[str] | None = None) -> int:
                     ui_timeout_ms=args.ui_timeout_ms,
                     authorization_timeout_ms=args.authorization_timeout_ms,
                     identity_handoff_timeout_ms=args.identity_handoff_timeout_ms,
+                )
+            )
+            return 0
+        if args.command == "checkpoint-challenge":
+            _emit(
+                create_checkpoint_challenge(
+                    args.file,
+                    checkpoint_id=args.checkpoint_id,
+                    step_id=args.step_id,
+                    task_id=args.task_id,
+                    requested_at_unix=args.checkpoint_requested_at,
+                )
+            )
+            return 0
+        if args.command == "checkpoint-authorize":
+            _emit(
+                authorize_checkpoint_challenge(
+                    args.file,
+                    checkpoint_id=args.checkpoint_id,
+                    step_id=args.step_id,
+                    task_id=args.task_id,
+                    response=args.response,
+                    max_age_seconds=args.max_age_seconds,
                 )
             )
             return 0
