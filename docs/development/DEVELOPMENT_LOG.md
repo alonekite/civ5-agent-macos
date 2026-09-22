@@ -2126,6 +2126,25 @@ and changelog. GitHub Actions run `35664559542` passed Python 3.11/3.13,
 repeatable wheel/source builds, artifact scans, and clean wheel/source-
 distribution installation gates.
 
+## 2026-09-22 — Diagnose strict AX candidate target rejection
+
+- Ran one fresh operator-present target gate against exact framework candidate
+  `51cebff`. The checkpoint answer succeeded, then the framework rejected
+  `kAXErrorCannotComplete` before delivery exactly as ADR-0052 requires. No UI
+  action, handoff, later checkpoint, watcher, or game access occurred.
+- Restored the execution-layer safety session and independently confirmed the
+  persistent firewall/Civ V block guard with FireTuner, TCP 4318, and watcher
+  closed.
+- Input-free host diagnostics found the system-wide AX query returned
+  `-25204`. Application-level `AXFrontmost` was not globally unique across
+  auxiliary/prohibited processes, but was unique among the 17 successfully
+  queried regular GUI applications. No application identity was retained or
+  recorded.
+- Kept `51cebff` as the safe fail-closed compatibility pin and blocked further
+  live retries. A successor may be reviewed only if it binds corroboration to
+  the exact regular application and preserves final revalidation, no
+  activation, and no retry.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

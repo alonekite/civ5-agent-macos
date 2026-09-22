@@ -20,7 +20,10 @@ development log.
   exact-candidate AX corroboration repairs have passed independent review. The
   framework host suite passes 119/119, exact candidate/core wheels install in
   isolation, and the installed public CLI validates the private descriptor.
-  Another fresh operator-present target run is now the remaining gate.
+  A fresh operator-present run then correctly rejected system-wide
+  `kAXErrorCannotComplete` before delivery. The strict candidate is safe but
+  not functional on the target; a narrower exact-regular-application
+  corroboration model is under offline review before any further target run.
   The adapter adds no game-state or write capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
@@ -87,7 +90,9 @@ development log.
   from the same exact PID and only after `kAXErrorNoValue` or successful null;
   all other AX errors remain terminal. Its exact candidate wheel and digest are
   pinned, 119/119 framework host tests and isolated installed-wheel validation
-  pass, and no 0.2 release is adopted.
+  pass. Its target run failed closed on `kAXErrorCannotComplete` with zero
+  delivery. It remains the safe compatibility pin while a stricter functional
+  successor is reviewed; no 0.2 release is adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

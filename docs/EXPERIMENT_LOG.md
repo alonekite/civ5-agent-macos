@@ -2159,3 +2159,34 @@ do not undo the desired development configuration merely to add coverage.
   checkpoint response. The remaining target gap is macOS 26 frontmost
   corroboration. Framework commit `51cebff` is accepted offline only after
   strict AX error classification; it has not yet received target evidence.
+
+## 2026-09-22 — Strict AX candidate target rejection and bounded diagnosis
+
+- Scope: one fresh operator-present SessionSpec v2 run using execution core
+  `ddb67ff` and exact framework candidate `51cebff`; no game-state write was
+  authorized.
+- Fresh hardened/ready checks passed before launch. The user authorized the
+  unique launcher `PLAY` checkpoint once. The framework recorded the answer,
+  then failed before its delivery boundary with sanitized
+  `focused_application_query`. UI delivery, handoff, later checkpoint, watcher,
+  and game access counts remained zero; the owned launcher terminated without
+  recovery.
+- A post-restore, input-free binding diagnostic confirmed Accessibility trust
+  was present while system-wide `AXFocusedApplication` returned
+  `kAXErrorCannotComplete` (`-25204`) and a null value. The strict candidate
+  therefore rejected the state as designed rather than treating an error as
+  proof of absence.
+- A second input-free diagnostic queried bounded application-level
+  `AXFrontmost` values without retaining or printing application identities.
+  Across 118 running applications, 10 reported true, 76 false, and 32 an AX
+  error. Restricted to regular GUI applications, one reported true, 16 false,
+  and none errored; accessory and prohibited processes accounted for the other
+  true values.
+- Restore returned FireTuner, TCP 4318, and the watcher socket to closed state
+  while retaining the firewall and Civ V incoming-block rule. Independent
+  host-context `preflight hardened` passed.
+- Result: candidate `51cebff` passes its fail-closed target behavior but does
+  not pass the functional `PLAY` gate. A future candidate must either preserve
+  the block or formally bind any `kAXErrorCannotComplete` corroboration to the
+  exact regular application and repeat that identity immediately before
+  delivery. No further target retry is authorized yet.
