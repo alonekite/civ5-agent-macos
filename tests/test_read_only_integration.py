@@ -84,7 +84,7 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
         self.assertEqual(AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION, 1)
         self.assertEqual(
             AUTOMATION_FRAMEWORK_V2_CANDIDATE_COMMIT,
-            "51cebff18a57929ef888609efe69a1af381841ad",
+            "b1f99ef988d376b61269e1cdc377e2033d6d736e",
         )
         self.assertEqual(
             AUTOMATION_FRAMEWORK_V2_CANDIDATE_WHEEL_NAME,
@@ -92,7 +92,7 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
         )
         self.assertEqual(
             AUTOMATION_FRAMEWORK_V2_CANDIDATE_WHEEL_SHA256,
-            "6d0fe2669af58c0a77ce22f47a0c5df03c90e9f77956f67a4eb16aea9c185ee3",
+            "cc57a78719507ac65795169d7f87a7c8c58de7d793680f8360bb1de4d2175685",
         )
         self.assertEqual(AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION, 2)
 
