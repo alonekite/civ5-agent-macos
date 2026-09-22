@@ -2198,6 +2198,13 @@ distribution installation gates.
   and the default Python 3.14 runtime. No application, FireTuner session,
   watcher, framework session, checkpoint, or UI action ran during this repair.
 
+Implementation commit `d18f07c` added the private authorization module, CLI
+composition, and regression tests. Documentation commit `74632ee` completed
+ADR-0054, the owning contracts, live-test checklist, incident evidence, state
+dashboard, verification matrix, and changelog. GitHub Actions run `35721241540`
+passed Python 3.11/3.13, repeatable wheel/source builds, artifact scans, and
+clean wheel/source-distribution installation gates.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
