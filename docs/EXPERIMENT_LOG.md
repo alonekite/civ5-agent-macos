@@ -2246,3 +2246,41 @@ do not undo the desired development configuration merely to add coverage.
   evidence. The helper now accepts canonical execution-task UUIDv4 or UUIDv7
   while retaining UUIDv4 for framework checkpoint identity; a completely new
   session and checkpoint are required for the next attempt.
+
+## 2026-09-22 — Operator-present v2 PLAY delivery and incomplete handoff
+
+- Scope: exact framework candidate `b1f99ef`, wheel digest
+  `cc57a78719507ac65795169d7f87a7c8c58de7d793680f8360bb1de4d2175685`,
+  and execution core `4028796`. The installed wheels ran from separate private
+  environments. The session authorized only the declared UI steps and a
+  read-only watcher; it authorized no game-state write.
+- An initial fresh checkpoint expired without a response. Its framework session
+  failed with `checkpoint_expired`; FireTuner was restored, and independent
+  `preflight hardened` passed before a new session was created.
+- In the new session, the operator sent the exact nonce-bearing PLAY response
+  after the checkpoint request. The private helper accepted and consumed its
+  mode-0600 ticket before the execution layer submitted one `pass`.
+- Framework events recorded `ui.action_delivery_started` and
+  `ui.action_completed` for `press_launcher_play`, followed by
+  `identity_handoff.pending`. A read-only screen observation and the operator
+  both saw the game's `Click to Continue` screen. A host process read showed
+  the original PID running the declared game executable, while the framework's
+  persisted application identity still named the launcher executable.
+- No `identity_handoff.completed` or second checkpoint appeared. The framework
+  waited its declared five-minute handoff interval, then reported
+  `application_identity_error` and `recovery_required`. No continue click,
+  watcher start, FireTuner connection, or game-state read was observed. This
+  establishes a handoff-recognition failure, but the available evidence does
+  not isolate which candidate/probe check withheld acceptance.
+- Framework recovery remained `cleanup_incomplete` because it would not act
+  on the changed executable identity. The operator exited the game manually;
+  a host process check confirmed the tracked PID absent. A later framework
+  recovery check still reported `cleanup_incomplete`, so no framework-clean
+  outcome is claimed.
+- The execution layer restored FireTuner. Independent `preflight hardened`
+  confirmed the firewall enabled, the explicit Civ V incoming block present,
+  TCP 4318 closed, and watcher socket absent. Private checkpoint IDs, nonce,
+  raw event times, process ID, and local paths remain outside the repository.
+- Result: the one-use authorization gate and automated PLAY delivery now have
+  target evidence. The complete v2 flow remains unverified until the separate
+  framework fixes and proves identity handoff and second-step continuation.

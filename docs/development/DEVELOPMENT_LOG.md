@@ -2216,6 +2216,15 @@ recorded the fail-closed target observation and compatibility boundary. GitHub
 Actions run `35728490053` passed Python 3.11/3.13 and the complete artifact and
 clean-install gates.
 
+The next operator-present target run passed the one-use PLAY authorization gate
+and the framework recorded one completed AX press. Civ V visibly reached
+`Click to Continue`, but the declared same-PID executable handoff timed out;
+the second checkpoint and read-only watcher never started. After the operator
+exited the game, the tracked PID was absent and independent hardened preflight
+passed. The framework session retained `recovery_required/cleanup_incomplete`.
+The bounded evidence and remaining framework-owned gap are in the experiment
+log; no core runtime change is indicated by this run.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

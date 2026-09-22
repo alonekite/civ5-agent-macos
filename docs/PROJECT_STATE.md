@@ -99,7 +99,14 @@ development log.
   Its first target use failed closed before delivery because the current Codex
   task identity is UUIDv7 while the helper admitted UUIDv4 only. Compatibility
   now explicitly admits canonical task UUIDv4/UUIDv7 without relaxing the
-  framework checkpoint UUIDv4 requirement; a wholly fresh retest is pending.
+  framework checkpoint UUIDv4 requirement. A wholly fresh operator-present
+  retest then completed the gated PLAY delivery and visibly reached the game's
+  `Click to Continue` screen, but the framework never accepted the declared
+  same-PID executable handoff. It timed out with `application_identity_error`;
+  no second checkpoint or watcher followed. The operator exited the game and
+  the host returned to the hardened state. The framework's private session
+  remains `recovery_required/cleanup_incomplete`; the next repair belongs to
+  the independently owned automation framework.
   No 0.2 release is adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
