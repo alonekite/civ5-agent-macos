@@ -2223,3 +2223,26 @@ do not undo the desired development configuration merely to add coverage.
   exhausted and cannot be reused. Future procedure forbids using any
   confirmation sent before the exact checkpoint is created or without a fresh
   same-task assertion of current Mac presence and matching step/nonce.
+
+## 2026-09-22 — Fresh authorization gate rejects task-identity mismatch
+
+- Scope: one new operator-present setup attempt using exact framework candidate
+  `b1f99ef` and execution core `7a9eee3`; no game-state read or write was
+  authorized.
+- The hardened preflight passed, isolated framework/core wheels installed, the
+  private SessionSpec v2 validated, and the framework requested the first
+  `press_launcher_play` checkpoint. Before any checkpoint decision, the new
+  execution-layer authorization helper rejected the current canonical Codex
+  task identity because the implementation accepted UUIDv4 only while Codex
+  had supplied UUIDv7.
+- The execution layer submitted `abort`, not `pass`. The framework recorded
+  zero UI deliveries, terminated the owned launcher, and never started the
+  watcher or accessed FireTuner. Private checkpoint identity and raw event
+  times remain outside the repository.
+- Restore closed FireTuner, TCP 4318, and the watcher socket while retaining
+  the persistent firewall and Civ V incoming-block rule. An independent
+  `preflight hardened` check passed afterward.
+- Result: this is fail-closed compatibility evidence, not functional UI
+  evidence. The helper now accepts canonical execution-task UUIDv4 or UUIDv7
+  while retaining UUIDv4 for framework checkpoint identity; a completely new
+  session and checkpoint are required for the next attempt.

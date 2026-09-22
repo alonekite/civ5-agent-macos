@@ -46,7 +46,8 @@ Development `checkpoint-challenge` and `checkpoint-authorize` implement the
 ADR-0054 local operator-presence gate without invoking the framework.
 `checkpoint-challenge` exclusively creates one private mode-0600 ticket after a
 declared checkpoint request and emits the exact nonce-bearing prompt.
-`checkpoint-authorize` accepts only matching canonical checkpoint/task UUIDs,
+`checkpoint-authorize` accepts only a matching canonical checkpoint UUIDv4 and
+task UUIDv4/UUIDv7,
 supported step, owned regular file, schema, request/creation order, nonce,
 freshness, and response, then deletes the ticket. Both use exit 0 for success
 and the existing provisional exit 2 `invalid_input` envelope for rejected local

@@ -35,7 +35,7 @@ development log.
   later `prepare`/`restore` cycles retained the firewall and Civ V block rule
   while returning FireTuner, listener, and watcher to closed state. `unharden`
   remains pending until the user actually requests removal of the desired guard.
-- Functional baseline: 378/378 tests pass warning-enabled in host context on
+- Functional baseline: 379/379 tests pass warning-enabled in host context on
   Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
   and sdist builds have matching normalized contents; each format installs,
   imports, and starts the supported CLI in a separate clean Python 3.11
@@ -96,6 +96,10 @@ development log.
   the next gate. After an unattended attempt exposed improper reuse of a
   pre-checkpoint user message, ADR-0054 adds a private one-use checkpoint/step/
   task/nonce gate; no retest may proceed without its post-request exact prompt.
+  Its first target use failed closed before delivery because the current Codex
+  task identity is UUIDv7 while the helper admitted UUIDv4 only. Compatibility
+  now explicitly admits canonical task UUIDv4/UUIDv7 without relaxing the
+  framework checkpoint UUIDv4 requirement; a wholly fresh retest is pending.
   No 0.2 release is adopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and

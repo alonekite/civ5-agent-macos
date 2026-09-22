@@ -2186,7 +2186,8 @@ distribution installation gates.
   arrived after submission. Zero UI delivery occurred, but the authorization
   chain was invalid and is not functional evidence.
 - Added a process-independent `civ5-read-only` challenge/authorize gate. It
-  binds canonical checkpoint/task UUIDs, an allowlisted step, request/creation
+  binds the framework checkpoint UUIDv4, execution-task UUIDv4/UUIDv7, an
+  allowlisted step, request/creation
   order, eight-hex nonce, bounded freshness, owned regular mode-0600 storage,
   exact response, and one-use consumption. It imports no framework code and
   sends no checkpoint decision.
@@ -2194,9 +2195,13 @@ distribution installation gates.
   guide, and live-test checklist, and recorded that the current framework
   protocol cannot attest a caller nonce. The composition root must prohibit
   direct `pass` bypasses until a protocol enhancement carries that nonce.
-- The warning-enabled core suite passes 378/378 in host context on Python 3.11
+- The warning-enabled core suite passes 379/379 in host context on Python 3.11
   and the default Python 3.14 runtime. No application, FireTuner session,
   watcher, framework session, checkpoint, or UI action ran during this repair.
+- The first target use then rejected the current Codex UUIDv7 task identity
+  before any checkpoint decision. The run was explicitly aborted with zero UI
+  deliveries and exact restoration. The helper now accepts canonical task
+  UUIDv4/UUIDv7 while retaining the framework checkpoint UUIDv4 requirement.
 
 Implementation commit `d18f07c` added the private authorization module, CLI
 composition, and regression tests. Documentation commit `74632ee` completed

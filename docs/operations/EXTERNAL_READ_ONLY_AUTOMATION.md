@@ -218,7 +218,8 @@ Use `civ5-read-only checkpoint-challenge` only after observing
 `checkpoint.requested`, then require the operator to copy its exact prompt.
 Use `civ5-read-only checkpoint-authorize` to validate and consume the private
 mode-0600 ticket before calling the framework's public `respond-checkpoint`.
-The ticket is bound to canonical checkpoint/task UUIDs, one supported step, the
+The ticket is bound to the canonical framework checkpoint UUIDv4, execution-
+task UUIDv4/UUIDv7, one supported step, the
 recorded request time, an eight-hex nonce, and a maximum five-minute age. It is
 deleted on success and cannot authorize a later step.
 

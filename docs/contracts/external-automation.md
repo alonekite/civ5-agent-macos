@@ -104,8 +104,9 @@ operator message sent after the exact checkpoint ID is created, explicitly
 asserting current Mac presence and reproducing the current step plus short
 nonce, may be translated to `pass`. Earlier, cross-task, generic, or
 presence-ambiguous confirmations are invalid and must not be cached or rebound.
-The execution layer's private one-use challenge helper machine-checks ID, step,
-task UUID, request/creation order, nonce, freshness, file ownership/mode, exact
+The execution layer's private one-use challenge helper machine-checks the
+framework checkpoint UUIDv4, execution-task UUIDv4/UUIDv7, step,
+request/creation order, nonce, freshness, file ownership/mode, exact
 response, and consumption. It does not change or implement the framework
 protocol. Until that protocol carries the nonce itself, the composition root
 must forbid direct `pass` calls that bypass the helper.
@@ -118,7 +119,7 @@ revalidation. GitHub Quality run `35663468813` passes the framework gates. At
 the core boundary, the exact candidate wheel named above is installed with its
 declared dependencies in a fresh Python 3.12 environment. Its installed public CLI
 accepts a private mode-0600 v2 descriptor emitted by a separately
-wheel-installed core. The core's warning-enabled suite passes 378/378 on Python
+wheel-installed core. The core's warning-enabled suite passes 379/379 on Python
 3.11 and the default runtime. This is offline compatibility evidence for the
 exact-regular AX candidate, not a successful target UI run of that candidate.
 

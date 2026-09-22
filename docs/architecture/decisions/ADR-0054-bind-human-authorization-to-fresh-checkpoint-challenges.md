@@ -22,7 +22,8 @@ control protocol.
 Add a process-independent local authorization gate to `civ5-read-only`:
 
 1. `checkpoint-challenge` runs only after `checkpoint.requested` and creates an
-   exclusive mode-0600 JSON ticket bound to canonical checkpoint and task UUIDs,
+   exclusive mode-0600 JSON ticket bound to the canonical framework checkpoint
+   UUIDv4 and execution-task UUIDv4/UUIDv7,
    one allowlisted UI step, the request and creation times, and a random
    eight-hex nonce.
 2. It emits an exact prompt that asserts current Mac presence and includes the
