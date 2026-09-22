@@ -2171,6 +2171,13 @@ distribution installation gates.
   adopted framework v0.1.0 boundary remains unchanged; a fresh operator-present
   target run is required before any 0.2 release adoption.
 
+Implementation commit `3f44ab9` pinned the exact framework commit and wheel
+digest. Documentation commit `003e1b5` completed ADR-0053, the compatibility
+contract, operations guide, current-state dashboard, verification matrix, and
+changelog. GitHub Actions run `35714542844` passed Python 3.11/3.13,
+repeatable wheel/source builds, artifact scans, and clean wheel/source-
+distribution installation gates.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
