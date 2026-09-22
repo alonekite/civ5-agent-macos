@@ -12,6 +12,7 @@ import re
 import secrets
 import stat
 import time
+from uuid import UUID
 
 from .identity import validate_bridge_session_id
 
@@ -35,7 +36,15 @@ def _validate_binding(
     checkpoint_id: str, step_id: str, task_id: str
 ) -> tuple[str, str, str]:
     checkpoint = validate_bridge_session_id(checkpoint_id)
-    task = validate_bridge_session_id(task_id)
+    if not isinstance(task_id, str):
+        raise ValueError("task_id must be a canonical UUIDv4 or UUIDv7")
+    try:
+        parsed_task = UUID(task_id)
+    except (ValueError, AttributeError) as error:
+        raise ValueError("task_id must be a canonical UUIDv4 or UUIDv7") from error
+    if parsed_task.version not in {4, 7} or str(parsed_task) != task_id:
+        raise ValueError("task_id must be a canonical UUIDv4 or UUIDv7")
+    task = task_id
     if step_id not in CHECKPOINT_STEPS:
         raise ValueError("checkpoint step is not supported")
     return checkpoint, step_id, task

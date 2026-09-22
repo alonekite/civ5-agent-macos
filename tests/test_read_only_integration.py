@@ -41,7 +41,8 @@ from civ5_agent.read_only_integration import (
 
 SESSION_ID = "123e4567-e89b-42d3-a456-426614174070"
 CHECKPOINT_ID = "123e4567-e89b-42d3-a456-426614174071"
-TASK_ID = "123e4567-e89b-42d3-a456-426614174072"
+TASK_ID = "0195f123-4567-7abc-8def-0123456789ab"
+TASK_ID_V4 = "123e4567-e89b-42d3-a456-426614174072"
 
 
 def private_state() -> GameState:
@@ -63,6 +64,29 @@ def private_state() -> GameState:
 
 
 class ReadOnlyIntegrationTest(unittest.TestCase):
+    def test_checkpoint_challenge_accepts_canonical_task_uuid_v4_and_v7(self):
+        for index, task_id in enumerate((TASK_ID_V4, TASK_ID)):
+            with self.subTest(task_id=task_id), TemporaryDirectory() as directory:
+                path = Path(directory) / "challenge.json"
+                challenge = create_checkpoint_challenge(
+                    path,
+                    checkpoint_id=CHECKPOINT_ID,
+                    step_id="press_launcher_play",
+                    task_id=task_id,
+                    requested_at_unix=99.0,
+                    now=100.0,
+                    nonce=f"0123abc{index}",
+                )
+                authorized = authorize_checkpoint_challenge(
+                    path,
+                    checkpoint_id=CHECKPOINT_ID,
+                    step_id="press_launcher_play",
+                    task_id=task_id,
+                    response=challenge["prompt"],
+                    now=101.0,
+                )
+                self.assertTrue(authorized["authorized"])
+
     def test_checkpoint_challenge_is_private_exact_and_one_time(self):
         with TemporaryDirectory() as directory:
             path = Path(directory) / "challenge.json"
