@@ -2210,6 +2210,12 @@ dashboard, verification matrix, and changelog. GitHub Actions run `35721241540`
 passed Python 3.11/3.13, repeatable wheel/source builds, artifact scans, and
 clean wheel/source-distribution installation gates.
 
+Follow-up implementation commit `be353fa` added canonical UUIDv7 execution-task
+identity support and retained UUIDv4 coverage; documentation commit `7dc7cbd`
+recorded the fail-closed target observation and compatibility boundary. GitHub
+Actions run `35728490053` passed Python 3.11/3.13 and the complete artifact and
+clean-install gates.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into
