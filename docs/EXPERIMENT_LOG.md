@@ -2190,3 +2190,27 @@ do not undo the desired development configuration merely to add coverage.
   the block or formally bind any `kAXErrorCannotComplete` corroboration to the
   exact regular application and repeat that identity immediately before
   delivery. No further target retry is authorized yet.
+
+## 2026-09-22 — Regular-application candidate unattended abort
+
+- Scope: exact framework candidate `b1f99ef` and execution-core commit
+  `7d27458`; no game-state write was authorized. Cross-task coordination later
+  established that the user was not present at the Mac, so this run is safety
+  evidence only and not a functional operator-present result.
+- The first attempt used an overly long private runtime root and failed before
+  application launch with sanitized `control_unavailable`. Public recovery
+  found no application or child process to clean up. A shorter private runtime
+  root then made the control endpoint available and launched the owned target.
+  This observation does not prove the exact private failure cause.
+- The framework requested and recorded one `PLAY` checkpoint answer, but the
+  target never became the verified frontmost application. The step expired as
+  `target_not_frontmost` before delivery. No `ui.delivery_started`, handoff,
+  later checkpoint, watcher start, FireTuner access, or game-state access was
+  observed.
+- The framework requested graceful quit and observed the owned application
+  exit without recovery. The execution layer restored FireTuner and independently
+  verified the persistent hardened state: firewall enabled, Civ V incoming
+  blocked with its rule present, TCP 4318 closed, and watcher socket absent.
+- Result: no functional claim is made. Do not retry until the user is physically
+  present and freshly confirms readiness; checkpoint authority from this run is
+  exhausted and cannot be reused.
