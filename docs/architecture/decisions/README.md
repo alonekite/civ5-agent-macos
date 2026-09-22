@@ -60,6 +60,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0052](ADR-0052-corroborate-macos-frontmost-through-exact-ax-candidate.md) | Corroborate macOS frontmost state through the exact AX candidate | Accepted; supersedes ADR-0051 only for the candidate implementation pin |
 | [ADR-0053](ADR-0053-bind-cannot-complete-corroboration-to-regular-applications.md) | Bind cannot-complete corroboration to the exact regular application | Accepted; supersedes ADR-0052 only for the candidate implementation pin and cannot-complete classification |
 | [ADR-0054](ADR-0054-bind-human-authorization-to-fresh-checkpoint-challenges.md) | Bind human authorization to fresh checkpoint challenges | Accepted; strengthens the candidate UI authorization procedure |
+| [ADR-0055](ADR-0055-pin-post-handoff-ui-identity-candidate.md) | Pin post-handoff UI identity candidate | Accepted for provisional v2; supersedes ADR-0053 candidate pin and handoff continuation only |
 
 ## Template
 

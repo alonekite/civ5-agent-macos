@@ -12,19 +12,14 @@ development log.
   release `v1.3.0`. M10 and the earlier 1.2.0 release remain complete.
 - Active next deliverable: monitor downstream integration and route any next
   reusable fact or mechanic through the strategy-neutral capability-request
-  process. The post-1.3 provisional SessionSpec v2 adapter is implemented and
-  its exact launcher-to-game handoff is now pinned to framework commit
-  `b1f99ef`. Earlier runs exposed focus readiness, sanitized diagnostics, a
-  stalled control connection, and macOS 26 system-wide AX focus unavailability;
-  each failed before delivery and restored safely. The control-lifetime and
-  exact-regular AX corroboration repairs have passed independent review. The
-  framework host suite passes 124/124, exact candidate/core wheels install in
-  isolation, and the installed public CLI validates the private descriptor.
-  A fresh operator-present run then correctly rejected system-wide
-  `kAXErrorCannotComplete` before delivery. The successor now permits that
-  result to enter bounded candidate AX corroboration only after exact identity
-  and regular GUI activation-policy revalidation. Offline review is complete;
-  a fresh target run is the next gate. The adapter adds no game-state or write
+  process. The post-1.3 provisional SessionSpec v2 adapter is pinned to the
+  independently reviewed framework candidate `a722aac`. The previous live run
+  completed its one-use gated PLAY action and reached `Click to Continue`, but
+  the framework did not accept the same-PID executable handoff. The new
+  candidate carries the exact successor identity into the next UI step and
+  watcher start, while retaining bounded authorization and fail-closed recovery.
+  Its offline gate passes; a fresh operator-present target run is required to
+  verify the second click and watcher. The adapter adds no game-state or write
   capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
@@ -58,56 +53,16 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- Candidate framework commit `b1f99ef` supplies refreshed frontmost checks,
-  bounded pre-delivery readiness retry, and durable same-PID executable handoff
-  required by the generated SessionSpec v2
-  startup sequence. Target observation verified exact Civ V bundle/window
-  identity, one unique launcher `PLAY` AX button, and no actionable AX element
-  on the continue canvas. The first live run verified the launcher AX press but
-  failed before completing the relative click or starting the watcher. It also
-  exposed the launcher's same-PID executable-identity transition. A later run
-  stopped before `PLAY` delivery when checkpoint confirmation moved focus to
-  Codex; the corrected framework now waits for the unchanged target to regain
-  focus within the existing step timeout. Only the exact pre-delivery
-  `focused_application_unavailable` condition may share that wait; permission,
-  query, PID, identity, ambiguity, timeout, and post-delivery failures remain
-  terminal. Offline
-  adapter verification now passes through separately installed core and
-  framework wheels for both v1 and v2 descriptors. The next diagnostic run may
-  record only one dual-boundary-allowlisted reason token on identity failure.
-  The third run safely identified that exact unavailable condition before
-  delivery. A fourth run expired with generic `target_not_ready_timeout`, zero
-  delivery, exact cleanup, and exact host restoration; the candidate now
-  preserves only the last allowlisted readiness class so the next run can
-  distinguish the remaining cases. The fifth run reached the first checkpoint
-  but could not answer it because the active supervisor control socket was
-  unavailable; it expired fail-closed with zero UI delivery and exact host
-  restoration. The reviewed control repair bounds each accepted private control
-  connection to 0.5 seconds without changing request authority, checkpoint
-  expiry, UI delivery, or no-retry semantics. Two later runs answered the first
-  checkpoint through that repaired control path but expired with zero delivery
-  because macOS 26 exposed no system-wide AX focused-application value. The
-  successor permits a 0.25-second `AXFrontmost` corroboration only from the
-  revalidated exact regular GUI PID and only after `kAXErrorNoValue`, successful
-  null, or the target-observed `kAXErrorCannotComplete`; all other AX errors,
-  nonregular targets, and identity changes remain terminal. Its exact candidate
-  wheel and digest are pinned, 124/124 framework host tests pass, and isolated
-  installed-wheel validation passes. A fresh operator-present target retest is
-  the next gate. After an unattended attempt exposed improper reuse of a
-  pre-checkpoint user message, ADR-0054 adds a private one-use checkpoint/step/
-  task/nonce gate; no retest may proceed without its post-request exact prompt.
-  Its first target use failed closed before delivery because the current Codex
-  task identity is UUIDv7 while the helper admitted UUIDv4 only. Compatibility
-  now explicitly admits canonical task UUIDv4/UUIDv7 without relaxing the
-  framework checkpoint UUIDv4 requirement. A wholly fresh operator-present
-  retest then completed the gated PLAY delivery and visibly reached the game's
-  `Click to Continue` screen, but the framework never accepted the declared
-  same-PID executable handoff. It timed out with `application_identity_error`;
-  no second checkpoint or watcher followed. The operator exited the game and
-  the host returned to the hardened state. The framework's private session
-  remains `recovery_required/cleanup_incomplete`; the next repair belongs to
-  the independently owned automation framework.
-  No 0.2 release is adopted.
+- The exact candidate framework commit `a722aac` and wheel digest are pinned.
+  Separate wheel installations and public CLI validation passed, and framework
+  tests passed 130/130 with eight environment skips. GitHub Quality gate
+  `35771791299` passed. The one-use post-request checkpoint/step/task/nonce
+  gate remains mandatory for each UI action. Prior live evidence confirms
+  automated PLAY only; no second checkpoint, continue click, or watcher startup
+  has yet passed target verification. The last framework session retained
+  `recovery_required/cleanup_incomplete` after a manual game exit, while the
+  execution host independently returned to its hardened state. Framework 0.2
+  remains unadopted pending a fresh operator-present end-to-end run.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

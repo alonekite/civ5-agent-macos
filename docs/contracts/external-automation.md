@@ -3,10 +3,19 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `b1f99ef988d376b61269e1cdc377e2033d6d736e`
+framework development commit `a722aac6dcd7854d5715bdf994115de6ed5c792d`
 and candidate wheel SHA-256
-`cc57a78719507ac65795169d7f87a7c8c58de7d793680f8360bb1de4d2175685`.
+`cca1d5b674864e261b9252b67808749e954014c38a8d79b7b2be78541ee357d3`.
 It is not an adopted framework release or runtime dependency.
+
+ADR-0055 pins this candidate after the prior target run completed the gated
+launcher press but timed out during the same-PID executable handoff. The
+candidate admits a stale AppKit launcher executable URL only when the process
+probe confirms the exact declared successor with unchanged PID and creation
+time, unique AppKit candidate, bundle identifier, and bundle path. The tracked
+successor identity is checked again before the next UI delivery and watcher
+start. A third executable, identity drift, or ambiguity fails closed. Neither
+the second click nor watcher startup has target evidence yet.
 
 ## Adopted artifact
 

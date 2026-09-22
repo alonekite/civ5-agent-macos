@@ -2225,6 +2225,24 @@ passed. The framework session retained `recovery_required/cleanup_incomplete`.
 The bounded evidence and remaining framework-owned gap are in the experiment
 log; no core runtime change is indicated by this run.
 
+## 2026-09-22 — Review post-handoff framework successor candidate
+
+- The first framework repair accepted a stale AppKit launcher executable URL
+  after the exact process successor was observed, but independent core review
+  found that the next UI step still required AppKit and process executable
+  paths to match. The framework task corrected that gap before another target
+  run.
+- Pinned exact framework commit `a722aac` and wheel digest in core commit
+  `1a6bd98` under ADR-0055.
+  Its 20-member wheel passed RECORD/privacy inspection; all 15 Python modules
+  matched the pinned source byte for byte. Framework host tests passed 130/130
+  with eight environment skips. A separate isolated wheel install validated
+  both the generic v2 example and an existing core-generated private v2
+  descriptor. Quality gate `35771791299` passed.
+- No Civ V launch, UI action, checkpoint, or watcher was used in this review.
+  The next gate is a wholly fresh operator-present target run with independent
+  authorization for PLAY and continue.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

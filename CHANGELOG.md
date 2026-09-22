@@ -59,6 +59,10 @@ All notable user-visible changes are recorded here. Development details belong i
   operator-presence response. Historical, cross-task, generic, stale, or
   replayed confirmations are rejected before the composition root may submit
   framework `pass`.
+- Candidate SessionSpec v2 compatibility now pins the framework's bounded
+  same-process handoff repair. The tracked game executable is carried into the
+  next UI step and watcher start, with fresh process-identity checks before
+  each effect. The complete two-step target workflow remains unverified.
 
 ## 1.3.0 - 2026-09-21
 

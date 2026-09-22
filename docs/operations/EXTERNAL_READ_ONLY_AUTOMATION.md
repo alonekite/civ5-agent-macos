@@ -131,11 +131,19 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `b1f99ef988d376b61269e1cdc377e2033d6d736e` and wheel
+framework commit `a722aac6dcd7854d5715bdf994115de6ed5c792d` and wheel
 SHA-256
-`cc57a78719507ac65795169d7f87a7c8c58de7d793680f8360bb1de4d2175685`.
+`cca1d5b674864e261b9252b67808749e954014c38a8d79b7b2be78541ee357d3`.
 Do not substitute it for the adopted v0.1.0 path in unattended or release
 workflows.
+
+This pin includes the post-handoff identity continuation reviewed in ADR-0055.
+The framework may retain the original AppKit executable URL only while the
+process probe reports the exact declared successor with unchanged PID and
+creation time. The next UI step and watcher start must recheck that tracked
+successor. A completed PLAY action alone does not establish that the continue
+click or watcher has been verified on the target; use fresh checkpoints for
+both steps in the next operator-present run.
 
 This candidate bounds each accepted private control connection to 0.5 seconds.
 The bound releases a serialized control loop from an incomplete same-user
