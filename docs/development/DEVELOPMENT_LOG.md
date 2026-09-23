@@ -2340,6 +2340,22 @@ wheel/source builds, artifact scans, and clean-install gates.
   The experiment log and verification matrix record the bounded result; the
   next root-cause work belongs to the independent framework task.
 
+## 2026-09-23 — Pin terminal AXRole diagnostic without action authority
+
+- Independent framework commit `70b6342` adds one AXRole read on the same
+  candidate AX element only after AXFrontmost returns cannot-complete. The
+  resulting `focus_probe` is double-allowlisted and contains no returned
+  value or raw error. ADR-0060 pins the provisional wheel; it is a diagnostic
+  observation, not a fix, retry, foreground proof, or watcher permission.
+- Execution-layer review matched the wheel digest and changed source bytes,
+  checked ZIP integrity, installed it offline in a clean Python 3.12
+  environment, validated the generated SessionSpec v2 through the installed
+  public CLI, and passed 52 targeted UI/supervisor tests (two skips). The
+  framework task reports four-cell macOS CI and wheel gate success.
+- No target run or host safety change was performed for this candidate. The
+  ADR-0059 failure remains the last live evidence; any later diagnostic run
+  needs fresh protected-host checks and one-use authorization for each step.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

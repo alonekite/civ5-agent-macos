@@ -131,17 +131,18 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `d7a51aafe4d556fe5c3d92634c8981b02d9bed59` and wheel
+framework commit `70b63426a45f18436aced8f53ae9b535c5092509` and wheel
 SHA-256
-`ebe64c31987b3c524ab8dcaf789c625bced01aa11df1aedce225630261847de0`.
+`0be1ebe491c80a1bb90e95a8a6fc1a17a096238c61960147c0ba677884f2c0f1`.
 Do not substitute it for the adopted v0.1.0 path in unattended or release
 workflows.
 
 This pin includes the post-handoff identity continuation reviewed in ADR-0055
 and the exact tracked-PID AppKit fallback reviewed in ADR-0056. ADR-0057 adds
 bounded failure-stage diagnostics and post-handoff cleanup reconciliation;
-ADR-0058 refines only the closed-set AX failure categories, and ADR-0059
-increases only the exact-candidate AXFrontmost messaging timeout to one second.
+ADR-0058 refines only the closed-set AX failure categories, ADR-0059 increases
+only the exact-candidate AXFrontmost messaging timeout to one second, and
+ADR-0060 adds only a failure-after-decision AXRole diagnostic.
 The fallback applies only when bundle enumeration is empty during the declared
 handoff; it does not affect initial launch, later UI delivery, or cleanup.
 The framework may retain the original AppKit executable URL only while the
@@ -162,9 +163,10 @@ The previous pin's target run classified the repeat failure as
 to `selection / system_cannot_complete / candidate_cannot_complete`, still
 before the second delivery boundary. A target run of the ADR-0059 one-second
 timeout candidate repeated the same closed-set selection failure before
-delivery. Do not repeat this candidate merely by changing the operator
-timing; the framework task must first investigate the AX failure. Any later
-candidate needs fresh host safety checks and two new same-task checkpoint
+delivery. The current ADR-0060 candidate may classify one additional
+app-level AXRole read only after that failure, without changing the terminal
+decision or attempting a click. It has no target evidence. Any later target
+run needs fresh host safety checks and two new same-task checkpoint
 authorizations; old answers cannot be reused.
 
 This candidate bounds each accepted private control connection to 0.5 seconds.

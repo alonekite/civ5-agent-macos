@@ -3,26 +3,26 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `d7a51aafe4d556fe5c3d92634c8981b02d9bed59`
+framework development commit `70b63426a45f18436aced8f53ae9b535c5092509`
 and candidate wheel SHA-256
-`ebe64c31987b3c524ab8dcaf789c625bced01aa11df1aedce225630261847de0`.
+`0be1ebe491c80a1bb90e95a8a6fc1a17a096238c61960147c0ba677884f2c0f1`.
 It is not an adopted framework release or runtime dependency.
 
-ADR-0059 pins this candidate after the ADR-0058 target run classified the
-second action's pre-delivery error as `system_cannot_complete` followed by
-`candidate_cannot_complete` at selection. The only new behavior is a bounded
-increase of the exact-candidate AXFrontmost messaging timeout from 0.25 to
-1.0 seconds.
-Nonzero candidate AX results remain terminal, with no action retry or AppKit
-foreground substitute. Post-handoff cleanup may accept the original or
+ADR-0060 pins this candidate after the ADR-0059 one-second target run repeated
+`system_cannot_complete / candidate_cannot_complete` at selection before
+second-action delivery. Only after that terminal candidate AXFrontmost error,
+the framework makes one bounded, read-only AXRole query on the same AX
+application element. It persists only a closed-set `focus_probe` category,
+not the role value or raw error. This diagnostic needs no additional human
+input but grants no UI action or read capability. Nonzero candidate AXFrontmost
+results remain terminal, with no retry or AppKit foreground substitute.
+Post-handoff cleanup may accept the original or
 exact successor AppKit executable only after a fresh process probe exactly
 matches the tracked successor; PID, bundle identifier, bundle path, and
 third-executable refusal remain unchanged. The second click
-and watcher startup still have no target evidence. A protected target run of
-this exact candidate repeated `system_cannot_complete` and
-`candidate_cannot_complete` at selection before second-action delivery,
-despite the one-second bound. This is failure evidence, not permission to
-retry or weaken foreground proof.
+and watcher startup still have no target evidence. This exact candidate has
+only offline and CI evidence; the last target result belongs to its ADR-0059
+predecessor. A role-read success would not prove foreground state.
 Framework 0.2 remains unadopted.
 
 ## Adopted artifact
