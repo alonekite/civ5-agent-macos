@@ -3,12 +3,12 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `70b63426a45f18436aced8f53ae9b535c5092509`
+framework development commit `3402862a43e9c29e056a42ecb75d90a04222684b`
 and candidate wheel SHA-256
-`0be1ebe491c80a1bb90e95a8a6fc1a17a096238c61960147c0ba677884f2c0f1`.
+`285251f0cabbcd98bfbb8c0a709aab5ba630192ea1d86706e72de9e2a77ab9a6`.
 It is not an adopted framework release or runtime dependency.
 
-ADR-0060 pins this candidate after the ADR-0059 one-second target run repeated
+ADR-0060 pinned predecessor `70b6342` after the ADR-0059 target run repeated
 `system_cannot_complete / candidate_cannot_complete` at selection before
 second-action delivery. Only after that terminal candidate AXFrontmost error,
 the framework makes one bounded, read-only AXRole query on the same AX
@@ -19,15 +19,26 @@ results remain terminal, with no retry or AppKit foreground substitute.
 Post-handoff cleanup may accept the original or
 exact successor AppKit executable only after a fresh process probe exactly
 matches the tracked successor; PID, bundle identifier, bundle path, and
-third-executable refusal remain unchanged. The second click
+third-executable refusal remain unchanged. The automatic second click
 and watcher startup still have no target evidence. An operator-present target
-run of this exact candidate completed gated PLAY and exact-PID handoff but
+run of `70b6342` completed gated PLAY and exact-PID handoff but
 failed before second-action delivery with
 `focus_probe=role_cannot_complete` alongside the existing
 `system_cannot_complete / candidate_cannot_complete` selection result. This
 does not establish the AX root cause or permit another focus source or retry.
 A role-read success would not prove foreground state.
-Framework 0.2 remains unadopted.
+ADR-0061 pins the current candidate after the ADR-0060 target run also found
+`focus_probe=role_cannot_complete`. The new optional SessionSpec v2
+`manual_gates` run after UI actions and handoffs and before any child starts.
+The execution-layer manual builder emits one exact PLAY step, one
+`manual_game_entry` gate, and the read-only watcher, with no automatic
+Continue click. The PLAY authorization is an exact, one-use, short-lived
+grant bound to the current user-initiated task session, framework session,
+checkpoint, and canonical spec digest. The gate requires a fresh, explicit
+same-task completion message after the operator personally handles Continue
+and game entry. Neither grant nor confirmation substitutes for application
+identity, protected host preflight, or watcher active-state verification.
+Framework 0.2 remains unadopted; this new flow has offline evidence only.
 
 ## Adopted artifact
 
@@ -88,6 +99,38 @@ update before adoption. Compatible documentation-only changes in the framework
 do not alter the adopted tag or wheel.
 
 ## Candidate SessionSpec v2 boundary
+
+ADR-0061 adds a separate optional manual-game-entry shape. The legacy
+two-click `ui-session-spec` output remains byte-compatible, but the new
+`manual-ui-session-spec` output has exactly one `ui_steps` entry:
+`press_launcher_play`, with the same exact selector and same-process executable
+handoff. It has exactly one `manual_gates` entry with
+`gate_id=manual_game_entry` and a bounded `confirmation_timeout_ms`. No
+`window_relative_click` or Continue coordinate is present. The gate is a
+framework checkpoint with pass/fail/abort, not a UI action; the framework
+must not start any child before it passes. Manual confirmation is an
+attestation only, so host-context `preflight live`, exact tracked application
+identity, `civ5-watch --read-only`, and a same-session valid active-turn
+`civ5-read-only probe --require-active-match` remain mandatory. A missing
+active match is a failed composition, not success inferred from the message.
+
+The one-use PLAY grant is issued only after a fresh user message in this task
+explicitly initiates one protected read-only session. Creation requires the
+framework's active PLAY checkpoint and canonical spec digest; consumption
+must precede `pass` for that same checkpoint and cannot be repeated. The local
+helper cannot authenticate Codex message provenance or bind its response into
+the framework protocol; the composition root must enforce both. Old
+checkpoint nonces are never treated as session grants, and the grant has no
+authority for `manual_game_entry`, a second PLAY, or another session.
+
+The operator must personally click Continue, load a save or create a game,
+and enter a readable match. After the gate request, the execution layer
+creates a distinct `manual_game_entry` challenge and shows its exact Chinese
+completion phrase for the operator to send only after those actions. The
+manual-gate challenge may remain fresh for the
+declared bounded confirmation timeout (at most one hour). It must not be
+answered on the operator's behalf. If the gate fails or expires, no watcher
+may start. Existing v1 and original v2 contracts below remain intact.
 
 Development core 1.4 may emit SessionSpec v2 through the separate
 `civ5-read-only ui-session-spec` command. The v1 command and adopted v0.1.0

@@ -17,6 +17,10 @@ from .checkpoint_authorization import (
     create_checkpoint_challenge,
     parse_checkpoint_time,
 )
+from .play_session_grant import (
+    create_play_session_grant,
+    consume_play_session_grant,
+)
 from .errors import ProtocolError, TransportError
 from .identity import validate_bridge_session_id
 from .ipc import default_socket_path, request
@@ -31,13 +35,13 @@ AUTOMATION_FRAMEWORK_WHEEL_SHA256 = (
 )
 AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION = 1
 AUTOMATION_FRAMEWORK_V2_CANDIDATE_COMMIT = (
-    "a722aac6dcd7854d5715bdf994115de6ed5c792d"
+    "3402862a43e9c29e056a42ecb75d90a04222684b"
 )
 AUTOMATION_FRAMEWORK_V2_CANDIDATE_WHEEL_NAME = (
     "local_app_test_automation-0.2.0.dev0-py3-none-any.whl"
 )
 AUTOMATION_FRAMEWORK_V2_CANDIDATE_WHEEL_SHA256 = (
-    "cca1d5b674864e261b9252b67808749e954014c38a8d79b7b2be78541ee357d3"
+    "285251f0cabbcd98bfbb8c0a709aab5ba630192ea1d86706e72de9e2a77ab9a6"
 )
 AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION = 2
 CIV5_APP_BUNDLE_ID = "com.aspyr.civ5campaign"
@@ -49,6 +53,7 @@ CIV5_GAME_EXECUTABLE_PATH = Path(
 CIV5_WINDOW_TITLE = "Civilization V: Campaign Edition"
 CIV5_LAUNCHER_BUTTON_ROLE = "AXButton"
 CIV5_LAUNCHER_BUTTON_TITLE = "PLAY"
+CIV5_MANUAL_GAME_ENTRY_GATE_ID = "manual_game_entry"
 _BUNDLE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.-]{0,254}$")
 
 
@@ -66,6 +71,7 @@ def read_sanitized_summary(
     request_timeout: float = 3.0,
     wait_timeout: float = 30.0,
     poll_interval: float = 0.1,
+    require_active_match: bool = False,
 ) -> dict[str, object]:
     """Require a read-only watcher and return a non-identifying state summary."""
     if request_timeout <= 0:
@@ -121,6 +127,11 @@ def read_sanitized_summary(
         raise ReadOnlyIntegrationError(
             "session_changed",
             "watcher session changed between capability and state reads",
+        )
+    if require_active_match and state.turn_active is not True:
+        raise ReadOnlyIntegrationError(
+            "active_match_unavailable",
+            "watcher did not observe an active player turn",
         )
 
     return {
@@ -283,25 +294,12 @@ def build_ui_session_spec(
     )
     spec["spec_version"] = AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION
     spec["ui_steps"] = [
-        {
-            "step_id": "press_launcher_play",
-            "target": {
-                "bundle_id": CIV5_APP_BUNDLE_ID,
-                "window_title": CIV5_WINDOW_TITLE,
-            },
-            "action": {
-                "kind": "accessibility_press",
-                "role": CIV5_LAUNCHER_BUTTON_ROLE,
-                "title": CIV5_LAUNCHER_BUTTON_TITLE,
-            },
-            "timeout_ms": ui_timeout_ms,
-            "authorization_timeout_ms": authorization_timeout_ms,
-            "identity_handoff": {
-                "kind": "same_process_executable",
-                "expected_executable_path": str(expected_game_executable_path),
-                "timeout_ms": identity_handoff_timeout_ms,
-            },
-        },
+        _play_ui_step(
+            expected_game_executable_path=expected_game_executable_path,
+            ui_timeout_ms=ui_timeout_ms,
+            authorization_timeout_ms=authorization_timeout_ms,
+            identity_handoff_timeout_ms=identity_handoff_timeout_ms,
+        ),
         {
             "step_id": "click_game_continue",
             "target": {
@@ -320,6 +318,102 @@ def build_ui_session_spec(
     return spec
 
 
+def _play_ui_step(
+    *,
+    expected_game_executable_path: Path,
+    ui_timeout_ms: int,
+    authorization_timeout_ms: int,
+    identity_handoff_timeout_ms: int,
+) -> dict[str, object]:
+    return {
+        "step_id": "press_launcher_play",
+        "target": {
+            "bundle_id": CIV5_APP_BUNDLE_ID,
+            "window_title": CIV5_WINDOW_TITLE,
+        },
+        "action": {
+            "kind": "accessibility_press",
+            "role": CIV5_LAUNCHER_BUTTON_ROLE,
+            "title": CIV5_LAUNCHER_BUTTON_TITLE,
+        },
+        "timeout_ms": ui_timeout_ms,
+        "authorization_timeout_ms": authorization_timeout_ms,
+        "identity_handoff": {
+            "kind": "same_process_executable",
+            "expected_executable_path": str(expected_game_executable_path),
+            "timeout_ms": identity_handoff_timeout_ms,
+        },
+    }
+
+
+def build_manual_ui_session_spec(
+    *,
+    label: str,
+    app_bundle_id: str | None,
+    app_bundle_path: Path | None,
+    existing_instance_policy: str,
+    leave_open_on_success: bool,
+    watcher_executable: Path,
+    cwd: Path,
+    socket_path: Path,
+    audit_log: Path,
+    session_timeout_ms: int,
+    expected_game_executable_path: Path,
+    manual_confirmation_timeout_ms: int = 1_200_000,
+    ui_timeout_ms: int = 300_000,
+    authorization_timeout_ms: int = 300_000,
+    identity_handoff_timeout_ms: int = 300_000,
+) -> dict[str, object]:
+    """Build an offline candidate: one exact PLAY, then a human-only game gate."""
+    if app_bundle_id is not None and app_bundle_id != CIV5_APP_BUNDLE_ID:
+        raise ValueError("UI session app bundle identifier is not the verified Civ V bundle")
+    if app_bundle_path is not None and app_bundle_path != CIV5_APP_BUNDLE_PATH:
+        raise ValueError("UI session app bundle path is not the verified Civ V bundle")
+    if expected_game_executable_path != CIV5_GAME_EXECUTABLE_PATH:
+        raise ValueError("UI session successor executable is not the verified Civ V game executable")
+    for name, value, maximum in (
+        ("manual confirmation timeout", manual_confirmation_timeout_ms, 3_600_000),
+        ("UI timeout", ui_timeout_ms, 300_000),
+        ("authorization timeout", authorization_timeout_ms, 300_000),
+        ("identity handoff timeout", identity_handoff_timeout_ms, 300_000),
+    ):
+        if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= maximum:
+            raise ValueError(f"{name} must be an integer in 1..{maximum} milliseconds")
+    if (
+        ui_timeout_ms + identity_handoff_timeout_ms + manual_confirmation_timeout_ms
+        >= session_timeout_ms
+    ):
+        raise ValueError("session timeout must exceed UI, handoff, and manual-gate bounds")
+    spec = build_session_spec(
+        label=label,
+        app_bundle_id=app_bundle_id,
+        app_bundle_path=app_bundle_path,
+        existing_instance_policy=existing_instance_policy,
+        leave_open_on_success=leave_open_on_success,
+        watcher_executable=watcher_executable,
+        cwd=cwd,
+        socket_path=socket_path,
+        audit_log=audit_log,
+        session_timeout_ms=session_timeout_ms,
+    )
+    spec["spec_version"] = AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION
+    spec["ui_steps"] = [
+        _play_ui_step(
+            expected_game_executable_path=expected_game_executable_path,
+            ui_timeout_ms=ui_timeout_ms,
+            authorization_timeout_ms=authorization_timeout_ms,
+            identity_handoff_timeout_ms=identity_handoff_timeout_ms,
+        )
+    ]
+    spec["manual_gates"] = [
+        {
+            "gate_id": CIV5_MANUAL_GAME_ENTRY_GATE_ID,
+            "confirmation_timeout_ms": manual_confirmation_timeout_ms,
+        }
+    ]
+    return spec
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="civ5-read-only",
@@ -331,6 +425,7 @@ def _parser() -> argparse.ArgumentParser:
     probe.add_argument("--socket", type=Path, default=default_socket_path())
     probe.add_argument("--request-timeout", type=float, default=3.0)
     probe.add_argument("--wait-timeout", type=float, default=30.0)
+    probe.add_argument("--require-active-match", action="store_true")
 
     spec = subparsers.add_parser("session-spec", help="emit external SessionSpec v1 JSON")
     spec.add_argument("--label", default="civ5-read-only-session")
@@ -375,6 +470,33 @@ def _parser() -> argparse.ArgumentParser:
     ui_spec.add_argument("--authorization-timeout-ms", type=int, default=300_000)
     ui_spec.add_argument("--identity-handoff-timeout-ms", type=int, default=300_000)
 
+    manual_spec = subparsers.add_parser(
+        "manual-ui-session-spec",
+        help="emit offline candidate v2 PLAY plus manual game-entry gate",
+    )
+    manual_spec.add_argument("--label", default="civ5-read-only-manual-ui-session")
+    manual_identity = manual_spec.add_mutually_exclusive_group(required=True)
+    manual_identity.add_argument("--app-bundle-id")
+    manual_identity.add_argument("--app-bundle-path", type=Path)
+    manual_spec.add_argument(
+        "--existing-instance-policy",
+        choices=["reject", "observe_verified"],
+        default="reject",
+    )
+    manual_spec.add_argument("--leave-open-on-success", action="store_true")
+    manual_spec.add_argument("--watcher-executable", required=True, type=Path)
+    manual_spec.add_argument("--cwd", required=True, type=Path)
+    manual_spec.add_argument("--socket", required=True, type=Path)
+    manual_spec.add_argument("--audit-log", required=True, type=Path)
+    manual_spec.add_argument("--session-timeout-ms", type=int, default=3_600_000)
+    manual_spec.add_argument("--expected-game-executable", required=True, type=Path)
+    manual_spec.add_argument(
+        "--manual-confirmation-timeout-ms", type=int, default=1_200_000
+    )
+    manual_spec.add_argument("--ui-timeout-ms", type=int, default=300_000)
+    manual_spec.add_argument("--authorization-timeout-ms", type=int, default=300_000)
+    manual_spec.add_argument("--identity-handoff-timeout-ms", type=int, default=300_000)
+
     challenge = subparsers.add_parser(
         "checkpoint-challenge",
         help="create a private fresh operator-presence challenge",
@@ -397,6 +519,34 @@ def _parser() -> argparse.ArgumentParser:
     authorize.add_argument("--task-id", required=True)
     authorize.add_argument("--response", required=True)
     authorize.add_argument("--max-age-seconds", type=int, default=300)
+
+    play_grant = subparsers.add_parser(
+        "play-grant-create",
+        help="create one private PLAY grant from this task's exact session initiation",
+    )
+    play_grant.add_argument("--file", required=True, type=Path)
+    play_grant.add_argument("--framework-session-id", required=True)
+    play_grant.add_argument("--checkpoint-id", required=True)
+    play_grant.add_argument("--spec-sha256", required=True)
+    play_grant.add_argument("--task-id", required=True)
+    play_grant.add_argument("--initiation-text", required=True)
+    play_grant.add_argument("--initiated-at", required=True, type=parse_checkpoint_time)
+    play_grant.add_argument(
+        "--checkpoint-requested-at", required=True, type=parse_checkpoint_time
+    )
+    play_grant.add_argument(
+        "--checkpoint-expires-at", required=True, type=parse_checkpoint_time
+    )
+
+    play_consume = subparsers.add_parser(
+        "play-grant-consume",
+        help="consume one exact session/spec/checkpoint PLAY grant before pass",
+    )
+    play_consume.add_argument("--file", required=True, type=Path)
+    play_consume.add_argument("--framework-session-id", required=True)
+    play_consume.add_argument("--checkpoint-id", required=True)
+    play_consume.add_argument("--spec-sha256", required=True)
+    play_consume.add_argument("--task-id", required=True)
     return parser
 
 
@@ -414,6 +564,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     args.socket,
                     request_timeout=args.request_timeout,
                     wait_timeout=args.wait_timeout,
+                    require_active_match=args.require_active_match,
                 )
             )
             return 0
@@ -455,6 +606,27 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
             return 0
+        if args.command == "manual-ui-session-spec":
+            _emit(
+                build_manual_ui_session_spec(
+                    label=args.label,
+                    app_bundle_id=args.app_bundle_id,
+                    app_bundle_path=args.app_bundle_path,
+                    existing_instance_policy=args.existing_instance_policy,
+                    leave_open_on_success=args.leave_open_on_success,
+                    watcher_executable=args.watcher_executable,
+                    cwd=args.cwd,
+                    socket_path=args.socket,
+                    audit_log=args.audit_log,
+                    session_timeout_ms=args.session_timeout_ms,
+                    expected_game_executable_path=args.expected_game_executable,
+                    manual_confirmation_timeout_ms=args.manual_confirmation_timeout_ms,
+                    ui_timeout_ms=args.ui_timeout_ms,
+                    authorization_timeout_ms=args.authorization_timeout_ms,
+                    identity_handoff_timeout_ms=args.identity_handoff_timeout_ms,
+                )
+            )
+            return 0
         if args.command == "checkpoint-challenge":
             _emit(
                 create_checkpoint_challenge(
@@ -475,6 +647,32 @@ def main(argv: Sequence[str] | None = None) -> int:
                     task_id=args.task_id,
                     response=args.response,
                     max_age_seconds=args.max_age_seconds,
+                )
+            )
+            return 0
+        if args.command == "play-grant-create":
+            _emit(
+                create_play_session_grant(
+                    args.file,
+                    framework_session_id=args.framework_session_id,
+                    checkpoint_id=args.checkpoint_id,
+                    spec_sha256=args.spec_sha256,
+                    task_id=args.task_id,
+                    initiation_text=args.initiation_text,
+                    initiated_at_unix=args.initiated_at,
+                    checkpoint_requested_at_unix=args.checkpoint_requested_at,
+                    checkpoint_expires_at_unix=args.checkpoint_expires_at,
+                )
+            )
+            return 0
+        if args.command == "play-grant-consume":
+            _emit(
+                consume_play_session_grant(
+                    args.file,
+                    framework_session_id=args.framework_session_id,
+                    checkpoint_id=args.checkpoint_id,
+                    spec_sha256=args.spec_sha256,
+                    task_id=args.task_id,
                 )
             )
             return 0

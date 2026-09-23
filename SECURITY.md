@@ -92,6 +92,16 @@ digest before installation. The framework is not imported by this package and
 does not receive FireTuner credentials, arbitrary Lua, or a write-capable
 watcher socket through this integration.
 
+The provisional ADR-0061 manual-game-entry path is not part of that adopted
+release. A fresh user-initiated protected session may authorize only one
+exact launcher PLAY, using a private short-lived grant bound to the framework
+session, current PLAY checkpoint, spec digest, and execution task. The user
+must personally handle Continue and game entry; a separate same-task manual
+gate confirmation cannot stand in for exact process identity, `preflight live`,
+or the post-start server-enforced read-only active-turn probe. Missing, stale,
+replayed, or ambiguous authority fails closed. Never persist an automatic
+PLAY permission or translate a manual completion claim into a game write.
+
 Never expose FireTuner through port forwarding, a public Wi-Fi network, a VPN
 that permits peer access, or an untrusted LAN. Do not pass arbitrary Lua from an
 LLM or remote caller; keep actions on the audited allowlist.

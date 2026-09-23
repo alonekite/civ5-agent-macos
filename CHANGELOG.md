@@ -7,6 +7,13 @@ All notable user-visible changes are recorded here. Development details belong i
 
 ### Added
 
+- Offline-only candidate for one user-initiated session: one exact launcher
+  `PLAY` press uses a short-lived session/spec/checkpoint-bound grant, then a
+  manual game-entry gate waits for the operator to handle Continue and load or
+  create a match. No automatic Continue click occurs; watcher success requires
+  a server-enforced read-only active-turn probe. Existing v1 and two-click v2
+  paths remain compatible. This flow has not been target-verified or adopted.
+
 - Provisional persistent host hardening separates the one-time macOS firewall
   and Civ V block rule from each bounded FireTuner session. New `harden`,
   `unharden`, and read-only `preflight hardened` operations keep normal

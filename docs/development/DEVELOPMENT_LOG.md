@@ -2374,6 +2374,28 @@ wheel/source builds, artifact scans, and clean-install gates.
 - No core runtime, public API, game-write contract, or adopted framework
   version changed.
 
+## 2026-09-23 — Prepare session-scoped PLAY and manual game entry offline
+
+- After core target-evidence commit `5a596a5` recorded the pre-delivery AX
+  failure, framework commit `3402862` introduced an optional generic manual
+  completion gate. ADR-0061 pins its independently built wheel and keeps it
+  separate from the adopted v0.1.0 release.
+- Added a distinct candidate SessionSpec builder/CLI with one exact PLAY
+  action, same-PID executable handoff, one no-input `manual_game_entry` gate,
+  and the unchanged read-only child. The old v1 and two-click v2 shapes remain
+  available. Added a private one-use session/spec/checkpoint-bound PLAY grant,
+  a distinct Chinese manual-completion challenge, and an opt-in active-turn
+  read-only probe.
+- Offline host-context regression passed 388/388 on Python 3.11 and the
+  default runtime. The exact framework wheel passed ZIP/source-byte checks,
+  isolated install, and installed public-CLI validation of the generated
+  descriptor. Framework CI `35911563598` passed four macOS cells and the wheel
+  gate. No Civ V launch, UI action, FireTuner change, or target run occurred.
+- The contract, operations guide, risk register, verification matrix,
+  changelog, and project dashboard record the provisional boundary. A user
+  must later initiate one new protected session; manual completion and live
+  state still require separate evidence.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

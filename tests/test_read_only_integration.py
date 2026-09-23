@@ -30,9 +30,11 @@ from civ5_agent.read_only_integration import (
     CIV5_GAME_EXECUTABLE_PATH,
     CIV5_LAUNCHER_BUTTON_ROLE,
     CIV5_LAUNCHER_BUTTON_TITLE,
+    CIV5_MANUAL_GAME_ENTRY_GATE_ID,
     CIV5_WINDOW_TITLE,
     ReadOnlyIntegrationError,
     build_session_spec,
+    build_manual_ui_session_spec,
     build_ui_session_spec,
     main,
     read_sanitized_summary,
@@ -64,6 +66,60 @@ def private_state() -> GameState:
 
 
 class ReadOnlyIntegrationTest(unittest.TestCase):
+    def test_manual_gate_challenge_requires_post_gate_completion_statement(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "manual-gate.json"
+            challenge = create_checkpoint_challenge(
+                path,
+                checkpoint_id=CHECKPOINT_ID,
+                step_id=CIV5_MANUAL_GAME_ENTRY_GATE_ID,
+                task_id=TASK_ID,
+                requested_at_unix=100.0,
+                now=101.0,
+                nonce="a1b2c3d4",
+            )
+            self.assertIn("亲自点击 Continue", challenge["prompt"])
+            with self.assertRaisesRegex(ValueError, "does not match"):
+                authorize_checkpoint_challenge(
+                    path,
+                    checkpoint_id=CHECKPOINT_ID,
+                    step_id=CIV5_MANUAL_GAME_ENTRY_GATE_ID,
+                    task_id=TASK_ID,
+                    response="I am at the Mac; authorize manual_game_entry a1b2c3d4",
+                    max_age_seconds=3600,
+                    now=700.0,
+                )
+            authorized = authorize_checkpoint_challenge(
+                path,
+                checkpoint_id=CHECKPOINT_ID,
+                step_id=CIV5_MANUAL_GAME_ENTRY_GATE_ID,
+                task_id=TASK_ID,
+                response=challenge["prompt"],
+                max_age_seconds=3600,
+                now=700.0,
+            )
+            self.assertTrue(authorized["authorized"])
+            self.assertFalse(path.exists())
+            old_step = create_checkpoint_challenge(
+                path,
+                checkpoint_id=CHECKPOINT_ID,
+                step_id="press_launcher_play",
+                task_id=TASK_ID,
+                requested_at_unix=100.0,
+                now=101.0,
+                nonce="deadbeef",
+            )
+            with self.assertRaisesRegex(ValueError, "1..600"):
+                authorize_checkpoint_challenge(
+                    path,
+                    checkpoint_id=CHECKPOINT_ID,
+                    step_id="press_launcher_play",
+                    task_id=TASK_ID,
+                    response=old_step["prompt"],
+                    max_age_seconds=3600,
+                    now=102.0,
+                )
+
     def test_checkpoint_challenge_accepts_canonical_task_uuid_v4_and_v7(self):
         for index, task_id in enumerate((TASK_ID_V4, TASK_ID)):
             with self.subTest(task_id=task_id), TemporaryDirectory() as directory:
@@ -295,7 +351,7 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
         self.assertEqual(AUTOMATION_FRAMEWORK_SESSION_SPEC_VERSION, 1)
         self.assertEqual(
             AUTOMATION_FRAMEWORK_V2_CANDIDATE_COMMIT,
-            "a722aac6dcd7854d5715bdf994115de6ed5c792d",
+            "3402862a43e9c29e056a42ecb75d90a04222684b",
         )
         self.assertEqual(
             AUTOMATION_FRAMEWORK_V2_CANDIDATE_WHEEL_NAME,
@@ -303,7 +359,7 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
         )
         self.assertEqual(
             AUTOMATION_FRAMEWORK_V2_CANDIDATE_WHEEL_SHA256,
-            "cca1d5b674864e261b9252b67808749e954014c38a8d79b7b2be78541ee357d3",
+            "285251f0cabbcd98bfbb8c0a709aab5ba630192ea1d86706e72de9e2a77ab9a6",
         )
         self.assertEqual(AUTOMATION_FRAMEWORK_V2_CANDIDATE_SESSION_SPEC_VERSION, 2)
 
@@ -330,6 +386,24 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
         encoded = json.dumps(summary)
         for private in ("PRIVATE", "TECH_", SESSION_ID, '"x"', '"y"'):
             self.assertNotIn(private, encoded)
+
+    def test_probe_can_require_an_active_game_turn_after_manual_gate(self):
+        client = Mock()
+        state = private_state()
+        state.turn_active = False
+        client.read_state.return_value = (SESSION_ID, state)
+        with patch(
+            "civ5_agent.read_only_integration.request",
+            return_value={"ok": True, "bridge_session_id": SESSION_ID, "read_only": True},
+        ), patch(
+            "civ5_agent.read_only_integration.WatcherBridgeClient",
+            return_value=client,
+        ):
+            with self.assertRaises(ReadOnlyIntegrationError) as raised:
+                read_sanitized_summary(
+                    Path("/private/tmp/watcher.sock"), require_active_match=True
+                )
+        self.assertEqual(raised.exception.code, "active_match_unavailable")
 
     def test_probe_rejects_write_capable_watcher_before_state_read(self):
         with patch(
@@ -533,6 +607,44 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
             1,
         )
 
+    def test_manual_ui_spec_has_one_play_and_one_gate_before_read_only_child(self):
+        arguments = dict(
+            label="core-read-only-manual",
+            app_bundle_id=CIV5_APP_BUNDLE_ID,
+            app_bundle_path=None,
+            existing_instance_policy="reject",
+            leave_open_on_success=True,
+            watcher_executable=Path("/opt/core/bin/civ5-watch"),
+            cwd=Path("/opt/core"),
+            socket_path=Path("/private/tmp/core.sock"),
+            audit_log=Path("/private/tmp/audit.jsonl"),
+            session_timeout_ms=3_600_000,
+            expected_game_executable_path=CIV5_GAME_EXECUTABLE_PATH,
+        )
+        spec = build_manual_ui_session_spec(**arguments)
+        self.assertEqual(spec["spec_version"], 2)
+        self.assertEqual([step["step_id"] for step in spec["ui_steps"]], ["press_launcher_play"])
+        self.assertEqual(spec["ui_steps"][0]["action"]["kind"], "accessibility_press")
+        self.assertEqual(spec["ui_steps"][0]["identity_handoff"]["kind"], "same_process_executable")
+        self.assertEqual(
+            spec["manual_gates"],
+            [{"gate_id": CIV5_MANUAL_GAME_ENTRY_GATE_ID,
+              "confirmation_timeout_ms": 1_200_000}],
+        )
+        self.assertNotIn("window_relative_click", json.dumps(spec))
+        self.assertIn("--read-only", spec["processes"][0]["argv"])
+        self.assertFalse(spec["processes"][0]["retain_raw_output"])
+        for change in (
+            {"app_bundle_id": "com.example.Other"},
+            {"expected_game_executable_path": Path("/Applications/Other.app")},
+            {"manual_confirmation_timeout_ms": 0},
+            {"manual_confirmation_timeout_ms": 3_600_001},
+            {"manual_confirmation_timeout_ms": True},
+            {"session_timeout_ms": 1_800_000},
+        ):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                build_manual_ui_session_spec(**(arguments | change))
+
     def test_cli_emits_one_json_object_and_stable_exit_classes(self):
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
@@ -602,6 +714,27 @@ class ReadOnlyIntegrationTest(unittest.TestCase):
         spec = json.loads(output.getvalue())
         self.assertEqual(spec["spec_version"], 2)
         self.assertEqual(len(spec["ui_steps"]), 2)
+
+    def test_cli_emits_candidate_manual_gate_without_continue_click(self):
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            status = main(
+                [
+                    "manual-ui-session-spec",
+                    "--app-bundle-id", CIV5_APP_BUNDLE_ID,
+                    "--watcher-executable", "/opt/core/bin/civ5-watch",
+                    "--cwd", "/opt/core",
+                    "--socket", "/private/tmp/core.sock",
+                    "--audit-log", "/private/tmp/audit.jsonl",
+                    "--expected-game-executable", str(CIV5_GAME_EXECUTABLE_PATH),
+                ]
+            )
+        self.assertEqual(status, 0)
+        spec = json.loads(output.getvalue())
+        self.assertEqual(spec["spec_version"], 2)
+        self.assertEqual([step["step_id"] for step in spec["ui_steps"]], ["press_launcher_play"])
+        self.assertEqual([gate["gate_id"] for gate in spec["manual_gates"]], ["manual_game_entry"])
+        self.assertNotIn("window_relative_click", output.getvalue())
 
     def test_cli_requires_explicit_successor_executable_for_candidate_v2(self):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaisesRegex(

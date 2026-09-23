@@ -17,7 +17,9 @@ from uuid import UUID
 from .identity import validate_bridge_session_id
 
 CHECKPOINT_AUTHORIZATION_VERSION = 1
-CHECKPOINT_STEPS = frozenset({"press_launcher_play", "click_game_continue"})
+CHECKPOINT_STEPS = frozenset(
+    {"press_launcher_play", "click_game_continue", "manual_game_entry"}
+)
 _NONCE = re.compile(r"^[0-9a-f]{8}$")
 _CHALLENGE_FIELDS = frozenset(
     {
@@ -51,6 +53,11 @@ def _validate_binding(
 
 
 def _authorization_phrase(step_id: str, nonce: str) -> str:
+    if step_id == "manual_game_entry":
+        return (
+            "我已亲自点击 Continue，完成读档或建图，"
+            f"并进入可读取的一局；确认 manual_game_entry {nonce}"
+        )
     return f"I am at the Mac; authorize {step_id} {nonce}"
 
 
@@ -160,8 +167,9 @@ def authorize_checkpoint_challenge(
         raise ValueError("challenge path must be absolute")
     if isinstance(max_age_seconds, bool) or not isinstance(max_age_seconds, int):
         raise ValueError("maximum challenge age must be an integer")
-    if not 1 <= max_age_seconds <= 600:
-        raise ValueError("maximum challenge age must be in 1..600 seconds")
+    upper_bound = 3600 if step == "manual_game_entry" else 600
+    if not 1 <= max_age_seconds <= upper_bound:
+        raise ValueError(f"maximum challenge age must be in 1..{upper_bound} seconds")
     try:
         descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
     except OSError as error:

@@ -42,6 +42,35 @@ It fails closed for an unverified bundle or successor identity. Omitting the
 required successor argument is ordinary `argparse` invocation error exit 2.
 This candidate is not part of the adopted v0.1.0 framework contract.
 
+Development `manual-ui-session-spec` emits a separate candidate SessionSpec
+v2 with only the verified PLAY step and same-process handoff, followed by one
+`manual_game_entry` gate before the unchanged read-only watcher. It accepts
+no Continue coordinates. It rejects any unverified bundle/successor, invalid
+gate timeout, or session timeout too short for the declared UI, handoff, and
+manual bounds. Its output must remain private and cannot be used for a target
+run until the exact framework candidate and its host safety checks are
+reviewed. The old `ui-session-spec` output is unchanged.
+
+Development `play-grant-create` and `play-grant-consume` implement ADR-0061's
+single-session PLAY preauthorization. The composition root first verifies a
+fresh same-task user initiation and an active framework PLAY checkpoint.
+Creation requires their times, framework session/checkpoint IDs, canonical
+SessionSpec SHA-256, task ID, and exact initiation text; it writes an owned
+mode-0600 file with exclusive creation and at most ten-minute session scope.
+Consumption requires the same identifiers and deletes the file before the
+framework receives `pass`. The helpers do not themselves authenticate message
+provenance or call the framework. They never authorize Continue, the manual
+gate, a second PLAY, another session, or reuse of an old nonce.
+
+`checkpoint-challenge`/`checkpoint-authorize` also accept
+`manual_game_entry`, whose exact Chinese response states that the operator
+personally completed Continue and game entry. The caller may set a bounded
+`--max-age-seconds` up to 3600 for that gate only; prior UI-action challenge
+limits and phrases are unchanged. A successful gate response is not game-state
+proof. `probe --require-active-match` additionally fails with
+`active_match_unavailable` unless the server-enforced read-only watcher
+returns a same-session validated active player turn.
+
 Development `checkpoint-challenge` and `checkpoint-authorize` implement the
 ADR-0054 local operator-presence gate without invoking the framework.
 `checkpoint-challenge` exclusively creates one private mode-0600 ticket after a

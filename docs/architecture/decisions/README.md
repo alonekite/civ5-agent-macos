@@ -66,6 +66,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0058](ADR-0058-pin-ax-frontmost-error-classification.md) | Pin closed-set candidate AX frontmost diagnostics | Accepted for provisional v2; supersedes ADR-0057 candidate pin and focus diagnostic categories only |
 | [ADR-0059](ADR-0059-pin-bounded-candidate-ax-timeout.md) | Pin bounded candidate AX frontmost timeout hypothesis | Accepted for provisional v2; supersedes ADR-0058 candidate pin and candidate query timeout only |
 | [ADR-0060](ADR-0060-pin-failed-frontmost-role-diagnostic.md) | Pin failed-frontmost AXRole diagnostic candidate | Accepted for provisional v2; supersedes ADR-0059 candidate pin and failure diagnostic only |
+| [ADR-0061](ADR-0061-scope-play-grant-and-manual-game-entry.md) | Scope one PLAY grant to a user-initiated session and require manual game entry | Accepted for provisional v2; supersedes ADR-0060 candidate pin and post-PLAY workflow only; target pending |
 
 ## Template
 

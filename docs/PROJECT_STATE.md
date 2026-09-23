@@ -12,22 +12,15 @@ development log.
   release `v1.3.0`. M10 and the earlier 1.2.0 release remain complete.
 - Active next deliverable: monitor downstream integration and route any next
   reusable fact or mechanic through the strategy-neutral capability-request
-  process. The post-1.3 provisional SessionSpec v2 adapter is pinned to the
-  independently reviewed framework candidate `70b6342`. The latest target run
-  confirmed automated `PLAY`, `identity_handoff.completed`, and the second
-  checkpoint, but failed `focused_application_query` before the second delivery
-  boundary. ADR-0058 classified the system-wide and candidate AX errors
-  without changing fail-closed behavior: its target run stopped at
-  `selection / system_cannot_complete / candidate_cannot_complete`.
-  ADR-0059 increased only the exact-candidate AXFrontmost messaging timeout
-  from 0.25 to 1.0 seconds. Its new target run failed at the same closed-set
-  pre-delivery AX error, so that bounded hypothesis did not resolve the issue.
-  ADR-0060 adds only one AXRole read after this failure to classify whether an
-  unrelated app-level AX attribute responds. Its target run returned
-  `role_cannot_complete` on the same candidate element, still before second
-  delivery. This weakens an AXFrontmost-only explanation but does not establish
-  root cause or authorize a click. No continue click or watcher startup has
-  been observed. The adapter adds no game-state or write capability.
+  process. The post-1.3 provisional SessionSpec v2 adapter is pinned to
+  independently reviewed framework candidate `3402862` under ADR-0061.
+  The last target run of predecessor `70b6342` confirmed gated automated
+  PLAY and exact-PID handoff but failed before automatic Continue delivery:
+  system and candidate AX frontmost queries, plus the candidate AXRole probe,
+  returned `cannot_complete`. No Continue click or watcher start occurred.
+  The new offline-only flow replaces the automatic Continue action with one
+  bounded manual-game-entry gate; one session-start authorization covers
+  exactly one PLAY. It adds no game-state or write capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
   verifies a protected idle phase, keeps per-test prepare/restore scoped to
@@ -37,8 +30,9 @@ development log.
   later `prepare`/`restore` cycles retained the firewall and Civ V block rule
   while returning FireTuner, listener, and watcher to closed state. `unharden`
   remains pending until the user actually requests removal of the desired guard.
-- Functional baseline: 379/379 tests pass warning-enabled in host context on
-  Python 3.11 and the default runtime. Two independent 1.3.0 candidate wheel
+- Functional baseline: 388/388 tests pass in host context on Python 3.11 and
+  the default runtime. The published 1.3.0 baseline also passed warning-enabled
+  verification. Two independent 1.3.0 candidate wheel
   and sdist builds have matching normalized contents; each format installs,
   imports, and starts the supported CLI in a separate clean Python 3.11
   environment. Exact-commit and `v1.3.0` tag GitHub Actions pass on Python
@@ -48,10 +42,10 @@ development log.
   The observed `3.19` point difference remains recorded without normalization;
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
-- User presence required next: none for framework-side offline root-cause
-  analysis. Another target UI run would require a separately justified test
-  and fresh one-use authorization for each action; neither prior answer can
-  be reused.
+- User presence required next: none for current offline validation. A target
+  run of the new flow would require a new explicit session initiation and a
+  separate manual-game-entry completion after the operator personally handles
+  Continue and the save/new-game path. Old nonces are not reusable.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -61,20 +55,12 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- The exact candidate framework commit `70b6342` and wheel digest are pinned
-  under ADR-0060. Its fixed wheel passed independent offline installation and
-  public SessionSpec v2 validation, and the framework reports 139 tests plus
-  a passing four-cell macOS CI and wheel gate (`35853948293`). The one-use
-  post-request checkpoint/step/task/nonce gate remains mandatory for each UI
-  action. Live evidence now confirms automated PLAY, exact-PID handoff, and
-  second-checkpoint creation, but not the continue click or watcher startup.
-  The current candidate's target run repeated
-  `system_cannot_complete / candidate_cannot_complete` and additionally
-  observed `focus_probe=role_cannot_complete` on the same AX element. The
-  framework requested normal game exit; the game later exited without force,
-  cleanup-only recovery reached a terminal failed state, and independent host
-  preflight confirmed hardening. Framework 0.2 remains unadopted pending a
-  complete target run.
+- The exact candidate framework commit `3402862` and independently built
+  wheel digest are pinned under ADR-0061. The wheel passed ZIP/source-byte
+  checks, installed public-CLI validation of the generated manual-gate
+  SessionSpec, and framework four-cell macOS CI/wheel gate `35911563598`.
+  Core host-context tests pass 388/388. Its manual gate and session-bound
+  PLAY grant have no target evidence; framework 0.2 remains unadopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

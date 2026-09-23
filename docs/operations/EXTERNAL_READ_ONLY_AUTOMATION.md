@@ -130,10 +130,11 @@ C4 evidence.
 
 ## Candidate SessionSpec v2 launcher sequence
 
-The development `ui-session-spec` command is compatibility-tested only against
-framework commit `70b63426a45f18436aced8f53ae9b535c5092509` and wheel
+The development `ui-session-spec` and `manual-ui-session-spec` commands are
+compatibility-tested only against framework commit
+`3402862a43e9c29e056a42ecb75d90a04222684b` and wheel
 SHA-256
-`0be1ebe491c80a1bb90e95a8a6fc1a17a096238c61960147c0ba677884f2c0f1`.
+`285251f0cabbcd98bfbb8c0a709aab5ba630192ea1d86706e72de9e2a77ab9a6`.
 Do not substitute it for the adopted v0.1.0 path in unattended or release
 workflows.
 
@@ -141,8 +142,10 @@ This pin includes the post-handoff identity continuation reviewed in ADR-0055
 and the exact tracked-PID AppKit fallback reviewed in ADR-0056. ADR-0057 adds
 bounded failure-stage diagnostics and post-handoff cleanup reconciliation;
 ADR-0058 refines only the closed-set AX failure categories, ADR-0059 increases
-only the exact-candidate AXFrontmost messaging timeout to one second, and
-ADR-0060 adds only a failure-after-decision AXRole diagnostic.
+only the exact-candidate AXFrontmost messaging timeout to one second;
+ADR-0060 added a failure-after-decision AXRole diagnostic. ADR-0061 adds an
+optional manual gate after PLAY/handoff and before the watcher, without
+weakening any AX failure or creating an automatic Continue action.
 The fallback applies only when bundle enumeration is empty during the declared
 handoff; it does not affect initial launch, later UI delivery, or cleanup.
 The framework may retain the original AppKit executable URL only while the
@@ -276,7 +279,43 @@ files into this repository.
 On a pre-delivery timeout, that token is the last observed closed-set readiness
 class, not an authorization to retry or select a different focus source.
 
-### Exact candidate-retest descriptor generation
+### Offline candidate: operator completes game entry
+
+ADR-0061 introduces a distinct `manual-ui-session-spec` output for a future
+operator-present test. It has one exact launcher PLAY action, the same-PID game
+executable handoff, one `manual_game_entry` checkpoint, and then the read-only
+watcher. It has no automatic Continue click or calibrated coordinate. The
+framework's generic gate prompt does not explain Civ V; the execution-layer
+operator message must say: “请亲自点击 Click to Continue，完成读档或建图，并进入可读取的一局；完成后再回复本次检查点给出的完整中文确认句。”
+
+The operator's fresh, exact same-task session-initiation message is:
+“我在 Mac 前，开始一次受保护的 Civ V 只读会话，并授权仅本次的 PLAY 点击”。It authorizes
+only one PLAY in that one protected session. The composition root must verify
+message provenance, current host `ready` preflight, the immutable candidate
+wheel/hash, a private validated spec, and the exact framework PLAY checkpoint.
+It then creates and consumes the short-lived session/spec/checkpoint-bound
+PLAY grant before answering that checkpoint; a prior nonce or a general
+“继续” is insufficient. The operator does not separately confirm PLAY after
+the checkpoint in this flow. If any binding fails, answer fail or stop.
+
+After PLAY/handoff, leave the manual gate pending while the operator handles
+the game. Create its separate one-use challenge only after the framework
+requests that gate; never answer it until the exact new user completion
+message arrives. Before passing the gate, independently confirm the tracked
+game successor identity and host `preflight live` (firewall enabled, explicit
+Civ V inbound block, FireTuner enabled, TCP 4318 listening, no prior watcher
+socket). The user message is an attestation, not proof of a live match. After
+the framework starts only `civ5-watch --read-only`, run
+`civ5-read-only probe --require-active-match` and require a same-session
+validated active-turn state. Any missing condition fails closed; stop/recover
+the framework, verify the game is exited, restore FireTuner, and independently
+check `preflight hardened`. Do not use this candidate in a target run until
+the user separately initiates one and the framework/core artifacts are pinned.
+
+### Historical two-click descriptor
+
+The following descriptor is retained only for historical compatibility and
+is not the ADR-0061 manual-game-entry flow.
 
 The repaired framework contract is available at the exact candidate commit
 above and has passed execution-core offline review. A new live run still
