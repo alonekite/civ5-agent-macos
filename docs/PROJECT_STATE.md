@@ -13,18 +13,15 @@ development log.
 - Active next deliverable: monitor downstream integration and route any next
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is pinned to the
-  independently reviewed framework candidate `d531450`. The latest live run
-  completed its one-use gated PLAY action, but the framework timed out before
-  the second checkpoint with `candidate_absent`: its process probe observed the
-  declared successor while AppKit bundle enumeration returned no candidate.
-  The new candidate adds an exact already-tracked-PID AppKit query only inside
-  that declared handoff and retains the identity, authorization, and fail-closed
-  rules. Its offline and CI gates pass. A fresh operator-present target run
-  confirmed the automated `PLAY` action and `identity_handoff.completed`, then
-  requested a second checkpoint. After fresh authorization, the framework
-  failed `focused_application_query` before the second delivery boundary;
-  no continue click or watcher startup occurred. The adapter adds no game-state
-  or write capability.
+  independently reviewed framework candidate `192391e`. The latest target run
+  confirmed automated `PLAY`, `identity_handoff.completed`, and the second
+  checkpoint, but failed `focused_application_query` before the second delivery
+  boundary. The new candidate preserves that terminal behavior while adding
+  closed-set focus-stage/detail diagnostics and tightly scoped post-handoff
+  cleanup reconciliation. Its offline and CI gates pass. In the first target
+  run with this candidate, the second step again failed before delivery; the
+  new diagnosis was `selection / candidate_query_error`. No continue click or
+  watcher startup occurred. The adapter adds no game-state or write capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
   verifies a protected idle phase, keeps per-test prepare/restore scoped to
@@ -45,9 +42,9 @@ development log.
   The observed `3.19` point difference remains recorded without normalization;
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
-- User presence required next: yes, but not until the independent framework
-  addresses the pre-delivery focus-query failure. Any subsequent v2 target
-  retest requires fresh same-task authorization and visual evidence.
+- User presence required next: not until the independent framework task
+  addresses the target-observed candidate frontmost-query error. Any later
+  target retest needs fresh same-task authorization for both UI steps.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -57,16 +54,17 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- The exact candidate framework commit `d531450` and wheel digest are pinned
-  under ADR-0056. Its fixed wheel passed independent offline installation and
-  public SessionSpec v2 validation, and the framework reports 136 tests plus
-  a passing four-cell macOS CI and wheel gate (`35786865141`). The one-use
+- The exact candidate framework commit `192391e` and wheel digest are pinned
+  under ADR-0057. Its fixed wheel passed independent offline installation and
+  public SessionSpec v2 validation, and the framework reports 137 tests plus
+  a passing four-cell macOS CI and wheel gate (`35802740842`). The one-use
   post-request checkpoint/step/task/nonce gate remains mandatory for each UI
   action. Live evidence now confirms automated PLAY, exact-PID handoff, and
   second-checkpoint creation, but not the continue click or watcher startup.
-  The failed session required a normal operator game exit, after which
-  independent host preflight confirmed the hardened state. Framework 0.2
-  remains unadopted pending a complete operator-present end-to-end run.
+  After the terminal focus-query failure, the framework requested normal game
+  exit; the game later exited without force, cleanup-only recovery reached a
+  terminal failed state, and independent host preflight confirmed hardening.
+  Framework 0.2 remains unadopted pending a complete target run.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

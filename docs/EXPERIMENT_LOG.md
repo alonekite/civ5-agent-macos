@@ -2337,3 +2337,33 @@ do not undo the desired development configuration merely to add coverage.
 - Result: automated PLAY, same-process executable handoff, and second
   checkpoint creation have target evidence. Continue click, watcher startup,
   and complete v2 composition do not. Do not reuse either authorization.
+
+## 2026-09-23 — Candidate focus-query category after exact handoff
+
+- Scope: independently reviewed framework candidate `192391e`, fixed wheel
+  SHA-256 `3ad709c60f7a375e75b88a2e13b23b3d6afc084bee71b584124a1b37907a2a5a`,
+  a private SessionSpec v2, protected FireTuner session, and server-enforced
+  read-only watcher declared only after both UI gates. No game-state write or
+  direct game command was authorized.
+- The operator supplied a new same-task nonce response after each separate
+  checkpoint request. Framework events recorded one PLAY delivery,
+  `identity_handoff.completed`, and creation of the continue checkpoint.
+  The second authorization was accepted, but the next event was
+  `ui_identity_error` with closed-set `focused_application_query`,
+  `focus_stage=selection`, and `focus_detail=candidate_query_error`.
+- There was no second `ui.action_delivery_started` event. The framework did
+  not click `Click to Continue` or start the watcher, and it performed no
+  game-state read. The classification identifies the candidate frontmost
+  query at initial step selection; it does not expose the raw AX error code or
+  establish why that query failed.
+- The framework requested normal application termination but reached its
+  ten-second cleanup deadline before observing exit. A later process check
+  found Civ V and watcher absent without any force termination. The execution
+  layer restored FireTuner; independent `preflight hardened` confirmed firewall
+  enabled, the Civ V inbound block present, TCP 4318 closed, and watcher socket
+  absent. Cleanup-only framework recovery then reached a terminal failed
+  state, not a successful session.
+- Result: exact-PID handoff remained successful, but the v2 end-to-end flow
+  remains unverified. This run provides a bounded framework-side focus-query
+  diagnosis for offline investigation. Neither one-use authorization can be
+  replayed. Private checkpoint values, PID, and runtime paths are omitted.

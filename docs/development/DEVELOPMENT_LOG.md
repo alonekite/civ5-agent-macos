@@ -2271,6 +2271,26 @@ wheel/source builds, artifact scans, and clean-install gates.
   was required by the successful handoff; the remaining focus-query and
   cleanup issues belong to the independent framework task.
 
+## 2026-09-23 — Diagnose second-step focus query without UI delivery
+
+- Framework commit `192391e` kept frontmost-query failures terminal, added
+  closed-set stage/detail diagnostics, and reconciled post-handoff cleanup
+  under the tracked successor identity. ADR-0057 pins its exact wheel for
+  provisional SessionSpec v2 compatibility only. Independent execution-layer
+  review verified the wheel digest and source bytes, isolated installation,
+  public descriptor validation, and intact host hardening. The framework task
+  reports a passing four-cell CI/wheel gate.
+- A new operator-present run completed PLAY and the exact-PID handoff, then
+  received fresh authorization for the second UI step. It failed before
+  delivery with `selection / candidate_query_error`; neither continue click
+  nor watcher startup occurred. After normal termination was requested, the
+  game exited without force; execution-layer restoration and independent
+  hardened preflight passed. The framework's cleanup-only recovery closed the
+  failed session without claiming success.
+- The experiment log and verification matrix preserve only bounded evidence.
+  The next investigation belongs to the independent framework task; no core
+  runtime or public API change is justified by this observation.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

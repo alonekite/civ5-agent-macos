@@ -62,6 +62,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0054](ADR-0054-bind-human-authorization-to-fresh-checkpoint-challenges.md) | Bind human authorization to fresh checkpoint challenges | Accepted; strengthens the candidate UI authorization procedure |
 | [ADR-0055](ADR-0055-pin-post-handoff-ui-identity-candidate.md) | Pin post-handoff UI identity candidate | Accepted for provisional v2; supersedes ADR-0053 candidate pin and handoff continuation only |
 | [ADR-0056](ADR-0056-pin-exact-pid-handoff-fallback.md) | Pin exact-PID AppKit handoff fallback | Accepted for provisional v2; supersedes ADR-0055 candidate pin and handoff candidate lookup only |
+| [ADR-0057](ADR-0057-pin-focus-diagnostic-and-cleanup-candidate.md) | Pin focus diagnostics and post-handoff cleanup candidate | Accepted for provisional v2; supersedes ADR-0056 candidate pin, focus diagnostics, and cleanup behavior only |
 
 ## Template
 

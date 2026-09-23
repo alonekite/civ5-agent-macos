@@ -3,21 +3,23 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `d531450ecebc3326d3b314e7a6b438678f29aa28`
+framework development commit `192391eb30de35c99ad49a4e5e12434bcc2bd6fd`
 and candidate wheel SHA-256
-`738c561c0f1d651c0ddba6a12275e44264b1eacc2f5fef1b641266133fb66157`.
+`3ad709c60f7a375e75b88a2e13b23b3d6afc084bee71b584124a1b37907a2a5a`.
 It is not an adopted framework release or runtime dependency.
 
-ADR-0056 pins this candidate after a target run classified the handoff timeout
-as `candidate_absent`: the process probe saw the declared successor but AppKit
-bundle enumeration returned no candidate. Only inside the declared handoff,
-the framework may query AppKit for the already-tracked PID when that enumeration
-is empty. The unchanged PID, creation time, bundle identifier/path, old or
-declared successor AppKit executable, and exact process successor remain
-mandatory. A third executable, identity drift, or ambiguity fails closed.
-The exact-PID handoff and second checkpoint now have target evidence, but the
-second click and watcher startup do not: the next run failed a frontmost-query
-check before the second UI delivery boundary. Framework 0.2 remains unadopted.
+ADR-0057 pins this candidate after the exact-PID handoff and second checkpoint
+passed on the target, but a `focused_application_query` error stopped the next
+action before delivery. The framework retains that terminal failure and adds
+only closed-set `focus_stage`/`focus_detail` diagnostics. Post-handoff cleanup
+may accept the original or exact successor AppKit executable only after a fresh
+process probe exactly matches the tracked successor; PID, bundle identifier,
+bundle path, and third-executable refusal remain unchanged. The second click
+and watcher startup still have no target evidence. The first target run with
+this pin failed before second-step delivery with closed-set
+`focus_stage=selection` and `focus_detail=candidate_query_error`; this is
+diagnostic evidence, not permission to retry or reinterpret the focus result.
+Framework 0.2 remains unadopted.
 
 ## Adopted artifact
 
