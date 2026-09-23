@@ -20,9 +20,13 @@ Post-handoff cleanup may accept the original or
 exact successor AppKit executable only after a fresh process probe exactly
 matches the tracked successor; PID, bundle identifier, bundle path, and
 third-executable refusal remain unchanged. The second click
-and watcher startup still have no target evidence. This exact candidate has
-only offline and CI evidence; the last target result belongs to its ADR-0059
-predecessor. A role-read success would not prove foreground state.
+and watcher startup still have no target evidence. An operator-present target
+run of this exact candidate completed gated PLAY and exact-PID handoff but
+failed before second-action delivery with
+`focus_probe=role_cannot_complete` alongside the existing
+`system_cannot_complete / candidate_cannot_complete` selection result. This
+does not establish the AX root cause or permit another focus source or retry.
+A role-read success would not prove foreground state.
 Framework 0.2 remains unadopted.
 
 ## Adopted artifact

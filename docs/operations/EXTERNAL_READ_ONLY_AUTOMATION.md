@@ -163,11 +163,13 @@ The previous pin's target run classified the repeat failure as
 to `selection / system_cannot_complete / candidate_cannot_complete`, still
 before the second delivery boundary. A target run of the ADR-0059 one-second
 timeout candidate repeated the same closed-set selection failure before
-delivery. The current ADR-0060 candidate may classify one additional
-app-level AXRole read only after that failure, without changing the terminal
-decision or attempting a click. It has no target evidence. Any later target
-run needs fresh host safety checks and two new same-task checkpoint
-authorizations; old answers cannot be reused.
+delivery. The current ADR-0060 candidate classifies one additional app-level
+AXRole read only after that failure, without changing the terminal decision
+or attempting a click. Its target run returned
+`focus_probe=role_cannot_complete` on the same candidate element. No continue
+click or watcher start followed; the failure still does not establish root
+cause. Any later target run needs fresh host safety checks and two new
+same-task checkpoint authorizations; old answers cannot be reused.
 
 This candidate bounds each accepted private control connection to 0.5 seconds.
 The bound releases a serialized control loop from an incomplete same-user

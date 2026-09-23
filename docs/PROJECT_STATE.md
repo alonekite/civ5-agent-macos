@@ -23,9 +23,11 @@ development log.
   from 0.25 to 1.0 seconds. Its new target run failed at the same closed-set
   pre-delivery AX error, so that bounded hypothesis did not resolve the issue.
   ADR-0060 adds only one AXRole read after this failure to classify whether an
-  unrelated app-level AX attribute responds. It has no target evidence and
-  cannot authorize a click. No continue click or watcher startup has been
-  observed. The adapter adds no game-state or write capability.
+  unrelated app-level AX attribute responds. Its target run returned
+  `role_cannot_complete` on the same candidate element, still before second
+  delivery. This weakens an AXFrontmost-only explanation but does not establish
+  root cause or authorize a click. No continue click or watcher startup has
+  been observed. The adapter adds no game-state or write capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
   verifies a protected idle phase, keeps per-test prepare/restore scoped to
@@ -46,10 +48,10 @@ development log.
   The observed `3.19` point difference remains recorded without normalization;
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
-- User presence required next: only for a separately authorized target
-  diagnostic run of the independently reviewed ADR-0060 candidate. The
-  diagnostic does not fix the click, and neither prior UI-step authorization
-  can be reused.
+- User presence required next: none for framework-side offline root-cause
+  analysis. Another target UI run would require a separately justified test
+  and fresh one-use authorization for each action; neither prior answer can
+  be reused.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -66,12 +68,13 @@ development log.
   post-request checkpoint/step/task/nonce gate remains mandatory for each UI
   action. Live evidence now confirms automated PLAY, exact-PID handoff, and
   second-checkpoint creation, but not the continue click or watcher startup.
-  The previous candidate's target run terminal focus-query failure remains
-  `system_cannot_complete / candidate_cannot_complete`. The framework
-  requested normal game exit; the game later exited without force,
+  The current candidate's target run repeated
+  `system_cannot_complete / candidate_cannot_complete` and additionally
+  observed `focus_probe=role_cannot_complete` on the same AX element. The
+  framework requested normal game exit; the game later exited without force,
   cleanup-only recovery reached a terminal failed state, and independent host
-  preflight confirmed hardening. The current candidate has not been run on
-  the target. Framework 0.2 remains unadopted pending a complete target run.
+  preflight confirmed hardening. Framework 0.2 remains unadopted pending a
+  complete target run.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

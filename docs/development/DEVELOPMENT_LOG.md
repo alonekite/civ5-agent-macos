@@ -2356,6 +2356,24 @@ wheel/source builds, artifact scans, and clean-install gates.
   ADR-0059 failure remains the last live evidence; any later diagnostic run
   needs fresh protected-host checks and one-use authorization for each step.
 
+## 2026-09-23 — ADR-0060 target AXRole diagnostic remained fail-closed
+
+- Ran the exact framework candidate `70b6342` pinned by core commit
+  `e2d3eec` under a protected, operator-present session. Both UI checkpoints
+  received fresh one-use same-task authorization; the first delivered PLAY and
+  completed exact-PID handoff.
+- The second action failed at focus selection before delivery. The new
+  closed-set `focus_probe=role_cannot_complete` showed that the same candidate
+  AX element could not return AXRole either. No continue click, watcher, or
+  game-state read occurred, and no retry or alternate focus source was used.
+- After normal game exit was independently observed, cleanup-only framework
+  recovery reached a terminal failed state. FireTuner restoration and host
+  hardening checks passed. The experiment log, matrix, contract, operations
+  guide, and project-state dashboard record this bounded outcome; sanitized
+  evidence was sent to the independent framework task for offline analysis.
+- No core runtime, public API, game-write contract, or adopted framework
+  version changed.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

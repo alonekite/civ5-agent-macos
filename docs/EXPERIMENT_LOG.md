@@ -2429,3 +2429,35 @@ do not undo the desired development configuration merely to add coverage.
   0.25 to 1.0 seconds did not resolve the target-observed error. It does not
   prove a different timeout would help. The v2 end-to-end flow remains
   unverified; framework-side root-cause analysis must remain fail-closed.
+
+## 2026-09-23 — Same-candidate AXRole probe also cannot complete
+
+- Scope: independently reviewed framework commit `70b6342`, exact wheel
+  SHA-256 `0be1ebe491c80a1bb90e95a8a6fc1a17a096238c61960147c0ba677884f2c0f1`,
+  protected FireTuner session, private SessionSpec v2, and read-only watcher
+  declared only after both UI gates. No game-state write was authorized.
+- The operator supplied fresh same-task one-use authorization at each separate
+  checkpoint. Framework events recorded one `PLAY` delivery,
+  `identity_handoff.completed`, and the continue checkpoint. After the second
+  authorization, `session.failure` reported `ui_identity_error` with
+  `focused_application_query`, `focus_stage=selection`,
+  `focus_context=system_cannot_complete`,
+  `focus_detail=candidate_cannot_complete`, and
+  `focus_probe=role_cannot_complete`. The diagnostic AXRole read on the same
+  candidate element could not complete either.
+- No second `ui.action_delivery_started` occurred. The framework did not
+  click Continue, start the watcher, or read game state. The AXRole result
+  weakens an AXFrontmost-only explanation but does not establish the underlying
+  AX failure, justify another focus source, or authorize a retry.
+- The framework requested normal application exit but did not observe it by
+  its cleanup deadline. A later narrow process check found both game and
+  watcher absent. Cleanup-only recovery reached a terminal failed state;
+  `restore` closed FireTuner, and independent host-context
+  `preflight hardened` confirmed firewall enabled, Civ V incoming blocked,
+  TCP 4318 closed, and watcher socket absent. No force termination was used.
+  Private checkpoints, nonces, PIDs, times, and runtime paths remain outside
+  this repository.
+- Result: the ADR-0060 diagnostic has target evidence, but the v2 end-to-end
+  flow remains unverified. The closed-set result was sent to the independent
+  framework task for offline root-cause analysis; neither authorization can
+  be reused.
