@@ -64,6 +64,7 @@ rewritten to match later preferences; a new ADR may supersede an old one.
 | [ADR-0056](ADR-0056-pin-exact-pid-handoff-fallback.md) | Pin exact-PID AppKit handoff fallback | Accepted for provisional v2; supersedes ADR-0055 candidate pin and handoff candidate lookup only |
 | [ADR-0057](ADR-0057-pin-focus-diagnostic-and-cleanup-candidate.md) | Pin focus diagnostics and post-handoff cleanup candidate | Accepted for provisional v2; supersedes ADR-0056 candidate pin, focus diagnostics, and cleanup behavior only |
 | [ADR-0058](ADR-0058-pin-ax-frontmost-error-classification.md) | Pin closed-set candidate AX frontmost diagnostics | Accepted for provisional v2; supersedes ADR-0057 candidate pin and focus diagnostic categories only |
+| [ADR-0059](ADR-0059-pin-bounded-candidate-ax-timeout.md) | Pin bounded candidate AX frontmost timeout hypothesis | Accepted for provisional v2; supersedes ADR-0058 candidate pin and candidate query timeout only |
 
 ## Template
 

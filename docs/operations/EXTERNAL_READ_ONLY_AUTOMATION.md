@@ -131,18 +131,19 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `04189d3a5da3c9597e391e290dbf97affb93a820` and wheel
+framework commit `d7a51aafe4d556fe5c3d92634c8981b02d9bed59` and wheel
 SHA-256
-`4b965fefa0eb51d6a7486eedd03ea2c9c093fa4015356c540a47bdd9db057f86`.
+`ebe64c31987b3c524ab8dcaf789c625bced01aa11df1aedce225630261847de0`.
 Do not substitute it for the adopted v0.1.0 path in unattended or release
 workflows.
 
 This pin includes the post-handoff identity continuation reviewed in ADR-0055
 and the exact tracked-PID AppKit fallback reviewed in ADR-0056. ADR-0057 adds
 bounded failure-stage diagnostics and post-handoff cleanup reconciliation;
-ADR-0058 refines only the closed-set AX failure categories. The fallback
-applies only when bundle enumeration is empty during the declared handoff; it
-does not affect initial launch, later UI delivery, or cleanup.
+ADR-0058 refines only the closed-set AX failure categories, and ADR-0059
+increases only the exact-candidate AXFrontmost messaging timeout to one second.
+The fallback applies only when bundle enumeration is empty during the declared
+handoff; it does not affect initial launch, later UI delivery, or cleanup.
 The framework may retain the original AppKit executable URL only while the
 process probe reports the exact declared successor with unchanged PID and
 creation time. The next UI step and watcher start must recheck that tracked
@@ -157,11 +158,12 @@ watcher start occurred. Do not reuse either checkpoint response. The current
 candidate retains this error as terminal and reports only allowlisted focus
 stage/detail/context classes; it does not retry or reinterpret the UI action.
 The previous pin's target run classified the repeat failure as
-`selection / candidate_query_error`. The current diagnostic pin refined this
+`selection / candidate_query_error`. The ADR-0058 target run refined this
 to `selection / system_cannot_complete / candidate_cannot_complete`, still
-before the second delivery boundary. Do not repeat the operator-present run
-with this same candidate until the framework task evaluates that precise
-failure class.
+before the second delivery boundary. The current ADR-0059 timeout hypothesis
+has only offline and CI evidence. A new target run needs fresh host safety
+checks and two new same-task checkpoint authorizations; old answers cannot be
+reused.
 
 This candidate bounds each accepted private control connection to 0.5 seconds.
 The bound releases a serialized control loop from an incomplete same-user

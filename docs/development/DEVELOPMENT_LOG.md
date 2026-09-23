@@ -2308,6 +2308,23 @@ wheel/source builds, artifact scans, and clean-install gates.
   dashboard preserve the bounded result. Framework-side root-cause work is
   independent; no core API or game-write path changed.
 
+## 2026-09-23 — Pin bounded candidate AX timeout for offline compatibility
+
+- Framework commit `d7a51aa` changes only the exact-candidate AXFrontmost
+  messaging timeout from 0.25 to 1.0 seconds. ADR-0059 advances the
+  provisional SessionSpec v2 artifact pin; nonzero AX results still terminate
+  before UI delivery and neither repository adds a retry or AppKit foreground
+  substitute.
+- Independent execution-layer review matched the fixed wheel digest and
+  changed source bytes, checked ZIP integrity, installed it offline in a clean
+  Python 3.12 environment, validated the existing SessionSpec v2 with the
+  installed public CLI, and passed 34 targeted UI tests. The framework task
+  reports four-cell macOS CI and wheel gates passing.
+- No new target test, game action, watcher, FireTuner change, or core runtime
+  change was performed for this candidate. The ADR-0058 failure remains the
+  last live evidence; a future run needs fresh protected-host checks and
+  one-use authorization for each step.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

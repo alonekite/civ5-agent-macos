@@ -3,23 +3,23 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `04189d3a5da3c9597e391e290dbf97affb93a820`
+framework development commit `d7a51aafe4d556fe5c3d92634c8981b02d9bed59`
 and candidate wheel SHA-256
-`4b965fefa0eb51d6a7486eedd03ea2c9c093fa4015356c540a47bdd9db057f86`.
+`ebe64c31987b3c524ab8dcaf789c625bced01aa11df1aedce225630261847de0`.
 It is not an adopted framework release or runtime dependency.
 
-ADR-0058 pins this candidate after the ADR-0057 target run stopped before the
-second action with `selection / candidate_query_error`. The framework retains
-that terminal failure and adds only closed-set system fallback and candidate
-AXFrontmost error categories. Post-handoff cleanup may accept the original or
+ADR-0059 pins this candidate after the ADR-0058 target run classified the
+second action's pre-delivery error as `system_cannot_complete` followed by
+`candidate_cannot_complete` at selection. The only new behavior is a bounded
+increase of the exact-candidate AXFrontmost messaging timeout from 0.25 to
+1.0 seconds.
+Nonzero candidate AX results remain terminal, with no action retry or AppKit
+foreground substitute. Post-handoff cleanup may accept the original or
 exact successor AppKit executable only after a fresh process probe exactly
-matches the tracked successor; PID, bundle identifier,
-bundle path, and third-executable refusal remain unchanged. The second click
-and watcher startup still have no target evidence. The first target run with
-this pin failed before second-step delivery with closed-set
-`focus_stage=selection`, `focus_context=system_cannot_complete`, and
-`focus_detail=candidate_cannot_complete`; this is diagnostic evidence, not
-permission to retry or reinterpret the focus result.
+matches the tracked successor; PID, bundle identifier, bundle path, and
+third-executable refusal remain unchanged. The second click
+and watcher startup still have no target evidence. This exact candidate has
+passed only offline review and framework CI; it has not been target-tested.
 Framework 0.2 remains unadopted.
 
 ## Adopted artifact
