@@ -18,8 +18,11 @@ foreground substitute. Post-handoff cleanup may accept the original or
 exact successor AppKit executable only after a fresh process probe exactly
 matches the tracked successor; PID, bundle identifier, bundle path, and
 third-executable refusal remain unchanged. The second click
-and watcher startup still have no target evidence. This exact candidate has
-passed only offline review and framework CI; it has not been target-tested.
+and watcher startup still have no target evidence. A protected target run of
+this exact candidate repeated `system_cannot_complete` and
+`candidate_cannot_complete` at selection before second-action delivery,
+despite the one-second bound. This is failure evidence, not permission to
+retry or weaken foreground proof.
 Framework 0.2 remains unadopted.
 
 ## Adopted artifact

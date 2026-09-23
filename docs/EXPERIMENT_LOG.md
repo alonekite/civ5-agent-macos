@@ -2397,3 +2397,35 @@ do not undo the desired development configuration merely to add coverage.
 - Result: two-step v2 composition remains unverified. The precise closed-set
   frontmost-query classification is handed to the independent framework task
   for offline root-cause investigation. Neither authorization can be reused.
+
+## 2026-09-23 — One-second candidate AX timeout fails the same pre-delivery check
+
+- Scope: independently reviewed framework commit `d7a51aa`, exact wheel
+  SHA-256 `ebe64c31987b3c524ab8dcaf789c625bced01aa11df1aedce225630261847de0`,
+  protected FireTuner session, private SessionSpec v2, and read-only watcher
+  declared only after both UI steps. No game-state write was authorized.
+- An initial attempt ended before application launch with
+  `control_unavailable`, zero checkpoints, and zero UI actions. Its private
+  control-socket path was 105 bytes; a Unix socket path-length limit is the
+  likely cause, not established by a retained raw exception. A new short-path
+  session passed descriptor and ready-state checks; the failed session was not
+  resumed or given an authorization.
+- In the new session, each checkpoint received a fresh same-task nonce only
+  after its request. The framework completed one `PLAY` delivery and
+  `identity_handoff.completed`, then requested the continue checkpoint. After
+  its separate authorization, the next event was terminal `ui_identity_error`:
+  `focus_stage=selection`, `focus_context=system_cannot_complete`, and
+  `focus_detail=candidate_cannot_complete`. There was no second
+  `ui.action_delivery_started`, no continue click, no watcher startup, and no
+  game-state read.
+- The framework requested normal game exit but timed out after ten seconds.
+  A subsequent narrow process check found Civ V and watcher absent. Cleanup-
+  only recovery reached a terminal failed state; `restore` closed FireTuner,
+  and independent host-context `preflight hardened` confirmed firewall
+  enabled, Civ V incoming blocked, TCP 4318 closed, and watcher socket absent.
+  No force termination was used. Private checkpoint values, nonces, PIDs,
+  times, and local runtime paths remain outside this repository.
+- Result: raising only the exact-candidate AXFrontmost messaging timeout from
+  0.25 to 1.0 seconds did not resolve the target-observed error. It does not
+  prove a different timeout would help. The v2 end-to-end flow remains
+  unverified; framework-side root-cause analysis must remain fail-closed.

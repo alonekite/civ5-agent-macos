@@ -2325,6 +2325,21 @@ wheel/source builds, artifact scans, and clean-install gates.
   last live evidence; a future run needs fresh protected-host checks and
   one-use authorization for each step.
 
+## 2026-09-23 — One-second AX timeout target retest remains fail-closed
+
+- A fresh protected target run of pinned framework commit `d7a51aa`
+  completed separate one-use PLAY and continue checkpoints, automated PLAY,
+  and exact-PID handoff. The continue action failed before delivery with the
+  same `system_cannot_complete / candidate_cannot_complete` selection result
+  observed under the 0.25-second bound. No watcher or game-state read began.
+- One earlier pre-launch attempt with an overlong private runtime socket path
+  failed `control_unavailable` with zero UI actions and was not resumed. The
+  corrected short-path attempt was a new session with fresh authorizations.
+- After game exit, cleanup-only recovery reached a terminal failed state and
+  independent hardened preflight passed following FireTuner restoration.
+  The experiment log and verification matrix record the bounded result; the
+  next root-cause work belongs to the independent framework task.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

@@ -160,10 +160,12 @@ stage/detail/context classes; it does not retry or reinterpret the UI action.
 The previous pin's target run classified the repeat failure as
 `selection / candidate_query_error`. The ADR-0058 target run refined this
 to `selection / system_cannot_complete / candidate_cannot_complete`, still
-before the second delivery boundary. The current ADR-0059 timeout hypothesis
-has only offline and CI evidence. A new target run needs fresh host safety
-checks and two new same-task checkpoint authorizations; old answers cannot be
-reused.
+before the second delivery boundary. A target run of the ADR-0059 one-second
+timeout candidate repeated the same closed-set selection failure before
+delivery. Do not repeat this candidate merely by changing the operator
+timing; the framework task must first investigate the AX failure. Any later
+candidate needs fresh host safety checks and two new same-task checkpoint
+authorizations; old answers cannot be reused.
 
 This candidate bounds each accepted private control connection to 0.5 seconds.
 The bound releases a serialized control loop from an incomplete same-user

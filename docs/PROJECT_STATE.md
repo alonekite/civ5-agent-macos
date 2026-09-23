@@ -19,10 +19,10 @@ development log.
   boundary. ADR-0058 classified the system-wide and candidate AX errors
   without changing fail-closed behavior: its target run stopped at
   `selection / system_cannot_complete / candidate_cannot_complete`.
-  ADR-0059 increases only the exact-candidate AXFrontmost messaging timeout
-  from 0.25 to 1.0 seconds as an unproved, bounded hypothesis. It passed
-  independent offline review and framework CI but has no target run yet. No
-  continue click or watcher startup has been observed. The adapter adds no
+  ADR-0059 increased only the exact-candidate AXFrontmost messaging timeout
+  from 0.25 to 1.0 seconds. Its new target run failed at the same closed-set
+  pre-delivery AX error, so that bounded hypothesis did not resolve the issue.
+  No continue click or watcher startup has been observed. The adapter adds no
   game-state or write capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
@@ -44,9 +44,9 @@ development log.
   The observed `3.19` point difference remains recorded without normalization;
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
-- User presence required next: only for a fresh, explicitly authorized
-  target retest of the independently reviewed ADR-0059 timeout candidate.
-  Neither prior UI-step authorization can be reused.
+- User presence required next: not until the independent framework task
+  investigates the repeated candidate AX error and supplies a separately
+  reviewed change. Neither prior UI-step authorization can be reused.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -63,12 +63,12 @@ development log.
   post-request checkpoint/step/task/nonce gate remains mandatory for each UI
   action. Live evidence now confirms automated PLAY, exact-PID handoff, and
   second-checkpoint creation, but not the continue click or watcher startup.
-  The last target run's terminal focus-query failure is categorized as
+  The current candidate's target run terminal focus-query failure remains
   `system_cannot_complete / candidate_cannot_complete`. The framework
   requested normal game exit; the game later exited without force,
   cleanup-only recovery reached a terminal failed state, and independent host
-  preflight confirmed hardening. The current candidate has not been run on
-  the target. Framework 0.2 remains unadopted pending a complete target run.
+  preflight confirmed hardening. Framework 0.2 remains unadopted pending a
+  complete target run.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.
