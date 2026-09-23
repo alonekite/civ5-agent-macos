@@ -2387,10 +2387,15 @@ wheel/source builds, artifact scans, and clean-install gates.
   a distinct Chinese manual-completion challenge, and an opt-in active-turn
   read-only probe.
 - Offline host-context regression passed 388/388 on Python 3.11 and the
-  default runtime. The exact framework wheel passed ZIP/source-byte checks,
-  isolated install, and installed public-CLI validation of the generated
-  descriptor. Framework CI `35911563598` passed four macOS cells and the wheel
-  gate. No Civ V launch, UI action, FireTuner change, or target run occurred.
+  3.12/default runtimes. The exact framework wheel passed ZIP/source-byte
+  checks, isolated install, and installed public-CLI validation of both old
+  and new v2 descriptors. Framework CI `35911563598` passed four macOS cells
+  and the wheel gate. Core commit `7b80d20` passed GitHub Actions
+  `35913511046` on Python 3.11/3.13. Its exact-commit core wheel SHA-256
+  `b7742563ca8c432ce19fdb536c7ccc346414baff541c821a2c1310e7f993f055`
+  installed cleanly and generated a descriptor accepted by the installed
+  framework CLI. No Civ V launch, UI action, FireTuner change, or target run
+  occurred.
 - The contract, operations guide, risk register, verification matrix,
   changelog, and project dashboard record the provisional boundary. A user
   must later initiate one new protected session; manual completion and live

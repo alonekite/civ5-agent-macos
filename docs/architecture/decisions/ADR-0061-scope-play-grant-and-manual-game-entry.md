@@ -56,7 +56,9 @@ retrying PLAY or starting a second watcher.
   checked ZIP and changed source bytes, installed it, and validated a generated
   manual-gate descriptor through the installed public CLI. Core tests cover
   identity, ordering, grant binding/replay/expiry, manual confirmation, active
-  match probing, and old contracts.
+  match probing, and old contracts. Core commit `7b80d20` passes GitHub Actions
+  `35913511046` on Python 3.11/3.13, and its independently built wheel
+  installs and validates the generated descriptor through the framework CLI.
 - No target run of this new flow has occurred. This ADR does not adopt
   framework 0.2, authorize unattended startup, or change game-write authority.
 

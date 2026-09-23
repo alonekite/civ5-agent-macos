@@ -59,7 +59,10 @@ development log.
   wheel digest are pinned under ADR-0061. The wheel passed ZIP/source-byte
   checks, installed public-CLI validation of the generated manual-gate
   SessionSpec, and framework four-cell macOS CI/wheel gate `35911563598`.
-  Core host-context tests pass 388/388. Its manual gate and session-bound
+  Core host-context tests pass 388/388 on Python 3.11/3.12/default, and
+  commit `7b80d20` GitHub Actions `35913511046` passes Python 3.11/3.13.
+  The exact-commit core wheel installed cleanly and its generated descriptor
+  passed the installed framework CLI. The manual gate and session-bound
   PLAY grant have no target evidence; framework 0.2 remains unadopted.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
