@@ -2291,6 +2291,23 @@ wheel/source builds, artifact scans, and clean-install gates.
   The next investigation belongs to the independent framework task; no core
   runtime or public API change is justified by this observation.
 
+## 2026-09-23 — Classify second-step AX frontmost failure without delivery
+
+- Independently reviewed framework commit `04189d3` and its fixed wheel:
+  SHA-256, changed source bytes, ZIP integrity, offline clean installation,
+  generated SessionSpec v2 validation, and intact fail-closed semantics.
+  ADR-0058 advances only the provisional candidate pin and diagnostics; core
+  runtime and adopted framework v0.1.0 remain unchanged.
+- A fresh protected target run delivered one authorized PLAY, completed the
+  exact-PID handoff, and requested a separate second checkpoint. After a new
+  authorization, the second action stopped before delivery with closed-set
+  `system_cannot_complete / candidate_cannot_complete` at selection. No
+  continue click, watcher, or game-state read occurred. Cleanup-only recovery
+  and independent hardened host verification completed after game exit.
+- The experiment log, verification matrix, contract, and short project-state
+  dashboard preserve the bounded result. Framework-side root-cause work is
+  independent; no core API or game-write path changed.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

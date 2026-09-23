@@ -2367,3 +2367,33 @@ do not undo the desired development configuration merely to add coverage.
   remains unverified. This run provides a bounded framework-side focus-query
   diagnosis for offline investigation. Neither one-use authorization can be
   replayed. Private checkpoint values, PID, and runtime paths are omitted.
+
+## 2026-09-23 — Candidate AX frontmost failure classified before continue delivery
+
+- Scope: independently reviewed framework commit `04189d3`, exact wheel
+  SHA-256 `4b965fefa0eb51d6a7486eedd03ea2c9c093fa4015356c540a47bdd9db057f86`,
+  a private SessionSpec v2, protected FireTuner session, and watcher declared
+  read-only after both UI gates. No game-state write was authorized.
+- The first local attempt failed before app launch because the isolated
+  validation-only environment lacked macOS UI dependencies. It requested no
+  checkpoint and performed no UI action. A new session used an independently
+  installed exact-candidate wheel with the required UI dependencies.
+- The operator supplied a fresh same-task nonce after each checkpoint request.
+  `PLAY` was delivered once, and `identity_handoff.completed` preceded the
+  second checkpoint. The second authorization was accepted, but the next
+  event was terminal `ui_identity_error` with
+  `focus_stage=selection`, `focus_context=system_cannot_complete`, and
+  `focus_detail=candidate_cannot_complete`. There was no second
+  `ui.action_delivery_started`, no continue click, no watcher startup, and no
+  game-state read. The classification does not establish why AX could not
+  complete or justify a fallback or retry.
+- The framework's graceful-exit request timed out. A later narrow process
+  check found Civ V and watcher absent; cleanup-only recovery reached a
+  terminal failed state. `restore` disabled FireTuner, and independent
+  host-context `preflight hardened` confirmed firewall enabled, Civ V incoming
+  blocked, TCP 4318 closed, and watcher socket absent. No force termination
+  was used. Private checkpoints, nonces, PIDs, times, and runtime paths remain
+  outside the repository.
+- Result: two-step v2 composition remains unverified. The precise closed-set
+  frontmost-query classification is handed to the independent framework task
+  for offline root-cause investigation. Neither authorization can be reused.

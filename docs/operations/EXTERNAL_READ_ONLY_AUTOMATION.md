@@ -131,15 +131,16 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `192391eb30de35c99ad49a4e5e12434bcc2bd6fd` and wheel
+framework commit `04189d3a5da3c9597e391e290dbf97affb93a820` and wheel
 SHA-256
-`3ad709c60f7a375e75b88a2e13b23b3d6afc084bee71b584124a1b37907a2a5a`.
+`4b965fefa0eb51d6a7486eedd03ea2c9c093fa4015356c540a47bdd9db057f86`.
 Do not substitute it for the adopted v0.1.0 path in unattended or release
 workflows.
 
 This pin includes the post-handoff identity continuation reviewed in ADR-0055
 and the exact tracked-PID AppKit fallback reviewed in ADR-0056. ADR-0057 adds
-bounded failure-stage diagnostics and post-handoff cleanup reconciliation. The fallback
+bounded failure-stage diagnostics and post-handoff cleanup reconciliation;
+ADR-0058 refines only the closed-set AX failure categories. The fallback
 applies only when bundle enumeration is empty during the declared handoff; it
 does not affect initial launch, later UI delivery, or cleanup.
 The framework may retain the original AppKit executable URL only while the
@@ -154,8 +155,10 @@ and reached the second checkpoint. Its second action failed
 `focused_application_query` before `ui.action_delivery_started`; no click or
 watcher start occurred. Do not reuse either checkpoint response. The current
 candidate retains this error as terminal and reports only allowlisted focus
-stage/detail classes; it does not retry or reinterpret the UI action. Its first
-target run classified the repeat failure as `selection / candidate_query_error`
+stage/detail/context classes; it does not retry or reinterpret the UI action.
+The previous pin's target run classified the repeat failure as
+`selection / candidate_query_error`. The current diagnostic pin refined this
+to `selection / system_cannot_complete / candidate_cannot_complete`, still
 before the second delivery boundary. Do not repeat the operator-present run
 with this same candidate until the framework task evaluates that precise
 failure class.

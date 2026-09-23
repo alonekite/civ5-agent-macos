@@ -13,15 +13,16 @@ development log.
 - Active next deliverable: monitor downstream integration and route any next
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is pinned to the
-  independently reviewed framework candidate `192391e`. The latest target run
+  independently reviewed framework candidate `04189d3`. The latest target run
   confirmed automated `PLAY`, `identity_handoff.completed`, and the second
   checkpoint, but failed `focused_application_query` before the second delivery
-  boundary. The new candidate preserves that terminal behavior while adding
-  closed-set focus-stage/detail diagnostics and tightly scoped post-handoff
-  cleanup reconciliation. Its offline and CI gates pass. In the first target
-  run with this candidate, the second step again failed before delivery; the
-  new diagnosis was `selection / candidate_query_error`. No continue click or
-  watcher startup occurred. The adapter adds no game-state or write capability.
+  boundary. ADR-0057 added closed-set stage/detail diagnostics and cleanup
+  reconciliation; ADR-0058 further classified the system-wide and candidate
+  AX errors without changing fail-closed behavior. The first target run with
+  `04189d3` reached the second checkpoint, then stopped before delivery at
+  `selection / system_cannot_complete / candidate_cannot_complete`. No
+  continue click or watcher startup occurred. The adapter adds no game-state
+  or write capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
   verifies a protected idle phase, keeps per-test prepare/restore scoped to
@@ -43,7 +44,7 @@ development log.
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
 - User presence required next: not until the independent framework task
-  addresses the target-observed candidate frontmost-query error. Any later
+  evaluates the newly classified AX frontmost error. Any later
   target retest needs fresh same-task authorization for both UI steps.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
@@ -54,16 +55,18 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- The exact candidate framework commit `192391e` and wheel digest are pinned
-  under ADR-0057. Its fixed wheel passed independent offline installation and
-  public SessionSpec v2 validation, and the framework reports 137 tests plus
-  a passing four-cell macOS CI and wheel gate (`35802740842`). The one-use
+- The exact candidate framework commit `04189d3` and wheel digest are pinned
+  under ADR-0058. Its fixed wheel passed independent offline installation and
+  public SessionSpec v2 validation, and the framework reports 138 tests plus
+  a passing four-cell macOS CI and wheel gate (`35833990240`). The one-use
   post-request checkpoint/step/task/nonce gate remains mandatory for each UI
   action. Live evidence now confirms automated PLAY, exact-PID handoff, and
   second-checkpoint creation, but not the continue click or watcher startup.
-  After the terminal focus-query failure, the framework requested normal game
-  exit; the game later exited without force, cleanup-only recovery reached a
-  terminal failed state, and independent host preflight confirmed hardening.
+  The latest terminal focus-query failure is categorized as
+  `system_cannot_complete / candidate_cannot_complete`. The framework
+  requested normal game exit; the game later exited without force,
+  cleanup-only recovery reached a terminal failed state, and independent host
+  preflight confirmed hardening.
   Framework 0.2 remains unadopted pending a complete target run.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and

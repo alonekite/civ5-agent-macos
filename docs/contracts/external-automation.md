@@ -3,22 +3,23 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `192391eb30de35c99ad49a4e5e12434bcc2bd6fd`
+framework development commit `04189d3a5da3c9597e391e290dbf97affb93a820`
 and candidate wheel SHA-256
-`3ad709c60f7a375e75b88a2e13b23b3d6afc084bee71b584124a1b37907a2a5a`.
+`4b965fefa0eb51d6a7486eedd03ea2c9c093fa4015356c540a47bdd9db057f86`.
 It is not an adopted framework release or runtime dependency.
 
-ADR-0057 pins this candidate after the exact-PID handoff and second checkpoint
-passed on the target, but a `focused_application_query` error stopped the next
-action before delivery. The framework retains that terminal failure and adds
-only closed-set `focus_stage`/`focus_detail` diagnostics. Post-handoff cleanup
-may accept the original or exact successor AppKit executable only after a fresh
-process probe exactly matches the tracked successor; PID, bundle identifier,
+ADR-0058 pins this candidate after the ADR-0057 target run stopped before the
+second action with `selection / candidate_query_error`. The framework retains
+that terminal failure and adds only closed-set system fallback and candidate
+AXFrontmost error categories. Post-handoff cleanup may accept the original or
+exact successor AppKit executable only after a fresh process probe exactly
+matches the tracked successor; PID, bundle identifier,
 bundle path, and third-executable refusal remain unchanged. The second click
 and watcher startup still have no target evidence. The first target run with
 this pin failed before second-step delivery with closed-set
-`focus_stage=selection` and `focus_detail=candidate_query_error`; this is
-diagnostic evidence, not permission to retry or reinterpret the focus result.
+`focus_stage=selection`, `focus_context=system_cannot_complete`, and
+`focus_detail=candidate_cannot_complete`; this is diagnostic evidence, not
+permission to retry or reinterpret the focus result.
 Framework 0.2 remains unadopted.
 
 ## Adopted artifact
