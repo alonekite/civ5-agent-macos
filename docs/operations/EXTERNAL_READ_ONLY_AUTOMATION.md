@@ -131,19 +131,28 @@ C4 evidence.
 ## Candidate SessionSpec v2 launcher sequence
 
 The development `ui-session-spec` command is compatibility-tested only against
-framework commit `a722aac6dcd7854d5715bdf994115de6ed5c792d` and wheel
+framework commit `d531450ecebc3326d3b314e7a6b438678f29aa28` and wheel
 SHA-256
-`cca1d5b674864e261b9252b67808749e954014c38a8d79b7b2be78541ee357d3`.
+`738c561c0f1d651c0ddba6a12275e44264b1eacc2f5fef1b641266133fb66157`.
 Do not substitute it for the adopted v0.1.0 path in unattended or release
 workflows.
 
-This pin includes the post-handoff identity continuation reviewed in ADR-0055.
+This pin includes the post-handoff identity continuation reviewed in ADR-0055
+and the exact tracked-PID AppKit fallback reviewed in ADR-0056. The fallback
+applies only when bundle enumeration is empty during the declared handoff; it
+does not affect initial launch, later UI delivery, or cleanup.
 The framework may retain the original AppKit executable URL only while the
 process probe reports the exact declared successor with unchanged PID and
 creation time. The next UI step and watcher start must recheck that tracked
 successor. A completed PLAY action alone does not establish that the continue
 click or watcher has been verified on the target; use fresh checkpoints for
 both steps in the next operator-present run.
+
+The exact-PID candidate passed an operator-present `identity_handoff.completed`
+and reached the second checkpoint. Its second action failed
+`focused_application_query` before `ui.action_delivery_started`; no click or
+watcher start occurred. Do not reuse either checkpoint response or retry this
+candidate without a separately reviewed focus-query correction.
 
 This candidate bounds each accepted private control connection to 0.5 seconds.
 The bound releases a serialized control loop from an incomplete same-user

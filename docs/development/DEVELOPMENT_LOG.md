@@ -2247,6 +2247,30 @@ Documentation commit `551dbab` recorded the compatibility and evidence
 boundary. GitHub Actions run `35772634016` passed Python 3.11/3.13, repeatable
 wheel/source builds, artifact scans, and clean-install gates.
 
+## 2026-09-23 — Pin exact-PID framework fallback and bound live evidence
+
+- The earlier provisional v2 candidate timed out after gated PLAY. Framework
+  commit `84404c3` added a closed-set timeout reason; a target run classified
+  the handoff gap as `candidate_absent`, not a process-executable mismatch.
+- Framework commit `d531450` added an exact already-tracked-PID AppKit query
+  only when bundle enumeration is empty inside the declared handoff. ADR-0056
+  updates the provisional compatibility pin without adopting framework 0.2.
+  The fixed wheel digest, source-byte match, isolated installation, and public
+  SessionSpec v2 validation passed independent execution-layer review; the
+  framework task reports four-cell CI and wheel-gate success.
+- A fresh operator-present target run confirmed automated PLAY,
+  `identity_handoff.completed`, and second-checkpoint creation. A separate
+  second-step authorization failed `focused_application_query` before its UI
+  delivery boundary. No continue click, watcher startup, game-state read, or
+  write occurred. The saved event/resource audit could not prove whether the
+  cleanup `identity_changed` result arose from a fresh process mismatch or the
+  stale AppKit candidate. This evidence is recorded in the experiment log and
+  verification matrix without raw private artifacts.
+- The operator exited normally and the execution layer independently verified
+  the hardened idle host after FireTuner restoration. No core runtime change
+  was required by the successful handoff; the remaining focus-query and
+  cleanup issues belong to the independent framework task.
+
 ## Archive policy
 
 When this file becomes difficult to scan, move completed entries into

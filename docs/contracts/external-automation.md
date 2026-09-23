@@ -3,19 +3,21 @@
 Status: Adopted for `local-app-test-automation` v0.1.0
 
 Candidate extension: SessionSpec v2 compatibility is validated against exact
-framework development commit `a722aac6dcd7854d5715bdf994115de6ed5c792d`
+framework development commit `d531450ecebc3326d3b314e7a6b438678f29aa28`
 and candidate wheel SHA-256
-`cca1d5b674864e261b9252b67808749e954014c38a8d79b7b2be78541ee357d3`.
+`738c561c0f1d651c0ddba6a12275e44264b1eacc2f5fef1b641266133fb66157`.
 It is not an adopted framework release or runtime dependency.
 
-ADR-0055 pins this candidate after the prior target run completed the gated
-launcher press but timed out during the same-PID executable handoff. The
-candidate admits a stale AppKit launcher executable URL only when the process
-probe confirms the exact declared successor with unchanged PID and creation
-time, unique AppKit candidate, bundle identifier, and bundle path. The tracked
-successor identity is checked again before the next UI delivery and watcher
-start. A third executable, identity drift, or ambiguity fails closed. Neither
-the second click nor watcher startup has target evidence yet.
+ADR-0056 pins this candidate after a target run classified the handoff timeout
+as `candidate_absent`: the process probe saw the declared successor but AppKit
+bundle enumeration returned no candidate. Only inside the declared handoff,
+the framework may query AppKit for the already-tracked PID when that enumeration
+is empty. The unchanged PID, creation time, bundle identifier/path, old or
+declared successor AppKit executable, and exact process successor remain
+mandatory. A third executable, identity drift, or ambiguity fails closed.
+The exact-PID handoff and second checkpoint now have target evidence, but the
+second click and watcher startup do not: the next run failed a frontmost-query
+check before the second UI delivery boundary. Framework 0.2 remains unadopted.
 
 ## Adopted artifact
 

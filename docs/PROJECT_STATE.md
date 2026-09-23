@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-09-22.
+Last updated: 2026-09-23.
 
 This is the short durable handoff for current work. Detailed completed history
 belongs in module documents, milestones, the experiment log, and the
@@ -13,14 +13,18 @@ development log.
 - Active next deliverable: monitor downstream integration and route any next
   reusable fact or mechanic through the strategy-neutral capability-request
   process. The post-1.3 provisional SessionSpec v2 adapter is pinned to the
-  independently reviewed framework candidate `a722aac`. The previous live run
-  completed its one-use gated PLAY action and reached `Click to Continue`, but
-  the framework did not accept the same-PID executable handoff. The new
-  candidate carries the exact successor identity into the next UI step and
-  watcher start, while retaining bounded authorization and fail-closed recovery.
-  Its offline gate passes; a fresh operator-present target run is required to
-  verify the second click and watcher. The adapter adds no game-state or write
-  capability.
+  independently reviewed framework candidate `d531450`. The latest live run
+  completed its one-use gated PLAY action, but the framework timed out before
+  the second checkpoint with `candidate_absent`: its process probe observed the
+  declared successor while AppKit bundle enumeration returned no candidate.
+  The new candidate adds an exact already-tracked-PID AppKit query only inside
+  that declared handoff and retains the identity, authorization, and fail-closed
+  rules. Its offline and CI gates pass. A fresh operator-present target run
+  confirmed the automated `PLAY` action and `identity_handoff.completed`, then
+  requested a second checkpoint. After fresh authorization, the framework
+  failed `focused_application_query` before the second delivery boundary;
+  no continue click or watcher startup occurred. The adapter adds no game-state
+  or write capability.
 - Provisional persistent host hardening is complete offline at implementation
   commit `67dce37`. It records an exact private firewall/rule baseline,
   verifies a protected idle phase, keeps per-test prepare/restore scoped to
@@ -41,9 +45,9 @@ development log.
   The observed `3.19` point difference remains recorded without normalization;
   the action-window science change from `447.21` to `444.55` is a plausible
   cross-turn production explanation, not a proved formula.
-- User presence required next: yes. The candidate SessionSpec v2 target retest
-  requires the user at the Mac for fresh bounded authorization and visual
-  evidence.
+- User presence required next: yes, but not until the independent framework
+  addresses the pre-delivery focus-query failure. Any subsequent v2 target
+  retest requires fresh same-task authorization and visual evidence.
 - `civ5-watch --read-only` exposes the minimum server-enforced read surface for
   an independent external automation composition root; this repository does
   not own generic application lifecycle or test profiles.
@@ -53,16 +57,16 @@ development log.
 - `local-app-test-automation` v0.1.0 is the adopted optional supervisor,
   identity-pinned by release tag, tag commit, wheel name, and SHA-256. Its
   published wheel passed exact-boundary validation without a core dependency.
-- The exact candidate framework commit `a722aac` and wheel digest are pinned.
-  Separate wheel installations and public CLI validation passed, and framework
-  tests passed 130/130 with eight environment skips. GitHub Quality gate
-  `35771791299` passed. The one-use post-request checkpoint/step/task/nonce
-  gate remains mandatory for each UI action. Prior live evidence confirms
-  automated PLAY only; no second checkpoint, continue click, or watcher startup
-  has yet passed target verification. The last framework session retained
-  `recovery_required/cleanup_incomplete` after a manual game exit, while the
-  execution host independently returned to its hardened state. Framework 0.2
-  remains unadopted pending a fresh operator-present end-to-end run.
+- The exact candidate framework commit `d531450` and wheel digest are pinned
+  under ADR-0056. Its fixed wheel passed independent offline installation and
+  public SessionSpec v2 validation, and the framework reports 136 tests plus
+  a passing four-cell macOS CI and wheel gate (`35786865141`). The one-use
+  post-request checkpoint/step/task/nonce gate remains mandatory for each UI
+  action. Live evidence now confirms automated PLAY, exact-PID handoff, and
+  second-checkpoint creation, but not the continue click or watcher startup.
+  The failed session required a normal operator game exit, after which
+  independent host preflight confirmed the hardened state. Framework 0.2
+  remains unadopted pending a complete operator-present end-to-end run.
 - Canonical planning source: `docs/planning/MILESTONES.md`.
 - Canonical verification sources: `docs/testing/TEST_MATRIX.md` and
   `docs/EXPERIMENT_LOG.md`.

@@ -18,7 +18,7 @@ tests; discrepancies are defects that must be resolved explicitly.
 | [Turn plan and execution](turn-plan.md) | Schema 1 execution/recovery and bounded CLI implemented offline | controller/executor |
 | [Public Python API](public-api.md) | Stable 1.3 aggregate surface and error contract implemented | cross-module |
 | [CLI compatibility](cli.md) | `civ5-turn` stable since 1.0; other entry points provisional | cli |
-| [External automation compatibility](external-automation.md) | Framework v0.1.0/SessionSpec v1 adopted; repaired exact-commit SessionSpec v2 candidate offline validation in progress | cli/application boundary |
+| [External automation compatibility](external-automation.md) | Framework v0.1.0/SessionSpec v1 adopted; exact-commit SessionSpec v2 candidate passed handoff on target but second click remains unverified | cli/application boundary |
 | [Downstream tactical integration](downstream-integration.md) | Stable 1.3 capability and ownership profile | cross-module |
 
 ## Contract rules

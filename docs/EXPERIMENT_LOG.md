@@ -2284,3 +2284,56 @@ do not undo the desired development configuration merely to add coverage.
 - Result: the one-use authorization gate and automated PLAY delivery now have
   target evidence. The complete v2 flow remains unverified until the separate
   framework fixes and proves identity handoff and second-step continuation.
+
+## 2026-09-22 — Closed-set handoff diagnosis after gated PLAY
+
+- Scope: independent framework candidate `84404c3`, exact wheel digest
+  `dc3e9a8af74ccc150b76cbca8a2c4eec3ab69f77b1ea9f2b8f842f2303de0896`,
+  with a private SessionSpec v2, protected FireTuner session, and read-only
+  watcher declared only after both UI gates. No game-state write was authorized.
+- A fresh post-request one-use PLAY authorization produced one
+  `ui.action_completed`, then `identity_handoff.pending`. Five minutes later
+  the framework reported `ApplicationHandoffTimeoutError` with the closed-set
+  reason `candidate_absent`. In that timeout iteration, its process probe had
+  accepted the declared successor executable but AppKit bundle enumeration
+  had no candidate. There was no second checkpoint, continue click, or watcher.
+- Framework recovery remained incomplete. The operator exited Civ V normally;
+  the execution layer restored FireTuner and independently verified the
+  hardened idle state, including firewall/Civ V inbound blocking and closed
+  TCP 4318. Private session IDs, process IDs, and paths remain outside the
+  repository.
+- Result: this isolates an AppKit candidate-enumeration gap during the exact
+  handoff. It does not establish that a fallback is safe or successful on the
+  target; that requires a separate candidate and run.
+
+## 2026-09-23 — Exact-PID handoff passes; continue click stopped before delivery
+
+- Scope: framework candidate `d531450`, exact wheel digest
+  `738c561c0f1d651c0ddba6a12275e44264b1eacc2f5fef1b641266133fb66157`,
+  independently checked and installed in a private framework environment.
+  The execution core remained a separate wheel installation. The fresh
+  SessionSpec v2 retained two independent one-use UI gates and a server-enforced
+  read-only watcher. No game-state write was authorized.
+- Protected idle preflight passed before `prepare`; the ready state retained
+  macOS firewall and explicit Civ V inbound blocking. The operator authorized
+  the exact PLAY checkpoint after its request. Framework events recorded one
+  PLAY delivery and `identity_handoff.completed`, then requested the second
+  `click_game_continue` checkpoint.
+- After a separate fresh second-step authorization, the framework immediately
+  failed `ui_identity_error` with allowlisted reason
+  `focused_application_query`. There was no second
+  `ui.action_delivery_started`, so no continue click was attempted and the
+  watcher never started. The saved events do not distinguish the initial
+  frontmost query from the final pre-delivery frontmost revalidation.
+- Cleanup reported `identity_changed` and required recovery. The saved
+  resource record contains an old launcher AppKit candidate executable and
+  the accepted new game process executable, but no fresh stop-time process
+  snapshot or termination-branch trace. That record permits, but does not
+  prove, an AppKit candidate mismatch; the exact cleanup cause is unresolved.
+- The operator exited normally. A process check found no Civ V or watcher;
+  `restore` closed FireTuner, and independent `preflight hardened` passed with
+  firewall enabled, Civ V inbound blocked, TCP 4318 closed, and watcher socket
+  absent. No private checkpoint, PID, runtime path, or raw snapshot is committed.
+- Result: automated PLAY, same-process executable handoff, and second
+  checkpoint creation have target evidence. Continue click, watcher startup,
+  and complete v2 composition do not. Do not reuse either authorization.
